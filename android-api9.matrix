@@ -1,0 +1,950 @@
+<android.accessibilityservice.AccessibilityService: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.accessibilityservice.AccessibilityService: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.accessibilityservice.AccessibilityService: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.accessibilityservice.AccessibilityService: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accessibilityservice.AccessibilityService: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accessibilityservice.AccessibilityService: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accessibilityservice.AccessibilityService: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accessibilityservice.AccessibilityService: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.accounts.AccountAuthenticatorActivity: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.accounts.AccountAuthenticatorActivity: boolean moveTaskToBack(boolean)> MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: boolean onKeyDown(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.accounts.AccountAuthenticatorActivity: boolean onKeyUp(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.accounts.AccountAuthenticatorActivity: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.accounts.AccountAuthenticatorActivity: boolean startNextMatchingActivity(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.AccountAuthenticatorActivity: void finishActivityFromChild(android.app.Activity,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void finishActivity(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void finishFromChild(android.app.Activity)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.AccountAuthenticatorActivity: void finish()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.AccountAuthenticatorActivity: void onBackPressed()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.AccountAuthenticatorActivity: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void setPersistent(boolean)> PERSISTENT_ACTIVITY 
+<android.accounts.AccountAuthenticatorActivity: void setRequestedOrientation(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.accounts.AccountAuthenticatorActivity: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.AccountAuthenticatorActivity: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.AccountAuthenticatorActivity: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void startIntentSenderForResultInner(android.content.IntentSender,int,android.content.Intent,int,int,android.app.Activity)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void startIntentSenderFromChild(android.app.Activity,android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountAuthenticatorActivity: void startSearch(java.lang.String,boolean,android.os.Bundle,boolean)> GLOBAL_SEARCH 
+<android.accounts.AccountAuthenticatorActivity: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManager: android.accounts.Account[] getAccountsByType(java.lang.String)> GET_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.Account[] getAccounts()> GET_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture addAccount(java.lang.String,java.lang.String,java.lang.String[],android.os.Bundle,android.app.Activity,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture confirmCredentials(android.accounts.Account,android.os.Bundle,android.app.Activity,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture editProperties(java.lang.String,android.app.Activity,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture getAccountsByTypeAndFeatures(java.lang.String,java.lang.String[],android.accounts.AccountManagerCallback,android.os.Handler)> MANAGE_ACCOUNTS GET_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture getAuthToken(android.accounts.Account,java.lang.String,android.os.Bundle,android.app.Activity,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture getAuthToken(android.accounts.Account,java.lang.String,boolean,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture getAuthTokenByFeatures(java.lang.String,java.lang.String,java.lang.String[],android.app.Activity,android.os.Bundle,android.os.Bundle,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture hasFeatures(android.accounts.Account,java.lang.String[],android.accounts.AccountManagerCallback,android.os.Handler)> MANAGE_ACCOUNTS GET_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture removeAccount(android.accounts.Account,android.accounts.AccountManagerCallback,android.os.Handler)> MANAGE_ACCOUNTS GET_ACCOUNTS 
+<android.accounts.AccountManager: android.accounts.AccountManagerFuture updateCredentials(android.accounts.Account,java.lang.String,android.os.Bundle,android.app.Activity,android.accounts.AccountManagerCallback,android.os.Handler)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: boolean addAccountExplicitly(android.accounts.Account,java.lang.String,android.os.Bundle)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManager: java.lang.String blockingGetAuthToken(android.accounts.Account,java.lang.String,boolean)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: java.lang.String getPassword(android.accounts.Account)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManager: java.lang.String getUserData(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManager: java.lang.String peekAuthToken(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: android.accounts.Account[] getAccounts(java.lang.String)> GET_ACCOUNTS 
+<android.accounts.AccountManagerService: boolean addAccount(android.accounts.Account,java.lang.String,android.os.Bundle)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: boolean execTransact(int,int,int,int)> ACCESS_NETWORK_STATE BROADCAST_STICKY DUMP WRITE_SYNC_SETTINGS USE_CREDENTIALS SET_WALLPAPER_HINTS BLUETOOTH MANAGE_APP_TOKENS SET_WALLPAPER_COMPONENT READ_SYNC_STATS SET_WALLPAPER GET_ACCOUNTS READ_SYNC_SETTINGS MANAGE_ACCOUNTS BACKUP AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: boolean insertAccountIntoDatabase(android.accounts.Account,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: boolean onTransact(int,android.os.Parcel,android.os.Parcel,int)> ACCESS_NETWORK_STATE BROADCAST_STICKY DUMP USE_CREDENTIALS BLUETOOTH GET_ACCOUNTS MANAGE_ACCOUNTS BACKUP AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: java.lang.String getPassword(android.accounts.Account)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: java.lang.String getUserData(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: java.lang.String peekAuthToken(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: void addAcount(android.accounts.IAccountManagerResponse,java.lang.String,java.lang.String,java.lang.String[],boolean,android.os.Bundle)> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void cancelNotification(int)> STATUS_BAR VIBRATE 
+<android.accounts.AccountManagerService: void checkAuthenticateAccountsPermission(android.accounts.Account)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: void checkManageAccountsOrUseCredentialsPermissions()> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void checkManageAccountsPermission()> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void checkReadAccountsPermission()> GET_ACCOUNTS 
+<android.accounts.AccountManagerService: void clearPassword(android.accounts.Account)> MANAGE_ACCOUNTS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void confirmCredentials(android.accounts.IAccountManagerResponse,android.accounts.Account,android.os.Bundle,boolean)> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void createNoCredentialsPermissionNotification(android.accounts.Account,android.content.Intent)> STATUS_BAR VIBRATE 
+<android.accounts.AccountManagerService: void doNotification(android.accounts.Account,java.lang.CharSequence,android.content.Intent)> STATUS_BAR VIBRATE 
+<android.accounts.AccountManagerService: void dump(java.io.FileDescriptor,java.lang.String[])> ACCESS_NETWORK_STATE BACKUP DUMP BLUETOOTH 
+<android.accounts.AccountManagerService: void editProperties(android.accounts.IAccountManagerResponse,java.lang.String,boolean)> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void getAccountsByFeatures(android.accounts.IAccountManagerResponse,java.lang.String,java.lang.String[])> USE_CREDENTIALS MANAGE_ACCOUNTS GET_ACCOUNTS 
+<android.accounts.AccountManagerService: void getAuthToken(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String,boolean,boolean,android.os.Bundle)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void hasFeatures(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String[])> GET_ACCOUNTS 
+<android.accounts.AccountManagerService: void <init>(android.content.Context)> BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void invalidateAuthToken(java.lang.String,java.lang.String)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void onResult(android.accounts.IAccountManagerResponse,android.os.Bundle)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void onServiceChanged(android.accounts.AuthenticatorDescription,boolean)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void removeAccount(android.accounts.Account)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void removeAccount(android.accounts.IAccountManagerResponse,android.accounts.Account)> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void sendAccountsChangedBroadcast()> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void setAuthToken(android.accounts.Account,java.lang.String,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: void setPassword(android.accounts.Account,java.lang.String)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: void setPasswordInDB(android.accounts.Account,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManagerService: void setUserData(android.accounts.Account,java.lang.String,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManagerService: void updateCredentials(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String,boolean,android.os.Bundle)> MANAGE_ACCOUNTS 
+<android.accounts.AccountManagerService: void validateAccounts()> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManager: void addOnAccountsUpdatedListener(android.accounts.OnAccountsUpdateListener,android.os.Handler,boolean)> GET_ACCOUNTS 
+<android.accounts.AccountManager: void clearPassword(android.accounts.Account)> MANAGE_ACCOUNTS BROADCAST_STICKY 
+<android.accounts.AccountManager: void invalidateAuthToken(java.lang.String,java.lang.String)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.AccountManager: void removeOnAccountsUpdatedListener(android.accounts.OnAccountsUpdateListener)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.AccountManager: void setAuthToken(android.accounts.Account,java.lang.String,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManager: void setPassword(android.accounts.Account,java.lang.String)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.AccountManager: void setUserData(android.accounts.Account,java.lang.String,java.lang.String)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.accounts.GrantCredentialsPermissionActivity: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.accounts.GrantCredentialsPermissionActivity: boolean moveTaskToBack(boolean)> MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: boolean onKeyDown(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.accounts.GrantCredentialsPermissionActivity: boolean onKeyUp(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.accounts.GrantCredentialsPermissionActivity: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.accounts.GrantCredentialsPermissionActivity: boolean startNextMatchingActivity(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.GrantCredentialsPermissionActivity: void finishActivityFromChild(android.app.Activity,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void finishActivity(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void finishFromChild(android.app.Activity)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: void finish()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: void onBackPressed()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: void onClick(android.view.View)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: void onCreate(android.os.Bundle)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.accounts.GrantCredentialsPermissionActivity: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void setPersistent(boolean)> PERSISTENT_ACTIVITY 
+<android.accounts.GrantCredentialsPermissionActivity: void setRequestedOrientation(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.accounts.GrantCredentialsPermissionActivity: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.GrantCredentialsPermissionActivity: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.accounts.GrantCredentialsPermissionActivity: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void startIntentSenderForResultInner(android.content.IntentSender,int,android.content.Intent,int,int,android.app.Activity)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void startIntentSenderFromChild(android.app.Activity,android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.GrantCredentialsPermissionActivity: void startSearch(java.lang.String,boolean,android.os.Bundle,boolean)> GLOBAL_SEARCH 
+<android.accounts.GrantCredentialsPermissionActivity: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.accounts.IAccountManager$Stub$Proxy: android.accounts.Account[] getAccounts(java.lang.String)> GET_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: boolean addAccount(android.accounts.Account,java.lang.String,android.os.Bundle)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: java.lang.String getPassword(android.accounts.Account)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: java.lang.String getUserData(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: java.lang.String peekAuthToken(android.accounts.Account,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void addAcount(android.accounts.IAccountManagerResponse,java.lang.String,java.lang.String,java.lang.String[],boolean,android.os.Bundle)> MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void clearPassword(android.accounts.Account)> MANAGE_ACCOUNTS BROADCAST_STICKY 
+<android.accounts.IAccountManager$Stub$Proxy: void confirmCredentials(android.accounts.IAccountManagerResponse,android.accounts.Account,android.os.Bundle,boolean)> MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void editProperties(android.accounts.IAccountManagerResponse,java.lang.String,boolean)> MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void getAccountsByFeatures(android.accounts.IAccountManagerResponse,java.lang.String,java.lang.String[])> USE_CREDENTIALS MANAGE_ACCOUNTS GET_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void getAuthToken(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String,boolean,boolean,android.os.Bundle)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void hasFeatures(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String[])> GET_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void invalidateAuthToken(java.lang.String,java.lang.String)> USE_CREDENTIALS MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void removeAccount(android.accounts.IAccountManagerResponse,android.accounts.Account)> MANAGE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void setAuthToken(android.accounts.Account,java.lang.String,java.lang.String)> AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void setPassword(android.accounts.Account,java.lang.String)> BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void setUserData(android.accounts.Account,java.lang.String,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY AUTHENTICATE_ACCOUNTS 
+<android.accounts.IAccountManager$Stub$Proxy: void updateCredentials(android.accounts.IAccountManagerResponse,android.accounts.Account,java.lang.String,boolean,android.os.Bundle)> MANAGE_ACCOUNTS 
+<android.app.Activity: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.app.Activity: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.Activity: boolean moveTaskToBack(boolean)> MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.Activity: boolean onKeyDown(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.Activity: boolean onKeyUp(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.Activity: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.Activity: boolean startNextMatchingActivity(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.app.ActivityGroup: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.ActivityGroup: boolean moveTaskToBack(boolean)> MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.ActivityGroup: boolean onKeyDown(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.ActivityGroup: boolean onKeyUp(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.ActivityGroup: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.ActivityGroup: boolean startNextMatchingActivity(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ActivityGroup: void finishActivityFromChild(android.app.Activity,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.ActivityGroup: void finishActivity(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.ActivityGroup: void finishFromChild(android.app.Activity)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.ActivityGroup: void finish()> UPDATE_DEVICE_STATS USE_CREDENTIALS MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void onBackPressed()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.ActivityGroup: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void setPersistent(boolean)> PERSISTENT_ACTIVITY 
+<android.app.ActivityGroup: void setRequestedOrientation(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityGroup: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ActivityGroup: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ActivityGroup: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.app.ActivityGroup: void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void startIntentSenderForResultInner(android.content.IntentSender,int,android.content.Intent,int,int,android.app.Activity)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void startIntentSenderFromChild(android.app.Activity,android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityGroup: void startSearch(java.lang.String,boolean,android.os.Bundle,boolean)> GLOBAL_SEARCH 
+<android.app.ActivityGroup: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityManager: boolean clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> MANAGE_APP_TOKENS BROADCAST_STICKY CLEAR_APP_USER_DATA 
+<android.app.ActivityManager: java.util.List getRecentTasks(int,int)> GET_TASKS 
+<android.app.ActivityManager: java.util.List getRunningTasks(int)> GET_TASKS 
+<android.app.ActivityManagerNative: android.app.IActivityManager$ContentProviderHolder getContentProvider(android.app.IApplicationThread,java.lang.String)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: android.app.IActivityManager$WaitResult startActivityAndWait(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.net.Uri[],int,android.os.IBinder,java.lang.String,int,boolean,boolean)> SET_DEBUG_APP MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY CHANGE_CONFIGURATION 
+<android.app.ActivityManagerNative: android.content.ComponentName startService(android.app.IApplicationThread,android.content.Intent,java.lang.String)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.ActivityManagerNative: android.os.ParcelFileDescriptor openContentUri(android.net.Uri)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.ActivityManagerNative: boolean bindBackupAgent(android.content.pm.ApplicationInfo,int)> BROADCAST_STICKY MODIFY_PHONE_STATE CHANGE_CONFIGURATION MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK BACKUP 
+<android.app.ActivityManagerNative: boolean clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> CLEAR_APP_USER_DATA UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK BROADCAST_STICKY 
+<android.app.ActivityManagerNative: boolean finishActivity(android.os.IBinder,int,android.content.Intent)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.ActivityManagerNative: boolean handleApplicationWtf(android.os.IBinder,java.lang.String,android.app.ApplicationErrorReport$CrashInfo)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityManagerNative: boolean moveActivityTaskToBack(android.os.IBinder,boolean)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: boolean profileControl(java.lang.String,boolean,java.lang.String,android.os.ParcelFileDescriptor)> SET_ACTIVITY_WATCHER 
+<android.app.ActivityManagerNative: boolean shutdown(int)> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: boolean startInstrumentation(android.content.ComponentName,java.lang.String,int,android.os.Bundle,android.app.IInstrumentationWatcher)> BROADCAST_STICKY MODIFY_PHONE_STATE CHANGE_CONFIGURATION MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: boolean startNextMatchingActivity(android.os.IBinder,android.content.Intent)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: boolean stopServiceToken(android.content.ComponentName,android.os.IBinder,int)> MANAGE_APP_TOKENS 
+<android.app.ActivityManagerNative: int bindService(android.app.IApplicationThread,android.os.IBinder,android.content.Intent,java.lang.String,android.app.IServiceConnection,int)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: int broadcastIntent(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.content.IIntentReceiver,int,java.lang.String,android.os.Bundle,java.lang.String,boolean,boolean)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: int startActivityInPackage(int,android.content.Intent,java.lang.String,android.os.IBinder,java.lang.String,int,boolean)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: int startActivityIntentSender(android.app.IApplicationThread,android.content.IntentSender,android.content.Intent,java.lang.String,android.os.IBinder,java.lang.String,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: int startActivityWithConfig(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.net.Uri[],int,android.os.IBinder,java.lang.String,int,boolean,boolean,android.content.res.Configuration)> SET_DEBUG_APP MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY CHANGE_CONFIGURATION 
+<android.app.ActivityManagerNative: int stopService(android.app.IApplicationThread,android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS 
+<android.app.ActivityManagerNative: java.util.List getRecentTasks(int,int)> GET_TASKS 
+<android.app.ActivityManagerNative: java.util.List getTasks(int,int,android.app.IThumbnailReceiver)> GET_TASKS 
+<android.app.ActivityManagerNative: void activityDestroyed(android.os.IBinder)> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.ActivityManagerNative: void activityIdle(android.os.IBinder,android.content.res.Configuration)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void activityPaused(android.os.IBinder,android.os.Bundle)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void activityStopped(android.os.IBinder,android.graphics.Bitmap,java.lang.CharSequence)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void attachApplication(android.app.IApplicationThread)> BROADCAST_STICKY MODIFY_PHONE_STATE CHANGE_CONFIGURATION MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void broadcastStickyIntent(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityManagerNative: void closeSystemDialogs(java.lang.String)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void finishInstrumentation(android.app.IApplicationThread,int,android.os.Bundle)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void finishOtherInstances(android.os.IBinder,android.content.ComponentName)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void finishReceiver(android.os.IBinder,int,java.lang.String,android.os.Bundle,boolean)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void finishSubActivity(android.os.IBinder,java.lang.String,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void forceStopPackage(java.lang.String)> BROADCAST_STICKY FORCE_STOP_PACKAGES UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK 
+<android.app.ActivityManagerNative: void goingToSleep()> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.ActivityManagerNative: void handleApplicationCrash(android.os.IBinder,android.app.ApplicationErrorReport$CrashInfo)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ActivityManagerNative: void killBackgroundProcesses(java.lang.String)> BROADCAST_STICKY RESTART_PACKAGES KILL_BACKGROUND_PROCESSES BLUETOOTH_ADMIN BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN 
+<android.app.ActivityManagerNative: void killBackgroundProcesses(java.lang.String)> KILL_BACKGROUND_PROCESSES RESTART_PACKAGES 
+<android.app.ActivityManagerNative: void moveTaskBackwards(int)> REORDER_TASKS 
+<android.app.ActivityManagerNative: void moveTaskToBack(int)> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS REORDER_TASKS WAKE_LOCK 
+<android.app.ActivityManagerNative: void moveTaskToFront(int)> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS REORDER_TASKS WAKE_LOCK 
+<android.app.ActivityManagerNative: void noteWakeupAlarm(android.app.PendingIntent)> UPDATE_DEVICE_STATS 
+<android.app.ActivityManagerNative: void noteWakeupAlarm(android.content.IIntentSender)> UPDATE_DEVICE_STATS 
+<android.app.ActivityManagerNative: void publishService(android.os.IBinder,android.content.Intent,android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.app.ActivityManagerNative: void resumeAppSwitches()> STOP_APP_SWITCHES 
+<android.app.ActivityManagerNative: void setActivityController(android.app.IActivityController)> SET_ACTIVITY_WATCHER 
+<android.app.ActivityManagerNative: void setAlwaysFinish(boolean)> SET_ALWAYS_FINISH 
+<android.app.ActivityManagerNative: void setDebugApp(java.lang.String,boolean,boolean)> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER SET_DEBUG_APP MANAGE_APP_TOKENS WAKE_LOCK 
+<android.app.ActivityManagerNative: void setPersistent(android.os.IBinder,boolean)> PERSISTENT_ACTIVITY 
+<android.app.ActivityManagerNative: void setProcessForeground(android.os.IBinder,int,boolean)> SET_PROCESS_LIMIT 
+<android.app.ActivityManagerNative: void setProcessLimit(int)> SET_PROCESS_LIMIT 
+<android.app.ActivityManagerNative: void setRequestedOrientation(android.os.IBinder,int)> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void signalPersistentProcesses(int)> SIGNAL_PERSISTENT_PROCESSES 
+<android.app.ActivityManagerNative: void startRunning(java.lang.String,java.lang.String,java.lang.String,java.lang.String)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void stopAppSwitches()> STOP_APP_SWITCHES 
+<android.app.ActivityManagerNative: void unbroadcastIntent(android.app.IApplicationThread,android.content.Intent)> BROADCAST_STICKY 
+<android.app.ActivityManagerNative: void unhandledBack()> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK FORCE_BACK 
+<android.app.ActivityManagerNative: void unregisterReceiver(android.content.IIntentReceiver)> BROADCAST_STICKY MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManagerNative: void updateConfiguration(android.content.res.Configuration)> BROADCAST_STICKY CHANGE_CONFIGURATION UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK 
+<android.app.ActivityManagerNative: void wakingUp()> BROADCAST_STICKY UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN BLUETOOTH MANAGE_APP_TOKENS SHUTDOWN WAKE_LOCK 
+<android.app.ActivityManager: void forceStopPackage(java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY FORCE_STOP_PACKAGES 
+<android.app.ActivityManager: void killBackgroundProcesses(java.lang.String)> KILL_BACKGROUND_PROCESSES MANAGE_APP_TOKENS BROADCAST_STICKY RESTART_PACKAGES 
+<android.app.ActivityManager: void restartPackage(java.lang.String)> KILL_BACKGROUND_PROCESSES MANAGE_APP_TOKENS RESTART_PACKAGES 
+<android.app.Activity: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Activity: void finishActivityFromChild(android.app.Activity,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.Activity: void finishActivity(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.Activity: void finishFromChild(android.app.Activity)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.Activity: void finish()> UPDATE_DEVICE_STATS USE_CREDENTIALS MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void finish()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.Activity: void onBackPressed()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.Activity: void onCreate(android.os.Bundle)> MANAGE_APP_TOKENS 
+<android.app.Activity: void onCreate(android.os.Bundle)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.Activity: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.Activity: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void setPersistent(boolean)> PERSISTENT_ACTIVITY 
+<android.app.Activity: void setRequestedOrientation(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.Activity: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Activity: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Activity: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.app.Activity: void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void startIntentSenderForResultInner(android.content.IntentSender,int,android.content.Intent,int,int,android.app.Activity)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void startIntentSenderFromChild(android.app.Activity,android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Activity: void startSearch(java.lang.String,boolean,android.os.Bundle,boolean)> GLOBAL_SEARCH 
+<android.app.Activity: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AlarmManager: void setTime(long)> SET_TIME 
+<android.app.AlarmManager: void setTimeZone(java.lang.String)> MANAGE_APP_TOKENS SET_TIME_ZONE BROADCAST_STICKY 
+<android.app.AliasActivity: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.app.AliasActivity: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.AliasActivity: boolean moveTaskToBack(boolean)> MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.AliasActivity: boolean onKeyDown(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.AliasActivity: boolean onKeyUp(int,android.view.KeyEvent)> USE_CREDENTIALS MANAGE_APP_TOKENS 
+<android.app.AliasActivity: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.AliasActivity: boolean startNextMatchingActivity(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.AliasActivity: void finishActivityFromChild(android.app.Activity,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.AliasActivity: void finishActivity(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.AliasActivity: void finishFromChild(android.app.Activity)> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.AliasActivity: void finish()> UPDATE_DEVICE_STATS USE_CREDENTIALS MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void onBackPressed()> USE_CREDENTIALS MANAGE_APP_TOKENS MANAGE_ACCOUNTS 
+<android.app.AliasActivity: void onCreate(android.os.Bundle)> MANAGE_APP_TOKENS 
+<android.app.AliasActivity: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.AliasActivity: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void setPersistent(boolean)> PERSISTENT_ACTIVITY 
+<android.app.AliasActivity: void setRequestedOrientation(int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY WAKE_LOCK 
+<android.app.AliasActivity: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.AliasActivity: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.AliasActivity: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.app.AliasActivity: void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void startIntentSenderForResultInner(android.content.IntentSender,int,android.content.Intent,int,int,android.app.Activity)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void startIntentSenderFromChild(android.app.Activity,android.content.IntentSender,int,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.AliasActivity: void startSearch(java.lang.String,boolean,android.os.Bundle,boolean)> GLOBAL_SEARCH 
+<android.app.AliasActivity: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.app.Application: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.Application: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.Application: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Application: void onConfigurationChanged(android.content.res.Configuration)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.app.Application: void onCreate()> ACCESS_NETWORK_STATE BROADCAST_STICKY MODIFY_PHONE_STATE CHANGE_CONFIGURATION MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS ACCESS_COARSE_LOCATION MANAGE_APP_TOKENS STATUS_BAR SHUTDOWN WAKE_LOCK MODIFY_AUDIO_SETTINGS READ_PHONE_STATE 
+<android.app.Application: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.Application: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Application: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.Application: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.app.Application: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.Application: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
+<android.app.backup.BackupAgentHelper: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.backup.BackupAgentHelper: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
+<android.app.backup.BackupAgentHelper: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.backup.BackupAgentHelper: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendOrderedBroadcast(android.content.Intent,java.lang.String,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendOrderedBroadcast(android.content.Intent,java.lang.String)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendStickyBroadcast(android.content.Intent)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void sendStickyOrderedBroadcast(android.content.Intent,android.content.BroadcastReceiver,android.os.Handler,int,java.lang.String,android.os.Bundle)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.backup.BackupAgentHelper: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.backup.BackupAgentHelper: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.backup.BackupAgentHelper: void unregisterReceiver(android.content.BroadcastReceiver)> MANAGE_APP_TOKENS BROADCAST_STICKY 
+<android.app.ContextImpl$ApplicationContentResolver: android.content.SyncInfo getCurrentSync()> READ_SYNC_STATS 
+<android.app.ContextImpl$ApplicationContentResolver: android.content.SyncStatusInfo getSyncStatus(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.app.ContextImpl$ApplicationContentResolver: boolean getMasterSyncAutomatically()> READ_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: boolean getSyncAutomatically(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: boolean isSyncActive(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.app.ContextImpl$ApplicationContentResolver: boolean isSyncPending(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.app.ContextImpl$ApplicationContentResolver: int getIsSyncable(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: java.util.List getPeriodicSyncs(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: void addPeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle,long)> WRITE_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: void cancelSync(android.net.Uri)> GET_ACCOUNTS 
+<android.app.ContextImpl$ApplicationContentResolver: void removePeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle)> WRITE_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: void setIsSyncable(android.accounts.Account,java.lang.String,int)> WRITE_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationContentResolver: void setMasterSyncAutomatically(boolean)> WRITE_SYNC_SETTINGS BROADCAST_STICKY 
+<android.app.ContextImpl$ApplicationContentResolver: void setSyncAutomatically(android.accounts.Account,java.lang.String,boolean)> WRITE_SYNC_SETTINGS 
+<android.app.ContextImpl$ApplicationPackageManager: void addPreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.app.ContextImpl$ApplicationPackageManager: void clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> CLEAR_APP_USER_DATA 
+<android.app.ContextImpl$ApplicationPackageManager: void clearPackagePreferredActivities(java.lang.String)> SET_PREFERRED_APPLICATIONS 
+<android.app.ContextImpl$ApplicationPackageManager: void deleteApplicationCacheFiles(java.lang.String,android.content.pm.IPackageDataObserver)> DELETE_CACHE_FILES 
+<android.app.ContextImpl$ApplicationPackageManager: void deletePackage(java.lang.String,android.content.pm.IPackageDeleteObserver,int)> DELETE_PACKAGES 
+<android.app.ContextImpl$ApplicationPackageManager: void freeStorageAndNotify(long,android.content.pm.IPackageDataObserver)> CLEAR_APP_CACHE 
+<android.app.ContextImpl$ApplicationPackageManager: void freeStorage(long,android.content.IntentSender)> CLEAR_APP_CACHE 
+<android.app.ContextImpl$ApplicationPackageManager: void getPackageSizeInfo(java.lang.String,android.content.pm.IPackageStatsObserver)> GET_PACKAGE_SIZE 
+<android.app.ContextImpl$ApplicationPackageManager: void installPackage(android.net.Uri,android.content.pm.IPackageInstallObserver,int,java.lang.String)> INSTALL_PACKAGES 
+<android.app.ContextImpl$ApplicationPackageManager: void movePackage(java.lang.String,android.content.pm.IPackageMoveObserver,int)> MOVE_PACKAGE 
+<android.app.ContextImpl$ApplicationPackageManager: void replacePreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.app.ContextImpl$ApplicationPackageManager: void setApplicationEnabledSetting(java.lang.String,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.app.ContextImpl$ApplicationPackageManager: void setComponentEnabledSetting(android.content.ComponentName,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.app.ContextImpl: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
+<android.app.ContextImpl: void clearWallpaper()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ContextImpl: void performFinalCleanup(java.lang.String,java.lang.String)> MANAGE_APP_TOKENS 
+<android.app.ContextImpl: void removeStickyBroadcast(android.content.Intent)> BROADCAST_STICKY 
+<android.app.ContextImpl: void setWallpaper(android.graphics.Bitmap)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ContextImpl: void setWallpaper(java.io.InputStream)> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.ContextImpl: void startIntentSender(android.content.IntentSender,android.content.Intent,int,int,int)> MANAGE_APP_TOKENS 
+<android.app.IActivityManager: android.app.IActivityManager$WaitResult startActivityAndWait(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.net.Uri[],int,android.os.IBinder,java.lang.String,int,boolean,boolean)> CHANGE_CONFIGURATION 
+<android.app.IActivityManager: boolean bindBackupAgent(android.content.pm.ApplicationInfo,int)> BACKUP 
+<android.app.IActivityManager: boolean clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> BROADCAST_STICKY CLEAR_APP_USER_DATA 
+<android.app.IActivityManager: boolean handleApplicationWtf(android.os.IBinder,java.lang.String,android.app.ApplicationErrorReport$CrashInfo)> MANAGE_APP_TOKENS 
+<android.app.IActivityManager: boolean moveActivityTaskToBack(android.os.IBinder,boolean)> MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.IActivityManager: boolean profileControl(java.lang.String,boolean,java.lang.String,android.os.ParcelFileDescriptor)> SET_ACTIVITY_WATCHER 
+<android.app.IActivityManager: boolean shutdown(int)> MANAGE_APP_TOKENS SHUTDOWN 
+<android.app.IActivityManager: boolean shutdown(int)> SHUTDOWN 
+<android.app.IActivityManager: int broadcastIntent(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.content.IIntentReceiver,int,java.lang.String,android.os.Bundle,java.lang.String,boolean,boolean)> BROADCAST_STICKY 
+<android.app.IActivityManager: int startActivityIntentSender(android.app.IApplicationThread,android.content.IntentSender,android.content.Intent,java.lang.String,android.os.IBinder,java.lang.String,int,int,int)> WAKE_LOCK 
+<android.app.IActivityManager: int startActivityWithConfig(android.app.IApplicationThread,android.content.Intent,java.lang.String,android.net.Uri[],int,android.os.IBinder,java.lang.String,int,boolean,boolean,android.content.res.Configuration)> CHANGE_CONFIGURATION 
+<android.app.IActivityManager: java.util.List getRecentTasks(int,int)> GET_TASKS 
+<android.app.IActivityManager: java.util.List getTasks(int,int,android.app.IThumbnailReceiver)> GET_TASKS 
+<android.app.IActivityManager: void activityDestroyed(android.os.IBinder)> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.IActivityManager: void activityIdle(android.os.IBinder,android.content.res.Configuration)> MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.IActivityManager: void activityPaused(android.os.IBinder,android.os.Bundle)> MANAGE_APP_TOKENS 
+<android.app.IActivityManager: void activityStopped(android.os.IBinder,android.graphics.Bitmap,java.lang.CharSequence)> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.IActivityManager: void closeSystemDialogs(java.lang.String)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER BROADCAST_STICKY 
+<android.app.IActivityManager: void finishOtherInstances(android.os.IBinder,android.content.ComponentName)> MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.IActivityManager: void finishSubActivity(android.os.IBinder,java.lang.String,int)> MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.IActivityManager: void forceStopPackage(java.lang.String)> FORCE_STOP_PACKAGES 
+<android.app.IActivityManager: void goingToSleep()> MANAGE_APP_TOKENS 
+<android.app.IActivityManager: void killBackgroundProcesses(java.lang.String)> KILL_BACKGROUND_PROCESSES RESTART_PACKAGES 
+<android.app.IActivityManager: void moveTaskBackwards(int)> REORDER_TASKS 
+<android.app.IActivityManager: void moveTaskToBack(int)> MANAGE_APP_TOKENS DEVICE_POWER REORDER_TASKS 
+<android.app.IActivityManager: void moveTaskToFront(int)> MANAGE_APP_TOKENS DEVICE_POWER REORDER_TASKS 
+<android.app.IActivityManager: void noteWakeupAlarm(android.content.IIntentSender)> UPDATE_DEVICE_STATS 
+<android.app.IActivityManager: void resumeAppSwitches()> STOP_APP_SWITCHES 
+<android.app.IActivityManager: void setActivityController(android.app.IActivityController)> SET_ACTIVITY_WATCHER 
+<android.app.IActivityManager: void setAlwaysFinish(boolean)> SET_ALWAYS_FINISH 
+<android.app.IActivityManager: void setDebugApp(java.lang.String,boolean,boolean)> SET_DEBUG_APP 
+<android.app.IActivityManager: void setPersistent(android.os.IBinder,boolean)> PERSISTENT_ACTIVITY 
+<android.app.IActivityManager: void setProcessForeground(android.os.IBinder,int,boolean)> SET_PROCESS_LIMIT 
+<android.app.IActivityManager: void setProcessLimit(int)> SET_PROCESS_LIMIT 
+<android.app.IActivityManager: void setRequestedOrientation(android.os.IBinder,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.IActivityManager: void signalPersistentProcesses(int)> SIGNAL_PERSISTENT_PROCESSES 
+<android.app.IActivityManager: void stopAppSwitches()> STOP_APP_SWITCHES 
+<android.app.IActivityManager: void unbroadcastIntent(android.app.IApplicationThread,android.content.Intent)> BROADCAST_STICKY 
+<android.app.IActivityManager: void unhandledBack()> MANAGE_APP_TOKENS DEVICE_POWER FORCE_BACK 
+<android.app.IActivityManager: void updateConfiguration(android.content.res.Configuration)> CHANGE_CONFIGURATION MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.IActivityManager: void wakingUp()> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<android.app.IAlarmManager$Stub$Proxy: void setTime(long)> SET_TIME 
+<android.app.IAlarmManager$Stub$Proxy: void setTimeZone(java.lang.String)> SET_TIME_ZONE 
+<android.app.Instrumentation: boolean invokeContextMenuAction(android.app.Activity,int,int)> INJECT_EVENTS 
+<android.app.Instrumentation: void callApplicationOnCreate(android.app.Application)> MODIFY_PHONE_STATE UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH ACCESS_COARSE_LOCATION SHUTDOWN WAKE_LOCK MODIFY_AUDIO_SETTINGS READ_PHONE_STATE 
+<android.app.Instrumentation: void sendCharacterSync(int)> INJECT_EVENTS 
+<android.app.Instrumentation: void sendKeyDownUpSync(int)> INJECT_EVENTS 
+<android.app.Instrumentation: void sendKeySync(android.view.KeyEvent)> INJECT_EVENTS DEVICE_POWER 
+<android.app.Instrumentation: void sendPointerSync(android.view.MotionEvent)> INJECT_EVENTS DEVICE_POWER 
+<android.app.Instrumentation: void sendStringSync(java.lang.String)> INJECT_EVENTS 
+<android.app.Instrumentation: void sendTrackballEventSync(android.view.MotionEvent)> INJECT_EVENTS DEVICE_POWER 
+<android.app.Instrumentation: void start()> GLOBAL_SEARCH MODIFY_PHONE_STATE MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS SHUTDOWN WAKE_LOCK MODIFY_AUDIO_SETTINGS 
+<android.app.IWallpaperManager$Stub$Proxy: android.os.ParcelFileDescriptor setWallpaper(java.lang.String)> MANAGE_APP_TOKENS DEVICE_POWER SET_WALLPAPER 
+<android.app.IWallpaperManager$Stub$Proxy: void clearWallpaper()> MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.IWallpaperManager$Stub$Proxy: void setDimensionHints(int,int)> SET_WALLPAPER_HINTS 
+<android.app.IWallpaperManager$Stub$Proxy: void setWallpaperComponent(android.content.ComponentName)> SET_WALLPAPER_COMPONENT MANAGE_APP_TOKENS DEVICE_POWER 
+<android.app.KeyguardManager$KeyguardLock: void disableKeyguard()> DISABLE_KEYGUARD 
+<android.app.KeyguardManager$KeyguardLock: void reenableKeyguard()> DISABLE_KEYGUARD 
+<android.app.KeyguardManager: void exitKeyguardSecurely(android.app.KeyguardManager$OnKeyguardExitResult)> DISABLE_KEYGUARD 
+<android.app.NotificationManager: void cancelAll()> STATUS_BAR VIBRATE 
+<android.app.NotificationManager: void cancel(int)> STATUS_BAR VIBRATE 
+<android.app.NotificationManager: void cancel(java.lang.String,int)> STATUS_BAR VIBRATE 
+<android.app.NotificationManager: void notify(int,android.app.Notification)> STATUS_BAR VIBRATE 
+<android.app.NotificationManager: void notify(java.lang.String,int,android.app.Notification)> STATUS_BAR VIBRATE WAKE_LOCK 
+<android.app.StatusBarManager: android.os.IBinder addIcon(java.lang.String,int,int)> STATUS_BAR 
+<android.app.StatusBarManager: void collapse()> EXPAND_STATUS_BAR 
+<android.app.StatusBarManager: void disable(int)> STATUS_BAR VIBRATE WAKE_LOCK 
+<android.app.StatusBarManager: void expand()> EXPAND_STATUS_BAR 
+<android.app.StatusBarManager: void removeIcon(android.os.IBinder)> STATUS_BAR 
+<android.app.StatusBarManager: void toggle()> EXPAND_STATUS_BAR 
+<android.app.StatusBarManager: void updateIcon(android.os.IBinder,java.lang.String,int,int)> STATUS_BAR 
+<android.app.WallpaperManager: void clear()> MANAGE_APP_TOKENS SET_WALLPAPER 
+<android.app.WallpaperManager: void clearWallpaperOffsets(android.os.IBinder)> DEVICE_POWER WAKE_LOCK 
+<android.app.WallpaperManager: void setBitmap(android.graphics.Bitmap)> MANAGE_APP_TOKENS DEVICE_POWER SET_WALLPAPER 
+<android.app.WallpaperManager: void setResource(int)> MANAGE_APP_TOKENS DEVICE_POWER SET_WALLPAPER 
+<android.app.WallpaperManager: void setStream(java.io.InputStream)> MANAGE_APP_TOKENS DEVICE_POWER SET_WALLPAPER 
+<android.app.WallpaperManager: void setWallpaperOffsets(android.os.IBinder,float,float)> DEVICE_POWER WAKE_LOCK 
+<android.app.WallpaperManager: void suggestDesiredDimensions(int,int)> SET_WALLPAPER_HINTS 
+<android.appwidget.AppWidgetManager: android.appwidget.AppWidgetProviderInfo getAppWidgetInfo(int)> BIND_APPWIDGET 
+<android.appwidget.AppWidgetManager: void bindAppWidgetId(int,android.content.ComponentName)> BIND_APPWIDGET 
+<android.appwidget.AppWidgetManager: void updateAppWidget(int,android.widget.RemoteViews)> BIND_APPWIDGET 
+<android.appwidget.AppWidgetManager: void updateAppWidget(int[],android.widget.RemoteViews)> BIND_APPWIDGET 
+<android.bluetooth.HeadsetBase: void acquireWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.HeadsetBase: void finalize()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.HeadsetBase: void handleInput(java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.HeadsetBase: void <init>(android.os.PowerManager,android.bluetooth.BluetoothAdapter,android.bluetooth.BluetoothDevice,int,int,android.os.Handler)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.HeadsetBase: void releaseWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.HeadsetBase: void startEventThread()> MODIFY_PHONE_STATE MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS SHUTDOWN WAKE_LOCK MODIFY_AUDIO_SETTINGS 
+<android.bluetooth.ScoSocket: boolean connect(java.lang.String,java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void acquireWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void close()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void finalize()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void <init>(android.os.PowerManager,android.os.Handler,int,int,int)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void onClosed()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void onConnected(int)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void releaseWakeLockNow()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.bluetooth.ScoSocket: void releaseWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.content.ContentResolver: android.content.SyncInfo getCurrentSync()> READ_SYNC_STATS 
+<android.content.ContentResolver: android.content.SyncStatusInfo getSyncStatus(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentResolver: boolean getMasterSyncAutomatically()> READ_SYNC_SETTINGS 
+<android.content.ContentResolver: boolean getSyncAutomatically(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentResolver: boolean isSyncActive(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentResolver: boolean isSyncPending(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentResolver: int getIsSyncable(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentResolver: java.util.List getPeriodicSyncs(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentResolver: void addPeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle,long)> WRITE_SYNC_SETTINGS 
+<android.content.ContentResolver: void removePeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle)> WRITE_SYNC_SETTINGS 
+<android.content.ContentResolver: void setIsSyncable(android.accounts.Account,java.lang.String,int)> WRITE_SYNC_SETTINGS 
+<android.content.ContentResolver: void setMasterSyncAutomatically(boolean)> WRITE_SYNC_SETTINGS 
+<android.content.ContentResolver: void setSyncAutomatically(android.accounts.Account,java.lang.String,boolean)> WRITE_SYNC_SETTINGS 
+<android.content.ContentService: android.content.SyncInfo getCurrentSync()> READ_SYNC_STATS 
+<android.content.ContentService: android.content.SyncManager getSyncManager()> GET_ACCOUNTS WAKE_LOCK 
+<android.content.ContentService: android.content.SyncStatusInfo getSyncStatus(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentService: boolean execTransact(int,int,int,int)> ACCESS_NETWORK_STATE DUMP WRITE_SYNC_SETTINGS BLUETOOTH MANAGE_APP_TOKENS SET_WALLPAPER_COMPONENT READ_SYNC_STATS SET_WALLPAPER SET_WALLPAPER_HINTS READ_SYNC_SETTINGS BACKUP 
+<android.content.ContentService: boolean getMasterSyncAutomatically()> READ_SYNC_SETTINGS 
+<android.content.ContentService: boolean getSyncAutomatically(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentService: boolean isSyncActive(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentService: boolean isSyncPending(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.ContentService: boolean onTransact(int,android.os.Parcel,android.os.Parcel,int)> ACCESS_NETWORK_STATE DUMP WRITE_SYNC_SETTINGS BLUETOOTH READ_SYNC_STATS READ_SYNC_SETTINGS BACKUP 
+<android.content.ContentService: int getIsSyncable(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentService: java.util.List getPeriodicSyncs(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.ContentService: void addPeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle,long)> WRITE_SYNC_SETTINGS 
+<android.content.ContentService: void dump(java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[])> DUMP 
+<android.content.ContentService: void dump(java.io.FileDescriptor,java.lang.String[])> ACCESS_NETWORK_STATE BACKUP DUMP BLUETOOTH 
+<android.content.ContentService: void removePeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle)> WRITE_SYNC_SETTINGS 
+<android.content.ContentService: void setIsSyncable(android.accounts.Account,java.lang.String,int)> WRITE_SYNC_SETTINGS 
+<android.content.ContentService: void setMasterSyncAutomatically(boolean)> WRITE_SYNC_SETTINGS 
+<android.content.ContentService: void setSyncAutomatically(android.accounts.Account,java.lang.String,boolean)> WRITE_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: android.content.SyncInfo getCurrentSync()> READ_SYNC_STATS 
+<android.content.IContentService$Stub$Proxy: android.content.SyncStatusInfo getSyncStatus(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.IContentService$Stub$Proxy: boolean getMasterSyncAutomatically()> READ_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: boolean getSyncAutomatically(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: boolean isSyncActive(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.IContentService$Stub$Proxy: boolean isSyncPending(android.accounts.Account,java.lang.String)> READ_SYNC_STATS 
+<android.content.IContentService$Stub$Proxy: int getIsSyncable(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: java.util.List getPeriodicSyncs(android.accounts.Account,java.lang.String)> READ_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: void addPeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle,long)> WRITE_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: void removePeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle)> WRITE_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: void setIsSyncable(android.accounts.Account,java.lang.String,int)> WRITE_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: void setMasterSyncAutomatically(boolean)> WRITE_SYNC_SETTINGS 
+<android.content.IContentService$Stub$Proxy: void setSyncAutomatically(android.accounts.Account,java.lang.String,boolean)> WRITE_SYNC_SETTINGS 
+<android.content.pm.IPackageManager$Stub$Proxy: boolean setInstallLocation(int)> WRITE_SECURE_SETTINGS 
+<android.content.pm.IPackageManager$Stub$Proxy: void addPreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.IPackageManager$Stub$Proxy: void clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> CLEAR_APP_USER_DATA 
+<android.content.pm.IPackageManager$Stub$Proxy: void clearPackagePreferredActivities(java.lang.String)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.IPackageManager$Stub$Proxy: void deleteApplicationCacheFiles(java.lang.String,android.content.pm.IPackageDataObserver)> DELETE_CACHE_FILES 
+<android.content.pm.IPackageManager$Stub$Proxy: void deletePackage(java.lang.String,android.content.pm.IPackageDeleteObserver,int)> DELETE_PACKAGES 
+<android.content.pm.IPackageManager$Stub$Proxy: void freeStorageAndNotify(long,android.content.pm.IPackageDataObserver)> CLEAR_APP_CACHE 
+<android.content.pm.IPackageManager$Stub$Proxy: void freeStorage(long,android.content.IntentSender)> CLEAR_APP_CACHE 
+<android.content.pm.IPackageManager$Stub$Proxy: void getPackageSizeInfo(java.lang.String,android.content.pm.IPackageStatsObserver)> GET_PACKAGE_SIZE 
+<android.content.pm.IPackageManager$Stub$Proxy: void installPackage(android.net.Uri,android.content.pm.IPackageInstallObserver,int,java.lang.String)> INSTALL_PACKAGES 
+<android.content.pm.IPackageManager$Stub$Proxy: void movePackage(java.lang.String,android.content.pm.IPackageMoveObserver,int)> MOVE_PACKAGE 
+<android.content.pm.IPackageManager$Stub$Proxy: void replacePreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.IPackageManager$Stub$Proxy: void setApplicationEnabledSetting(java.lang.String,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.content.pm.IPackageManager$Stub$Proxy: void setComponentEnabledSetting(android.content.ComponentName,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.content.pm.PackageManager: void addPreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.PackageManager: void clearApplicationUserData(java.lang.String,android.content.pm.IPackageDataObserver)> CLEAR_APP_USER_DATA 
+<android.content.pm.PackageManager: void clearPackagePreferredActivities(java.lang.String)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.PackageManager: void deleteApplicationCacheFiles(java.lang.String,android.content.pm.IPackageDataObserver)> DELETE_CACHE_FILES 
+<android.content.pm.PackageManager: void deletePackage(java.lang.String,android.content.pm.IPackageDeleteObserver,int)> DELETE_PACKAGES 
+<android.content.pm.PackageManager: void freeStorageAndNotify(long,android.content.pm.IPackageDataObserver)> CLEAR_APP_CACHE 
+<android.content.pm.PackageManager: void freeStorage(long,android.content.IntentSender)> CLEAR_APP_CACHE 
+<android.content.pm.PackageManager: void getPackageSizeInfo(java.lang.String,android.content.pm.IPackageStatsObserver)> GET_PACKAGE_SIZE 
+<android.content.pm.PackageManager: void installPackage(android.net.Uri,android.content.pm.IPackageInstallObserver,int,java.lang.String)> INSTALL_PACKAGES 
+<android.content.pm.PackageManager: void movePackage(java.lang.String,android.content.pm.IPackageMoveObserver,int)> MOVE_PACKAGE 
+<android.content.pm.PackageManager: void replacePreferredActivity(android.content.IntentFilter,int,android.content.ComponentName[],android.content.ComponentName)> SET_PREFERRED_APPLICATIONS 
+<android.content.pm.PackageManager: void setApplicationEnabledSetting(java.lang.String,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.content.pm.PackageManager: void setComponentEnabledSetting(android.content.ComponentName,int,int)> CHANGE_COMPONENT_ENABLED_STATE 
+<android.location.ILocationManager$Stub$Proxy: android.location.Location getLastKnownLocation(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: android.os.Bundle getProviderInfo(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: boolean addGpsStatusListener(android.location.IGpsStatusListener)> ACCESS_FINE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: boolean isProviderEnabled(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: boolean sendExtraCommand(java.lang.String,java.lang.String,android.os.Bundle)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: boolean sendExtraCommand(java.lang.String,java.lang.String,android.os.Bundle)> ACCESS_LOCATION_EXTRA_COMMANDS 
+<android.location.ILocationManager$Stub$Proxy: java.util.List getProviders(boolean)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: void addProximityAlert(double,double,float,long,android.app.PendingIntent)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: void addTestProvider(java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,int,int)> ACCESS_MOCK_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void clearTestProviderEnabled(java.lang.String)> ACCESS_MOCK_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void clearTestProviderLocation(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: void clearTestProviderStatus(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: void locationCallbackFinished(android.location.ILocationListener)> WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void removeProximityAlert(android.app.PendingIntent)> WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void removeTestProvider(java.lang.String)> ACCESS_MOCK_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void removeUpdates(android.location.ILocationListener)> WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void removeUpdatesPI(android.app.PendingIntent)> WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void reportLocation(android.location.Location,boolean)> INSTALL_LOCATION_PROVIDER 
+<android.location.ILocationManager$Stub$Proxy: void requestLocationUpdates(java.lang.String,long,float,android.location.ILocationListener)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void requestLocationUpdatesPI(java.lang.String,long,float,android.app.PendingIntent)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void setTestProviderEnabled(java.lang.String,boolean)> ACCESS_MOCK_LOCATION WAKE_LOCK 
+<android.location.ILocationManager$Stub$Proxy: void setTestProviderLocation(java.lang.String,android.location.Location)> INSTALL_LOCATION_PROVIDER ACCESS_MOCK_LOCATION 
+<android.location.ILocationManager$Stub$Proxy: void setTestProviderStatus(java.lang.String,int,android.os.Bundle,long)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: android.location.LocationProvider best(java.util.List)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: android.location.LocationProvider getProvider(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: boolean addGpsStatusListener(android.location.GpsStatus$Listener)> ACCESS_FINE_LOCATION 
+<android.location.LocationManager: boolean addNmeaListener(android.location.GpsStatus$NmeaListener)> ACCESS_FINE_LOCATION 
+<android.location.LocationManager: boolean isProviderEnabled(java.lang.String)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: boolean sendExtraCommand(java.lang.String,java.lang.String,android.os.Bundle)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION ACCESS_LOCATION_EXTRA_COMMANDS 
+<android.location.LocationManager: java.lang.String getBestProvider(android.location.Criteria,boolean)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: java.util.List getProviders(android.location.Criteria,boolean)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: java.util.List getProviders(boolean)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void addProximityAlert(double,double,float,long,android.app.PendingIntent)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void addTestProvider(java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,int,int)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void clearTestProviderEnabled(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void clearTestProviderLocation(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void clearTestProviderStatus(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void removeProximityAlert(android.app.PendingIntent)> WAKE_LOCK 
+<android.location.LocationManager: void removeTestProvider(java.lang.String)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void removeUpdates(android.app.PendingIntent)> WAKE_LOCK 
+<android.location.LocationManager: void removeUpdates(android.location.LocationListener)> WAKE_LOCK 
+<android.location.LocationManager: void _requestLocationUpdates(java.lang.String,long,float,android.app.PendingIntent)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.app.PendingIntent)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.location.LocationListener)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void _requestLocationUpdates(java.lang.String,long,float,android.location.LocationListener,android.os.Looper)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.location.LocationListener,android.os.Looper)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.location.LocationManager: void setTestProviderEnabled(java.lang.String,boolean)> ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void setTestProviderLocation(java.lang.String,android.location.Location)> INSTALL_LOCATION_PROVIDER ACCESS_MOCK_LOCATION 
+<android.location.LocationManager: void setTestProviderStatus(java.lang.String,int,android.os.Bundle,long)> ACCESS_MOCK_LOCATION 
+<android.media.AsyncPlayer: void acquireWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void enqueueLocked(android.media.AsyncPlayer$Command)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void play(android.content.Context,android.net.Uri,boolean,int)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void releaseWakeLock()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void setUsesWakeLock(android.content.Context)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void startSound(android.media.AsyncPlayer$Command)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.AsyncPlayer: void stop()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: boolean resume()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: boolean suspend()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void pause()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void release()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void reset()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void setWakeMode(android.content.Context,int)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void start()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void stayAwake(boolean)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.media.MediaPlayer: void stop()> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.net.ConnectivityManager: android.net.NetworkInfo getActiveNetworkInfo()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: android.net.NetworkInfo[] getAllNetworkInfo()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: android.net.NetworkInfo getNetworkInfo(int)> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: boolean getMobileDataEnabled()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: boolean isTetheringSupported()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: boolean requestRouteToHost(int,int)> CHANGE_NETWORK_STATE 
+<android.net.ConnectivityManager: boolean setRadio(int,boolean)> CHANGE_NETWORK_STATE WAKE_LOCK CHANGE_WIFI_STATE MODIFY_PHONE_STATE 
+<android.net.ConnectivityManager: boolean setRadios(boolean)> WAKE_LOCK CHANGE_NETWORK_STATE CHANGE_WIFI_STATE MODIFY_PHONE_STATE 
+<android.net.ConnectivityManager: int getLastTetherError(java.lang.String)> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: int getNetworkPreference()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: int startUsingNetworkFeature(int,java.lang.String)> CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.ConnectivityManager: int stopUsingNetworkFeature(int,java.lang.String)> CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.ConnectivityManager: int tether(java.lang.String)> CHANGE_NETWORK_STATE 
+<android.net.ConnectivityManager: int untether(java.lang.String)> CHANGE_NETWORK_STATE 
+<android.net.ConnectivityManager: java.lang.String[] getTetherableIfaces()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: java.lang.String[] getTetherableUsbRegexs()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: java.lang.String[] getTetherableWifiRegexs()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: java.lang.String[] getTetheredIfaces()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: java.lang.String[] getTetheringErroredIfaces()> ACCESS_NETWORK_STATE 
+<android.net.ConnectivityManager: void setBackgroundDataSetting(boolean)> CHANGE_BACKGROUND_DATA_SETTING 
+<android.net.ConnectivityManager: void setMobileDataEnabled(boolean)> CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.ConnectivityManager: void setNetworkPreference(int)> CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: android.net.NetworkInfo getActiveNetworkInfo()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: android.net.NetworkInfo[] getAllNetworkInfo()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: android.net.NetworkInfo getNetworkInfo(int)> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: boolean getMobileDataEnabled()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: boolean isTetheringSupported()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: boolean requestRouteToHost(int,int)> CHANGE_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: boolean setRadio(int,boolean)> CHANGE_NETWORK_STATE WAKE_LOCK CHANGE_WIFI_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: boolean setRadios(boolean)> WAKE_LOCK CHANGE_NETWORK_STATE CHANGE_WIFI_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int getLastTetherError(java.lang.String)> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int getNetworkPreference()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int startUsingNetworkFeature(int,java.lang.String,android.os.IBinder)> ACCESS_NETWORK_STATE CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int stopUsingNetworkFeature(int,java.lang.String)> CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int tether(java.lang.String)> ACCESS_NETWORK_STATE CHANGE_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: int untether(java.lang.String)> ACCESS_NETWORK_STATE CHANGE_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: java.lang.String[] getTetherableIfaces()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: java.lang.String[] getTetherableUsbRegexs()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: java.lang.String[] getTetherableWifiRegexs()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: java.lang.String[] getTetheredIfaces()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: java.lang.String[] getTetheringErroredIfaces()> ACCESS_NETWORK_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: void setBackgroundDataSetting(boolean)> CHANGE_BACKGROUND_DATA_SETTING 
+<android.net.IConnectivityManager$Stub$Proxy: void setMobileDataEnabled(boolean)> ACCESS_NETWORK_STATE CHANGE_NETWORK_STATE MODIFY_PHONE_STATE 
+<android.net.IConnectivityManager$Stub$Proxy: void setNetworkPreference(int)> CHANGE_NETWORK_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: android.net.DhcpInfo getDhcpInfo()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: android.net.wifi.WifiInfo getConnectionInfo()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean acquireWifiLock(android.os.IBinder,int,java.lang.String)> UPDATE_DEVICE_STATS 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean acquireWifiLock(android.os.IBinder,int,java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean acquireWifiLock(android.os.IBinder,int,java.lang.String)> WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean disableNetwork(int)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean disconnect()> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean enableNetwork(int,boolean)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean isMulticastEnabled()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean pingSupplicant()> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean reassociate()> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean reconnect()> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean releaseWifiLock(android.os.IBinder)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean releaseWifiLock(android.os.IBinder)> WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean removeNetwork(int)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean saveConfiguration()> CHANGE_WIFI_STATE BACKUP 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean setNumAllowedChannels(int,boolean)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean setWifiApEnabled(android.net.wifi.WifiConfiguration,boolean)> UPDATE_DEVICE_STATS CHANGE_WIFI_STATE WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean setWifiEnabled(boolean)> UPDATE_DEVICE_STATS CHANGE_WIFI_STATE WAKE_LOCK 
+<android.net.wifi.IWifiManager$Stub$Proxy: boolean startScan(boolean)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: int addOrUpdateNetwork(android.net.wifi.WifiConfiguration)> CHANGE_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: int getNumAllowedChannels()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: int[] getValidChannelCounts()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: int getWifiApEnabledState()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: int getWifiEnabledState()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: java.util.List getConfiguredNetworks()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: java.util.List getScanResults()> ACCESS_WIFI_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: void acquireMulticastLock(android.os.IBinder,java.lang.String)> UPDATE_DEVICE_STATS CHANGE_WIFI_MULTICAST_STATE 
+<android.net.wifi.IWifiManager$Stub$Proxy: void releaseMulticastLock()> UPDATE_DEVICE_STATS CHANGE_WIFI_MULTICAST_STATE 
+<android.net.wifi.WifiManager: android.net.DhcpInfo getDhcpInfo()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: android.net.wifi.WifiInfo getConnectionInfo()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: android.net.wifi.WifiManager$MulticastLock createMulticastLock(java.lang.String)> UPDATE_DEVICE_STATS CHANGE_WIFI_MULTICAST_STATE 
+<android.net.wifi.WifiManager: android.net.wifi.WifiManager$WifiLock createWifiLock(int,java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.net.wifi.WifiManager: android.net.wifi.WifiManager$WifiLock createWifiLock(java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.net.wifi.WifiManager: boolean disableNetwork(int)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean disconnect()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean enableNetwork(int,boolean)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean initializeMulticastFiltering()> CHANGE_WIFI_MULTICAST_STATE 
+<android.net.wifi.WifiManager: boolean isMulticastEnabled()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean isWifiApEnabled()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean isWifiEnabled()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean pingSupplicant()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean reassociate()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean reconnect()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean removeNetwork(int)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean saveConfiguration()> CHANGE_WIFI_STATE BACKUP 
+<android.net.wifi.WifiManager: boolean setNumAllowedChannels(int,boolean)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean setWifiApEnabled(android.net.wifi.WifiConfiguration,boolean)> UPDATE_DEVICE_STATS CHANGE_WIFI_STATE WAKE_LOCK 
+<android.net.wifi.WifiManager: boolean setWifiEnabled(boolean)> UPDATE_DEVICE_STATS CHANGE_WIFI_STATE WAKE_LOCK 
+<android.net.wifi.WifiManager: boolean startScanActive()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: boolean startScan()> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: int addNetwork(android.net.wifi.WifiConfiguration)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: int addOrUpdateNetwork(android.net.wifi.WifiConfiguration)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: int getNumAllowedChannels()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: int[] getValidChannelCounts()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: int getWifiApState()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: int getWifiState()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: int updateNetwork(android.net.wifi.WifiConfiguration)> CHANGE_WIFI_STATE 
+<android.net.wifi.WifiManager: java.util.List getConfiguredNetworks()> ACCESS_WIFI_STATE 
+<android.net.wifi.WifiManager: java.util.List getScanResults()> ACCESS_WIFI_STATE 
+<android.os.IPowerManager$Stub$Proxy: void acquireWakeLock(int,android.os.IBinder,java.lang.String)> UPDATE_DEVICE_STATS 
+<android.os.IPowerManager$Stub$Proxy: void acquireWakeLock(int,android.os.IBinder,java.lang.String)> WAKE_LOCK 
+<android.os.IPowerManager$Stub$Proxy: void clearUserActivityTimeout(long,long)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void clearUserActivityTimeout(long,long)> UPDATE_DEVICE_STATS 
+<android.os.IPowerManager$Stub$Proxy: void crash(java.lang.String)> REBOOT 
+<android.os.IPowerManager$Stub$Proxy: void goToSleep(long)> UPDATE_DEVICE_STATS DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void goToSleepWithReason(long,int)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void goToSleepWithReason(long,int)> UPDATE_DEVICE_STATS DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void preventScreenOn(boolean)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void reboot(java.lang.String)> REBOOT 
+<android.os.IPowerManager$Stub$Proxy: void releaseWakeLock(android.os.IBinder,int)> UPDATE_DEVICE_STATS 
+<android.os.IPowerManager$Stub$Proxy: void releaseWakeLock(android.os.IBinder,int)> WAKE_LOCK 
+<android.os.IPowerManager$Stub$Proxy: void setAttentionLight(boolean,int)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void setBacklightBrightness(int)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void setBacklightBrightness(int)> UPDATE_DEVICE_STATS 
+<android.os.IPowerManager$Stub$Proxy: void setMaximumScreenOffTimeount(int)> WRITE_SECURE_SETTINGS 
+<android.os.IPowerManager$Stub$Proxy: void setPokeLock(int,android.os.IBinder,java.lang.String)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void setStayOnSetting(int)> WRITE_SETTINGS 
+<android.os.IPowerManager$Stub$Proxy: void userActivity(long,boolean)> UPDATE_DEVICE_STATS 
+<android.os.IPowerManager$Stub$Proxy: void userActivityWithForce(long,boolean,boolean)> DEVICE_POWER 
+<android.os.IPowerManager$Stub$Proxy: void userActivityWithForce(long,boolean,boolean)> UPDATE_DEVICE_STATS DEVICE_POWER 
+<android.os.IVibratorService$Stub$Proxy: void cancelVibrate(android.os.IBinder)> VIBRATE 
+<android.os.IVibratorService$Stub$Proxy: void cancelVibrate(android.os.IBinder)> WAKE_LOCK 
+<android.os.IVibratorService$Stub$Proxy: void vibrate(long,android.os.IBinder)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.os.IVibratorService$Stub$Proxy: void vibrate(long,android.os.IBinder)> VIBRATE 
+<android.os.IVibratorService$Stub$Proxy: void vibratePattern(long[],int,android.os.IBinder)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.os.IVibratorService$Stub$Proxy: void vibratePattern(long[],int,android.os.IBinder)> VIBRATE 
+<android.os.PowerManager: android.os.PowerManager$WakeLock newWakeLock(int,java.lang.String)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.os.PowerManager: void goToSleep(long)> UPDATE_DEVICE_STATS DEVICE_POWER 
+<android.os.PowerManager: void reboot(java.lang.String)> REBOOT 
+<android.os.PowerManager: void setBacklightBrightness(int)> UPDATE_DEVICE_STATS DEVICE_POWER 
+<android.os.RecoverySystem: void bootCommand(android.content.Context,java.lang.String)> REBOOT 
+<android.os.RecoverySystem: void installPackage(android.content.Context,java.io.File)> REBOOT 
+<android.os.RecoverySystem: void rebootWipeUserData(android.content.Context)> REBOOT 
+<android.os.storage.IMountService$Stub$Proxy: boolean isSecureContainerMounted(java.lang.String)> ASEC_ACCESS 
+<android.os.storage.IMountService$Stub$Proxy: int createSecureContainer(java.lang.String,int,java.lang.String,java.lang.String,int)> ASEC_CREATE 
+<android.os.storage.IMountService$Stub$Proxy: int formatVolume(java.lang.String)> MOUNT_FORMAT_FILESYSTEMS 
+<android.os.storage.IMountService$Stub$Proxy: int[] getStorageUsers(java.lang.String)> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.storage.IMountService$Stub$Proxy: int mountSecureContainer(java.lang.String,java.lang.String,int)> ASEC_MOUNT_UNMOUNT 
+<android.os.storage.IMountService$Stub$Proxy: int mountVolume(java.lang.String)> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.storage.IMountService$Stub$Proxy: int renameSecureContainer(java.lang.String,java.lang.String)> ASEC_RENAME 
+<android.os.storage.IMountService$Stub$Proxy: int unmountSecureContainer(java.lang.String,boolean)> ASEC_MOUNT_UNMOUNT 
+<android.os.storage.IMountService$Stub$Proxy: java.lang.String[] getSecureContainerList()> ASEC_ACCESS 
+<android.os.storage.IMountService$Stub$Proxy: java.lang.String getSecureContainerPath(java.lang.String)> ASEC_ACCESS 
+<android.os.storage.IMountService$Stub$Proxy: void setUsbMassStorageEnabled(boolean)> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.storage.IMountService$Stub$Proxy: void shutdown(android.os.storage.IMountShutdownObserver)> MOUNT_UNMOUNT_FILESYSTEMS SHUTDOWN 
+<android.os.storage.IMountService$Stub$Proxy: void unmountVolume(java.lang.String,boolean)> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.storage.StorageManager: void disableUsbMassStorage()> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.storage.StorageManager: void enableUsbMassStorage()> MOUNT_UNMOUNT_FILESYSTEMS 
+<android.os.Vibrator: void cancel()> VIBRATE WAKE_LOCK 
+<android.os.Vibrator: void vibrate(long[],int)> VIBRATE WAKE_LOCK 
+<android.os.Vibrator: void vibrate(long)> VIBRATE WAKE_LOCK 
+<android.server.search.Searchables: android.content.ComponentName findGlobalSearchActivity()> GLOBAL_SEARCH 
+<android.server.search.Searchables: void buildSearchableList()> GLOBAL_SEARCH 
+<android.telephony.gsm.SmsManager: boolean copyMessageToSim(byte[],byte[],int)> SEND_SMS RECEIVE_SMS WAKE_LOCK 
+<android.telephony.gsm.SmsManager: boolean deleteMessageFromSim(int)> SEND_SMS RECEIVE_SMS WAKE_LOCK 
+<android.telephony.gsm.SmsManager: boolean updateMessageOnSim(int,int,byte[])> SEND_SMS RECEIVE_SMS WAKE_LOCK 
+<android.telephony.gsm.SmsManager: java.util.ArrayList getAllMessagesFromSim()> RECEIVE_SMS 
+<android.telephony.gsm.SmsManager: void sendDataMessage(java.lang.String,java.lang.String,short,byte[],android.app.PendingIntent,android.app.PendingIntent)> SEND_SMS 
+<android.telephony.gsm.SmsManager: void sendMultipartTextMessage(java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList,java.util.ArrayList)> SEND_SMS 
+<android.telephony.gsm.SmsManager: void sendTextMessage(java.lang.String,java.lang.String,java.lang.String,android.app.PendingIntent,android.app.PendingIntent)> SEND_SMS 
+<android.telephony.TelephonyManager: android.telephony.CellLocation getCellLocation()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.telephony.TelephonyManager: java.lang.String getCompleteVoiceMailNumber()> CALL_PRIVILEGED 
+<android.telephony.TelephonyManager: java.lang.String getDeviceId()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getDeviceSoftwareVersion()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getLine1AlphaTag()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getLine1Number()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getSubscriberId()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getVoiceMailAlphaTag()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.lang.String getVoiceMailNumber()> READ_PHONE_STATE 
+<android.telephony.TelephonyManager: java.util.List getNeighboringCellInfo()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.telephony.TelephonyManager: void disableLocationUpdates()> CONTROL_LOCATION_UPDATES 
+<android.telephony.TelephonyManager: void enableLocationUpdates()> CONTROL_LOCATION_UPDATES 
+<android.telephony.TelephonyManager: void listen(android.telephony.PhoneStateListener,int)> ACCESS_COARSE_LOCATION READ_PHONE_STATE 
+<android.view.IWindowManager$Stub$Proxy: android.content.res.Configuration updateOrientationFromAppTokens(android.content.res.Configuration,android.os.IBinder)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: android.content.res.Configuration updateOrientationFromAppTokens(android.content.res.Configuration,android.os.IBinder)> UPDATE_DEVICE_STATS WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: boolean injectKeyEvent(android.view.KeyEvent,boolean)> INJECT_EVENTS DEVICE_POWER 
+<android.view.IWindowManager$Stub$Proxy: boolean injectPointerEvent(android.view.MotionEvent,boolean)> INJECT_EVENTS DEVICE_POWER 
+<android.view.IWindowManager$Stub$Proxy: boolean injectTrackballEvent(android.view.MotionEvent,boolean)> INJECT_EVENTS DEVICE_POWER 
+<android.view.IWindowManager$Stub$Proxy: boolean isViewServerRunning()> DUMP 
+<android.view.IWindowManager$Stub$Proxy: boolean startViewServer(int)> DUMP MODIFY_PHONE_STATE MOUNT_UNMOUNT_FILESYSTEMS UPDATE_DEVICE_STATS DEVICE_POWER BLUETOOTH_ADMIN VIBRATE BLUETOOTH INJECT_EVENTS SHUTDOWN WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: boolean stopViewServer()> DUMP 
+<android.view.IWindowManager$Stub$Proxy: int getDPadKeycodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getDPadScancodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getKeycodeStateForDevice(int,int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getKeycodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getScancodeStateForDevice(int,int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getScancodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getSwitchStateForDevice(int,int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getSwitchState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getTrackballKeycodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: int getTrackballScancodeState(int)> READ_INPUT_STATE 
+<android.view.IWindowManager$Stub$Proxy: void addAppToken(int,android.view.IApplicationToken,int,int,boolean)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void addWindowToken(android.os.IBinder,int)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void disableKeyguard(android.os.IBinder,java.lang.String)> DISABLE_KEYGUARD 
+<android.view.IWindowManager$Stub$Proxy: void executeAppTransition()> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void executeAppTransition()> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void exitKeyguardSecurely(android.view.IOnKeyguardExitResult)> DISABLE_KEYGUARD 
+<android.view.IWindowManager$Stub$Proxy: void moveAppToken(int,android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void moveAppToken(int,android.os.IBinder)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void moveAppTokensToBottom(java.util.List)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void moveAppTokensToBottom(java.util.List)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void moveAppTokensToTop(java.util.List)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void moveAppTokensToTop(java.util.List)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void pauseKeyDispatching(android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void prepareAppTransition(int)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void reenableKeyguard(android.os.IBinder)> DISABLE_KEYGUARD 
+<android.view.IWindowManager$Stub$Proxy: void removeAppToken(android.os.IBinder)> UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void removeWindowToken(android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void removeWindowToken(android.os.IBinder)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void resumeKeyDispatching(android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setAnimationScale(int,float)> SET_ANIMATION_SCALE 
+<android.view.IWindowManager$Stub$Proxy: void setAnimationScales(float[])> SET_ANIMATION_SCALE 
+<android.view.IWindowManager$Stub$Proxy: void setAppGroupId(android.os.IBinder,int)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setAppOrientation(android.view.IApplicationToken,int)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setAppStartingWindow(android.os.IBinder,java.lang.String,int,java.lang.CharSequence,int,int,android.os.IBinder,boolean)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setAppStartingWindow(android.os.IBinder,java.lang.String,int,java.lang.CharSequence,int,int,android.os.IBinder,boolean)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void setAppVisibility(android.os.IBinder,boolean)> UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void setAppWillBeHidden(android.os.IBinder)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setEventDispatching(boolean)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setFocusedApp(android.os.IBinder,boolean)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setNewConfiguration(android.content.res.Configuration)> MANAGE_APP_TOKENS 
+<android.view.IWindowManager$Stub$Proxy: void setNewConfiguration(android.content.res.Configuration)> UPDATE_DEVICE_STATS DEVICE_POWER WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void setRotation(int,boolean,int)> SET_ORIENTATION WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void startAppFreezingScreen(android.os.IBinder,int)> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS WAKE_LOCK 
+<android.view.IWindowManager$Stub$Proxy: void stopAppFreezingScreen(android.os.IBinder,boolean)> UPDATE_DEVICE_STATS DEVICE_POWER MANAGE_APP_TOKENS WAKE_LOCK 
+<android.webkit.GeolocationService: void <init>(long)> ACCESS_COARSE_LOCATION READ_PHONE_STATE WAKE_LOCK 
+<android.webkit.GeolocationService: void registerForLocationUpdates()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.webkit.GeolocationService: void setEnableGps(boolean)> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.webkit.GeolocationService: void start()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<android.webkit.GeolocationService: void unregisterFromLocationUpdates()> WAKE_LOCK 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: byte[] getStatistics()> BATTERY_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: long getAwakeTimeBattery()> BATTERY_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: long getAwakeTimePlugged()> BATTERY_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteBluetoothOff()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteBluetoothOn()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteFullWifiLockAcquired(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteFullWifiLockReleased(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteInputEvent()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void notePhoneDataConnectionState(int,boolean)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void notePhoneOff()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void notePhoneOn()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void notePhoneSignalStrength(android.telephony.SignalStrength)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void notePhoneState(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteScanWifiLockAcquired(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteScanWifiLockReleased(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteScreenBrightness(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteScreenOff()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteScreenOn()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStartGps(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStartSensor(int,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStartWakelock(int,java.lang.String,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStopGps(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStopSensor(int,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteStopWakelock(int,java.lang.String,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteUserActivity(int,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiMulticastDisabled(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiMulticastEnabled(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiOff(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiOn(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiRunning()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void noteWifiStopped()> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void recordCurrentLevel(int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IBatteryStats$Stub$Proxy: void setOnBattery(boolean,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IUsageStats$Stub$Proxy: com.android.internal.os.PkgUsageStats[] getAllPkgUsageStats()> PACKAGE_USAGE_STATS 
+<com.android.internal.app.IUsageStats$Stub$Proxy: com.android.internal.os.PkgUsageStats getPkgUsageStats(android.content.ComponentName)> PACKAGE_USAGE_STATS 
+<com.android.internal.app.IUsageStats$Stub$Proxy: void noteLaunchTime(android.content.ComponentName,int)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IUsageStats$Stub$Proxy: void notePauseComponent(android.content.ComponentName)> UPDATE_DEVICE_STATS 
+<com.android.internal.app.IUsageStats$Stub$Proxy: void noteResumeComponent(android.content.ComponentName)> UPDATE_DEVICE_STATS 
+<com.android.internal.appwidget.IAppWidgetService$Stub$Proxy: android.appwidget.AppWidgetProviderInfo getAppWidgetInfo(int)> BIND_APPWIDGET 
+<com.android.internal.appwidget.IAppWidgetService$Stub$Proxy: android.widget.RemoteViews getAppWidgetViews(int)> BIND_APPWIDGET 
+<com.android.internal.appwidget.IAppWidgetService$Stub$Proxy: void bindAppWidgetId(int,android.content.ComponentName)> BIND_APPWIDGET 
+<com.android.internal.appwidget.IAppWidgetService$Stub$Proxy: void deleteAppWidgetId(int)> BIND_APPWIDGET 
+<com.android.internal.appwidget.IAppWidgetService$Stub$Proxy: void updateAppWidgetIds(int[],android.widget.RemoteViews)> BIND_APPWIDGET 
+<com.android.internal.telephony.ISms$Stub$Proxy: boolean copyMessageToIccEf(int,byte[],byte[])> SEND_SMS RECEIVE_SMS WAKE_LOCK 
+<com.android.internal.telephony.ISms$Stub$Proxy: boolean updateMessageOnIccEf(int,int,byte[])> SEND_SMS RECEIVE_SMS WAKE_LOCK 
+<com.android.internal.telephony.ISms$Stub$Proxy: java.util.List getAllMessagesFromIccEf()> RECEIVE_SMS WAKE_LOCK 
+<com.android.internal.telephony.ISms$Stub$Proxy: void sendData(java.lang.String,java.lang.String,int,byte[],android.app.PendingIntent,android.app.PendingIntent)> SEND_SMS 
+<com.android.internal.telephony.ISms$Stub$Proxy: void sendMultipartText(java.lang.String,java.lang.String,java.util.List,java.util.List,java.util.List)> SEND_SMS 
+<com.android.internal.telephony.ISms$Stub$Proxy: void sendText(java.lang.String,java.lang.String,java.lang.String,android.app.PendingIntent,android.app.PendingIntent)> SEND_SMS 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void listen(java.lang.String,com.android.internal.telephony.IPhoneStateListener,int,boolean)> ACCESS_COARSE_LOCATION READ_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyCallForwardingChanged(boolean)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyCallState(int,java.lang.String)> UPDATE_DEVICE_STATS MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyCellLocation(android.os.Bundle)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyDataActivity(int)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyDataConnectionFailed(java.lang.String)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyDataConnection(int,boolean,java.lang.String,java.lang.String,java.lang.String[],java.lang.String,int)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyMessageWaitingChanged(boolean)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifyServiceState(android.telephony.ServiceState)> UPDATE_DEVICE_STATS MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephonyRegistry$Stub$Proxy: void notifySignalStrength(android.telephony.SignalStrength)> UPDATE_DEVICE_STATS MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: android.os.Bundle getCellLocation()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean disableDataConnectivity()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean enableDataConnectivity()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean endCall()> CALL_PHONE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean handlePinMmi(java.lang.String)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean isSimPinEnabled()> READ_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean setRadio(boolean)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: boolean supplyPin(java.lang.String)> WAKE_LOCK MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: int disableApnType(java.lang.String)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: int enableApnType(java.lang.String)> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: java.util.List getNeighboringCellInfo()> ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void answerRingingCall()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void call(java.lang.String)> CALL_PHONE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void cancelMissedCallsNotification()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void disableLocationUpdates()> CONTROL_LOCATION_UPDATES 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void disableLocationUpdates()> CONTROL_LOCATION_UPDATES WAKE_LOCK 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void enableLocationUpdates()> CONTROL_LOCATION_UPDATES 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void enableLocationUpdates()> CONTROL_LOCATION_UPDATES WAKE_LOCK 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void silenceRinger()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void toggleRadioOnOff()> MODIFY_PHONE_STATE 
+<com.android.internal.telephony.ITelephony$Stub$Proxy: void updateServiceLocation()> WAKE_LOCK 
+<com.android.server.WallpaperManagerService: android.os.ParcelFileDescriptor setWallpaper(java.lang.String)> MANAGE_APP_TOKENS DEVICE_POWER SET_WALLPAPER 
+<com.android.server.WallpaperManagerService: boolean execTransact(int,int,int,int)> ACCESS_NETWORK_STATE DUMP WRITE_SYNC_SETTINGS BLUETOOTH MANAGE_APP_TOKENS SET_WALLPAPER_COMPONENT READ_SYNC_STATS SET_WALLPAPER SET_WALLPAPER_HINTS READ_SYNC_SETTINGS BACKUP 
+<com.android.server.WallpaperManagerService: boolean onTransact(int,android.os.Parcel,android.os.Parcel,int)> ACCESS_NETWORK_STATE DUMP DEVICE_POWER BLUETOOTH MANAGE_APP_TOKENS SET_WALLPAPER_COMPONENT SET_WALLPAPER SET_WALLPAPER_HINTS BACKUP 
+<com.android.server.WallpaperManagerService: void attachServiceLocked(com.android.server.WallpaperManagerService$WallpaperConnection)> MANAGE_APP_TOKENS DEVICE_POWER 
+<com.android.server.WallpaperManagerService: void bindWallpaperComponentLocked(android.content.ComponentName)> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<com.android.server.WallpaperManagerService: void clearWallpaperComponentLocked()> UPDATE_DEVICE_STATS MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
+<com.android.server.WallpaperManagerService: void clearWallpaperLocked()> MANAGE_APP_TOKENS DEVICE_POWER 
+<com.android.server.WallpaperManagerService: void clearWallpaper()> MANAGE_APP_TOKENS DEVICE_POWER 
+<com.android.server.WallpaperManagerService: void dump(java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[])> DUMP 
+<com.android.server.WallpaperManagerService: void dump(java.io.FileDescriptor,java.lang.String[])> ACCESS_NETWORK_STATE BACKUP DUMP BLUETOOTH 
+<com.android.server.WallpaperManagerService: void setDimensionHints(int,int)> SET_WALLPAPER_HINTS 
+<com.android.server.WallpaperManagerService: void settingsRestored()> MANAGE_APP_TOKENS DEVICE_POWER 
+<com.android.server.WallpaperManagerService: void setWallpaperComponent(android.content.ComponentName)> SET_WALLPAPER_COMPONENT MANAGE_APP_TOKENS DEVICE_POWER 
+<com.android.server.WallpaperManagerService: void systemReady()> MANAGE_APP_TOKENS DEVICE_POWER WAKE_LOCK 
