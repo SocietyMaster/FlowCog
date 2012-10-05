@@ -14,7 +14,7 @@ public class AndroidMain {
 		List<String> sinks, sources, entrypoints, permissionList, mappedPermissionList;
 
 		String path = "C:/Users/Spikey/Desktop/test-dex";
-		String apkFileLocation = "C:/Users/Spikey/Downloads/com.shazam.android-76101.apk";
+		String apkFileLocation = "C:/Users/Spikey/Downloads/org.mozilla.firefox-2012090621.apk";
 		String matrixFileLocation = "android-api9.matrix";
 		String entrypointsFileLocation = "entrypoints-oneLine.txt";
 
