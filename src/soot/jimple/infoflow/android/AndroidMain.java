@@ -9,11 +9,12 @@ public class AndroidMain {
 	/**
 	 * @param args
 	 * @throws IOException
+	 * @throws wrongFormatedFileException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, wrongFormatedFileException {
 		List<String> sinks, sources, entrypoints, permissionList, mappedPermissionList;
 
-		String path = "C:/Users/Spikey/Desktop/test-dex";
+		String path = "C:/Users/Spikey/Desktop/test-dex;C:/Users/Spikey/Desktop/platforms/android-14/android.jar";
 		String apkFileLocation = "C:/Users/Spikey/Downloads/org.mozilla.firefox-2012090621.apk";
 		String matrixFileLocation = "android-api9.matrix";
 		String entrypointsFileLocation = "entrypoints-oneLine.txt";
@@ -48,17 +49,23 @@ public class AndroidMain {
 		// sources = rf.readFileSources(matrixFileLocation);
 
 		// TODO reduce sources and sinks
-		sinks = mappedPermissionList;
-		sources = mappedPermissionList;
+		AnalyzeConfigSourceSink analyzeConfig = new AnalyzeConfigSourceSink();
 
-		// System.out.println("sinks:");
-		// for (String s : mappedPermissionList) {
-		// System.out.println(s);
-		// }
-		// System.out.println("Sources:");
-		// for (String s : sources) {
-		// System.out.println(s);
-		// }
+		sources = analyzeConfig.getReducedSourceSinkList("SourceConfig.txt", mappedPermissionList);
+
+		sinks = analyzeConfig.getReducedSourceSinkList("SinkConfig.txt", mappedPermissionList);
+		
+
+		
+
+//		 System.out.println("sinks:");
+//		 for (String s : mappedPermissionList) {
+//		 System.out.println(s);
+//		 }
+//		System.out.println("Sources:");
+//		for (String s : sources) {
+//			System.out.println(s);
+//		}
 		// System.out.println("Sinks:");
 		// for (String s : sinks) {
 		// System.out.println(s);

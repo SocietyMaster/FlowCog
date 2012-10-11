@@ -1,0 +1,20 @@
+<android.app.Activity: void onCreate(Bundle savedInstanceState)>
+<android.app.Activity: void onStart()>
+<android.app.Activity: void onRestart()>
+<android.app.Activity: void onResume()>
+<android.app.Activity: void onPause()>
+<android.app.Activity: void onStop()>
+<android.app.Activity: void onDestroy()>
+<android.app.Activity: void onSaveInstanceState()>
+<android.app.Activity: void onRestoreInstanceState()>
+<android.app.Service: void onConfigurationChanged(Configuration newConfig)>
+<android.app.Service: void onCreate()>
+<android.app.Service: void onDestroy()>
+<android.app.Service: void onLowMemory()>
+<android.app.Service: void onRebind(Intent intent)>
+<android.app.Service: void onStart(Intent intent,int startId)>
+<android.app.Service: int onStartCommand(Intent intent,int flags,int startId)>
+<android.app.Service: void onTaskRemoved(Intent rootIntent)>
+<android.app.Service: void onTrimMemory(int level)>
+<android.app.Service: boolean onUnbind(Intent intent)>
+<android.content.BroadcastReceiver: void onReceive(Context context,Intent intent)>
