@@ -17,8 +17,16 @@ public class AnalyzeConfigSourceSink {
 		BufferedReader bReader = new BufferedReader(fReader);
 
 		String configLine;
+		String className = null, methodName= null;
+		int separator;
 
 		while ((configLine = bReader.readLine()) != null) {
+			separator = configLine.indexOf(";");
+			if(separator >0){
+				className = configLine.substring(1, separator);
+				methodName = configLine.substring(separator+1);
+
+			}
 			if (configLine.substring(0, 1).equals("+")) {
 				if(configLine.substring(1).toUpperCase().equals("ALL")) {
 					
@@ -27,7 +35,7 @@ public class AnalyzeConfigSourceSink {
 				else{
 					for(String elem : SourceSinkList){
 						String[] sourceSinkListLinePart = elem.split(" ");
-						if(sourceSinkListLinePart[2].matches(configLine.substring(1))){
+						if(sourceSinkListLinePart[0].matches(className) && sourceSinkListLinePart[2].matches(methodName)){
 							returnList.add(elem);
 						}
 					}
@@ -40,7 +48,7 @@ public class AnalyzeConfigSourceSink {
 					
 					
 					
-					if(returnListLinePart[2].matches(configLine.substring(1))){
+					if(returnListLinePart[0].matches(className) && returnListLinePart[2].matches(methodName)){
 						returnList.remove(i);
 						i--;
 					}
