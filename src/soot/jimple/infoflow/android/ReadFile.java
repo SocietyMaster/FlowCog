@@ -36,6 +36,36 @@ public class ReadFile {
 		return list;
 	}
 
+	public List<SootLine> readFileSootLine(String filename) throws IOException {
+		List<SootLine> list = new ArrayList<SootLine>();
+
+		FileReader fReader = new FileReader(filename);
+		BufferedReader bReader = new BufferedReader(fReader);
+
+		String zeile, argument;
+		int position;
+		while ((zeile = bReader.readLine()) != null) {
+
+//			position = zeile.lastIndexOf(">");
+			
+
+			position = zeile.lastIndexOf(":");
+			argument = zeile.substring(1, position);
+			
+			zeile = zeile.substring(position + 1, zeile.length() - 1).trim();
+//			zeile = zeile.substring(0, zeile.indexOf(" "));
+
+			list.add(new SootLine(argument, zeile));
+
+
+		}
+		bReader.close();
+		fReader.close();
+		// System.out.println(list.get(0));
+		// System.out.println(list.get(1));
+		// System.out.println(list.size());
+		return list;
+	}
 	public List<String> readFileSources(String filename) throws IOException {
 		List<String> list = new ArrayList<String>();
 

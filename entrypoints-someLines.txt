@@ -1,4 +1,4 @@
-<android.app.Activity: void onCreate(Bundle savedInstanceState)>
+<android.app.Activity: void onCreate(android.os.Bundle)>
 <android.app.Activity: void onStart()>
 <android.app.Activity: void onRestart()>
 <android.app.Activity: void onResume()>
@@ -7,14 +7,16 @@
 <android.app.Activity: void onDestroy()>
 <android.app.Activity: void onSaveInstanceState()>
 <android.app.Activity: void onRestoreInstanceState()>
-<android.app.Service: void onConfigurationChanged(Configuration newConfig)>
+<android.app.Activity: boolean onCreateOptionsMenu(android.view.Menu)>
+<android.app.Activity: boolean onOptionsItemSelected(android.view.MenuItem)>
+<android.app.Service: void onConfigurationChanged(android.content.res.Configuration)>
 <android.app.Service: void onCreate()>
 <android.app.Service: void onDestroy()>
 <android.app.Service: void onLowMemory()>
-<android.app.Service: void onRebind(Intent intent)>
-<android.app.Service: void onStart(Intent intent,int startId)>
-<android.app.Service: int onStartCommand(Intent intent,int flags,int startId)>
-<android.app.Service: void onTaskRemoved(Intent rootIntent)>
-<android.app.Service: void onTrimMemory(int level)>
-<android.app.Service: boolean onUnbind(Intent intent)>
-<android.content.BroadcastReceiver: void onReceive(Context context,Intent intent)>
+<android.app.Service: void onRebind(android.content.Intent)>
+<android.app.Service: void onStart(android.content.Intent,int)>
+<android.app.Service: int onStartCommand(android.content.Intent,int,int)>
+<android.app.Service: void onTaskRemoved(android.content.Intent)>
+<android.app.Service: void onTrimMemory(int)>
+<android.app.Service: boolean onUnbind(android.content.Intent)>
+<android.content.BroadcastReceiver: void onReceive(android.content.Intent,android.content.Intent)>

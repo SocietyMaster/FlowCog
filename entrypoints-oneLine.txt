@@ -1,1 +1,1 @@
-<android.app.Service: void onStart(Intent intent,int startId)>
+activity;void onCreate(android.os.Bundle)
