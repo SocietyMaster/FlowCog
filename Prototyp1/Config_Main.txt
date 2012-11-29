@@ -1,1 +1,9 @@
-f
+		String path = "Prototyp1";
+		String apkFileLocation = "Prototyp1/IMEI-sender.apk";
+		String entrypointsFileLocation = "entryPointsNetworkUsage.txt";
+		
+		sources = analyzeConfig.getReducedSourceSinkList("Prototyp1/SourceConfig.txt",
+				mappedPermissionList);
+
+		sinks = analyzeConfig.getReducedSourceSinkList("Prototyp1/SinkConfig.txt",
+				mappedPermissionList);
