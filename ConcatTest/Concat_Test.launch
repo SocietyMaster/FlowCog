@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/soot-infoflow-android/src/soot/jimple/infoflow/android/AndroidMain.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="soot.jimple.infoflow.android.AndroidMain"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="C:/Users/Christian/android-sdks/platforms/android-14_new/android.jar;ConcatTest ConcatTest/IMEI-sender.apk android-api9.matrix ConcatTest/entryPointsNetworkUsage.txt"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="soot-infoflow-android"/>
+</launchConfiguration>
