@@ -49,10 +49,10 @@ public class AndroidMain {
 		entrypoints = processMan.getEntryPoints();
 
 		//Only for test purposes
-		entrypoints
-				.add("<com.example.android.networkusage.NetworkActivity$NetworkReceiver:  void onReceive(android.content.Context, android.content.Intent)>");
+//		entrypoints
+//				.add("<com.example.android.networkusage.NetworkActivity$NetworkReceiver:  void onReceive(android.content.Context, android.content.Intent)>");
 		//Only for test purposes
-		entrypoints = rf.readFile("entryPointsNetworkUsage.txt", "");
+//		entrypoints = rf.readFile("entryPointsNetworkUsage.txt", "");
 		
 		// entrypoints = rf.readFile(entrypointsFileLocation, "");
 		// //Test

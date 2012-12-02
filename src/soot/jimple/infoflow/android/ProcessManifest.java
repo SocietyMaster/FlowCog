@@ -43,7 +43,8 @@ public class ProcessManifest {
 			for (int j = 0; j < methodNames.size(); j++) {
 			
 				if (classes.get(i).getExtendsClass()
-						.equals(methodNames.get(j).getClassName())) {
+						.equals(methodNames.get(j).getClassName()) ||
+						classes.get(i).getClassName().equals(methodNames.get(j).getClassName())) {
 
 					classes.get(i).addMethod(methodNames.get(j).getMethod());
 
