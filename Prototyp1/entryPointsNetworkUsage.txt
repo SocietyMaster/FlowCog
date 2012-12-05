@@ -1,0 +1,11 @@
+<com.jakobkontor.imei.NetworkActivity: void onCreate(android.os.Bundle)>
+<com.jakobkontor.imei.NetworkActivity: void onStart()>
+<com.jakobkontor.imei.NetworkActivity: void onDestroy()>
+<com.jakobkontor.imei.NetworkActivity: boolean onCreateOptionsMenu(android.view.Menu)>
+<com.jakobkontor.imei.NetworkActivity: boolean onOptionsItemSelected(android.view.MenuItem)>
+<com.jakobkontor.imei.NetworkActivity: void onCreate(android.os.Bundle)>
+<com.jakobkontor.imei.NetworkActivity: void onResume()>
+<com.jakobkontor.imei.NetworkActivity: void onPause()>
+<com.jakobkontor.imei.NetworkActivity: void onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)>
+<com.jakobkontor.imei.NetworkActivity$NetworkReceiver: void onReceive(android.content.Context, android.content.Intent)>
+<com.jakobkontor.imei.NetworkActivity$DownloadXmlTask: void onPostExecute(java.lang.String)>
