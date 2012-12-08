@@ -8,6 +8,10 @@ public class Class {
 	private String className, extendsClass;
 	private List<String> methods = new ArrayList<String>();
 	
+	public Class(String className){
+		this.className = className;
+	}
+	
 	public Class(String extendsClass, String className){
 		this.extendsClass = extendsClass;
 		this.className = className;
