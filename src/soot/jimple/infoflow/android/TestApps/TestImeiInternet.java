@@ -6,10 +6,8 @@ import soot.jimple.infoflow.android.ReadFile;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.wrongFormatedFileException;
 
-public class TestImeiSmsApp {
-	
+public class TestImeiInternet {
 	static SetupApplication app = new SetupApplication();
-
 	/**
 	 * @param args
 	 * @throws wrongFormatedFileException 
@@ -27,17 +25,22 @@ public class TestImeiSmsApp {
 		else{
 		
 			app.setAndroidJar("C:/Users/Spikey/Desktop/platforms/android-14/android.jar");
-			app.setJimpleOutput("C:/Users/Spikey/Desktop/soot-imei-sms");
-			app.setApkFileLocation("C:/Users/Spikey/workspace/IMEI-SMS/bin/IMEI-SMS.apk");
+			app.setApkFileLocation("C:/Users/Spikey/workspace/IMEI-sender/bin/IMEI-sender.apk");
+			app.setJimpleOutput("C:/Users/Spikey/Desktop/soot-networkusage");
 			app.setMatrixFileLocation("android-api9.matrix");
 			app.setSinkConfigFileLocation("SinkConfig.txt");
 			app.setSourceConfigFileLocation("SourceConfig.txt");
 		}
+		
 		app.calculateSourcesSinksEntrypoints();
 		
 		app.printEntrypoints();
 		app.printSinks();
 		app.printSources();
+		
+		//only for test purposes
+//		ReadFile rf= new ReadFile();
+//		app.setEntrypoints(rf.readFile("entryPointsNetworkUsage.txt", ""));
 		
 		app.runInfoflow();
 		

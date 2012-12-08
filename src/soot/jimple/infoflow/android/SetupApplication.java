@@ -17,11 +17,11 @@ public class SetupApplication {
 		
 	}
 	
-	public SetupApplication(String androidJar, String jimpleOutput,
+	public SetupApplication(String androidJar, String jimpleFilesLocation,
 			String apkFileLocation, String matrixFileLocation,
 			String sinkConfigFileLocation, String sourceConfigFileLocation) {
 		this.androidJar = androidJar;
-		this.jimpleFilesLocation = jimpleOutput;
+		this.jimpleFilesLocation = jimpleFilesLocation;
 		this.apkFileLocation = apkFileLocation;
 		this.matrixFileLocation = matrixFileLocation;
 		this.sinkConfigFileLocation = sinkConfigFileLocation;
