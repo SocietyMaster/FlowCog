@@ -179,7 +179,12 @@ public class AnalyzeJimpleClass {
 		
 		return entryPoints;
 	}
-	
+	/** Doesn't work correctly, still have to work on this method
+	 * 
+	 * @param sourceFolder
+	 * @throws IOException
+	 */
+	//TODO implement correctly
 	public void searchSources(String sourceFolder) throws IOException{
 		for(String i : extendsImplementsClasses){
 			String fileName = i.replace(".", "/");
