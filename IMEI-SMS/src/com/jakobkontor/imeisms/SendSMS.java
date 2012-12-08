@@ -17,7 +17,7 @@ package com.jakobkontor.imeisms;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.telephony.SmsManager;
+import android.telephony.gsm.SmsManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
