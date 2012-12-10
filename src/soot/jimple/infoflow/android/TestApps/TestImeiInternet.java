@@ -59,7 +59,10 @@ public class TestImeiInternet {
 			Process proc = Runtime.getRuntime().exec(command);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					proc.getInputStream()));
-			while ((reader.readLine()) != null) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				
+				System.out.println(line);
 			}
 			proc.waitFor();
 		}
