@@ -8,9 +8,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import soot.PackManager;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.jimple.infoflow.util.ArgBuilder;
+import soot.jimple.infoflow.util.EntryPointCreator;
+import soot.options.Options;
+import soot.util.Chain;
 
 public class AnalyzeJimpleClass {
 
@@ -18,15 +28,23 @@ public class AnalyzeJimpleClass {
 //	private Set<Class> classes = new HashSet<Class>();
 	private Map<String, HashSet<String>> classes = new HashMap<String, HashSet<String>>();
 	private Set<String> extendsImplementsClasses = new HashSet<String>();
+	private String jimpleFilesLocation;
+	private String androidJar;
 
-	public void collectAndroidMethods(String jimpleDir) throws IOException {
+	public AnalyzeJimpleClass(String jimpleFilesLocation, String androidJar) {
+		this.jimpleFilesLocation = jimpleFilesLocation;
+		this.androidJar = androidJar;
+	}
+
+	public void collectAndroidMethods() throws IOException {
 		//search directory and process every file
-		File f = new File(jimpleDir);
+		File f = new File(jimpleFilesLocation);
 		File[] files = f.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
 				if (!files[i].isDirectory()) {
-					analyzeClass(files[i].getAbsolutePath());
+//					analyzeClass(files[i].getAbsolutePath());
+					analyzeJimple(files[i].getName().substring(0, files[i].getName().lastIndexOf(".")));
 				} else {
 					System.err.println("unexpected directory in output folder");
 				}
@@ -35,7 +53,8 @@ public class AnalyzeJimpleClass {
 		}
 
 	}
-
+	
+	@Deprecated
 	private void analyzeClass(String filename) throws IOException {
 
 		if (checkFilename(filename)) {
@@ -115,6 +134,7 @@ public class AnalyzeJimpleClass {
 							looksLikeMethod = false;
 						}
 					}
+
 					//every method that starts with on
 					if(zeile.matches(".*\\son.*(.*)")){
 						looksLikeMethod = true;
@@ -131,6 +151,77 @@ public class AnalyzeJimpleClass {
 		}
 	}
 	
+	
+	private void analyzeJimple(String className) {
+
+		String path = jimpleFilesLocation + ";" + androidJar;
+		// prepare soot arguments:
+		ArgBuilder builder = new ArgBuilder();
+		String[] args = builder.buildArgs(path, className);
+
+		Options.v().set_allow_phantom_refs(true);
+		Options.v().set_no_bodies_for_excluded(true);
+		Options.v().set_output_format(Options.output_format_none);
+		Options.v().parse(args);
+
+		SootClass c = Scene.v().tryLoadClass(className, SootClass.BODIES);
+		
+		if(c.isConcrete()){	
+			c.setApplicationClass();
+			
+			//TODO is it recursive?
+			List<SootClass> listSootClass = Scene.v().getActiveHierarchy()
+					.getSuperclassesOf(c);
+			List<SootMethod> methodList = c.getMethods();
+			
+			for (SootClass sc : listSootClass) {
+				if (!sc.getName().equals("java.lang.Object")) {
+					SootClass superClass = Scene.v().forceResolve(sc.getName(),
+							SootClass.BODIES);
+					for (SootMethod m : methodList) {
+	
+						if (superClass.declaresMethod(m.getSubSignature())
+								&& !m.getSubSignature().equals("void <init>()")
+								&& !m.getSubSignature().equals("void <clinit>()")) {
+							newEntry(c.getName(), m.getSubSignature());
+//							System.out.println("Übereinstimmung: Super-Klasse: "
+//									+ sc.getName() + " Methodenname: "
+//									+ m.getName());
+						}
+	
+	
+					}
+	
+				}
+	
+			}
+			//TODO is not recursive
+			Chain<SootClass> chainSoot = c.getInterfaces();
+			for(SootClass cs: chainSoot){
+//				if (!cs.getName().equals("java.lang.Object")) {
+					SootClass superClass = Scene.v().forceResolve(cs.getName(),
+							SootClass.BODIES);
+					for (SootMethod m : methodList) {
+	
+						if (superClass.declaresMethod(m.getSubSignature())) {
+							newEntry(c.getName(), m.getSubSignature());
+//							System.out.println("Übereinstimmung: Interface: "
+//									+ cs.getName() + " Methodenname: "
+//									+ m.getName());
+						}
+	
+	
+					}
+	
+//				}
+			}
+
+		}
+		
+		
+	}
+
+	@Deprecated
 	private String handleLine(String line) {
 		if(line.matches(".*(\\s|.{0})(public|private|protected)\\s.*")){
 			
@@ -148,7 +239,12 @@ public class AnalyzeJimpleClass {
 		}
 		return line;
 	}
-
+	
+	/**
+	 * 
+	 * @param className
+	 * @param method
+	 */
 	private void newEntry(String className, String method) {
 		//does the class already exist?
 		if(classes.containsKey(className)){

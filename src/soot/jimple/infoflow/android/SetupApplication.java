@@ -1,6 +1,8 @@
 package soot.jimple.infoflow.android;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class SetupApplication {
@@ -102,8 +104,8 @@ public class SetupApplication {
 
 
 
-	public void setJimpleOutput(String jimpleOutput) {
-		this.jimpleFilesLocation = jimpleOutput;
+	public void setJimpleFilesLocation(String jimpleFilesLocation) {
+		this.jimpleFilesLocation = jimpleFilesLocation;
 	}
 
 	public void setAndroidJar(String androidJar) {
@@ -123,10 +125,10 @@ public class SetupApplication {
 		
 		ReadFile rf = new ReadFile();
 		ProcessManifest processMan = new ProcessManifest();
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass();
+		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(jimpleFilesLocation, androidJar);
 		AnalyzeConfigSourceSink analyzeConfig = new AnalyzeConfigSourceSink();
 		
-		jimpleClass.collectAndroidMethods(jimpleFilesLocation);
+		jimpleClass.collectAndroidMethods();
 		entrypoints = jimpleClass.getEntryPoints();
 
 		permissionList = processMan
@@ -151,6 +153,19 @@ public class SetupApplication {
 
 		info.computeInfoflow(path, entrypoints, sources, sinks);
 		
+	}
+	
+	public void generateJimpleFiles(String commandLine) throws IOException, InterruptedException{
+		System.out.println("Generating the Jimple Files");
+		Process proc = Runtime.getRuntime().exec(commandLine);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				proc.getInputStream()));
+		String line;
+		while ((line = reader.readLine()) != null) {
+			
+			System.out.println(line);
+		}
+		proc.waitFor();
 	}
 
 	
