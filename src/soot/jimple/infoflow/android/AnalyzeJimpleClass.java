@@ -275,28 +275,28 @@ public class AnalyzeJimpleClass {
 		
 		return entryPoints;
 	}
-	/** Doesn't work correctly, still have to work on this method
-	 * 
-	 * @param sourceFolder
-	 * @throws IOException
-	 */
-	//TODO implement correctly
-	public void searchSources(String sourceFolder) throws IOException{
-		for(String i : extendsImplementsClasses){
-			String fileName = i.replace(".", "/");
-			
-			int index = fileName.indexOf("$");
-			if(index!=-1){
-				fileName = fileName.substring(0, index);
-			}
-			fileName = sourceFolder + fileName +".java";
-//			System.out.println(fileName);
-//			analyzeClass(fileName);
-//			System.out.println(fileName);
-//		FileReader fReader = new FileReader(filename);
-//		BufferedReader bReader = new BufferedReader(fReader);
-		}
-	}
+//	/** Doesn't work correctly, still have to work on this method
+//	 * 
+//	 * @param sourceFolder
+//	 * @throws IOException
+//	 */
+//	//TODO implement correctly
+//	public void searchSources(String sourceFolder) throws IOException{
+//		for(String i : extendsImplementsClasses){
+//			String fileName = i.replace(".", "/");
+//			
+//			int index = fileName.indexOf("$");
+//			if(index!=-1){
+//				fileName = fileName.substring(0, index);
+//			}
+//			fileName = sourceFolder + fileName +".java";
+////			System.out.println(fileName);
+////			analyzeClass(fileName);
+////			System.out.println(fileName);
+////		FileReader fReader = new FileReader(filename);
+////		BufferedReader bReader = new BufferedReader(fReader);
+//		}
+//	}
 
 //	private Class readClass(String className, String line) throws IOException{
 //		Class classElem = new Class(className);
