@@ -30,6 +30,8 @@ public class AnalyzeJimpleClass {
 	private Set<String> extendsImplementsClasses = new HashSet<String>();
 	private String jimpleFilesLocation;
 	private String androidJar;
+	private List<SootMethod> methodListApp;
+	private SootClass c;
 
 	public AnalyzeJimpleClass(String jimpleFilesLocation, String androidJar) {
 		this.jimpleFilesLocation = jimpleFilesLocation;
@@ -164,7 +166,7 @@ public class AnalyzeJimpleClass {
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().parse(args);
 
-		SootClass c = Scene.v().tryLoadClass(className, SootClass.BODIES);
+		c = Scene.v().tryLoadClass(className, SootClass.BODIES);
 		
 		if(c.isConcrete()){	
 			c.setApplicationClass();
@@ -172,13 +174,13 @@ public class AnalyzeJimpleClass {
 			//TODO is it recursive?
 			List<SootClass> listSootClass = Scene.v().getActiveHierarchy()
 					.getSuperclassesOf(c);
-			List<SootMethod> methodList = c.getMethods();
+			methodListApp = c.getMethods();
 			
 			for (SootClass sc : listSootClass) {
 				if (!sc.getName().equals("java.lang.Object")) {
-					SootClass superClass = Scene.v().forceResolve(sc.getName(),
+					SootClass superClass = Scene.v().tryLoadClass(sc.getName(),
 							SootClass.BODIES);
-					for (SootMethod m : methodList) {
+					for (SootMethod m : methodListApp) {
 	
 						if (superClass.declaresMethod(m.getSubSignature())
 								&& !m.getSubSignature().equals("void <init>()")
@@ -195,30 +197,35 @@ public class AnalyzeJimpleClass {
 				}
 	
 			}
-			//TODO is not recursive
-			Chain<SootClass> chainSoot = c.getInterfaces();
-			for(SootClass cs: chainSoot){
-//				if (!cs.getName().equals("java.lang.Object")) {
-					SootClass superClass = Scene.v().forceResolve(cs.getName(),
-							SootClass.BODIES);
-					for (SootMethod m : methodList) {
-	
-						if (superClass.declaresMethod(m.getSubSignature())) {
-							newEntry(c.getName(), m.getSubSignature());
-//							System.out.println("Übereinstimmung: Interface: "
-//									+ cs.getName() + " Methodenname: "
-//									+ m.getName());
-						}
-	
-	
-					}
-	
-//				}
-			}
+			
+			getInterfaces(className);
 
 		}
 		
 		
+	}
+	
+	
+	private void getInterfaces(String name){
+		SootClass interfaceClass = Scene.v().tryLoadClass(name, SootClass.BODIES);
+		Chain<SootClass> chainSoot = interfaceClass.getInterfaces();
+		for(SootClass cs: chainSoot){
+			getInterfaces(cs.getName());
+			SootClass superClass = Scene.v().tryLoadClass(cs.getName(),
+					SootClass.BODIES);
+			for (SootMethod m : methodListApp) {
+
+				if (superClass.declaresMethod(m.getSubSignature())) {
+					newEntry(c.getName(), m.getSubSignature());
+//					System.out.println("Übereinstimmung: Interface: "
+//							+ cs.getName() + " Methodenname: "
+//							+ m.getName());
+				}
+
+
+			}
+
+		}
 	}
 
 	@Deprecated
