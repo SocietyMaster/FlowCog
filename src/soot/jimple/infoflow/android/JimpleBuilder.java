@@ -3,6 +3,8 @@ package soot.jimple.infoflow.android;
 import java.util.LinkedList;
 import java.util.List;
 
+import soot.PackManager;
+import soot.Scene;
 import soot.options.Options;
 
 public class JimpleBuilder {
@@ -17,9 +19,14 @@ public class JimpleBuilder {
 		Options.v().set_android_jars(androidjarPath);
 		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_output_dir("JimpleOutput");
+		soot.Main.v().autoSetOptions();
 		
 		System.out.println("Generating the Jimple Files");
-		soot.Main.v().run(new String[0]);
+		 Scene.v().loadNecessaryClasses();
+		 PackManager.v().runPacks();
+         PackManager.v().writeOutput();
+         soot.G.reset();
+
 	}
 
 }
