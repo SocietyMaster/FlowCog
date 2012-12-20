@@ -2,23 +2,19 @@ package soot.jimple.infoflow.android;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.util.ArgBuilder;
-import soot.jimple.infoflow.util.EntryPointCreator;
 import soot.options.Options;
 import soot.util.Chain;
 
@@ -43,6 +39,17 @@ public class AnalyzeJimpleClass {
 		File f = new File(jimpleFilesLocation);
 		File[] files = f.listFiles();
 		if (files != null) {
+			String path = jimpleFilesLocation + ";" + androidJar;
+			// prepare soot arguments:
+			ArgBuilder builder = new ArgBuilder();
+			String[] args = builder.buildArgs(path);
+
+			Options.v().set_allow_phantom_refs(true);
+			Options.v().set_no_bodies_for_excluded(true);
+			Options.v().set_output_format(Options.output_format_none);
+			Options.v().parse(args);
+
+			
 			for (int i = 0; i < files.length; i++) {
 				if (!files[i].isDirectory()) {
 //					analyzeClass(files[i].getAbsolutePath());
@@ -155,19 +162,7 @@ public class AnalyzeJimpleClass {
 	
 	
 	private void analyzeJimple(String className) {
-
-		String path = jimpleFilesLocation + ";" + androidJar;
-		// prepare soot arguments:
-		ArgBuilder builder = new ArgBuilder();
-		String[] args = builder.buildArgs(path, className);
-
-		Options.v().set_allow_phantom_refs(true);
-		Options.v().set_no_bodies_for_excluded(true);
-		Options.v().set_output_format(Options.output_format_none);
-		Options.v().parse(args);
-
 		c = Scene.v().tryLoadClass(className, SootClass.BODIES);
-		
 		if(c.isConcrete()){	
 			c.setApplicationClass();
 			
