@@ -1,6 +1,5 @@
 package soot.jimple.infoflow.android.TestApps;
 
-import java.io.File;
 import java.io.IOException;
 
 import soot.Scene;

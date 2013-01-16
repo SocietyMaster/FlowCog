@@ -1,3 +1,4 @@
+<java.net.HttpURLConnection: void connect()> INTERNET
 <android.accessibilityservice.AccessibilityService: android.content.ComponentName startService(android.content.Intent)> MANAGE_APP_TOKENS 
 <android.accessibilityservice.AccessibilityService: boolean bindService(android.content.Intent,android.content.ServiceConnection,int)> MANAGE_APP_TOKENS 
 <android.accessibilityservice.AccessibilityService: boolean startInstrumentation(android.content.ComponentName,java.lang.String,android.os.Bundle)> BROADCAST_STICKY MANAGE_APP_TOKENS BLUETOOTH_ADMIN SHUTDOWN BLUETOOTH 
