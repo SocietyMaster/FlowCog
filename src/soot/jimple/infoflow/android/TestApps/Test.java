@@ -1,5 +1,6 @@
 package soot.jimple.infoflow.android.TestApps;
 
+import java.io.File;
 import java.io.IOException;
 
 import soot.Scene;
@@ -23,8 +24,18 @@ public class Test {
 			System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");	
 			return;
 		}
+		//start with cleanup:
+		File outputDir = new File("JimpleOutput");
+		if(outputDir.isDirectory()){
+			boolean success = true;
+			for(File f : outputDir.listFiles()){
+				success = success && f.delete();
+			}
+			if(!success){
+				System.err.println("Cleanup of output directory "+ outputDir + " failed!");
+			}
+		}
 		app.setApkFileLocation(args[0]);
-		
 		app.setAndroidJar(Scene.v().getAndroidJarPath(args[1], args[0]));
 		app.setJimpleFilesLocation("JimpleOutput");
 		app.setMatrixFileLocation("android-api9.matrix");
