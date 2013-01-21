@@ -237,25 +237,27 @@ public class ProcessManifest {
 			Element rootElement = doc.getDocumentElement();
 			String pkgName = rootElement.getAttribute("package");
 			
-			Element appElement = (Element) rootElement.getElementsByTagName("application").item(0);
-			
-			NodeList activities = appElement.getElementsByTagName("activity");
-			NodeList receivers = appElement.getElementsByTagName("receiver");
-			NodeList services  = appElement.getElementsByTagName("service");
-			
-			for (int i = 0; i < activities.getLength(); i++) {
-				Element activity = (Element) activities.item(i);
-				loadManifestEntry(activity, "android.app.Activity", pkgName);
-			}
-			for (int i = 0; i < receivers.getLength(); i++) {
-				Element receiver = (Element) receivers.item(i);
-				loadManifestEntry(receiver, "android.content.BroadcastReceiver", pkgName);
-			}
-			for (int i = 0; i < services.getLength(); i++) {
-				Element service = (Element) services.item(i);
-				loadManifestEntry(service, "android.app.Service", pkgName);
-			}
-			
+			NodeList appsElement = rootElement.getElementsByTagName("application");
+			for (int appIdx = 0; appIdx < appsElement.getLength(); appIdx++) {
+				Element appElement = (Element) appsElement.item(appIdx);
+
+				NodeList activities = appElement.getElementsByTagName("activity");
+				NodeList receivers = appElement.getElementsByTagName("receiver");
+				NodeList services  = appElement.getElementsByTagName("service");
+				
+				for (int i = 0; i < activities.getLength(); i++) {
+					Element activity = (Element) activities.item(i);
+					loadManifestEntry(activity, "android.app.Activity", pkgName);
+				}
+				for (int i = 0; i < receivers.getLength(); i++) {
+					Element receiver = (Element) receivers.item(i);
+					loadManifestEntry(receiver, "android.content.BroadcastReceiver", pkgName);
+				}
+				for (int i = 0; i < services.getLength(); i++) {
+					Element service = (Element) services.item(i);
+					loadManifestEntry(service, "android.app.Service", pkgName);
+				}
+			}			
 		}
 		catch (IOException ex) {
 			System.err.println("Could not parse manifest: " + ex.getMessage());
@@ -267,7 +269,7 @@ public class ProcessManifest {
 			System.err.println("Could not parse manifest: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		return null;
+		return entryPointsClasses;
 	}
 	
 	private void loadManifestEntry(Element activity, String baseClass, String packageName) {
