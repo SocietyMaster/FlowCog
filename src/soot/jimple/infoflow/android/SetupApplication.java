@@ -3,6 +3,7 @@ package soot.jimple.infoflow.android;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SetupApplication {
@@ -12,13 +13,24 @@ public class SetupApplication {
 	private String jimpleFilesLocation;
 	private String apkFileLocation;
 	private String matrixFileLocation;
+	@Deprecated
 	private String sinkConfigFileLocation;
+	@Deprecated
 	private String sourceConfigFileLocation;
 	
 	public SetupApplication(){
 		
 	}
 	
+	public SetupApplication(String androidJar, String jimpleFilesLocation,
+			String apkFileLocation, String matrixFileLocation) {
+		this.androidJar = androidJar;
+		this.jimpleFilesLocation = jimpleFilesLocation;
+		this.apkFileLocation = apkFileLocation;
+		this.matrixFileLocation = matrixFileLocation;
+	}
+	
+	@Deprecated
 	public SetupApplication(String androidJar, String jimpleFilesLocation,
 			String apkFileLocation, String matrixFileLocation,
 			String sinkConfigFileLocation, String sourceConfigFileLocation) {
@@ -29,11 +41,13 @@ public class SetupApplication {
 		this.sinkConfigFileLocation = sinkConfigFileLocation;
 		this.sourceConfigFileLocation = sourceConfigFileLocation;
 	}
-
+	
+	@Deprecated
 	public void setSinkConfigFileLocation(String sinkConfigFileLocation) {
 		this.sinkConfigFileLocation = sinkConfigFileLocation;
 	}
-
+	
+	@Deprecated
 	public void setSourceConfigFileLocation(String sourceConfigFileLocation) {
 		this.sourceConfigFileLocation = sourceConfigFileLocation;
 	}
@@ -126,7 +140,7 @@ public class SetupApplication {
 		ReadFile rf = new ReadFile();
 		ProcessManifest processMan = new ProcessManifest();
 		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(jimpleFilesLocation, androidJar);
-		AnalyzeConfigSourceSink analyzeConfig = new AnalyzeConfigSourceSink();
+		
 		
 		jimpleClass.collectAndroidMethods();
 		entrypoints = jimpleClass.getEntryPoints();
@@ -134,14 +148,39 @@ public class SetupApplication {
 		permissionList = processMan
 				.getAndroidAppPermissionList(apkFileLocation);
 
-		mappedPermissionList = rf.getMappedPermissionsOnlyComplete(
+		mappedPermissionList = rf.getMappedPermissionsOnlyCompleteBayes(
 				matrixFileLocation, permissionList);
+//		System.out.println("MappedPermissionListBeginn");
+		String sourceSinkNone;
+		sources = new ArrayList<String>();
+		sinks = new ArrayList<String>();
 		
-		sources = analyzeConfig.getReducedSourceSinkList(sourceConfigFileLocation,
-				mappedPermissionList);
-
-		sinks = analyzeConfig.getReducedSourceSinkList(
-				sinkConfigFileLocation, mappedPermissionList);
+		boolean isDefined = false;
+		if(mappedPermissionList.get(0).lastIndexOf("->")!=-1){
+			isDefined = true;
+		}
+		
+		if(isDefined){
+			for (String m : mappedPermissionList){
+				sourceSinkNone = m.substring(m.lastIndexOf("->") + 2).trim();
+				if(sourceSinkNone.matches(".*_SOURCE_.*")){
+					sources.add(m.substring(0,m.lastIndexOf("->")).trim());
+				}
+				if(sourceSinkNone.matches(".*_SINK_.*")){
+					sinks.add(m.substring(0,m.lastIndexOf("->")).trim());
+				}
+				
+				
+			}
+		}
+		else{
+			AnalyzeConfigSourceSink analyzeConfig = new AnalyzeConfigSourceSink();
+			sources = analyzeConfig.getReducedSourceSinkList(sourceConfigFileLocation,
+					mappedPermissionList);
+	
+			sinks = analyzeConfig.getReducedSourceSinkList(
+					sinkConfigFileLocation, mappedPermissionList);
+		}
 
 
 		

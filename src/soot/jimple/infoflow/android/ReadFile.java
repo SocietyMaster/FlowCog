@@ -96,6 +96,7 @@ public class ReadFile {
 		return list;
 	}
 
+	@Deprecated
 	public List<String> getMappedPermissions(String permissionMatrixFilename,
 			List<String> permissionApp) throws IOException {
 		List<String> mappedPermissions = new ArrayList<String>();
@@ -179,12 +180,17 @@ public class ReadFile {
 
 		String zeile, permissions;
 		int position;
+		int position2;
 		
 
 		while ((zeile = bReader.readLine()) != null) {
-
+			position2 = zeile.lastIndexOf("->");
+			if(position2!=-1){
+				zeile = zeile.substring(0,position2);
+			}
 			position = zeile.lastIndexOf(">");
 			permissions = zeile.substring(position + 1).trim();
+			
 			String[] permissionArrayMatrix = permissions.split(" ");
 			
 //			boolean found = false;
@@ -246,6 +252,91 @@ public class ReadFile {
 		return mappedPermissions;
 
 	}
+	
+	
+	public List<String> getMappedPermissionsOnlyCompleteBayes(String permissionMatrixFilename,
+			List<String> permissionApp) throws IOException {
+		List<String> mappedPermissions = new ArrayList<String>();
+
+		FileReader fReader = new FileReader(permissionMatrixFilename);
+		BufferedReader bReader = new BufferedReader(fReader);
+
+		String zeile, permissions;
+		int position;
+		int position2;
+		
+
+		while ((zeile = bReader.readLine()) != null) {
+			position2 = zeile.lastIndexOf("->");
+			String end = "";
+			if(position2!=-1){
+				end = zeile.substring(position2);
+				zeile = zeile.substring(0,position2);
+			}
+			position = zeile.lastIndexOf(">");
+			permissions = zeile.substring(position + 1).trim();
+			
+			String[] permissionArrayMatrix = permissions.split(" ");
+			
+//			boolean found = false;
+//			for (int i = 0; i < permissionArrayMatrix.length; i++) {
+//
+//				for (String t : permissionApp) {
+//					if (permissionArrayMatrix[i].equals(t)) {
+//						found = true;
+//						 mappedPermissions.add(zeile.substring(0, position +
+//						 1));
+////						 System.out.println(t);
+//						break;
+//					}
+//				}
+//				if (found){
+//					break;
+//				}
+//
+//
+//			}
+			//
+
+			boolean foundAll = true;
+			for (int i = 0; i < permissionArrayMatrix.length; i++) {
+				boolean found = false;
+				
+				for (String t : permissionApp) {
+					if (permissionArrayMatrix[i].equals(t)) {
+						found = true;
+						// mappedPermissions.add(zeile.substring(0, position +
+						// 1));
+//						 System.out.println(zeile.substring(0, position + 1));
+						break;
+					}
+				}
+				if (!found) {
+					foundAll = false;
+					break;
+				}
+
+			}
+			if (foundAll) {
+				mappedPermissions.add(zeile.substring(0, position + 1) + " " + end);
+			}
+
+			// position = zeile.lastIndexOf(":");
+			// zeile = zeile.substring(position + 1).trim();
+			// zeile = zeile.substring(0, zeile.indexOf(" "));
+			//
+			// if (zeile.compareTo("void") != 0) {
+			// mappedPermissions.add(permissions);
+			// }
+
+		}
+		bReader.close();
+		fReader.close();
+
+		return mappedPermissions;
+
+	}
+	
 	
 
 
