@@ -318,7 +318,7 @@ public class ReadFile {
 
 			}
 			if (foundAll) {
-				mappedPermissions.add(zeile.substring(0, position + 1) + " " + end);
+				mappedPermissions.add((zeile.substring(0, position + 1) + " " + end).trim());
 			}
 
 			// position = zeile.lastIndexOf(":");
