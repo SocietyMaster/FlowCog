@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -27,6 +29,7 @@ public class ProcessManifest {
 
 	private List<String> entryPointsClasses = new ArrayList<String>();
 	private List<Class> classes = new ArrayList<Class>();
+	private Set<String> androidClasses = new HashSet<String>();
 
 	private String createSootEntrypoints(String className, String methodName) {
 		String completeName = "<" + className + ": " + methodName + ">";
@@ -92,7 +95,8 @@ public class ProcessManifest {
 
 		return entrypoints;
 	}
-
+	
+	
 	public List<String> getAndroidAppEntryPointsClassesList(String apk) {
 		File apkF = new File(apk);
 
@@ -128,8 +132,8 @@ public class ProcessManifest {
 		}
 		return entryPointsClasses;
 	}
-
-	public List<String> loadClassesFromBinaryManifest(InputStream manifestIS) {
+	
+	private List<String> loadClassesFromBinaryManifest(InputStream manifestIS) {
 		// process AndroidManifest.xml
 		try {
 			AXmlResourceParser parser = new AXmlResourceParser();
@@ -167,7 +171,8 @@ public class ProcessManifest {
 					}
 					if (tagName.equals("activity")
 							|| tagName.equals("receiver")
-							|| tagName.equals("service")) {
+							|| tagName.equals("service")
+							|| tagName.equals("provider")) {
 						
 						String extentClass;
 						if(tagName.equals("activity")){
@@ -175,6 +180,9 @@ public class ProcessManifest {
 						}
 						else if(tagName.equals("receiver")){
 							extentClass = "android.content.BroadcastReceiver";
+						}
+						else if(tagName.equals("provider")){
+							extentClass = "android.provider";
 						}
 						else{
 							extentClass = "android.app.Service";
@@ -191,6 +199,7 @@ public class ProcessManifest {
 
 									entryPointsClasses.add(tagName + ";"
 											+ packagename + attrValue);
+									androidClasses.add(packagename + attrValue);
 								} else if (attrValue.substring(0, 1)
 										.equals(attrValue.substring(0, 1)
 												.toUpperCase())) {
@@ -201,11 +210,13 @@ public class ProcessManifest {
 											.add(tagName + ";"
 													+ packagename + "."
 													+ attrValue);
+									androidClasses.add(packagename + "." + attrValue);
 								} else {
 									classes.add(new Class(extentClass, attrValue));
 
 									entryPointsClasses.add(tagName + ";"
 											+ attrValue);
+									androidClasses.add(attrValue);
 
 								}
 
@@ -227,6 +238,10 @@ public class ProcessManifest {
 			e.printStackTrace();
 		}
 		return entryPointsClasses;
+	}
+	
+	public Set<String> getAndroidClasses(){
+		return androidClasses;
 	}
 
 	public List<String> loadClassesFromTextManifest(InputStream manifestIS) {

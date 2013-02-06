@@ -6,8 +6,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -19,15 +21,16 @@ import test.AXMLPrinter;
 import android.content.res.AXmlResourceParser;
 
 public class ReadXml {
+	private Map<String, List<String>> additionalEntryPoints = new HashMap<String, List<String>>();
 	
-	public Map<String, List<String>> getAndroidAppPermissionMap(String apk) {
-		Map<String, List<String>> additionalEntryPoints = new HashMap<String, List<String>>();
+	public void generateAndroidAppPermissionMap(String apk) {
+		
 		
 		File apkF = new File(apk);
 		
 
 		if (!apkF.exists())
-			throw new RuntimeException("file '" + apk + "' does not exist!");
+			throw new RuntimeException("file '" + apk + "' does not exist!"); 
 
 		// get xmlFiles
 		InputStream xmlFile = null;
@@ -58,8 +61,26 @@ public class ReadXml {
 			G.v().out.println("Could not find any XML file");
 		}
 
-		return additionalEntryPoints;
-
+	}
+	
+	public List<String> getAdditionalEntryPoints(Set<String> classes){
+		List<String> returnList = new ArrayList<String>();
+		
+		for(String set : classes){
+			for ( Map.Entry<String, List<String>> elem : additionalEntryPoints.entrySet() ){
+				
+				for(String method : elem.getValue()){
+					
+						
+					returnList.add("<"+set+": "+method + ">");
+					System.out.println( "<"+set+": "+method + ">" );
+				}
+			}
+		}
+			  
+		
+		
+		return returnList;
 	}
 
 	private List<String> handleXmlFile(InputStream xmlFile) throws XmlPullParserException, IOException {

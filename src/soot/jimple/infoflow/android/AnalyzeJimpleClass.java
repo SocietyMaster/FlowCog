@@ -26,12 +26,14 @@ public class AnalyzeJimpleClass {
 	private Set<String> extendsImplementsClasses = new HashSet<String>();
 	private String jimpleFilesLocation;
 	private String androidJar;
+	private String androidApk;
 	private List<SootMethod> methodListApp;
 	private SootClass c;
 
-	public AnalyzeJimpleClass(String jimpleFilesLocation, String androidJar) {
+	public AnalyzeJimpleClass(String jimpleFilesLocation, String androidJar, String androidApk) {
 		this.jimpleFilesLocation = jimpleFilesLocation;
 		this.androidJar = androidJar;
+		this.androidApk= androidApk;
 	}
 
 	public void collectAndroidMethods() throws IOException {
@@ -162,39 +164,50 @@ public class AnalyzeJimpleClass {
 	
 	
 	private void analyzeJimple(String className) {
-		c = Scene.v().tryLoadClass(className, SootClass.BODIES);
-		if(c.isConcrete()){	
-			c.setApplicationClass();
-			
-			//TODO is it recursive?
-			List<SootClass> listSootClass = Scene.v().getActiveHierarchy()
-					.getSuperclassesOf(c);
-			methodListApp = c.getMethods();
-			
-			for (SootClass sc : listSootClass) {
-				if (!sc.getName().equals("java.lang.Object")) {
-					SootClass superClass = Scene.v().tryLoadClass(sc.getName(),
-							SootClass.BODIES);
-					for (SootMethod m : methodListApp) {
-	
-						if (superClass.declaresMethod(m.getSubSignature())
-								&& !m.getSubSignature().equals("void <init>()")
-								&& !m.getSubSignature().equals("void <clinit>()")) {
-							newEntry(c.getName(), m.getSubSignature());
-//							System.out.println("Übereinstimmung: Super-Klasse: "
-//									+ sc.getName() + " Methodenname: "
-//									+ m.getName());
+		ProcessManifest pm = new ProcessManifest();
+		List<String> lString = pm.getAndroidAppEntryPointsClassesList(androidApk);
+		boolean definedInManifest = false;
+		for(String l : lString){
+			if(l.substring(l.indexOf(";")+1).matches(className)){
+				definedInManifest = true;
+				break;
+			}
+		}
+		if(definedInManifest){
+			c = Scene.v().tryLoadClass(className, SootClass.BODIES);
+			if(c.isConcrete()){	
+				c.setApplicationClass();
+				
+				//TODO is it recursive?
+				List<SootClass> listSootClass = Scene.v().getActiveHierarchy()
+						.getSuperclassesOf(c);
+				methodListApp = c.getMethods();
+				
+				for (SootClass sc : listSootClass) {
+					if (!sc.getName().equals("java.lang.Object")) {
+						SootClass superClass = Scene.v().tryLoadClass(sc.getName(),
+								SootClass.BODIES);
+						for (SootMethod m : methodListApp) {
+		
+							if (superClass.declaresMethod(m.getSubSignature())
+									&& !m.getSubSignature().equals("void <init>()")
+									&& !m.getSubSignature().equals("void <clinit>()")) {
+								newEntry(c.getName(), m.getSubSignature());
+	//							System.out.println("Übereinstimmung: Super-Klasse: "
+	//									+ sc.getName() + " Methodenname: "
+	//									+ m.getName());
+							}
+		
+		
 						}
-	
-	
+		
 					}
-	
+		
 				}
+				
+				getInterfaces(className);
 	
 			}
-			
-			getInterfaces(className);
-
 		}
 		
 		

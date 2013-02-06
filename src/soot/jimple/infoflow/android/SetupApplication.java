@@ -139,11 +139,14 @@ public class SetupApplication {
 		
 		ReadFile rf = new ReadFile();
 		ProcessManifest processMan = new ProcessManifest();
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(jimpleFilesLocation, androidJar);
+		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(jimpleFilesLocation, androidJar, apkFileLocation );
 		
 		
 		jimpleClass.collectAndroidMethods();
 		entrypoints = jimpleClass.getEntryPoints();
+		ReadXml readXml = new ReadXml();
+		readXml.generateAndroidAppPermissionMap(apkFileLocation);
+		entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
 
 		permissionList = processMan
 				.getAndroidAppPermissionList(apkFileLocation);
