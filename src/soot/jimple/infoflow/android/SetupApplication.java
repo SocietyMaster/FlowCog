@@ -146,6 +146,8 @@ public class SetupApplication {
 		entrypoints = jimpleClass.getEntryPoints();
 		ReadXml readXml = new ReadXml();
 		readXml.generateAndroidAppPermissionMap(apkFileLocation);
+
+		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
 		entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
 
 		permissionList = processMan

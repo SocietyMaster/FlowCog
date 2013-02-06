@@ -63,17 +63,18 @@ public class ReadXml {
 
 	}
 	
+	/**
+	 *
+	 * @param classes all classes that exist in the Manifest file
+	 * @return
+	 */
 	public List<String> getAdditionalEntryPoints(Set<String> classes){
 		List<String> returnList = new ArrayList<String>();
 		
 		for(String set : classes){
 			for ( Map.Entry<String, List<String>> elem : additionalEntryPoints.entrySet() ){
-				
 				for(String method : elem.getValue()){
-					
-						
-					returnList.add("<"+set+": "+method + ">");
-					System.out.println( "<"+set+": "+method + ">" );
+					returnList.add("<"+set+": "+method + "()>");
 				}
 			}
 		}
