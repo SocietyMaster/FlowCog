@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +73,7 @@ public class ReadXml {
 		for(String set : classes){
 			for ( Map.Entry<String, List<String>> elem : additionalEntryPoints.entrySet() ){
 				for(String method : elem.getValue()){
-					returnList.add("<"+set+": "+method + "()>");
+					returnList.add("<"+set+": void "+method + "(android.view.View)>");
 				}
 			}
 		}
@@ -108,7 +107,7 @@ public class ReadXml {
 				String tagName = parser.getName();
 				
 				//more listeners can be added likewise
-				if (tagName.equals("Button")) {
+				if (tagName.equals("Button") || tagName.equals("RadioButton") || tagName.equals("ToggleButton") || tagName.equals("CheckBox")) {
 					
 					for(int i=0; i < parser.getAttributeCount(); i++){
 						attribute = parser.getAttributeName(i);

@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import soot.jimple.infoflow.config.SootConfigForTest;
-
 public class SetupApplication {
 
 	private List<String> sinks, sources, entrypoints, mappedPermissionList;
@@ -196,7 +194,8 @@ public class SetupApplication {
 	public void runInfoflow(){
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow();
 		String path = jimpleFilesLocation + ";" + androidJar;
-		info.setSootConfig(new SootConfigForTest());
+		info.setSootConfig(new SootConfigForAndroid());
+		
 		info.computeInfoflow(path, entrypoints, sources, sinks);
 		
 	}
