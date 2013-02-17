@@ -1,125 +1,66 @@
 package soot.jimple.infoflow.android;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import soot.Scene;
+import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.util.SootMethodRepresentationParser;
+import de.ecspride.sourcesinkfinder.analysis.AndroidSourceSinkManager;
+import de.ecspride.sourcesinkfinder.data.AndroidMethod;
+import de.ecspride.sourcesinkfinder.permissionsAndMethods.PermissionMethodParser;
 
 public class SetupApplication {
 
-	private List<String> sinks, sources, entrypoints, mappedPermissionList;
+	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
+	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
+	private List<String> entrypoints = new ArrayList<String>();
 	private String androidJar;
-	private String jimpleFilesLocation;
 	private String apkFileLocation;
 	private String matrixFileLocation;
-	@Deprecated
-	private String sinkConfigFileLocation;
-	@Deprecated
-	private String sourceConfigFileLocation;
-	
+	private String entryPointsFile;
+
 	public SetupApplication(){
 		
 	}
 	
-	public SetupApplication(String androidJar, String jimpleFilesLocation,
-			String apkFileLocation, String matrixFileLocation) {
+	public SetupApplication(String androidJar, String apkFileLocation,
+			String matrixFileLocation, String entryPointsFile) {
 		this.androidJar = androidJar;
-		this.jimpleFilesLocation = jimpleFilesLocation;
 		this.apkFileLocation = apkFileLocation;
 		this.matrixFileLocation = matrixFileLocation;
-	}
-	
-	@Deprecated
-	public SetupApplication(String androidJar, String jimpleFilesLocation,
-			String apkFileLocation, String matrixFileLocation,
-			String sinkConfigFileLocation, String sourceConfigFileLocation) {
-		this.androidJar = androidJar;
-		this.jimpleFilesLocation = jimpleFilesLocation;
-		this.apkFileLocation = apkFileLocation;
-		this.matrixFileLocation = matrixFileLocation;
-		this.sinkConfigFileLocation = sinkConfigFileLocation;
-		this.sourceConfigFileLocation = sourceConfigFileLocation;
-	}
-	
-	@Deprecated
-	public void setSinkConfigFileLocation(String sinkConfigFileLocation) {
-		this.sinkConfigFileLocation = sinkConfigFileLocation;
-	}
-	
-	@Deprecated
-	public void setSourceConfigFileLocation(String sourceConfigFileLocation) {
-		this.sourceConfigFileLocation = sourceConfigFileLocation;
+		this.entryPointsFile = entryPointsFile;
 	}
 
-	public List<String> getSinks() {
-		return sinks;
-	}
-	
 	public void printSinks(){
 		System.out.println("Sinks:");
-		for (String s : sinks) {
-			System.out.println(s);
+		for (AndroidMethod am : sinks) {
+			System.out.println(am.toString());
 		}
 		System.out.println("End of Sinks");
 	}
 
 	
-	public void addSink(String sink){
-		sinks.add(sink);
-	}
-
-	public List<String> getSources() {
-		return sources;
-	}
-
-	
-	public void addSource(String source){
-		sources.add(source);
-	}
-	
 	public void printSources(){
 		System.out.println("Sources:");
-		for (String s : sources) {
-			System.out.println(s);
+		for (AndroidMethod am : sources) {
+			System.out.println(am.toString());
 		}
 		System.out.println("End of Sources");
 	}
 
-	public List<String> getEntrypoints() {
-		return entrypoints;
-	}
-
-	public void setEntrypoints(List<String> entrypoints) {
-		this.entrypoints = entrypoints;
-	}
-	
-	public void addEntrypoint(String entrypoint){
-		entrypoints.add(entrypoint);
-	}
-	
 	public void printEntrypoints(){
 		System.out.println("Entrypoints:");
 		for (String s : entrypoints) {
 			System.out.println(s);
 		}
 		System.out.println("End of Entrypoints");
-	}
-
-	public void printMappedPermissionList(){
-		System.out.println("mappedPermissionList:");
-		for (String s : mappedPermissionList) {
-			System.out.println(s);
-		}
-		System.out.println("End of mappedPermissionList");
-	}
-
-
-
-
-
-	public void setJimpleFilesLocation(String jimpleFilesLocation) {
-		this.jimpleFilesLocation = jimpleFilesLocation;
 	}
 
 	public void setAndroidJar(String androidJar) {
@@ -133,86 +74,68 @@ public class SetupApplication {
 	public void setMatrixFileLocation(String matrixFileLocation) {
 		this.matrixFileLocation = matrixFileLocation;
 	}
+	
+	public void setEntryPointsFile(String entryPointsFile) {
+		this.entryPointsFile = entryPointsFile;
+	}
 
 	public void calculateSourcesSinksEntrypoints() throws IOException, wrongFormatedFileException{
-		List<String> permissionList;
-		
-		ReadFile rf = new ReadFile();
 		ProcessManifest processMan = new ProcessManifest();
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(jimpleFilesLocation, androidJar, apkFileLocation );
-		
-		
-		jimpleClass.collectAndroidMethods();
-		entrypoints = jimpleClass.getEntryPoints();
-		ReadXml readXml = new ReadXml();
-		readXml.generateAndroidAppPermissionMap(apkFileLocation);
 
+		// To look for callbacks, we need to start somewhere. We use the Android
+		// lifecycle methods for this purpose.
+		List<String> entryPointMethods = readTextFile(this.entryPointsFile);
 		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
-		entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
+		List<String> baseEntryPoints = processMan.getAndroidAppEntryPoints(entryPointMethods);
+		entrypoints.addAll(baseEntryPoints);
 
-		permissionList = processMan
-				.getAndroidAppPermissionList(apkFileLocation);
+		SootMethodRepresentationParser methodParser = new SootMethodRepresentationParser();
+		HashMap<String, List<String>> entryPointClasses = methodParser.parseClassNames(baseEntryPoints, false);
 
-		mappedPermissionList = rf.getMappedPermissionsOnlyCompleteBayes(
-				matrixFileLocation, permissionList);
-//		System.out.println("MappedPermissionListBeginn");
-		String sourceSinkNone;
-		sources = new ArrayList<String>();
-		sinks = new ArrayList<String>();
-		
-		boolean isDefined = false;
-		if(mappedPermissionList.get(0).lastIndexOf("->")!=-1){
-			isDefined = true;
+		// Collect the callback interfaces implemented in the app's source code
+		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(androidJar, apkFileLocation);
+//		jimpleClass.collectCallbackMethods(entryPointClasses);
+		for (AndroidMethod am : jimpleClass.getCallbackMethods())
+			entrypoints.add(am.getSignature());
+		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
+
+		// 14.02.2013, SA: This does not work - conceptual and implementation issues
+		//ReadXml readXml = new ReadXml();
+		//readXml.generateAndroidAppPermissionMap(apkFileLocation);
+		//entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
+
+		PermissionMethodParser parser = PermissionMethodParser.fromFile(matrixFileLocation);
+		for (AndroidMethod am : parser.parse()){
+			if (am.isSource())
+				sources.add(am);
+			if(am.isSink())
+				sinks.add(am);
 		}
-		
-		if(isDefined){
-			for (String m : mappedPermissionList){
-				sourceSinkNone = m.substring(m.lastIndexOf("->") + 2).trim();
-				if(sourceSinkNone.matches(".*_SOURCE_.*")){
-					sources.add(m.substring(0,m.lastIndexOf("->")).trim());
-				}
-				if(sourceSinkNone.matches(".*_SINK_.*")){
-					sinks.add(m.substring(0,m.lastIndexOf("->")).trim());
-				}
-				
-				
-			}
-		}
-		else{
-			AnalyzeConfigSourceSink analyzeConfig = new AnalyzeConfigSourceSink();
-			sources = analyzeConfig.getReducedSourceSinkList(sourceConfigFileLocation,
-					mappedPermissionList);
-	
-			sinks = analyzeConfig.getReducedSourceSinkList(
-					sinkConfigFileLocation, mappedPermissionList);
-		}
-
-
-		
 	}
 	
-	public void runInfoflow(){
-		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow();
-		String path = jimpleFilesLocation + ";" + androidJar;
-		info.setSootConfig(new SootConfigForAndroid());
+	public InfoflowResults runInfoflow(){
+		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
+		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
-		info.computeInfoflow(path, entrypoints, sources, sinks);
-		
+//		info.setSootConfig(new SootConfigForAndroid());
+		info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager(sources, sinks));
+		return info.getResults();
 	}
 	
-	public void generateJimpleFiles(String commandLine) throws IOException, InterruptedException{
-		System.out.println("Generating the Jimple Files");
-		Process proc = Runtime.getRuntime().exec(commandLine);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				proc.getInputStream()));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			
-			System.out.println(line);
+	private static List<String> readTextFile(String fileName) throws IOException {
+		BufferedReader rdr = null;
+		try {
+			List<String> resList = new ArrayList<String>();
+			rdr = new BufferedReader(new FileReader(fileName));
+			String line;
+			while ((line = rdr.readLine()) != null)
+				resList.add(line);
+			return resList;
 		}
-		proc.waitFor();
-	}
-
-	
+		finally {
+			if (rdr != null)
+				rdr.close();
+		}
+	}	
 
 }

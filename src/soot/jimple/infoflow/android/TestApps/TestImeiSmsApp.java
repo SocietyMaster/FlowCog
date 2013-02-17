@@ -21,6 +21,7 @@ public class TestImeiSmsApp {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws IOException, wrongFormatedFileException, InterruptedException {
+		/* TODO change to match refactoring, see Test.java
 		if (args.length == 6) {
 			app.setAndroidJar(args[0]);
 			app.setJimpleFilesLocation(args[1]);
@@ -67,7 +68,7 @@ public class TestImeiSmsApp {
 		app.printSources();
 		
 		app.runInfoflow();
-		
+		*/
 		
 	}
 

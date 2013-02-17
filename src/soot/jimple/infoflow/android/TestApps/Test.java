@@ -3,8 +3,7 @@ package soot.jimple.infoflow.android.TestApps;
 import java.io.File;
 import java.io.IOException;
 
-import soot.Scene;
-import soot.jimple.infoflow.android.JimpleBuilder;
+import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.wrongFormatedFileException;
 
@@ -36,14 +35,9 @@ public class Test {
 			}
 		}
 		app.setApkFileLocation(args[0]);
-		app.setAndroidJar(Scene.v().getAndroidJarPath(args[1], args[0]));
-		app.setJimpleFilesLocation("JimpleOutput");
-		app.setMatrixFileLocation("android-api9.matrix");
-		app.setSinkConfigFileLocation("SinkConfig.txt");
-		app.setSourceConfigFileLocation("SourceConfig.txt");
-			
-		JimpleBuilder jB = new JimpleBuilder();
-		jB.buildJimple(args[1], args[0]);
+		app.setAndroidJar(args[1]);
+		app.setMatrixFileLocation("SourcesAndSinks.txt");
+		app.setEntryPointsFile("entrypoints-someLines.txt");
 		
 		app.calculateSourcesSinksEntrypoints();
 		
@@ -52,8 +46,11 @@ public class Test {
 		app.printSources();
 		
 		
-		app.runInfoflow();
-
+		InfoflowResults results = app.runInfoflow();
+		if (results == null)
+			System.out.println("No results found.");
+		else
+			results.printResults();
 	}
 
 }

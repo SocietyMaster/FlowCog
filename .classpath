@@ -3,8 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow"/>
 	<classpathentry kind="lib" path="lib/polyglot.jar"/>
 	<classpathentry kind="lib" path="lib/AXMLPrinter2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/soot-ifds"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SourceSinkFinder"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,4 @@
-package soot.jimple.infoflow.android;
+package soot.jimple.infoflow.android.manifest;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +21,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 
-import soot.G;
+import soot.jimple.infoflow.android.SootLine;
 import test.AXMLPrinter;
 import android.content.res.AXmlResourceParser;
+
+import soot.jimple.infoflow.android.Class;
 
 public class ProcessManifest {
 
@@ -95,41 +97,59 @@ public class ProcessManifest {
 
 		return entrypoints;
 	}
-	
-	
-	public List<String> getAndroidAppEntryPointsClassesList(String apk) {
-		File apkF = new File(apk);
 
+	/**
+	 * Opens the given apk file and provides the given handler with a stream for
+	 * accessing the contained android manifest file
+	 * @param apk The apk file to process
+	 * @param handler The handler for processing the apk file
+	 * 
+	 * @author Steven Arzt
+	 */
+	private void handleAndroidManifestFile(String apk, IManifestHandler handler) {
+		File apkF = new File(apk);
 		if (!apkF.exists())
 			throw new RuntimeException("file '" + apk + "' does not exist!");
 
-		// get AndroidManifest
-		InputStream manifestIS = null;
+		boolean found = false;
 		try {
-			ZipFile archive = new ZipFile(apkF);
-			for (@SuppressWarnings("rawtypes")
-			Enumeration entries = archive.entries(); entries.hasMoreElements();) {
-				ZipEntry entry = (ZipEntry) entries.nextElement();
-				String entryName = entry.getName();
-				// We are dealing with the Android manifest
-				if (entryName.equals("AndroidManifest.xml")) {
-					manifestIS = archive.getInputStream(entry);
-					break;
+			ZipFile archive = null;
+			try {
+				archive = new ZipFile(apkF);
+				Enumeration<?> entries = archive.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry entry = (ZipEntry) entries.nextElement();
+					String entryName = entry.getName();
+					// We are dealing with the Android manifest
+					if (entryName.equals("AndroidManifest.xml")) {
+						found = true;
+						handler.handleManifest(archive.getInputStream(entry));
+						break;
+					}
 				}
 			}
-		} catch (Exception e) {
+			finally {
+				if (archive != null)
+					archive.close();
+			}
+		}
+		catch (Exception e) {
 			throw new RuntimeException(
 					"Error when looking for manifest in apk: " + e);
 		}
-
-		if (manifestIS == null) {
-			G.v().out.println("Could not find  Android manifest!");
-
-		} else {
-
-			loadClassesFromBinaryManifest(manifestIS);
-
-		}
+		if (!found)
+			throw new RuntimeException("No manifest file found in apk");
+	}
+	
+	public List<String> getAndroidAppEntryPointsClassesList(String apk) {
+		handleAndroidManifestFile(apk, new IManifestHandler() {
+			
+			@Override
+			public void handleManifest(InputStream stream) {
+				loadClassesFromBinaryManifest(stream);
+			}
+			
+		});
 		return entryPointsClasses;
 	}
 	
@@ -304,97 +324,68 @@ public class ProcessManifest {
 	}
 
 	public List<String> getAndroidAppPermissionList(String apk) {
-		File apkF = new File(apk);
-		List<String> permissionArray = new ArrayList<String>();
-
-		if (!apkF.exists())
-			throw new RuntimeException("file '" + apk + "' does not exist!");
-
-		// get AndroidManifest
-		InputStream manifestIS = null;
-		try {
-			ZipFile archive = new ZipFile(apkF);
-			for (@SuppressWarnings("rawtypes")
-			Enumeration entries = archive.entries(); entries.hasMoreElements();) {
-				ZipEntry entry = (ZipEntry) entries.nextElement();
-				String entryName = entry.getName();
-				// We are dealing with the Android manifest
-				if (entryName.equals("AndroidManifest.xml")) {
-					manifestIS = archive.getInputStream(entry);
-					break;
-				}
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"Error when looking for manifest in apk: " + e);
-		}
-
-		if (manifestIS == null) {
-			G.v().out.println("Could not find  Android manifest!");
-
-		} else {
-
-			// process AndroidManifest.xml
-			try {
-				AXmlResourceParser parser = new AXmlResourceParser();
-				parser.open(manifestIS);
-
-				String permission;
-				while (true) {
-					int type = parser.next();
-					if (type == XmlPullParser.END_DOCUMENT) {
-						// throw new RuntimeException
-						// ("target sdk version not found in Android manifest ("+
-						// apkF +")");
-						break;
-					}
-					switch (type) {
-					case XmlPullParser.START_DOCUMENT: {
-						break;
-					}
-					case XmlPullParser.START_TAG: {
-
-						String tagName = parser.getName();
-						if (tagName.equals("uses-permission")) {
-							permission = AXMLPrinter.getAttributeValue(parser,
-									0);
-
-							// System.out.println(permission.substring(0,
-							// permission.lastIndexOf(".")));
-							if (permission.substring(0,
-									permission.lastIndexOf(".")).equals(
-									"android.permission")) {
-
-								permission = permission.substring(permission
-										.lastIndexOf(".") + 1);
-								permissionArray.add(permission);
-								// System.out.println("Permission gefunden:"
-								// + permission);
-							}
-							// personal permissions
-							else {
-								permissionArray.add(permission);
-							}
-
+		final List<String> permissionArray = new ArrayList<String>();
+		handleAndroidManifestFile(apk, new IManifestHandler() {
+			
+			@Override
+			public void handleManifest(InputStream stream) {
+				try {
+					// process AndroidManifest.xml
+					AXmlResourceParser parser = new AXmlResourceParser();
+					parser.open(stream);
+	
+					String permission;
+					while (true) {
+						int type = parser.next();
+						if (type == XmlPullParser.END_DOCUMENT) {
+							// throw new RuntimeException
+							// ("target sdk version not found in Android manifest ("+
+							// apkF +")");
+							break;
 						}
-
-						break;
-					}
-					case XmlPullParser.END_TAG:
-						// depth--;
-						break;
-					case XmlPullParser.TEXT:
-						break;
+						switch (type) {
+						case XmlPullParser.START_DOCUMENT: {
+							break;
+						}
+						case XmlPullParser.START_TAG: {
+							String tagName = parser.getName();
+							if (tagName.equals("uses-permission")) {
+								permission = AXMLPrinter.getAttributeValue(parser,
+										0);
+	
+								// System.out.println(permission.substring(0,
+								// permission.lastIndexOf(".")));
+								if (permission.substring(0,
+									permission.lastIndexOf(".")).equals(
+										"android.permission")) {
+	
+									permission = permission.substring(permission
+											.lastIndexOf(".") + 1);
+									permissionArray.add(permission);
+									// System.out.println("Permission gefunden:"
+									// + permission);
+								}
+								// personal permissions
+								else {
+									permissionArray.add(permission);
+								}
+							}
+							break;
+						}
+						case XmlPullParser.END_TAG:
+							// depth--;
+							break;
+						case XmlPullParser.TEXT:
+							break;
+						}
 					}
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+				catch (Exception ex) {
+					
+				}
 			}
-
-		}
-
+		});
 		return permissionArray;
-
 	}
 
 }

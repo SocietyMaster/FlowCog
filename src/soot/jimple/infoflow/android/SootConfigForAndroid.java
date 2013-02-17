@@ -29,7 +29,6 @@ public class SootConfigForAndroid implements IInfoflowSootConfig{
 		options.set_include(includeList);
 		Options.v().set_no_bodies_for_excluded(false);
 		options.set_output_format(Options.output_format_none);
-		
 	}
 
 }

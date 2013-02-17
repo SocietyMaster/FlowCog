@@ -20,6 +20,7 @@ public class TestImeiInternet {
 	 */
 	public static void main(String[] args) throws IOException,
 			wrongFormatedFileException, InterruptedException {
+		/* TODO change to match refactoring, see Test.java
 		if (args.length == 6) {
 			app.setAndroidJar(args[0]);
 			app.setJimpleFilesLocation(args[1]);
@@ -67,7 +68,7 @@ public class TestImeiInternet {
 		app.printSources();
 
 		app.runInfoflow();
-
+		*/
 	}
 
 }
