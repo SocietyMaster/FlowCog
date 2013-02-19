@@ -1,11 +1,8 @@
 package soot.jimple.infoflow.android.TestApps;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import soot.jimple.infoflow.android.SetupApplication;
-import soot.jimple.infoflow.android.wrongFormatedFileException;
 
 public class TestImeiInternet {
 	static SetupApplication app = new SetupApplication();
@@ -18,8 +15,7 @@ public class TestImeiInternet {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) throws IOException,
-			wrongFormatedFileException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		/* TODO change to match refactoring, see Test.java
 		if (args.length == 6) {
 			app.setAndroidJar(args[0]);

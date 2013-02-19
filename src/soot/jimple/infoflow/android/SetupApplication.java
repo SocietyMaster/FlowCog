@@ -79,7 +79,7 @@ public class SetupApplication {
 		this.entryPointsFile = entryPointsFile;
 	}
 
-	public void calculateSourcesSinksEntrypoints() throws IOException, wrongFormatedFileException{
+	public void calculateSourcesSinksEntrypoints() throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
 
 		// To look for callbacks, we need to start somewhere. We use the Android
@@ -94,7 +94,7 @@ public class SetupApplication {
 
 		// Collect the callback interfaces implemented in the app's source code
 		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(androidJar, apkFileLocation);
-//		jimpleClass.collectCallbackMethods(entryPointClasses);
+		jimpleClass.collectCallbackMethods(entryPointClasses);
 		for (AndroidMethod am : jimpleClass.getCallbackMethods())
 			entrypoints.add(am.getSignature());
 		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
@@ -114,6 +114,8 @@ public class SetupApplication {
 	}
 	
 	public InfoflowResults runInfoflow(){
+		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
+				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
 		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		

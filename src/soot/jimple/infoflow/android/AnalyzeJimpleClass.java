@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import soot.Main;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
@@ -58,6 +59,7 @@ public class AnalyzeJimpleClass {
 		Options.v().set_src_prec(Options.src_prec_apk);
 		Options.v().set_process_dir(Arrays.asList(baseEntryPoints.keySet().toArray()));
 		Options.v().set_app(true);
+		Main.v().autoSetOptions();
 
 		Scene.v().loadNecessaryClasses();
 		
