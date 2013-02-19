@@ -10,11 +10,10 @@ import java.util.List;
 
 import soot.Scene;
 import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
-import de.ecspride.sourcesinkfinder.analysis.AndroidSourceSinkManager;
-import de.ecspride.sourcesinkfinder.data.AndroidMethod;
-import de.ecspride.sourcesinkfinder.permissionsAndMethods.PermissionMethodParser;
 
 public class SetupApplication {
 

@@ -17,9 +17,9 @@ import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
+import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.util.AndroidEntryPointCreator;
 import soot.options.Options;
-import de.ecspride.sourcesinkfinder.data.AndroidMethod;
 
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
