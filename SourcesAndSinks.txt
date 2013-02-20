@@ -13022,3 +13022,4 @@
 <android.util.Log: int wtf(java.lang.String,java.lang.Throwable)> -> _SINK_
 <android.util.Log: int wtf(java.lang.String,java.lang.String)> -> _SINK_
 <android.util.Log: int wtf(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+<java.io.DataOutputStream: void writeBytes(java.lang.String)> -> _SINK_

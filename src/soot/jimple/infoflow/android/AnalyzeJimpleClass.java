@@ -30,49 +30,25 @@ import soot.options.Options;
  */
 public class AnalyzeJimpleClass {
 
-	private String androidJar;
-	private String androidApk;
 	private List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
 
-	public AnalyzeJimpleClass(String androidJar, String androidApk) {
-		this.androidJar = androidJar;
-		this.androidApk= androidApk;
+	public AnalyzeJimpleClass() {
 	}
 
-	public void collectCallbackMethods(Map<String, List<String>> baseEntryPoints) throws IOException {
-		soot.G.reset();
-
-		Transform transform = new Transform("wjtp.ifds", new SceneTransformer() {
+	/**
+	 * Collects the callback methods for all Android default handlers
+	 * implemented in the source code.
+	 * Note that this operation runs inside Soot, so this method only registers
+	 * a new phase that will be executed when Soot is next run
+	 */
+	public void collectCallbackMethods() {
+		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {			
 				for (SootClass sc : Scene.v().getClasses())
 					analyzeClass(sc);
 			}
 		});
 		PackManager.v().getPack("wjtp").add(transform);
-		
-		Options.v().set_no_bodies_for_excluded(true);
-		Options.v().set_allow_phantom_refs(true);
-		Options.v().set_output_format(Options.output_format_none);
-		Options.v().set_whole_program(true);
-		Options.v().set_soot_classpath(androidApk + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, androidApk));
-		Options.v().set_android_jars(androidJar);
-		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_process_dir(Arrays.asList(baseEntryPoints.keySet().toArray()));
-		Options.v().set_app(true);
-		Main.v().autoSetOptions();
-
-		Scene.v().loadNecessaryClasses();
-		
-		for (String className : baseEntryPoints.keySet()) {
-			SootClass c = Scene.v().forceResolve(className, SootClass.BODIES);
-			c.setApplicationClass();
-		}
-
-		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator();
-		SootMethod entryPoint = entryPointCreator.createDummyMain(baseEntryPoints);
-		
-		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
-		PackManager.v().runPacks();
 	}
 	
 	private void analyzeClass(SootClass sootClass) {

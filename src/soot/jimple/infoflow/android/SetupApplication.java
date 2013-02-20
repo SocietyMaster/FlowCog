@@ -5,16 +5,25 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import soot.Main;
+import soot.PackManager;
 import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
+import soot.jimple.infoflow.util.AndroidEntryPointCreator;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
+import soot.options.Options;
 
 public class SetupApplication {
 
@@ -97,9 +106,20 @@ public class SetupApplication {
 		SootMethodRepresentationParser methodParser = new SootMethodRepresentationParser();
 		HashMap<String, List<String>> entryPointClasses = methodParser.parseClassNames(baseEntryPoints, false);
 
+		soot.G.reset();
+
 		// Collect the callback interfaces implemented in the app's source code
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(androidJar, apkFileLocation);
-		jimpleClass.collectCallbackMethods(entryPointClasses);
+		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass();
+		jimpleClass.collectCallbackMethods();
+		
+		// Find the user-defined sources in the layout XML files
+		LayoutFileParser lfp = new LayoutFileParser();
+//		lfp.parseLayoutFile(apkFileLocation);
+		
+		// Run the soot-based operations
+		runSootBasedPhases(entryPointClasses);
+
+		// Collect the results of the soot-based phases
 		for (AndroidMethod am : jimpleClass.getCallbackMethods())
 			entrypoints.add(am.getSignature());
 		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
@@ -118,6 +138,38 @@ public class SetupApplication {
 		}
 	}
 	
+	/**
+	 * Runs Soot and executes all analysis phases that have been registered so
+	 * far.
+	 * @param baseEntryPoints The basic entry points into the app
+	 */
+	private void runSootBasedPhases(HashMap<String, List<String>> baseEntryPoints) {
+		Options.v().set_no_bodies_for_excluded(true);
+		Options.v().set_allow_phantom_refs(true);
+		Options.v().set_output_format(Options.output_format_none);
+		Options.v().set_whole_program(true);
+		Options.v().set_soot_classpath(apkFileLocation + File.pathSeparator
+				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
+		Options.v().set_android_jars(androidJar);
+		Options.v().set_src_prec(Options.src_prec_apk);
+		Options.v().set_process_dir(Arrays.asList(baseEntryPoints.keySet().toArray()));
+		Options.v().set_app(true);
+		Main.v().autoSetOptions();
+
+		Scene.v().loadNecessaryClasses();
+		
+		for (String className : baseEntryPoints.keySet()) {
+			SootClass c = Scene.v().forceResolve(className, SootClass.BODIES);
+			c.setApplicationClass();
+		}
+
+		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator();
+		SootMethod entryPoint = entryPointCreator.createDummyMain(baseEntryPoints);
+		
+		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
+		PackManager.v().runPacks();
+	}
+
 	public InfoflowResults runInfoflow(){
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
