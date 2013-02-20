@@ -92,6 +92,11 @@ public class AnalyzeJimpleClass {
 		if (sootClass.isInterface())
 			return;
 		
+		// We cannot create instances of abstract classes anyway, so there is no
+		// reason to look for interface implementations
+		if (baseClass.isAbstract())
+			return;
+		
 		// If we are a class, one of our superclasses might implement an Android
 		// interface
 		if (sootClass.hasSuperclass())
