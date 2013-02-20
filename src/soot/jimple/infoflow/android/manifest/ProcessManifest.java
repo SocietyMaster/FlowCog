@@ -21,11 +21,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 
-import soot.jimple.infoflow.android.SootLine;
+import soot.jimple.infoflow.android.Class;
 import test.AXMLPrinter;
 import android.content.res.AXmlResourceParser;
-
-import soot.jimple.infoflow.android.Class;
 
 public class ProcessManifest {
 
@@ -46,27 +44,6 @@ public class ProcessManifest {
 		}
 		
 		return entryPoints;
-	}
-	
-	public List<String> getAndroidAppEntryPointsWithClass(List<SootLine> methodNames) {
-
-		List<String> entrypoints = new ArrayList<String>();
-		
-		for(int i = 0; i<classes.size();i++){
-			
-			for (int j = 0; j < methodNames.size(); j++) {
-			
-				if (classes.get(i).getExtendsClass()
-						.equals(methodNames.get(j).getClassName()) ||
-						classes.get(i).getClassName().equals(methodNames.get(j).getClassName())) {
-
-					classes.get(i).addMethod(methodNames.get(j).getMethod());
-
-				}
-			}
-		}
-
-		return entrypoints;
 	}
 	
 	public void printClasses(){

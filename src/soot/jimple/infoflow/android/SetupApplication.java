@@ -13,6 +13,7 @@ import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 
 public class SetupApplication {
@@ -24,6 +25,7 @@ public class SetupApplication {
 	private String apkFileLocation;
 	private String matrixFileLocation;
 	private String entryPointsFile;
+	private String taintWrapperFile;
 
 	public SetupApplication(){
 		
@@ -77,6 +79,10 @@ public class SetupApplication {
 	public void setEntryPointsFile(String entryPointsFile) {
 		this.entryPointsFile = entryPointsFile;
 	}
+	
+	public void setTaintWrapperFile(String taintWrapperFile) {
+		this.taintWrapperFile = taintWrapperFile;
+	}
 
 	public void calculateSourcesSinksEntrypoints() throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
@@ -99,9 +105,9 @@ public class SetupApplication {
 		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
 
 		// 14.02.2013, SA: This does not work - conceptual and implementation issues
-		//ReadXml readXml = new ReadXml();
-		//readXml.generateAndroidAppPermissionMap(apkFileLocation);
-		//entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
+//		ReadXml readXml = new ReadXml();
+//		readXml.generateAndroidAppPermissionMap(apkFileLocation);
+//		entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(matrixFileLocation);
 		for (AndroidMethod am : parser.parse()){
@@ -118,9 +124,16 @@ public class SetupApplication {
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
 		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
-//		info.setSootConfig(new SootConfigForAndroid());
-		info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager(sources, sinks));
-		return info.getResults();
+		try {
+			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
+				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
+			info.setSootConfig(new SootConfigForAndroid());
+			info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager(sources, sinks));
+			return info.getResults();
+		}
+		catch (IOException ex) {
+			throw new RuntimeException("Error processing taint wrapper file", ex);
+		}
 	}
 	
 	private static List<String> readTextFile(String fileName) throws IOException {
