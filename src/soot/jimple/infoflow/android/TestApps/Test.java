@@ -17,10 +17,10 @@ public class Test {
 
 	/**
 	 * @param args[0] = path to apk-file
-	 * @param args[1] = path to android-jar (path/android-platforms/android-XX/android.jar)
+	 * @param args[1] = path to android-dir (path/android-platforms/)
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
-		if (args.length !=2) {
+		if (args.length <2) {
 			System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");	
 			return;
 		}
