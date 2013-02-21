@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/polyglot.jar"/>
 	<classpathentry kind="lib" path="lib/AXMLPrinter2.jar" sourcepath="lib/AXMLPrinter2-src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow"/>
+	<classpathentry kind="lib" path="lib/axml-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
