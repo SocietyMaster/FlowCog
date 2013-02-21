@@ -30,6 +30,11 @@ public class LayoutFileParser {
 	private final Map<Integer, LayoutControl> userControls = new HashMap<Integer, LayoutControl>();
 	private final String packageName;
 	
+	private final static int TYPE_NUMBER_VARIATION_PASSWORD = 0x00000010;
+	private final static int TYPE_TEXT_VARIATION_PASSWORD = 0x00000080;
+	private final static int TYPE_TEXT_VARIATION_VISIBLE_PASSWORD = 0x00000090;
+	private final static int TYPE_TEXT_VARIATION_WEB_PASSWORD = 0x000000e0;
+	
 	public LayoutFileParser(String packageName) {
 		this.packageName = packageName;
 	}
@@ -124,7 +129,7 @@ public class LayoutFileParser {
 							        	@Override
 							        	public NodeVisitor child(String ns, String name) {
 							        		// Try to find the class indicated by the XML file
-							        		String className = name.trim();
+							        		final String className = name.trim();
 							        		final SootClass layoutClass;
 							        		if (Scene.v().containsClass(className))
 							        			layoutClass = Scene.v().getSootClass(className);
@@ -173,6 +178,13 @@ public class LayoutFileParser {
 									        			this.id = (Integer) obj;
 									        		else if (name.equals("password") && type == AxmlVisitor.TYPE_INT_BOOLEAN)
 									        			isSensitive = ((Integer) obj) != 0; // -1 for true, 0 for false
+									        		else if (!isSensitive && name.equals("inputType") && type == AxmlVisitor.TYPE_INT_HEX) {
+									        			int tp = (Integer) obj;
+									        			isSensitive = ((tp & TYPE_NUMBER_VARIATION_PASSWORD) == TYPE_NUMBER_VARIATION_PASSWORD)
+									        					|| ((tp & TYPE_TEXT_VARIATION_PASSWORD) == TYPE_TEXT_VARIATION_PASSWORD)
+									        					|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+									        					|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
+									        		}
 									        	}
 									        	
 									        	@Override
