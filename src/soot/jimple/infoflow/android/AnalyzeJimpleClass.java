@@ -1,16 +1,11 @@
 package soot.jimple.infoflow.android;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import soot.Main;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
@@ -18,8 +13,6 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.jimple.infoflow.android.data.AndroidMethod;
-import soot.jimple.infoflow.util.AndroidEntryPointCreator;
-import soot.options.Options;
 
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
