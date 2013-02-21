@@ -4,14 +4,15 @@ import java.util.List;
 
 import soot.SootMethod;
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
 import soot.jimple.infoflow.source.SourceSinkManager;
 
 /**
  * SourceManager implementation for AndroidSources
- * @author sarzt
+ * @author Steven Arzt
  *
  */
-public class AndroidSourceSinkManager implements SourceSinkManager {
+public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 
 	private final List<AndroidMethod> sourceMethods;
 	private final List<AndroidMethod> sinkMethods;
