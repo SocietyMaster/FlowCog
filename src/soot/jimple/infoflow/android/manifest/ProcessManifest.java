@@ -29,7 +29,8 @@ public class ProcessManifest {
 
 	private List<String> entryPointsClasses = new ArrayList<String>();
 	private List<Class> classes = new ArrayList<Class>();
-	private Set<String> androidClasses = new HashSet<String>();
+	private String packageName = "";
+	private Set<String> permissions = new HashSet<String>();
 
 	private String createSootEntrypoints(String className, String methodName) {
 		String completeName = "<" + className + ": " + methodName + ">";
@@ -46,14 +47,6 @@ public class ProcessManifest {
 		return entryPoints;
 	}
 	
-	public void printClasses(){
-		
-		for(int i=0;i<classes.size();i++){
-			
-			classes.get(i).printClass();
-		}
-	}
-
 	public List<String> getAndroidAppEntryPoints(List<String> methodNames) {
 
 		List<String> entrypoints = new ArrayList<String>();
@@ -118,7 +111,7 @@ public class ProcessManifest {
 			throw new RuntimeException("No manifest file found in apk");
 	}
 	
-	public List<String> getAndroidAppEntryPointsClassesList(String apk) {
+	public void loadManifestFile(String apk) {
 		handleAndroidManifestFile(apk, new IManifestHandler() {
 			
 			@Override
@@ -127,127 +120,73 @@ public class ProcessManifest {
 			}
 			
 		});
-		return entryPointsClasses;
 	}
 	
-	private List<String> loadClassesFromBinaryManifest(InputStream manifestIS) {
-		// process AndroidManifest.xml
+	private void loadClassesFromBinaryManifest(InputStream manifestIS) {
 		try {
 			AXmlResourceParser parser = new AXmlResourceParser();
 			parser.open(manifestIS);
 
-			String packagename = "";
-
-			while (true) {
-				int type = parser.next();
-				if (type == XmlPullParser.END_DOCUMENT) {
-					// throw new RuntimeException
-					// ("target sdk version not found in Android manifest ("+
-					// apkF +")");
-					break;
-				}
+			int type = -1;
+			while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
 				switch (type) {
-				case XmlPullParser.START_DOCUMENT: {
-					break;
-				}
-				case XmlPullParser.START_TAG: {
-
-					String tagName = parser.getName();
-
-					if (tagName.equals("manifest")) {
-
-						for (int i = 0; i < parser.getAttributeCount(); i++) {
-							if (parser.getAttributeName(i)
-									.equals("package")) {
-								packagename = AXMLPrinter
-										.getAttributeValue(parser, i);
-
+					case XmlPullParser.START_DOCUMENT:
+						break;
+					case XmlPullParser.START_TAG:
+						String tagName = parser.getName();
+						if (tagName.equals("manifest"))
+							this.packageName = getAttributeValue(parser, "package");
+						else if (tagName.equals("activity")
+								|| tagName.equals("receiver")
+								|| tagName.equals("service")
+								|| tagName.equals("provider")) {
+							String attrValue = getAttributeValue(parser, "name");
+							if (attrValue.startsWith(".")) {
+								classes.add(new Class(this.packageName + attrValue));
+								entryPointsClasses.add(tagName + ";" + this.packageName + attrValue);
+							}
+							else if (attrValue.substring(0, 1).equals(attrValue.substring(0, 1).toUpperCase())) {
+								classes.add(new Class(this.packageName + "." + attrValue));
+								entryPointsClasses.add(tagName + ";" + this.packageName + "." + attrValue);
+							}
+							else {
+								classes.add(new Class(attrValue));
+								entryPointsClasses.add(tagName + ";" + attrValue);
 							}
 						}
-
-					}
-					if (tagName.equals("activity")
-							|| tagName.equals("receiver")
-							|| tagName.equals("service")
-							|| tagName.equals("provider")) {
-						
-						String extentClass;
-						if(tagName.equals("activity")){
-							extentClass = "android.app.Activity";
+						else if (tagName.equals("uses-permission")) {
+							String permissionName = getAttributeValue(parser, "android:name");
+							// We probably don't want to do this in some cases, so leave it
+							// to the user
+							// permissionName = permissionName.substring(permissionName.lastIndexOf(".") + 1);
+							this.permissions.add(permissionName);
 						}
-						else if(tagName.equals("receiver")){
-							extentClass = "android.content.BroadcastReceiver";
-						}
-						else if(tagName.equals("provider")){
-							extentClass = "android.provider";
-						}
-						else{
-							extentClass = "android.app.Service";
-						}
-
-						
-
-						for (int i = 0; i < parser.getAttributeCount(); i++) {
-							if (parser.getAttributeName(i).equals("name")) {
-								String attrValue = AXMLPrinter
-										.getAttributeValue(parser, i);
-								if (attrValue.startsWith(".")) {
-									classes.add(new Class(extentClass, packagename + attrValue));
-
-									entryPointsClasses.add(tagName + ";"
-											+ packagename + attrValue);
-									androidClasses.add(packagename + attrValue);
-								} else if (attrValue.substring(0, 1)
-										.equals(attrValue.substring(0, 1)
-												.toUpperCase())) {
-									classes.add(new Class(extentClass, packagename + "."
-											+ attrValue));
-
-									entryPointsClasses
-											.add(tagName + ";"
-													+ packagename + "."
-													+ attrValue);
-									androidClasses.add(packagename + "." + attrValue);
-								} else {
-									classes.add(new Class(extentClass, attrValue));
-
-									entryPointsClasses.add(tagName + ";"
-											+ attrValue);
-									androidClasses.add(attrValue);
-
-								}
-
-							}
-						}
-
-					}
-
-					break;
-				}
-				case XmlPullParser.END_TAG:
-					// depth--;
-					break;
-				case XmlPullParser.TEXT:
-					break;
+						break;
+					case XmlPullParser.END_TAG:
+						break;
+					case XmlPullParser.TEXT:
+						break;
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return entryPointsClasses;
 	}
 	
-	public Set<String> getAndroidClasses(){
-		return androidClasses;
+	private String getAttributeValue(AXmlResourceParser parser, String attributeName) {
+		for (int i = 0; i < parser.getAttributeCount(); i++)
+			if (parser.getAttributeName(i).equals(attributeName))
+				return AXMLPrinter.getAttributeValue(parser, i);
+		return "";
 	}
 
-	public List<String> loadClassesFromTextManifest(InputStream manifestIS) {
+	public void loadClassesFromTextManifest(InputStream manifestIS) {
 		try {
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = db.parse(manifestIS);
 			
 			Element rootElement = doc.getDocumentElement();
-			String pkgName = rootElement.getAttribute("package");
+			this.packageName = rootElement.getAttribute("package");
 			
 			NodeList appsElement = rootElement.getElementsByTagName("application");
 			for (int appIdx = 0; appIdx < appsElement.getLength(); appIdx++) {
@@ -259,15 +198,21 @@ public class ProcessManifest {
 				
 				for (int i = 0; i < activities.getLength(); i++) {
 					Element activity = (Element) activities.item(i);
-					loadManifestEntry(activity, "android.app.Activity", pkgName);
+					loadManifestEntry(activity, "android.app.Activity", this.packageName);
 				}
 				for (int i = 0; i < receivers.getLength(); i++) {
 					Element receiver = (Element) receivers.item(i);
-					loadManifestEntry(receiver, "android.content.BroadcastReceiver", pkgName);
+					loadManifestEntry(receiver, "android.content.BroadcastReceiver", this.packageName);
 				}
 				for (int i = 0; i < services.getLength(); i++) {
 					Element service = (Element) services.item(i);
-					loadManifestEntry(service, "android.app.Service", pkgName);
+					loadManifestEntry(service, "android.app.Service", this.packageName);
+				}
+				
+				NodeList permissions = appElement.getElementsByTagName("uses-permission");
+				for (int i = 0; i < permissions.getLength(); i++) {
+					Element permission = (Element) permissions.item(i);
+					this.permissions.add(permission.getAttribute("android:name"));
 				}
 			}			
 		}
@@ -281,88 +226,34 @@ public class ProcessManifest {
 			System.err.println("Could not parse manifest: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		return entryPointsClasses;
 	}
 	
 	private void loadManifestEntry(Element activity, String baseClass, String packageName) {
 		String className = activity.getAttribute("android:name");		
 		if (className.startsWith(".")) {
-			classes.add(new Class(baseClass, packageName + className));
+			classes.add(new Class(packageName + className));
 			entryPointsClasses.add(activity.getNodeName() + ";" + packageName + className);
 		}
 		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase())) {
-			classes.add(new Class(baseClass, packageName + "." + className));
+			classes.add(new Class(packageName + "." + className));
 			entryPointsClasses.add(activity.getNodeName() + ";" + packageName + "." + className);
 		}
 		else {
-			classes.add(new Class(baseClass, className));
+			classes.add(new Class(className));
 			entryPointsClasses.add(activity.getNodeName() + ";" + className);
 		}
 	}
 
-	public List<String> getAndroidAppPermissionList(String apk) {
-		final List<String> permissionArray = new ArrayList<String>();
-		handleAndroidManifestFile(apk, new IManifestHandler() {
-			
-			@Override
-			public void handleManifest(InputStream stream) {
-				try {
-					// process AndroidManifest.xml
-					AXmlResourceParser parser = new AXmlResourceParser();
-					parser.open(stream);
+	public List<String> getEntryPointClasses() {
+		return this.entryPointsClasses;
+	}
 	
-					String permission;
-					while (true) {
-						int type = parser.next();
-						if (type == XmlPullParser.END_DOCUMENT) {
-							// throw new RuntimeException
-							// ("target sdk version not found in Android manifest ("+
-							// apkF +")");
-							break;
-						}
-						switch (type) {
-						case XmlPullParser.START_DOCUMENT: {
-							break;
-						}
-						case XmlPullParser.START_TAG: {
-							String tagName = parser.getName();
-							if (tagName.equals("uses-permission")) {
-								permission = AXMLPrinter.getAttributeValue(parser,
-										0);
-	
-								// System.out.println(permission.substring(0,
-								// permission.lastIndexOf(".")));
-								if (permission.substring(0,
-									permission.lastIndexOf(".")).equals(
-										"android.permission")) {
-	
-									permission = permission.substring(permission
-											.lastIndexOf(".") + 1);
-									permissionArray.add(permission);
-									// System.out.println("Permission gefunden:"
-									// + permission);
-								}
-								// personal permissions
-								else {
-									permissionArray.add(permission);
-								}
-							}
-							break;
-						}
-						case XmlPullParser.END_TAG:
-							// depth--;
-							break;
-						case XmlPullParser.TEXT:
-							break;
-						}
-					}
-				}
-				catch (Exception ex) {
-					
-				}
-			}
-		});
-		return permissionArray;
+	public Set<String> getPermissions() {
+		return this.permissions;
 	}
 
+	public String getPackageName() {
+		return this.packageName;
+	}
+	
 }

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import soot.Main;
 import soot.PackManager;
@@ -16,9 +17,12 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
+import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.util.AndroidEntryPointCreator;
@@ -30,6 +34,8 @@ public class SetupApplication {
 	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
 	private List<String> entrypoints = new ArrayList<String>();
+	private Map<Integer, LayoutControl> layoutControls;
+	
 	private String androidJar;
 	private String apkFileLocation;
 	private String matrixFileLocation;
@@ -99,7 +105,7 @@ public class SetupApplication {
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
 		List<String> entryPointMethods = readTextFile(this.entryPointsFile);
-		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
+		processMan.loadManifestFile(apkFileLocation);
 		List<String> baseEntryPoints = processMan.getAndroidAppEntryPoints(entryPointMethods);
 		entrypoints.addAll(baseEntryPoints);
 
@@ -113,8 +119,8 @@ public class SetupApplication {
 		jimpleClass.collectCallbackMethods();
 		
 		// Find the user-defined sources in the layout XML files
-		LayoutFileParser lfp = new LayoutFileParser();
-//		lfp.parseLayoutFile(apkFileLocation);
+		LayoutFileParser lfp = new LayoutFileParser(processMan.getPackageName());
+		lfp.parseLayoutFile(apkFileLocation, entryPointClasses.keySet());
 		
 		// Run the soot-based operations
 		runSootBasedPhases(entryPointClasses);
@@ -122,12 +128,7 @@ public class SetupApplication {
 		// Collect the results of the soot-based phases
 		for (AndroidMethod am : jimpleClass.getCallbackMethods())
 			entrypoints.add(am.getSignature());
-		processMan.getAndroidAppEntryPointsClassesList(apkFileLocation);
-
-		// 14.02.2013, SA: This does not work - conceptual and implementation issues
-//		ReadXml readXml = new ReadXml();
-//		readXml.generateAndroidAppPermissionMap(apkFileLocation);
-//		entrypoints.addAll(readXml.getAdditionalEntryPoints(processMan.getAndroidClasses()));
+		this.layoutControls = lfp.getUserControls();
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(matrixFileLocation);
 		for (AndroidMethod am : parser.parse()){
@@ -180,7 +181,8 @@ public class SetupApplication {
 			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
-			info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager(sources, sinks));
+			info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager
+				(sources, sinks, false, LayoutMatchingMode.MatchSensitiveOnly, layoutControls));
 			return info.getResults();
 		}
 		catch (IOException ex) {

@@ -5,18 +5,13 @@ import java.util.List;
 
 public class Class {
 	
-	private String className, extendsClass;
+	private String className;
 	private List<String> methods = new ArrayList<String>();
 	
 	public Class(String className){
 		this.className = className;
 	}
-	
-	public Class(String extendsClass, String className){
-		this.extendsClass = extendsClass;
-		this.className = className;
-		
-	}
+
 	
 	public void addMethod(String method){
 		methods.add(method);
@@ -48,15 +43,6 @@ public class Class {
 	public void setClassName(String className) {
 		this.className = className;
 	}
-
-	public String getExtendsClass() {
-		return extendsClass;
-	}
-
-	public void setExtendsClass(String extendsClass) {
-		this.extendsClass = extendsClass;
-	}
-	
 	
 
 }
