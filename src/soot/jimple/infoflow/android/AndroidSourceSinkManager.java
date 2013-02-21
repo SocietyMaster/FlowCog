@@ -51,10 +51,15 @@ public class AndroidSourceSinkManager implements SourceSinkManager {
 		this.weakMatching = weakMatching;
 	}
 
+	/**
+	 * Checks whether the given method matches one of the methods from the list
+	 * @param sMethod The method to check for a match
+	 * @param aMethods The list of reference methods
+	 * @return True if the given method matches an entry in the list, otherwise
+	 * false
+	 */
 	private boolean matchesMethod(SootMethod sMethod, List<AndroidMethod> aMethods) {
 		for (AndroidMethod am : aMethods) {
-			if (sMethod.getName().contains("Subscriber") && am.toString().contains("Subscriber"))
-				System.out.println("x");
 			if (!am.getClassName().equals(sMethod.getDeclaringClass().getName()))
 				continue;
 			if (!am.getMethodName().equals(sMethod.getName()))
