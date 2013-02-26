@@ -27,6 +27,8 @@ import soot.Transform;
  */
 public class LayoutFileParser {
 	
+	private static final boolean DEBUG = true;
+	
 	private final Map<Integer, LayoutControl> userControls = new HashMap<Integer, LayoutControl>();
 	private final String packageName;
 	
@@ -106,7 +108,7 @@ public class LayoutFileParser {
 	public void parseLayoutFile(final String fileName, final Set<String> classes) {
 		Transform transform = new Transform("wjtp.lfp", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {			
-				handleAndroidResourceFiles(fileName, classes, new IResourceHandler() {
+				handleAndroidResourceFiles(fileName, /*classes,*/ null, new IResourceHandler() {
 					
 					@Override
 					public void handleResourceFile(InputStream stream) {
@@ -138,8 +140,10 @@ public class LayoutFileParser {
 							        			layoutClass = Scene.v().getSootClass(packageName + "." + className);
 							        		else if (Scene.v().containsClass("android.widget." + className))
 							        			layoutClass = Scene.v().getSootClass("android.widget." + className);
+							        		else if (Scene.v().containsClass("android.webkit." + className))
+							        			layoutClass = Scene.v().getSootClass("android.webkit." + className);
 							        		else {
-							        			System.out.println("Could not find layout class " + className);
+							        			System.err.println("Could not find layout class " + className);
 							        			return super.child(ns, name);
 							        		}
 							        		assert layoutClass != null;
@@ -153,7 +157,7 @@ public class LayoutFileParser {
 							        				break;
 							        			}
 							        		if (!found) {
-							        			System.out.println("Layout class " + className + " is not derived from "
+							        			System.err.println("Layout class " + className + " is not derived from "
 							        					+ "android.view.View");
 							        			return super.child(ns, name);
 							        		}
@@ -184,6 +188,10 @@ public class LayoutFileParser {
 									        					|| ((tp & TYPE_TEXT_VARIATION_PASSWORD) == TYPE_TEXT_VARIATION_PASSWORD)
 									        					|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
 									        					|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
+									        		}
+									        		else {
+									        			if (DEBUG && type == AxmlVisitor.TYPE_STRING)
+									        				System.out.println("Found unrecognized XML attribute:  " + name);
 									        		}
 									        	}
 									        	
