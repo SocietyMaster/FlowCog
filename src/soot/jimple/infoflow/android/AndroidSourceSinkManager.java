@@ -1,15 +1,25 @@
 package soot.jimple.infoflow.android;
 
+import heros.InterproceduralCFG;
+
 import java.util.List;
 import java.util.Map;
 
+import soot.Local;
 import soot.SootMethod;
+import soot.Unit;
+import soot.jimple.AssignStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.android.resources.ARSCFileParser;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
+import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 /**
  * SourceManager implementation for AndroidSources
@@ -52,6 +62,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	
 	private final LayoutMatchingMode layoutMatching;
 	private final Map<Integer, LayoutControl> layoutControls;
+	private List<ARSCFileParser.ResPackage> resourcePackages;
+	private String appPackageName = "";
 	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
@@ -157,10 +169,27 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	}
 
 	@Override
-	public boolean isSource(Stmt sCallSite) {
-		if (super.isSource(sCallSite))
+	public boolean isSource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		assert cfg instanceof BiDiInterproceduralCFG;		
+		if (super.isSource(sCallSite, cfg))
 			return true;
-		
+		if (isUISource(sCallSite, cfg))
+			return true;
+		return false;
+	}
+
+	/**
+	 * Checks whether the given call site indicates a UI source, e.g. a password
+	 * input
+	 * @param sCallSite The call site that may potentially read data from a
+	 * sensitive UI control
+	 * @param cfg The bidirectional control flow graph
+	 * @return True if the given call site reads data from a UI source, false
+	 * otherwise
+	 */
+	private boolean isUISource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		// If we match input controls, we need to check whether this is a call
+		// to one of the well-known resource handling functions in Android
 		if (this.layoutMatching != LayoutMatchingMode.NoMatch
 				&& sCallSite.containsInvokeExpr()) {
 			InvokeExpr ie = sCallSite.getInvokeExpr();
@@ -181,9 +210,20 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 				int id = 0;
 				if (ie.getArg(0) instanceof IntConstant)
 					id = ((IntConstant) ie.getArg(0)).value;
+				else if (ie.getArg(0) instanceof Local) {
+					Integer idVal = findLastResIDAssignment(sCallSite, (Local)
+							ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg);
+					if (idVal == null) {
+						System.err.println("Could not find assignment to layout ID local");
+						return false;
+					}
+					else
+						id = idVal.intValue();
+				}
 				else {
 					System.err.println("Framework method call with unexpected "
-							+ "parameter type");
+							+ "parameter type: " + ie.toString() + ", "
+							+ "first parameter is of type " + ie.getArg(0).getClass());
 					return false;
 				}
 				
@@ -199,13 +239,158 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Finds the last assignment to the given local representing a resource ID
+	 * by searching upwards from the given statement
+	 * @param stmt The statement from which to look backwards
+	 * @param local The variable for which to look for assignments
+	 * @return The last value assigned to the given variable
+	 */
+	private Integer findLastResIDAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+		// If this is an assign statement, we need to check whether it changes
+		// the variable we're looking for
+		if (stmt instanceof AssignStmt) {
+			AssignStmt assign = (AssignStmt) stmt;
+			if (assign.getLeftOp() == local) {
+				// ok, now find the new value from the right side
+				if (assign.getRightOp() instanceof IntConstant)
+					return ((IntConstant) assign.getRightOp()).value;
+				
+				if (assign.getRightOp() instanceof InvokeExpr) {
+					InvokeExpr inv = (InvokeExpr) assign.getRightOp();
+					if (inv.getMethod().getName().equals("getIdentifier")
+							&& inv.getMethod().getDeclaringClass().getName().equals("android.content.res.Resources")
+							&& this.resourcePackages != null) {
+						// The right side of the assignment is a call into the well-known
+						// Android API method for resource handling
+						if (inv.getArgCount() != 3) {
+							System.err.println("Invalid parameter count for call to getIdentifier");
+							return null;
+						}
+						
+						// Find the parameter values
+						String resName = "";
+						String resID = "";
+						String packageName = "";
+						
+						// In the trivial case, these values are constants
+						if (inv.getArg(0) instanceof StringConstant)
+							resName = ((StringConstant) inv.getArg(0)).value;
+						if (inv.getArg(1) instanceof StringConstant)
+							resID = ((StringConstant) inv.getArg(1)).value;
+						if (inv.getArg(2) instanceof StringConstant)
+							packageName = ((StringConstant) inv.getArg(2)).value;
+						else if (inv.getArg(2) instanceof Local)
+							packageName = findLastStringAssignment(stmt, (Local) inv.getArg(2), cfg);
+						else  {
+							System.err.println("Unknown parameter type in call to getIdentifier");
+							return null;
+						}
+												
+						// Find the resource
+						ARSCFileParser.AbstractResource res = findResource(resName, resID, packageName);
+						if (res != null)
+							return res.getResourceID();
+					}
+				}
+			}
+		}
+
+		// Continue the search upwards
+		for (Unit pred : cfg.getPredsOf(stmt)) {
+			if (!(pred instanceof Stmt))
+				continue;
+			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, local, cfg);
+			if (lastAssignment != null)
+				return lastAssignment;
+		}
+		return null;
+	}
+
+	/**
+	 * Finds the given resource in the given package
+	 * @param resName The name of the resource to retrieve
+	 * @param resID
+	 * @param packageName The name of the package in which to look for the
+	 * resource
+	 * @return The specified resource if available, otherwise null
+	 */
+	private AbstractResource findResource
+			(String resName,
+			String resID,
+			String packageName) {
+		// Find the correct package
+		for (ARSCFileParser.ResPackage pkg : this.resourcePackages) {
+			// If we don't have any package specification, we pick the app's default package
+			boolean matches = (packageName == null || packageName.isEmpty())
+					&& pkg.getPackageName().equals(this.appPackageName);
+			matches |= pkg.getPackageName().equals(packageName);
+			if (!matches)
+				continue;
+			
+			// We have found a suitable package, now look for the resource
+			for (ARSCFileParser.ResType type : pkg.getDeclaredTypes())
+				if (type.getTypeName().equals(resID)) {
+					AbstractResource res = type.getFirstResource(resName);
+					return res;
+				}
+		}
+		return null;
+	}
+
+	/**
+	 * Finds the last assignment to the given String local by searching upwards
+	 * from the given statement
+	 * @param stmt The statement from which to look backwards
+	 * @param local The variable for which to look for assignments
+	 * @return The last value assigned to the given variable
+	 */
+	private String findLastStringAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+		if (stmt instanceof AssignStmt) {
+			AssignStmt assign = (AssignStmt) stmt;
+			if (assign.getLeftOp() == local) {
+				// ok, now find the new value from the right side
+				if (assign.getRightOp() instanceof StringConstant)
+					return ((StringConstant) assign.getRightOp()).value;
+			}
+		}
+		
+		// Continue the search upwards
+		for (Unit pred : cfg.getPredsOf(stmt)) {
+			if (!(pred instanceof Stmt))
+				continue;
+			String lastAssignment = findLastStringAssignment((Stmt) pred, local, cfg);
+			if (lastAssignment != null)
+				return lastAssignment;
+		}
+		return null;
+	}
+
 	/**
 	 * Adds a list of methods as sinks
 	 * @param sinks The methods to be added as sinks
 	 */
 	public void addSink(List<AndroidMethod> sinks) {
 		this.sinkMethods.addAll(sinks);
+	}
+
+	/**
+	 * Sets the resource packages to be used for finding sensitive layout
+	 * controls as sources
+	 * @param resourcePackages The resource packages to be used for looking
+	 * up layout controls
+	 */
+	public void setResourcePackages(List<ResPackage> resourcePackages) {
+		this.resourcePackages = resourcePackages;
+	}
+
+	/**
+	 * Sets the name of the app's base package
+	 * @param appPackageName The name of the app's base package
+	 */
+	public void setAppPackageName(String appPackageName) {
+		this.appPackageName = appPackageName;
 	}
 
 }

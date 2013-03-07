@@ -21,6 +21,7 @@ import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
@@ -34,6 +35,8 @@ public class SetupApplication {
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
 	private List<String> entrypoints = new ArrayList<String>();
 	private Map<Integer, LayoutControl> layoutControls;
+	private List<ARSCFileParser.ResPackage> resourcePackages = null;
+	private String appPackageName = "";
 	
 	private String androidJar;
 	private String apkFileLocation;
@@ -106,11 +109,17 @@ public class SetupApplication {
 		List<String> entryPointMethods = readTextFile(this.entryPointsFile);
 		processMan.loadManifestFile(apkFileLocation);
 		List<String> baseEntryPoints = processMan.getAndroidAppEntryPoints(entryPointMethods);
+		this.appPackageName = processMan.getPackageName();
 		entrypoints.addAll(baseEntryPoints);
 
 		SootMethodRepresentationParser methodParser = new SootMethodRepresentationParser();
 		HashMap<String, List<String>> entryPointClasses = methodParser.parseClassNames(baseEntryPoints, false);
 
+		// Parse the resource file
+		ARSCFileParser resParser = new ARSCFileParser();
+		resParser.parse(apkFileLocation);
+		this.resourcePackages = resParser.getPackages();
+		
 		soot.G.reset();
 
 		// Collect the callback interfaces implemented in the app's source code
@@ -180,8 +189,13 @@ public class SetupApplication {
 			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
-			info.computeInfoflow(path, entrypoints, new AndroidSourceSinkManager
-				(sources, sinks, false, LayoutMatchingMode.MatchSensitiveOnly, layoutControls));
+			
+			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
+				(sources, sinks, false, LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
+			sourceSinkManager.setAppPackageName(this.appPackageName);
+			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			
+			info.computeInfoflow(path, entrypoints, sourceSinkManager);
 			return info.getResults();
 		}
 		catch (IOException ex) {
