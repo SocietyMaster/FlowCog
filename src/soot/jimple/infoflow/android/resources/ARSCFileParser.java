@@ -245,6 +245,36 @@ public class ARSCFileParser extends AbstractResourceParser {
 	}
 
 	/**
+	 * Android resource containing a reference to another resource.
+	 */
+	public class ReferenceResource extends AbstractResource {
+		private int referenceID;
+		
+		public ReferenceResource(int id) {
+			this.referenceID = id;
+		}
+		
+		public int getReferenceID() {
+			return this.referenceID;
+		}
+	}
+
+	/**
+	 * Android resource containing an attribute resource identifier.
+	 */
+	public class AttributeResource extends AbstractResource {
+		private int attributeID;
+		
+		public AttributeResource(int id) {
+			this.attributeID = id;
+		}
+		
+		public int getAttributeID() {
+			return this.attributeID;
+		}
+	}
+
+	/**
 	 * Android resource containing string data.
 	 */
 	public class StringResource extends AbstractResource {
@@ -255,6 +285,21 @@ public class ARSCFileParser extends AbstractResourceParser {
 		}
 		
 		public String getValue() {
+			return this.value;
+		}
+	}
+
+	/**
+	 * Android resource containing integer data.
+	 */
+	public class IntegerResource extends AbstractResource {
+		private int value;
+		
+		public IntegerResource(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
 			return this.value;
 		}
 	}
@@ -304,21 +349,6 @@ public class ARSCFileParser extends AbstractResourceParser {
 
 		public int getB() {
 			return this.b;
-		}
-	}
-
-	/**
-	 * Android resource containing a reference to another resource.
-	 */
-	public class ReferenceResource extends AbstractResource {
-		private int referenceID;
-		
-		public ReferenceResource(int id) {
-			this.referenceID = id;
-		}
-		
-		public int getReferenceID() {
-			return this.referenceID;
 		}
 	}
 	
@@ -926,8 +956,17 @@ public class ARSCFileParser extends AbstractResourceParser {
 			case TYPE_NULL:
 				res = new NullResource();
 				break;
+			case TYPE_REFERENCE:
+				res = new ReferenceResource(val.data);
+				break;
+			case TYPE_ATTRIBUTE:
+				res = new AttributeResource(val.data);
 			case TYPE_STRING :
 				res = new StringResource(stringTable.get(val.data));
+				break;
+			case TYPE_INT_DEC:
+			case TYPE_INT_HEX:
+				res = new IntegerResource(val.data);
 				break;
 			case TYPE_INT_BOOLEAN:
 				res = new BooleanResource(val.data);
@@ -942,8 +981,15 @@ public class ARSCFileParser extends AbstractResourceParser {
 						val.data & 0xFF0000 >> 2 * 8, val.data & 0x00FF00 >> 8,
 						val.data & 0x0000FF);
 				break;
-			case TYPE_REFERENCE:
-				res = new ReferenceResource(val.data);
+			case TYPE_INT_COLOR_ARGB4:
+				res = new ColorResource(val.data & 0xF000 >> 3 * 8,
+						val.data & 0x0F00 >> 2 * 8, val.data & 0x00F0 >> 8,
+						val.data & 0x000F);
+				break;
+			case TYPE_INT_COLOR_RGB4:
+				res = new ColorResource(0,
+						val.data & 0xF00 >> 2 * 8, val.data & 0x0F0 >> 8,
+						val.data & 0x00F);
 				break;
 			default:
 				return null;
