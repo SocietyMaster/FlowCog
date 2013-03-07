@@ -56,6 +56,14 @@ public class AnalyzeJimpleClass {
 		throw new RuntimeException("Could not find method");
 	}
 	
+	private SootMethod getMethodFromHierarchyEx(SootClass c, String methodSignature) {
+		if (c.declaresMethod(methodSignature))
+			return c.getMethod(methodSignature);
+		if (c.hasSuperclass())
+			return getMethodFromHierarchyEx(c.getSuperclass(), methodSignature);
+		throw new RuntimeException("Could not find method");
+	}
+
 	private void analyzeClass(SootClass baseClass, SootClass sootClass) {
 		// There's no information we could use in an interface
 		if (sootClass.isInterface())
@@ -204,7 +212,7 @@ public class AnalyzeJimpleClass {
 			}			
 			else if (i.getName().equals("android.content.DialogInterface$OnClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onClick")));
+					callbackMethods.add(new AndroidMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.content.DialogInterface,int)")));
 			}			
 			else if (i.getName().equals("android.content.DialogInterface$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
@@ -759,7 +767,7 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.view.View$OnClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onClick")));
+					callbackMethods.add(new AndroidMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.view.View)")));
 			}
 			else if (i.getName().equals("android.view.View$OnCreateContextMenuListener")) {
 				if (i.declaresMethodByName("onCreateContextMenu"))
