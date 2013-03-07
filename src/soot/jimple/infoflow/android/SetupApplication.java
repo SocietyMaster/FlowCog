@@ -24,8 +24,8 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
+import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
-import soot.jimple.infoflow.util.AndroidEntryPointCreator;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
 
@@ -145,6 +145,11 @@ public class SetupApplication {
 			if(am.isSink())
 				sinks.add(am);
 		}
+		
+		//add sink for Intents:
+		AndroidMethod setResult = new AndroidMethod("<android.app.Activity: void setResult(int, android.content.Intent)>");
+		setResult.setSink(true);
+		sinks.add(setResult);
 	}
 	
 	/**
