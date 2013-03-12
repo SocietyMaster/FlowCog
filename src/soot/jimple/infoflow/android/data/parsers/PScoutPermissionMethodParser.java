@@ -21,7 +21,7 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
 public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 	private final String fileName;
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>.+?(->.+)?$";
-	private final boolean SET_IMPLICIT_SOURCE_TO_SOURCE = true;
+	private final boolean SET_IMPLICIT_SOURCE_TO_SOURCE = false;
 	
 	public PScoutPermissionMethodParser(String filename){
 		this.fileName = filename;
@@ -122,6 +122,8 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 					else
 						singleMethod.setNeitherNor(true);
 				}
+				else if(target.equals("_IGNORE_"));
+					//do nothing
 				else
 					throw new RuntimeException("error in target definition");
 		}
