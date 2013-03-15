@@ -197,4 +197,14 @@ public class AndroidMethod {
 				+ this.className.hashCode() * 11;
 	}
 
+	/**
+	 * Gets whether this method has been annotated as a source, sink or
+	 * neither nor.
+	 * @return True if there is an annotations for this method, otherwise
+	 * false.
+	 */
+	public boolean isAnnotated() {
+		return isSource || isSink || isNeitherNor;
+	}
+
 }
