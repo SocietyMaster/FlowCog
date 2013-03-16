@@ -19,3 +19,9 @@ The superclass is not defined in the manifest.
 
 IntentSink:
 Taint is propagated via Intent. As other apps are not trustworthy by default, this is a sink, too.
+
+LocaionLeak:
+This example contains a location information leakage in the onResume() callback method.
+ 
+The callback method onLocationChanged
+ must be identified and should be classified as source.
