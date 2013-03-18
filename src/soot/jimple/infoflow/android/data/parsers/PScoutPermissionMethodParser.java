@@ -22,6 +22,7 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 	private final String fileName;
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>.+?(->.+)?$";
 	private final boolean SET_IMPLICIT_SOURCE_TO_SOURCE = false;
+	private final boolean SET_INDIRECT_SINK_TO_SINK = false;
 	
 	public PScoutPermissionMethodParser(String filename){
 		this.fileName = filename;
@@ -119,6 +120,12 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 				else if(target.equals("_IMPSOURCE_")){
 					if(SET_IMPLICIT_SOURCE_TO_SOURCE)
 						singleMethod.setSource(true);
+					else
+						singleMethod.setNeitherNor(true);
+				}
+				else if(target.equals("_INDSINK_")){
+					if(SET_INDIRECT_SINK_TO_SINK)
+						singleMethod.setSink(true);
 					else
 						singleMethod.setNeitherNor(true);
 				}
