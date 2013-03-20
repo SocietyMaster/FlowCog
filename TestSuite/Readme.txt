@@ -28,3 +28,7 @@ The callback method onLocationChanged
 
 PasswordField:
 A value from a password field is stored in the log.
+
+Lifecycle2:
+A taint value is written in the onResume() callback method and propagated to a sink in the onPause() callback method.
+Loops must be considered to find this taint.
