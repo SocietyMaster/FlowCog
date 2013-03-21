@@ -2,6 +2,7 @@ package soot.jimple.infoflow.android;
 
 import heros.InterproceduralCFG;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.AssignStmt;
+import soot.jimple.IdentityStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
@@ -58,11 +60,13 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 
 	private final List<AndroidMethod> sourceMethods;
 	private final List<AndroidMethod> sinkMethods;
+	private final List<AndroidMethod> callbackMethods;
 	private final boolean weakMatching;
 	
 	private final LayoutMatchingMode layoutMatching;
 	private final Map<Integer, LayoutControl> layoutControls;
 	private List<ARSCFileParser.ResPackage> resourcePackages;
+	
 	private String appPackageName = "";
 	
 	/**
@@ -92,7 +96,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 			(List<AndroidMethod> sources,
 			List<AndroidMethod> sinks,
 			boolean weakMatching) {
-		this(sources, sinks, weakMatching, LayoutMatchingMode.NoMatch, null);
+		this(sources, sinks, new ArrayList<AndroidMethod>(), weakMatching,
+				LayoutMatchingMode.NoMatch, null);
 	}
 
 	/**
@@ -101,6 +106,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * in the list.
 	 * @param sources The list of source methods 
 	 * @param sinks The list of sink methods
+	 * @param callbackMethods The list of callback methods whose parameters
+	 * are sources through which the application receives data from the
+	 * operating system
 	 * @param weakMatching True for weak matching: If an entry in the list has
 	 * no return type, it matches arbitrary return types if the rest of the
 	 * method signature is compatible. False for strong matching: The method
@@ -113,14 +121,21 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	public AndroidSourceSinkManager
 			(List<AndroidMethod> sources,
 			List<AndroidMethod> sinks,
+			List<AndroidMethod> callbackMethods,
 			boolean weakMatching,
 			LayoutMatchingMode layoutMatching,
 			Map<Integer, LayoutControl> layoutControls) {
 		this.sourceMethods = sources;
 		this.sinkMethods = sinks;
+		this.callbackMethods = callbackMethods;
+		
 		this.weakMatching = false;
 		this.layoutMatching = layoutMatching;
 		this.layoutControls = layoutControls;
+		
+		System.out.println("Created a SourceSinkManager with " + this.sourceMethods.size()
+				+ " sources, " + this.sinkMethods.size() + " sinks, and "
+				+ this.callbackMethods.size() + " callback methods.");
 	}
 
 	/**
@@ -170,11 +185,21 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 
 	@Override
 	public boolean isSource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		assert cfg instanceof BiDiInterproceduralCFG;		
+		assert cfg instanceof BiDiInterproceduralCFG;
+		
+		// This might be a normal source method
 		if (super.isSource(sCallSite, cfg))
 			return true;
+		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
 			return true;
+		// This statement might access a sensitive parameter in a callback
+		// method
+		if (sCallSite instanceof IdentityStmt)
+			for (AndroidMethod am : this.callbackMethods)
+				if (am.getSignature().equals(cfg.getMethodOf(sCallSite).getSignature()))
+					return true;
+		
 		return false;
 	}
 

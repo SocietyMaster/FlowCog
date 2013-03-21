@@ -33,7 +33,10 @@ public class SetupApplication {
 
 	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
+	private List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
+	
 	private List<String> entrypoints = new ArrayList<String>();
+	
 	private Map<Integer, LayoutControl> layoutControls;
 	private List<ARSCFileParser.ResPackage> resourcePackages = null;
 	private String appPackageName = "";
@@ -134,8 +137,10 @@ public class SetupApplication {
 		runSootBasedPhases(entryPointClasses);
 
 		// Collect the results of the soot-based phases
-		for (AndroidMethod am : jimpleClass.getCallbackMethods())
-			entrypoints.add(am.getSignature());
+		for (AndroidMethod am : jimpleClass.getCallbackMethods()) {
+			this.callbackMethods.add(am);
+			this.entrypoints.add(am.getSignature());
+		}
 		this.layoutControls = lfp.getUserControls();
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(matrixFileLocation);
@@ -196,7 +201,8 @@ public class SetupApplication {
 			info.setSootConfig(new SootConfigForAndroid());
 			
 			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
-				(sources, sinks, false, LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
+				(sources, sinks, callbackMethods, false,
+				LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			

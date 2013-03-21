@@ -74,6 +74,11 @@ public class AnalyzeJimpleClass {
 		if (baseClass.isAbstract())
 			return;
 		
+		// For a first take, we consider all classes in the android.* packages
+		// to be part of the operating system
+		if (baseClass.getName().startsWith("android."))
+			return;
+		
 		// If we are a class, one of our superclasses might implement an Android
 		// interface
 		if (sootClass.hasSuperclass())
@@ -84,958 +89,969 @@ public class AnalyzeJimpleClass {
 			// android.accounts
 			if (i.getName().equals("android.accounts.OnAccountsUpdateListener")) {
 				if (i.declaresMethodByName("onAccountsUpdated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAccountsUpdated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAccountsUpdated"));
 			}
 			// android.animation
 			else if (i.getName().equals("android.animation.Animator$AnimatorListener")) {
 				if (i.declaresMethodByName("onAnimationCancel"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationCancel")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationCancel"));
 				if (i.declaresMethodByName("onAnimationEnd"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationEnd")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationEnd"));
 				if (i.declaresMethodByName("onAnimationRepeat"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationRepeat")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationRepeat"));
 				if (i.declaresMethodByName("onAnimationStart"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationStart")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationStart"));
 			}
 			else if (i.getName().equals("android.animation.LayoutTransition$TransitionListener")) {
 				if (i.declaresMethodByName("endTransition"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "endTransition")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "endTransition"));
 				if (i.declaresMethodByName("startTransition"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "startTransition")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "startTransition"));
 			}
 			else if (i.getName().equals("android.animation.TimeAnimator$TimeListener")) {
 				if (i.declaresMethodByName("onTimeUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTimeUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTimeUpdate"));
 			}
 			else if (i.getName().equals("android.animation.ValueAnimator$AnimatorUpdateListener")) {
 				if (i.declaresMethodByName("onAnimationUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationUpdate"));
 			}
 			// android.app
 			else if (i.getName().equals("android.app.ActionBar$OnMenuVisibilityListener")) {
 				if (i.declaresMethodByName("onMenuVisibilityChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMenuVisibilityChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMenuVisibilityChanged"));
 			}
 			else if (i.getName().equals("android.app.ActionBar$OnNavigationListener")) {
 				if (i.declaresMethodByName("onNavigationItemSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onNavigationItemSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onNavigationItemSelected"));
 			}
 			else if (i.getName().equals("android.app.ActionBar$TabListener")) {
 				if (i.declaresMethodByName("onTabReselected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTabReselected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTabReselected"));
 				if (i.declaresMethodByName("onTabSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTabSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTabSelected"));
 				if (i.declaresMethodByName("onTabUnselected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTabUnselected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTabUnselected"));
 			}
 			else if (i.getName().equals("android.app.Application$ActivityLifecycleCallbacks")) {
 				if (i.declaresMethodByName("onActivityCreated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityCreated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityCreated"));
 				if (i.declaresMethodByName("onActivityDestroyed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityDestroyed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityDestroyed"));
 				if (i.declaresMethodByName("onActivityPaused"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityPaused")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityPaused"));
 				if (i.declaresMethodByName("onActivityResumed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityResumed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityResumed"));
 				if (i.declaresMethodByName("onActivitySaveInstanceState"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivitySaveInstanceState")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivitySaveInstanceState"));
 				if (i.declaresMethodByName("onActivityStarted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityStarted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityStarted"));
 				if (i.declaresMethodByName("onActivityStopped"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityStopped")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityStopped"));
 			}
 			else if (i.getName().equals("android.app.DatePickerDialog$OnDateSetListener")) {
 				if (i.declaresMethodByName("onDateSet"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDateSet")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDateSet"));
 			}
 			else if (i.getName().equals("android.app.FragmentBreadCrumbs$OnBreadCrumbClickListener")) {
 				if (i.declaresMethodByName("onBreadCrumbClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBreadCrumbClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBreadCrumbClick"));
 			}
 			else if (i.getName().equals("android.app.FragmentManager$OnBackStackChangedListener")) {
 				if (i.declaresMethodByName("onBackStackChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBackStackChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBackStackChanged"));
 			}
 			else if (i.getName().equals("android.app.KeyguardManager$OnKeyguardExitResult")) {
 				if (i.declaresMethodByName("onKeyguardExitResult"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKeyguardExitResult")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKeyguardExitResult"));
 			}
 			else if (i.getName().equals("android.app.LoaderManager$LoaderCallbacks")) {
 				if (i.declaresMethodByName("onCreateLoader"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCreateLoader")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCreateLoader"));
 				if (i.declaresMethodByName("onLoadFinished"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLoadFinished")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLoadFinished"));
 				if (i.declaresMethodByName("onLoaderReset"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLoaderReset")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLoaderReset"));
 			}
 			else if (i.getName().equals("android.app.PendingIntent$OnFinished")) {
 				if (i.declaresMethodByName("onSendFinished"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSendFinished")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSendFinished"));
 			}
 			else if (i.getName().equals("android.app.SearchManager$OnCancelListener")) {
 				if (i.declaresMethodByName("onCancel"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCancel")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCancel"));
 			}
 			else if (i.getName().equals("android.app.SearchManager$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDismiss")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDismiss"));
 			}
 			else if (i.getName().equals("android.app.TimePickerDialog$OnTimeSetListener")) {
 				if (i.declaresMethodByName("onTimeSet"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTimeSet")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTimeSet"));
 			}
 			// android.bluetooth
 			else if (i.getName().equals("android.bluetooth.BluetoothProfile$ServiceListener")) {
 				if (i.declaresMethodByName("onServiceConnected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceConnected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceConnected"));
 				if (i.declaresMethodByName("onServiceDisconnected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceDisconnected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceDisconnected"));
 			}
 			// android.content
 			else if (i.getName().equals("android.content.ClipboardManager$OnPrimaryClipChangedListener")) {
 				if (i.declaresMethodByName("onPrimaryClipChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPrimaryClipChanged")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPrimaryClipChanged"));
+			}
 			else if (i.getName().equals("android.content.ComponentCallbacks")) {
 				if (i.declaresMethodByName("onConfigurationChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onConfigurationChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onConfigurationChanged"));
 				if (i.declaresMethodByName("onLowMemory"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLowMemory")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLowMemory"));
 			}
 			else if (i.getName().equals("android.content.ComponentCallbacks2")) {
 				if (i.declaresMethodByName("onTrimMemory"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTrimMemory")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTrimMemory"));
 			}			
 			else if (i.getName().equals("android.content.DialogInterface$OnCancelListener")) {
 				if (i.declaresMethodByName("onCancel"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCancel")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCancel"));
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.content.DialogInterface,int)")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.content.DialogInterface,int)"));
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDismiss")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDismiss"));
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnKeyListener")) {
 				if (i.declaresMethodByName("onKey"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKey")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKey"));
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnMultiChoiceClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onClick")));
-			}			
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onClick"));
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnShowListener")) {
 				if (i.declaresMethodByName("onShow"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onShow")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShow"));
 			}
 			else if (i.getName().equals("android.content.IntentSender$OnFinished")) {
 				if (i.declaresMethodByName("onSendFinished"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSendFinished")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSendFinished"));
 			}
 			else if (i.getName().equals("android.content.Loader$OnLoadCanceledListener")) {
 				if (i.declaresMethodByName("onLoadCanceled"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLoadCanceled")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLoadCanceled"));
 			}
 			else if (i.getName().equals("android.content.Loader$OnLoadCompleteListener")) {
 				if (i.declaresMethodByName("onLoadComplete"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLoadComplete")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLoadComplete"));
 			}
 			else if (i.getName().equals("android.content.SharedPreferences$OnSharedPreferenceChangeListener")) {
 				if (i.declaresMethodByName("onSharedPreferenceChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSharedPreferenceChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSharedPreferenceChanged"));
 			}
 			else if (i.getName().equals("android.content.SyncStatusObserver")) {
 				if (i.declaresMethodByName("onStatusChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStatusChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStatusChanged"));
 			}
 			// android.database.sqlite
 			else if (i.getName().equals("android.database.sqlite.SQLiteTransactionListener")) {
 				if (i.declaresMethodByName("onBegin"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBegin")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBegin"));
 				if (i.declaresMethodByName("onCommit"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCommit")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCommit"));
 				if (i.declaresMethodByName("onRollback"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRollback")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRollback"));
 			}
 			// android.drm
 			else if (i.getName().equals("android.drm.DrmManagerClient$OnErrorListener")) {
 				if (i.declaresMethodByName("onError"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onError")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onError"));
 			}
 			else if (i.getName().equals("android.drm.DrmManagerClient$OnEventListener")) {
 				if (i.declaresMethodByName("onEvent"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEvent")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEvent"));
 			}
 			else if (i.getName().equals("android.drm.DrmManagerClient$OnInfoListener")) {
 				if (i.declaresMethodByName("onInfo"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInfo")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInfo"));
 			}
 			// android.gesture			
 			else if (i.getName().equals("android.gesture.GestureOverlayView$OnGestureListener")) {
 				if (i.declaresMethodByName("onGesture"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGesture")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesture"));
 				if (i.declaresMethodByName("onGestureCancelled"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGestureCancelled")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGestureCancelled"));
 				if (i.declaresMethodByName("onGestureEnded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGestureEnded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGestureEnded"));
 				if (i.declaresMethodByName("onGestureStarted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGestureStarted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGestureStarted"));
 			}
 			else if (i.getName().equals("android.gesture.GestureOverlayView$OnGesturePerformedListener")) {
 				if (i.declaresMethodByName("onGesturePerformed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGesturePerformed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesturePerformed"));
 			}
 			else if (i.getName().equals("android.gesture.GestureOverlayView$OnGesturingListener")) {
 				if (i.declaresMethodByName("onGesturingEnded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGesturingEnded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesturingEnded"));
 				if (i.declaresMethodByName("onGesturingStarted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGesturingStarted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesturingStarted"));
 			}
 			// android.graphics
 			else if (i.getName().equals("android.graphics.SurfaceTexture%OnFrameAvailableListener")) {
 				if (i.declaresMethodByName("onFrameAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFrameAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFrameAvailable"));
 			}
 			// android.hardware
 			else if (i.getName().equals("android.hardware.Camera$AutoFocusCallback")) {
 				if (i.declaresMethodByName("onAutoFocus"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAutoFocus")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAutoFocus"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$AutoFocusMoveCallback")) {
 				if (i.declaresMethodByName("onAutoFocusMoving"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAutoFocusMoving")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAutoFocusMoving"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$ErrorCallback")) {
 				if (i.declaresMethodByName("onError"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onError")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onError"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$FaceDetectionListener")) {
 				if (i.declaresMethodByName("onFaceDetection"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFaceDetection")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFaceDetection"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$OnZoomChangeListener")) {
 				if (i.declaresMethodByName("onZoomChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onZoomChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onZoomChange"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$PictureCallback")) {
 				if (i.declaresMethodByName("onPictureTaken"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPictureTaken")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPictureTaken"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$PreviewCallback")) {
 				if (i.declaresMethodByName("onPreviewFrame"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPreviewFrame")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPreviewFrame"));
 			}
 			else if (i.getName().equals("android.hardware.Camera$ShutterCallback")) {
 				if (i.declaresMethodByName("onShutter"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onShutter")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShutter"));
 			}
 			else if (i.getName().equals("android.hardware.SensorEventListener")) {
 				if (i.declaresMethodByName("onAccuracyChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAccuracyChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAccuracyChanged"));
 				if (i.declaresMethodByName("onSensorChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSensorChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSensorChanged"));
 			}
 			// android.hardware.display
 			else if (i.getName().equals("android.hardware.display.DisplayManager$DisplayListener")) {
 				if (i.declaresMethodByName("onDisplayAdded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDisplayAdded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDisplayAdded"));
 				if (i.declaresMethodByName("onDisplayChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDisplayChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDisplayChanged"));
 				if (i.declaresMethodByName("onDisplayRemoved"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDisplayRemoved")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDisplayRemoved"));
 			}
 			// android.hardware.input
 			else if (i.getName().equals("android.hardware.input.InputManager$InputDeviceListener")) {
 				if (i.declaresMethodByName("onInputDeviceAdded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInputDeviceAdded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInputDeviceAdded"));
 				if (i.declaresMethodByName("onInputDeviceChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInputDeviceChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInputDeviceChanged"));
 				if (i.declaresMethodByName("onInputDeviceRemoved"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInputDeviceRemoved")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInputDeviceRemoved"));
 			}
 			// android.inputmethodservice
 			else if (i.getName().equals("android.inputmethodservice.KeyboardView$OnKeyboardActionListener")) {
 				if (i.declaresMethodByName("onKey"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKey")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKey"));
 				if (i.declaresMethodByName("onPress"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPress")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPress"));
 				if (i.declaresMethodByName("onRelease"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRelease")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRelease"));
 				if (i.declaresMethodByName("onText"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onText")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onText"));
 				if (i.declaresMethodByName("swipeDown"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "swipeDown")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "swipeDown"));
 				if (i.declaresMethodByName("swipeLeft"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "swipeLeft")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "swipeLeft"));
 				if (i.declaresMethodByName("swipeRight"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "swipeRight")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "swipeRight"));
 				if (i.declaresMethodByName("swipeUp"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "swipeUp")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "swipeUp"));
 			}
 			// android.location
 			else if (i.getName().equals("android.location.GpsStatus$Listener")) {
 				if (i.declaresMethodByName("onGpsStatusChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGpsStatusChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGpsStatusChanged"));
 			}
 			else if (i.getName().equals("android.location.GpsStatus$NmeaListener")) {
 				if (i.declaresMethodByName("onNmeaReceived"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onNmeaReceived")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onNmeaReceived"));
 			}
 			else if (i.getName().equals("android.location.LocationListener")) {
 				if (i.declaresMethodByName("onLocationChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLocationChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLocationChanged"));
 				if (i.declaresMethodByName("onProviderDisabled"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onProviderDisabled")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onProviderDisabled"));
 				if (i.declaresMethodByName("onProviderEnabled"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onProviderEnabled")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onProviderEnabled"));
 				if (i.declaresMethodByName("onStatusChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStatusChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStatusChanged"));
 			}
 			// android.media
 			else if (i.getName().equals("android.media.AudioManager$OnAudioFocusChangeListener")) {
 				if (i.declaresMethodByName("onAudioFocusChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAudioFocusChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAudioFocusChange"));
 			}
 			else if (i.getName().equals("android.media.AudioRecord$OnRecordPositionUpdateListener")
 					|| i.getName().equals("android.media.AudioRecord$OnPlaybackPositionUpdateListener")) {
 				if (i.declaresMethodByName("onMarkerReached"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMarkerReached")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMarkerReached"));
 				if (i.declaresMethodByName("onPeriodicNotification"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPeriodicNotification")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPeriodicNotification"));
 			}
 			else if (i.getName().equals("android.media.JetPlayer$OnJetEventListener")) {
 				if (i.declaresMethodByName("onJetEvent"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onJetEvent")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onJetEvent"));
 				if (i.declaresMethodByName("onJetNumQueuedSegmentUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onJetNumQueuedSegmentUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onJetNumQueuedSegmentUpdate"));
 				if (i.declaresMethodByName("onJetPauseUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onJetPauseUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onJetPauseUpdate"));
 				if (i.declaresMethodByName("onJetUserIdUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onJetUserIdUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onJetUserIdUpdate"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnBufferingUpdateListener")) {
 				if (i.declaresMethodByName("onBufferingUpdate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBufferingUpdate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBufferingUpdate"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnCompletionListener")) {
 				if (i.declaresMethodByName("onCompletion"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCompletion")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCompletion"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnErrorListener")) {
 				if (i.declaresMethodByName("onError"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onError")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onError"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnInfoListener")) {
 				if (i.declaresMethodByName("onInfo"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInfo")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInfo"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnPreparedListener")) {
 				if (i.declaresMethodByName("onPrepared"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPrepared")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPrepared"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnSeekCompleteListener")) {
 				if (i.declaresMethodByName("onSeekComplete"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSeekComplete")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSeekComplete"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnTimedTextListener")) {
 				if (i.declaresMethodByName("onTimedText"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTimedText")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTimedText"));
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnVideoSizeChangedListener")) {
 				if (i.declaresMethodByName("onVideoSizeChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onVideoSizeChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onVideoSizeChanged"));
 			}
 			else if (i.getName().equals("android.media.MediaRecorder$OnErrorListener")) {
 				if (i.declaresMethodByName("onError"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onError")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onError"));
 			}
 			else if (i.getName().equals("android.media.MediaRecorder$OnInfoListener")) {
 				if (i.declaresMethodByName("onInfo"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInfo")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInfo"));
 			}
 			else if (i.getName().equals("android.media.MediaScannerConnection$MediaScannerConnectionClient")) {
 				if (i.declaresMethodByName("onMediaScannerConnected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMediaScannerConnected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMediaScannerConnected"));
 				if (i.declaresMethodByName("onScanCompleted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScanCompleted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScanCompleted"));
 			}
 			else if (i.getName().equals("android.media.MediaScannerConnection$OnScanCompletedListener")) {
 				if (i.declaresMethodByName("onScanCompleted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScanCompleted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScanCompleted"));
 			}
 			else if (i.getName().equals("android.media.SoundPool$OnLoadCompleteListener")) {
 				if (i.declaresMethodByName("onLoadComplete"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLoadComplete")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLoadComplete"));
 			}
 			// android.media.audiofx
 			else if (i.getName().equals("android.media.audiofx.AudioEffect$OnControlStatusChangeListener")) {
 				if (i.declaresMethodByName("onControlStatusChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onControlStatusChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onControlStatusChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.AudioEffect$OnEnableStatusChangeListener")) {
 				if (i.declaresMethodByName("onEnableStatusChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEnableStatusChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEnableStatusChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.BassBoost$OnParameterChangeListener")) {
 				if (i.declaresMethodByName("onParameterChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onParameterChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onParameterChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.EnvironmentalReverb$OnParameterChangeListener")) {
 				if (i.declaresMethodByName("onParameterChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onParameterChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onParameterChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.Equalizer$OnParameterChangeListener")) {
 				if (i.declaresMethodByName("onParameterChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onParameterChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onParameterChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.PresetReverb$OnParameterChangeListener")) {
 				if (i.declaresMethodByName("onParameterChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onParameterChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onParameterChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.Virtualizer$OnParameterChangeListener")) {
 				if (i.declaresMethodByName("onParameterChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onParameterChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onParameterChange"));
 			}
 			else if (i.getName().equals("android.media.audiofx.Visualizer$OnDataCaptureListener")) {
 				if (i.declaresMethodByName("onFftDataCapture"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFftDataCapture")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFftDataCapture"));
 				if (i.declaresMethodByName("onWaveFormDataCapture"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onWaveFormDataCapture")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onWaveFormDataCapture"));
 			}
 			// android.media.effect
 			else if (i.getName().equals("android.media.effect$EffectUpdateListener")) {
 				if (i.declaresMethodByName("onEffectUpdated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEffectUpdated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEffectUpdated"));
 			}
 			// android.net.nsd
 			else if (i.getName().equals("android.net.nsd.NsdManager$DiscoveryListener")) {
 				if (i.declaresMethodByName("onDiscoveryStarted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDiscoveryStarted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDiscoveryStarted"));
 				if (i.declaresMethodByName("onDiscoveryStopped"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDiscoveryStopped")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDiscoveryStopped"));
 				if (i.declaresMethodByName("onServiceFound"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceFound")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceFound"));
 				if (i.declaresMethodByName("onServiceLost"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceLost")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceLost"));
 				if (i.declaresMethodByName("onStartDiscoveryFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStartDiscoveryFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStartDiscoveryFailed"));
 				if (i.declaresMethodByName("onStopDiscoveryFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStopDiscoveryFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStopDiscoveryFailed"));
 			}
 			else if (i.getName().equals("android.net.nsd.NsdManager$RegistrationListener")) {
 				if (i.declaresMethodByName("onRegistrationFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRegistrationFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRegistrationFailed"));
 				if (i.declaresMethodByName("onServiceRegistered"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceRegistered")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceRegistered"));
 				if (i.declaresMethodByName("onServiceUnregistered"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceUnregistered")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceUnregistered"));
 				if (i.declaresMethodByName("onUnregistrationFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onUnregistrationFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onUnregistrationFailed"));
 			}
 			else if (i.getName().equals("android.net.nsd.NsdManager$ResolveListener")) {
 				if (i.declaresMethodByName("onResolveFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onResolveFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onResolveFailed"));
 				if (i.declaresMethodByName("onServiceResolved"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceResolved")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceResolved"));
 			}
 			// android.net.sip
 			else if (i.getName().equals("android.net.sip.SipRegistrationListener")) {
 				if (i.declaresMethodByName("onRegistering"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRegistering")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRegistering"));
 				if (i.declaresMethodByName("onRegistrationDone"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRegistrationDone")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRegistrationDone"));
 				if (i.declaresMethodByName("onRegistrationFailed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRegistrationFailed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRegistrationFailed"));
 			}
 			// android.net.wifi.p2p
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$ActionListener")) {
 				if (i.declaresMethodByName("onFailure"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFailure")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFailure"));
 				if (i.declaresMethodByName("onSuccess"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSuccess")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSuccess"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$ChannelListener")) {
 				if (i.declaresMethodByName("onChannelDisconnected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onChannelDisconnected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onChannelDisconnected"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$ConnectionInfoListener")) {
 				if (i.declaresMethodByName("onConnectionInfoAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onConnectionInfoAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onConnectionInfoAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$DnsSdServiceResponseListener")) {
 				if (i.declaresMethodByName("onDnsSdServiceAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDnsSdServiceAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDnsSdServiceAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$DnsSdTxtRecordListener")) {
 				if (i.declaresMethodByName("onDnsSdTxtRecordAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDnsSdTxtRecordAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDnsSdTxtRecordAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$GroupInfoListener")) {
 				if (i.declaresMethodByName("onGroupInfoAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGroupInfoAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGroupInfoAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$PeerListListener")) {
 				if (i.declaresMethodByName("onPeersAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPeersAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPeersAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$ServiceResponseListener")) {
 				if (i.declaresMethodByName("onServiceAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onServiceAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onServiceAvailable"));
 			}
 			else if (i.getName().equals("android.net.wifi.p2p.WifiP2pManager$UpnpServiceResponseListener")) {
 				if (i.declaresMethodByName("onUpnpServiceAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onUpnpServiceAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onUpnpServiceAvailable"));
 			}
 			// android.os
 			else if (i.getName().equals("android.os.CancellationSignal$OnCancelListener")) {
 				if (i.declaresMethodByName("onCancel"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCancel")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCancel"));
 			}
 			else if (i.getName().equals("android.os.IBinder$DeathRecipient")) {
 				if (i.declaresMethodByName("binderDied"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "binderDied")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "binderDied"));
 			}
 			else if (i.getName().equals("android.os.MessageQueue$IdleHandler")) {
 				if (i.declaresMethodByName("queueIdle"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "queueIdle")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "queueIdle"));
 			}
 			else if (i.getName().equals("android.os.RecoverySystem$ProgressListener")) {
 				if (i.declaresMethodByName("onProgress"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onProgress")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onProgress"));
 			}
 			// android.preference
 			else if (i.getName().equals("android.preference.Preference$OnPreferenceChangeListener")) {
 				if (i.declaresMethodByName("onPreferenceChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPreferenceChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPreferenceChange"));
 			}
 			else if (i.getName().equals("android.preference.Preference$OnPreferenceClickListener")) {
 				if (i.declaresMethodByName("onPreferenceClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPreferenceClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPreferenceClick"));
 			}
 			else if (i.getName().equals("android.preference.PreferenceFragment$OnPreferenceStartFragmentCallback")) {
 				if (i.declaresMethodByName("onPreferenceStartFragment"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPreferenceStartFragment")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPreferenceStartFragment"));
 			}
 			else if (i.getName().equals("android.preference.PreferenceManager$OnActivityDestroyListener")) {
 				if (i.declaresMethodByName("onActivityDestroy"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityDestroy")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityDestroy"));
 			}
 			else if (i.getName().equals("android.preference.PreferenceManager$OnActivityResultListener")) {
 				if (i.declaresMethodByName("onActivityResult"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityResult")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityResult"));
 			}
 			else if (i.getName().equals("android.preference.PreferenceManager$OnActivityStopListener")) {
 				if (i.declaresMethodByName("onActivityStop"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActivityStop")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActivityStop"));
 			}
 			// android.security
 			else if (i.getName().equals("android.security.KeyChainAliasCallback")) {
 				if (i.declaresMethodByName("alias"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "alias")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "alias"));
 			}
 			// android.speech
 			else if (i.getName().equals("android.speech.RecognitionListener")) {
 				if (i.declaresMethodByName("onBeginningOfSpeech"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBeginningOfSpeech")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBeginningOfSpeech"));
 				if (i.declaresMethodByName("onBufferReceived"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onBufferReceived")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBufferReceived"));
 				if (i.declaresMethodByName("onEndOfSpeech"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEndOfSpeech")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEndOfSpeech"));
 				if (i.declaresMethodByName("onError"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onError")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onError"));
 				if (i.declaresMethodByName("onEvent"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEvent")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEvent"));
 				if (i.declaresMethodByName("onPartialResults"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPartialResults")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPartialResults"));
 				if (i.declaresMethodByName("onReadyForSpeech"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onReadyForSpeech")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onReadyForSpeech"));
 				if (i.declaresMethodByName("onResults"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onResults")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onResults"));
 				if (i.declaresMethodByName("onRmsChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRmsChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRmsChanged"));
 			}
 			// android.speech.tts
 			else if (i.getName().equals("android.speech.tts.TextToSpeech$OnInitListener")) {
 				if (i.declaresMethodByName("onInit"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInit")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInit"));
 			}			
 			else if (i.getName().equals("android.speech.tts.TextToSpeech$OnUtteranceCompletedListener")) {
 				if (i.declaresMethodByName("onUtteranceCompleted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onUtteranceCompleted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onUtteranceCompleted"));
 			}			
 			// android.support - omitted
 			// android.view
 			else if (i.getName().equals("android.view.ActionMode$Callback")) {
 				if (i.declaresMethodByName("onActionItemClicked"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActionItemClicked")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActionItemClicked"));
 				if (i.declaresMethodByName("onCreateActionMode"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCreateActionMode")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCreateActionMode"));
 				if (i.declaresMethodByName("onDestroyActionMode"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDestroyActionMode")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDestroyActionMode"));
 				if (i.declaresMethodByName("onPrepareActionMode"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPrepareActionMode")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPrepareActionMode"));
 			}
 			else if (i.getName().equals("android.view.ActionProvider$VisibilityListener")) {
 				if (i.declaresMethodByName("onActionProviderVisibilityChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onActionProviderVisibilityChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onActionProviderVisibilityChanged"));
 			}
 			else if (i.getName().equals("android.view.GestureDetector$OnDoubleTapListener")) {
 				if (i.declaresMethodByName("onDoubleTap"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDoubleTap")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDoubleTap"));
 				if (i.declaresMethodByName("onDoubleTapEvent"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDoubleTapEvent")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDoubleTapEvent"));
 				if (i.declaresMethodByName("onSingleTapConfirmed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSingleTapConfirmed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSingleTapConfirmed"));
 			}
 			else if (i.getName().equals("android.view.GestureDetector$OnGestureListener")) {
 				if (i.declaresMethodByName("onDown"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDown")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDown"));
 				if (i.declaresMethodByName("onFling"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFling")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFling"));
 				if (i.declaresMethodByName("onLongPress"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLongPress")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLongPress"));
 				if (i.declaresMethodByName("onScroll"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScroll")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScroll"));
 				if (i.declaresMethodByName("onShowPress"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onShowPress")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShowPress"));
 				if (i.declaresMethodByName("onSingleTapUp"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSingleTapUp")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSingleTapUp"));
 			}
 			else if (i.getName().equals("android.view.InputQueue$Callback")) {
 				if (i.declaresMethodByName("onInputQueueCreated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInputQueueCreated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInputQueueCreated"));
 				if (i.declaresMethodByName("onInputQueueDestroyed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInputQueueDestroyed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInputQueueDestroyed"));
 			}
 			else if (i.getName().equals("android.view.KeyEvent$Callback")) {
 				if (i.declaresMethodByName("onKeyDown"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKeyDown")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKeyDown"));
 				if (i.declaresMethodByName("onKeyLongPress"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKeyLongPress")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKeyLongPress"));
 				if (i.declaresMethodByName("onKeyMultiple"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKeyMultiple")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKeyMultiple"));
 				if (i.declaresMethodByName("onKeyUp"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKeyUp")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKeyUp"));
 			}
 			else if (i.getName().equals("android.view.MenuItem$OnActionExpandListener")) {
 				if (i.declaresMethodByName("onMenuItemActionCollapse"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMenuItemActionCollapse")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMenuItemActionCollapse"));
 				if (i.declaresMethodByName("onMenuItemActionExpand"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMenuItemActionExpand")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMenuItemActionExpand"));
 			}
 			else if (i.getName().equals("android.view.MenuItem$OnMenuItemClickListener")) {
 				if (i.declaresMethodByName("onMenuItemClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMenuItemClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMenuItemClick"));
 			}
 			else if (i.getName().equals("android.view.ScaleGestureDetector$OnScaleGestureListener")) {
 				if (i.declaresMethodByName("onScale"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScale")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScale"));
 				if (i.declaresMethodByName("onScaleBegin"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScaleBegin")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScaleBegin"));
 				if (i.declaresMethodByName("onScaleEnd"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScaleEnd")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScaleEnd"));
 			}
 			else if (i.getName().equals("android.view.SurfaceHolder$Callback")) {
 				if (i.declaresMethodByName("surfaceChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "surfaceChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "surfaceChanged"));
 				if (i.declaresMethodByName("surfaceCreated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "surfaceCreated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "surfaceCreated"));
 				if (i.declaresMethodByName("surfaceDestroyed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "surfaceDestroyed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "surfaceDestroyed"));
 			}
 			else if (i.getName().equals("android.view.SurfaceHolder$Callback2")) {
 				if (i.declaresMethodByName("surfaceRedrawNeeded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "surfaceRedrawNeeded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "surfaceRedrawNeeded"));
 			}
 			else if (i.getName().equals("android.view.TextureView$SurfaceTextureListener")) {
 				if (i.declaresMethodByName("onSurfaceTextureAvailable"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureAvailable")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureAvailable"));
 				if (i.declaresMethodByName("onSurfaceTextureDestroyed"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureDestroyed")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureDestroyed"));
 				if (i.declaresMethodByName("onSurfaceTextureSizeChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureSizeChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureSizeChanged"));
 				if (i.declaresMethodByName("onSurfaceTextureUpdated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureUpdated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSurfaceTextureUpdated"));
 			}
 			else if (i.getName().equals("android.view.View$OnAttachStateChangeListener")) {
 				if (i.declaresMethodByName("onViewAttachedToWindow"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onViewAttachedToWindow")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onViewAttachedToWindow"));
 				if (i.declaresMethodByName("onViewDetachedFromWindow"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onViewDetachedFromWindow")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onViewDetachedFromWindow"));
 			}
 			else if (i.getName().equals("android.view.View$OnClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.view.View)")));
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.view.View)"));
 			}
 			else if (i.getName().equals("android.view.View$OnCreateContextMenuListener")) {
 				if (i.declaresMethodByName("onCreateContextMenu"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCreateContextMenu")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCreateContextMenu"));
 			}
 			else if (i.getName().equals("android.view.View$OnDragListener")) {
 				if (i.declaresMethodByName("onDrag"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDrag")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDrag"));
 			}
 			else if (i.getName().equals("android.view.View$OnFocusChangeListener")) {
 				if (i.declaresMethodByName("onFocusChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFocusChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFocusChange"));
 			}
 			else if (i.getName().equals("android.view.View$OnGenericMotionListener")) {
 				if (i.declaresMethodByName("onGenericMotion"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGenericMotion")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGenericMotion"));
 			}
 			else if (i.getName().equals("android.view.View$OnHoverListener")) {
 				if (i.declaresMethodByName("onHover"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onHover")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onHover"));
 			}
 			else if (i.getName().equals("android.view.View$OnKeyListener")) {
 				if (i.declaresMethodByName("onKey"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onKey")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onKey"));
 			}
 			else if (i.getName().equals("android.view.View$OnLayoutChangeListener")) {
 				if (i.declaresMethodByName("onLayoutChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLayoutChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLayoutChange"));
 			}
 			else if (i.getName().equals("android.view.View$OnLongClickListener")) {
 				if (i.declaresMethodByName("onLongClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onLongClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLongClick"));
 			}
 			else if (i.getName().equals("android.view.View$OnSystemUiVisibilityChangeListener")) {
 				if (i.declaresMethodByName("onSystemUiVisibilityChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSystemUiVisibilityChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSystemUiVisibilityChange"));
 			}
 			else if (i.getName().equals("android.view.View$OnTouchListener")) {
 				if (i.declaresMethodByName("onTouch"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTouch")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTouch"));
 			}
 			else if (i.getName().equals("android.view.ViewGroup$OnHierarchyChangeListener")) {
 				if (i.declaresMethodByName("onChildViewAdded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onChildViewAdded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onChildViewAdded"));
 				if (i.declaresMethodByName("onChildViewRemoved"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onChildViewRemoved")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onChildViewRemoved"));
 			}
 			else if (i.getName().equals("android.view.ViewStub$OnInflateListener")) {
 				if (i.declaresMethodByName("onInflate"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onInflate")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInflate"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnDrawListener")) {
 				if (i.declaresMethodByName("onDraw"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDraw")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDraw"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnGlobalFocusChangeListener")) {
 				if (i.declaresMethodByName("onGlobalFocusChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGlobalFocusChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGlobalFocusChanged"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnGlobalLayoutListener")) {
 				if (i.declaresMethodByName("onGlobalLayout"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGlobalLayout")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGlobalLayout"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnPreDrawListener")) {
 				if (i.declaresMethodByName("onPreDraw"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onPreDraw")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onPreDraw"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnScrollChangedListener")) {
 				if (i.declaresMethodByName("onScrollChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScrollChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScrollChanged"));
 			}
 			else if (i.getName().equals("android.view.ViewTreeObserver$OnTouchModeChangeListener")) {
 				if (i.declaresMethodByName("onTouchModeChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTouchModeChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTouchModeChanged"));
 			}
 			// android.view.accessibility
 			else if (i.getName().equals("android.view.accessibility.AccessibilityManager$AccessibilityStateChangeListener")) {
 				if (i.declaresMethodByName("onAccessibilityStateChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAccessibilityStateChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAccessibilityStateChanged"));
 			}
 			// android.view.animation
 			else if (i.getName().equals("android.view.animation.Animation$AnimationListener")) {
 				if (i.declaresMethodByName("onAnimationEnd"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationEnd")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationEnd"));
 				if (i.declaresMethodByName("onAnimationRepeat"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationRepeat")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationRepeat"));
 				if (i.declaresMethodByName("onAnimationStart"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onAnimationStart")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAnimationStart"));
 			}
 			// android.view.inputmethod
 			else if (i.getName().equals("android.view.inputmethod.InputMethod$SessionCallback")) {
 				if (i.declaresMethodByName("sessionCreated"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "sessionCreated")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "sessionCreated"));
 			}
 			else if (i.getName().equals("android.view.inputmethod.InputMethodSession$EventCallback")) {
 				if (i.declaresMethodByName("finishedEvent"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "finishedEvent")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "finishedEvent"));
 			}
 			// android.view.textservice
 			else if (i.getName().equals("android.view.textservice.SpellCheckerSession$SpellCheckerSessionListener")) {
 				if (i.declaresMethodByName("onGetSentenceSuggestions"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGetSentenceSuggestions")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGetSentenceSuggestions"));
 				if (i.declaresMethodByName("onGetSuggestions"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGetSuggestions")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGetSuggestions"));
 			}
 			// android.webkit
 			else if (i.getName().equals("android.webkit.DownloadListener")) {
 				if (i.declaresMethodByName("onDownloadStart"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDownloadStart")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDownloadStart"));
 			}
 			// android.widget
 			else if (i.getName().equals("android.widget.AbsListView$MultiChoiceModeListener")) {
 				if (i.declaresMethodByName("onItemCheckedStateChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onItemCheckedStateChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onItemCheckedStateChanged"));
 			}
 			else if (i.getName().equals("android.widget.AbsListView$OnScrollListener")) {
 				if (i.declaresMethodByName("onScroll"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScroll")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScroll"));
 				if (i.declaresMethodByName("onScrollStateChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScrollStateChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScrollStateChanged"));
 			}
 			else if (i.getName().equals("android.widget.AbsListView$RecyclerListener")) {
 				if (i.declaresMethodByName("onMovedToScrapHeap"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMovedToScrapHeap")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMovedToScrapHeap"));
 			}
 			else if (i.getName().equals("android.widget.AdapterView$OnItemClickListener")) {
 				if (i.declaresMethodByName("onItemClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onItemClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onItemClick"));
 			}
 			else if (i.getName().equals("android.widget.AdapterView$OnItemLongClickListener")) {
 				if (i.declaresMethodByName("onItemLongClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onItemLongClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onItemLongClick"));
 			}
 			else if (i.getName().equals("android.widget.AdapterView.OnItemSelectedListener")) {
 				if (i.declaresMethodByName("onItemSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onItemSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onItemSelected"));
 				if (i.declaresMethodByName("onNothingSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onNothingSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onNothingSelected"));
 			}
 			else if (i.getName().equals("android.widget.AutoCompleteTextView$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDismiss")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDismiss"));
 			}
 			else if (i.getName().equals("android.widget.CalendarView$OnDateChangeListener")) {
 				if (i.declaresMethodByName("onSelectedDayChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSelectedDayChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSelectedDayChange"));
 			}
 			else if (i.getName().equals("android.widget.Chronometer$OnChronometerTickListener")) {
 				if (i.declaresMethodByName("onChronometerTick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onChronometerTick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onChronometerTick"));
 			}
 			else if (i.getName().equals("android.widget.CompoundButton$OnCheckedChangeListener")) {
 				if (i.declaresMethodByName("onCheckedChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged"));
 			}
 			else if (i.getName().equals("android.widget.DatePicker$OnDateChangedListener")) {
 				if (i.declaresMethodByName("onDateChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDateChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDateChanged"));
 			}
 			else if (i.getName().equals("android.widget.ExpandableListView$OnChildClickListener")) {
 				if (i.declaresMethodByName("onChildClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onChildClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onChildClick"));
 			}
 			else if (i.getName().equals("android.widget.ExpandableListView$OnGroupClickListener")) {
 				if (i.declaresMethodByName("onGroupClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGroupClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGroupClick"));
 			}
 			else if (i.getName().equals("android.widget.ExpandableListView$OnGroupCollapseListener")) {
 				if (i.declaresMethodByName("onGroupCollapse"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGroupCollapse")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGroupCollapse"));
 			}
 			else if (i.getName().equals("android.widget.ExpandableListView$OnGroupExpandListener")) {
 				if (i.declaresMethodByName("onGroupExpand"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onGroupExpand")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGroupExpand"));
 			}
 			else if (i.getName().equals("android.widget.Filter$FilterListener")) {
 				if (i.declaresMethodByName("onFilterComplete"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onFilterComplete")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFilterComplete"));
 			}
 			else if (i.getName().equals("android.widget.NumberPicker$OnScrollListener")) {
 				if (i.declaresMethodByName("onScrollStateChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScrollStateChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScrollStateChange"));
 			}
 			else if (i.getName().equals("android.widget.NumberPicker$OnValueChangeListener")) {
 				if (i.declaresMethodByName("onValueChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onValueChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onValueChange"));
 			}
 			else if (i.getName().equals("android.widget.NumberPicker$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDismiss")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDismiss"));
 			}
 			else if (i.getName().equals("android.widget.PopupMenu$OnMenuItemClickListener")) {
 				if (i.declaresMethodByName("onMenuItemClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onMenuItemClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onMenuItemClick"));
 			}
 			else if (i.getName().equals("android.widget.PopupWindow$OnDismissListener")) {
 				if (i.declaresMethodByName("onDismiss"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDismiss")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDismiss"));
 			}
 			else if (i.getName().equals("android.widget.RadioGroup$OnCheckedChangeListener")) {
 				if (i.declaresMethodByName("onCheckedChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged"));
 			}
 			else if (i.getName().equals("android.widget.RatingBar$OnRatingBarChangeListener")) {
 				if (i.declaresMethodByName("onRatingChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onRatingChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onRatingChanged"));
 			}
 			else if (i.getName().equals("android.widget.SearchView$OnCloseListener")) {
 				if (i.declaresMethodByName("onClose"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onClose")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onClose"));
 			}
 			else if (i.getName().equals("android.widget.SearchView$OnQueryTextListener")) {
 				if (i.declaresMethodByName("onQueryTextChange"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onQueryTextChange")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onQueryTextChange"));
 				if (i.declaresMethodByName("onQueryTextSubmit"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onQueryTextSubmit")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onQueryTextSubmit"));
 			}
 			else if (i.getName().equals("android.widget.SearchView$OnSuggestionListener")) {
 				if (i.declaresMethodByName("onSuggestionClick"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSuggestionClick")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSuggestionClick"));
 				if (i.declaresMethodByName("onSuggestionSelect"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onSuggestionSelect")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSuggestionSelect"));
 			}
 			else if (i.getName().equals("android.widget.SeekBar$OnSeekBarChangeListener")) {
 				if (i.declaresMethodByName("onProgressChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onProgressChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onProgressChanged"));
 				if (i.declaresMethodByName("onStartTrackingTouch"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStartTrackingTouch")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStartTrackingTouch"));
 				if (i.declaresMethodByName("onStopTrackingTouch"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onStopTrackingTouch")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onStopTrackingTouch"));
 			}
 			else if (i.getName().equals("android.widget.ShareActionProvider$OnShareTargetSelectedListener")) {
 				if (i.declaresMethodByName("onShareTargetSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onShareTargetSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShareTargetSelected"));
 			}
 			else if (i.getName().equals("android.widget.SlidingDrawer$OnDrawerCloseListener")) {
 				if (i.declaresMethodByName("onShareTargetSelected"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onShareTargetSelected")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShareTargetSelected"));
 			}
 			else if (i.getName().equals("android.widget.SlidingDrawer$OnDrawerOpenListener")) {
 				if (i.declaresMethodByName("onDrawerOpened"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onDrawerOpened")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDrawerOpened"));
 			}
 			else if (i.getName().equals("android.widget.SlidingDrawer$OnDrawerScrollListener")) {
 				if (i.declaresMethodByName("onScrollEnded"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScrollEnded")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScrollEnded"));
 				if (i.declaresMethodByName("onScrollStarted"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onScrollStarted")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScrollStarted"));
 			}
 			else if (i.getName().equals("android.widget.TabHost$OnTabChangeListener")) {
 				if (i.declaresMethodByName("onTabChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTabChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTabChanged"));
 			}
 			else if (i.getName().equals("android.widget.TextView$OnEditorActionListener")) {
 				if (i.declaresMethodByName("onEditorAction"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onEditorAction")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onEditorAction"));
 			}
 			else if (i.getName().equals("android.widget.TimePicker$OnTimeChangedListener")) {
 				if (i.declaresMethodByName("onTimeChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onTimeChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTimeChanged"));
 			}
 			else if (i.getName().equals("android.widget.ZoomButtonsController$OnZoomListener")) {
 				if (i.declaresMethodByName("onVisibilityChanged"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onVisibilityChanged")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onVisibilityChanged"));
 				if (i.declaresMethodByName("onZoom"))
-					callbackMethods.add(new AndroidMethod(getMethodFromHierarchy(baseClass, "onZoom")));
+					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onZoom"));
 			}
 		}
+	}
+
+	/**
+	 * Checks whether the given Soot method comes from a system class. If not,
+	 * it is added to the list of callback methods.
+	 * @param method The method to check and add
+	 */
+	private void checkAndAddMethod(SootMethod method) {
+		AndroidMethod am = new AndroidMethod(method);
+		if (!am.getClassName().startsWith("android."))
+			callbackMethods.add(am);
 	}
 
 	private Set<SootClass> collectAllInterfaces(SootClass sootClass) {
