@@ -11,16 +11,21 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
 /**
  * Class representing a single method in the Android SDK
  *
- * @author Steven Arzt
+ * @author Steven Arzt, Siegfried Rasthofer
  *
  */
 public class AndroidMethod extends SootMethodAndClass {
+
+	public enum CATEGORY {NO_CATEGORY, HARDWARE_INFO, NFC, PHONE_CONNECTION, INTER_APP_COMMUNICATION, VOIP, CONTACT_INFORMATION, UNIQUE_IDENTIFIER, PHONE_STATE, SYSTEM_SETTINGS, 
+		LOCATION_INFORMATION, NETWORK_INFORMATION, EMAIL, SMS_MMS, CALENDAR_INFORMATION, ACCOUNT_INFORMATION, BLUETOOTH, MUSIC, CONNECTION_INFORMATION, ACCOUNT_SETTINGS, VIDEO, AUDIO}
 
 	private final Set<String> permissions;
 	
 	private boolean isSource = false;
 	private boolean isSink = false;
 	private boolean isNeitherNor = false;
+	
+    private CATEGORY category;
 		
 	public AndroidMethod(String methodName, String returnType, String className) {
 		super(methodName, className, returnType, new ArrayList<String>());
@@ -77,6 +82,10 @@ public class AndroidMethod extends SootMethodAndClass {
 
 	public void setNeitherNor(boolean isNeitherNor) {
 		this.isNeitherNor = isNeitherNor;
+	}
+	
+	public void setCategory(CATEGORY category){
+		this.category = category;
 	}
 	
 	@Override

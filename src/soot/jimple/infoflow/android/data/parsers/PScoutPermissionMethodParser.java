@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
 
 /**
  * Parser of the permissions to method map from the University of Toronto (PScout)
@@ -111,21 +112,36 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			String targets = m.group(5).substring(3);
 			
 			for(String target : targets.split(" "))
-				if(target.equals("_SOURCE_"))
+				if(target.startsWith("_SOURCE_"))
 					singleMethod.setSource(true);
-				else if(target.equals("_SINK_"))
+				else if(target.startsWith("_SINK_")){
 					singleMethod.setSink(true);
+					if(target.contains("|")){
+						String cat = target.substring(target.indexOf('|')+1);
+						singleMethod.setCategory(returnCorrectCategory(cat));
+					}
+				}
 				else if(target.equals("_NONE_"))
 					singleMethod.setNeitherNor(true);
-				else if(target.equals("_IMPSOURCE_")){
-					if(SET_IMPLICIT_SOURCE_TO_SOURCE)
+				else if(target.startsWith("_IMPSOURCE_")){
+					if(SET_IMPLICIT_SOURCE_TO_SOURCE){
 						singleMethod.setSource(true);
+						if(target.contains("|")){
+							String cat = target.substring(target.indexOf('|')+1);
+							singleMethod.setCategory(returnCorrectCategory(cat));
+						}
+					}
 					else
 						singleMethod.setNeitherNor(true);
 				}
-				else if(target.equals("_INDSINK_")){
-					if(SET_INDIRECT_SINK_TO_SINK)
+				else if(target.startsWith("_INDSINK_")){
+					if(SET_INDIRECT_SINK_TO_SINK){
 						singleMethod.setSink(true);
+						if(target.contains("|")){
+							String cat = target.substring(target.indexOf('|')+1);
+							singleMethod.setCategory(returnCorrectCategory(cat));
+						}
+					}
 					else
 						singleMethod.setNeitherNor(true);
 				}
@@ -137,5 +153,54 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 		
 		
 		return singleMethod;
+	}
+	
+	private CATEGORY returnCorrectCategory(String category){
+		if(category.equals("_NO_CATEGORY_"))
+			return CATEGORY.NO_CATEGORY;
+		else if(category.equals("_HARDWARE_INFO_"))
+			return CATEGORY.HARDWARE_INFO;
+		else if(category.equals("_NFC_"))
+			return CATEGORY.NFC;
+		else if(category.equals("_PHONE_CONNECTION_"))
+			return CATEGORY.PHONE_CONNECTION;
+		else if(category.equals("_INTER_APP_COMMUNICATION_"))
+			return CATEGORY.INTER_APP_COMMUNICATION;
+		else if(category.equals("_VOIP_"))
+			return CATEGORY.VOIP;
+		else if(category.equals("_CONTACT_INFORMATION_"))
+			return CATEGORY.CONTACT_INFORMATION;
+		else if(category.equals("_UNIQUE_IDENTIFIER_"))
+			return CATEGORY.UNIQUE_IDENTIFIER;
+		else if(category.equals("_PHONE_STATE_"))
+			return CATEGORY.PHONE_STATE;
+		else if(category.equals("_SYSTEM_SETTINGS_"))
+			return CATEGORY.SYSTEM_SETTINGS;
+		else if(category.equals("_LOCATION_INFORMATION_"))
+			return CATEGORY.LOCATION_INFORMATION;
+		else if(category.equals("_NETWORK_INFORMATION_"))
+			return CATEGORY.NETWORK_INFORMATION;
+		else if(category.equals("_EMAIL_"))
+			return CATEGORY.EMAIL;
+		else if(category.equals("_SMS_MMS_"))
+			return CATEGORY.SMS_MMS;
+		else if(category.equals("_CALENDAR_INFORMATION_"))
+			return CATEGORY.CALENDAR_INFORMATION;
+		else if(category.equals("_ACCOUNT_INFORMATION_"))
+			return CATEGORY.ACCOUNT_INFORMATION;
+		else if(category.equals("_BLUETOOTH_"))
+			return CATEGORY.BLUETOOTH;
+		else if(category.equals("_MUSIC_"))
+			return CATEGORY.MUSIC;
+		else if(category.equals("_CONNECTION_INFORMATION_"))
+			return CATEGORY.CONNECTION_INFORMATION;
+		else if(category.equals("_ACCOUNT_SETTINGS_"))
+			return CATEGORY.ACCOUNT_SETTINGS;
+		else if(category.equals("_VIDEO_"))
+			return CATEGORY.VIDEO;
+		else if(category.equals("_AUDIO_"))
+			return CATEGORY.AUDIO;
+		else
+			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
 }
