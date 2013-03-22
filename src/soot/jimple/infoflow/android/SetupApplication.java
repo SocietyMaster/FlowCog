@@ -1,15 +1,13 @@
 package soot.jimple.infoflow.android;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import soot.Main;
 import soot.PackManager;
@@ -35,7 +33,7 @@ public class SetupApplication {
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
 	private List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
 	
-	private List<String> entrypoints = new ArrayList<String>();
+	private Set<String> entrypoints = null;
 	
 	private Map<Integer, LayoutControl> layoutControls;
 	private List<ARSCFileParser.ResPackage> resourcePackages = null;
@@ -43,20 +41,15 @@ public class SetupApplication {
 	
 	private String androidJar;
 	private String apkFileLocation;
-	private String matrixFileLocation;
-	private String entryPointsFile;
 	private String taintWrapperFile;
 
 	public SetupApplication(){
 		
 	}
 	
-	public SetupApplication(String androidJar, String apkFileLocation,
-			String matrixFileLocation, String entryPointsFile) {
+	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
-		this.matrixFileLocation = matrixFileLocation;
-		this.entryPointsFile = entryPointsFile;
 	}
 
 	public void printSinks(){
@@ -77,11 +70,14 @@ public class SetupApplication {
 	}
 
 	public void printEntrypoints(){
-		System.out.println("Entrypoints:");
-		for (String s : entrypoints) {
-			System.out.println(s);
+		if (this.entrypoints == null)
+			System.out.println("Entry points not initialized");
+		else {
+			System.out.println("Classes containing entry points:");
+			for (String className : entrypoints)
+				System.out.println("\t" + className);
+			System.out.println("End of Entrypoints");
 		}
-		System.out.println("End of Entrypoints");
 	}
 
 	public void setAndroidJar(String androidJar) {
@@ -91,32 +87,21 @@ public class SetupApplication {
 	public void setApkFileLocation(String apkFileLocation) {
 		this.apkFileLocation = apkFileLocation;
 	}
-
-	public void setMatrixFileLocation(String matrixFileLocation) {
-		this.matrixFileLocation = matrixFileLocation;
-	}
-	
-	public void setEntryPointsFile(String entryPointsFile) {
-		this.entryPointsFile = entryPointsFile;
-	}
 	
 	public void setTaintWrapperFile(String taintWrapperFile) {
 		this.taintWrapperFile = taintWrapperFile;
 	}
 
-	public void calculateSourcesSinksEntrypoints() throws IOException {
+	public void calculateSourcesSinksEntrypoints
+			(String entryPointsFile,
+			String sourceSinkFile) throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
 
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
-		List<String> entryPointMethods = readTextFile(this.entryPointsFile);
 		processMan.loadManifestFile(apkFileLocation);
-		List<String> baseEntryPoints = processMan.getAndroidAppEntryPoints(entryPointMethods);
 		this.appPackageName = processMan.getPackageName();
-		entrypoints.addAll(baseEntryPoints);
-
-		SootMethodRepresentationParser methodParser = new SootMethodRepresentationParser();
-		HashMap<String, List<String>> entryPointClasses = methodParser.parseClassNames(baseEntryPoints, false);
+		this.entrypoints = processMan.getEntryPointClasses();
 
 		// Parse the resource file
 		ARSCFileParser resParser = new ARSCFileParser();
@@ -130,20 +115,18 @@ public class SetupApplication {
 		jimpleClass.collectCallbackMethods();
 		
 		// Find the user-defined sources in the layout XML files
-		LayoutFileParser lfp = new LayoutFileParser(processMan.getPackageName());
-		lfp.parseLayoutFile(apkFileLocation, entryPointClasses.keySet());
+		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName);
+		lfp.parseLayoutFile(apkFileLocation, entrypoints);
 		
 		// Run the soot-based operations
-		runSootBasedPhases(entryPointClasses);
+		runSootBasedPhases();
 
 		// Collect the results of the soot-based phases
-		for (AndroidMethod am : jimpleClass.getCallbackMethods()) {
-			this.callbackMethods.add(am);
-			this.entrypoints.add(am.getSignature());
-		}
+		for (AndroidMethod am : jimpleClass.getCallbackMethods())
+			this.callbackMethods.add(am);		
 		this.layoutControls = lfp.getUserControls();
 
-		PermissionMethodParser parser = PermissionMethodParser.fromFile(matrixFileLocation);
+		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		for (AndroidMethod am : parser.parse()){
 			if (am.isSource())
 				sources.add(am);
@@ -152,17 +135,17 @@ public class SetupApplication {
 		}
 		
 		//add sink for Intents:
-		AndroidMethod setResult = new AndroidMethod("<android.app.Activity: void setResult(int, android.content.Intent)>");
+		AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
+				("<android.app.Activity: void setResult(int, android.content.Intent)>"));
 		setResult.setSink(true);
 		sinks.add(setResult);
 	}
-	
+
 	/**
 	 * Runs Soot and executes all analysis phases that have been registered so
 	 * far.
-	 * @param baseEntryPoints The basic entry points into the app
 	 */
-	private void runSootBasedPhases(HashMap<String, List<String>> baseEntryPoints) {
+	private void runSootBasedPhases() {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
@@ -171,24 +154,29 @@ public class SetupApplication {
 				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_process_dir(Arrays.asList(baseEntryPoints.keySet().toArray()));
+		Options.v().set_process_dir(Arrays.asList(this.entrypoints.toArray()));
 		Options.v().set_app(true);
 		Main.v().autoSetOptions();
 
 		Scene.v().loadNecessaryClasses();
 		
-		for (String className : baseEntryPoints.keySet()) {
+		for (String className : this.entrypoints) {
 			SootClass c = Scene.v().forceResolve(className, SootClass.BODIES);
-			c.setApplicationClass();
+			c.setApplicationClass();	
 		}
 
-		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator();
-		SootMethod entryPoint = entryPointCreator.createDummyMain(baseEntryPoints);
+		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
+			(new ArrayList<String>(this.entrypoints));
+		SootMethod entryPoint = entryPointCreator.createDummyMain();
 		
 		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
 		PackManager.v().runPacks();
 	}
 
+	/**
+	 * Runs the data flow analysis
+	 * @return The results of the data flow analysis
+	 */
 	public InfoflowResults runInfoflow(){
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
@@ -206,7 +194,15 @@ public class SetupApplication {
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			
-			info.computeInfoflow(path, entrypoints, sourceSinkManager);
+			AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
+				(new ArrayList<String>(this.entrypoints));
+			List<String> callbackMethodSigs = new ArrayList<String>();
+			for (AndroidMethod am : this.callbackMethods)
+				callbackMethodSigs.add(am.getSignature());
+			entryPointCreator.setCallbackFunctions(callbackMethodSigs);
+			
+			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
+					sourceSinkManager);
 			return info.getResults();
 		}
 		catch (IOException ex) {
@@ -214,20 +210,4 @@ public class SetupApplication {
 		}
 	}
 	
-	private static List<String> readTextFile(String fileName) throws IOException {
-		BufferedReader rdr = null;
-		try {
-			List<String> resList = new ArrayList<String>();
-			rdr = new BufferedReader(new FileReader(fileName));
-			String line;
-			while ((line = rdr.readLine()) != null)
-				resList.add(line);
-			return resList;
-		}
-		finally {
-			if (rdr != null)
-				rdr.close();
-		}
-	}	
-
 }

@@ -3,10 +3,8 @@ package soot.jimple.infoflow.android.manifest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -21,53 +19,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 
-import soot.jimple.infoflow.android.Class;
 import test.AXMLPrinter;
 import android.content.res.AXmlResourceParser;
 
 public class ProcessManifest {
 
-	private List<String> entryPointsClasses = new ArrayList<String>();
-	private List<Class> classes = new ArrayList<Class>();
+	private Set<String> entryPointsClasses = new HashSet<String>();
 	private String packageName = "";
 	private Set<String> permissions = new HashSet<String>();
-
-	private String createSootEntrypoints(String className, String methodName) {
-		String completeName = "<" + className + ": " + methodName + ">";
-
-		return completeName;
-	}
 	
-	public List<String> getEntryPoints(){
-		List<String> entryPoints = new ArrayList<String>();
-		for(int i=0;i<classes.size();i++){
-			entryPoints.addAll(classes.get(i).getMethods());
-		}
-		
-		return entryPoints;
-	}
-	
-	public List<String> getAndroidAppEntryPoints(List<String> methodNames) {
-
-		List<String> entrypoints = new ArrayList<String>();
-
-		for (int i = 0; i < entryPointsClasses.size(); i++) {
-			int indexI = entryPointsClasses.get(i).indexOf(";");
-			for (int j = 0; j < methodNames.size(); j++) {
-				int indexJ = methodNames.get(j).indexOf(";");
-				if (entryPointsClasses.get(i).substring(0, indexI)
-						.equals(methodNames.get(j).substring(0, indexJ))) {
-					entrypoints.add(createSootEntrypoints(entryPointsClasses
-							.get(i).substring(indexI + 1), methodNames.get(j)
-							.substring(indexJ + 1)));
-
-				}
-			}
-		}
-
-		return entrypoints;
-	}
-
 	/**
 	 * Opens the given apk file and provides the given handler with a stream for
 	 * accessing the contained android manifest file
@@ -122,7 +82,7 @@ public class ProcessManifest {
 		});
 	}
 	
-	private void loadClassesFromBinaryManifest(InputStream manifestIS) {
+	protected void loadClassesFromBinaryManifest(InputStream manifestIS) {
 		try {
 			AXmlResourceParser parser = new AXmlResourceParser();
 			parser.open(manifestIS);
@@ -141,18 +101,12 @@ public class ProcessManifest {
 								|| tagName.equals("service")
 								|| tagName.equals("provider")) {
 							String attrValue = getAttributeValue(parser, "name");
-							if (attrValue.startsWith(".")) {
-								classes.add(new Class(this.packageName + attrValue));
-								entryPointsClasses.add(tagName + ";" + this.packageName + attrValue);
-							}
-							else if (attrValue.substring(0, 1).equals(attrValue.substring(0, 1).toUpperCase())) {
-								classes.add(new Class(this.packageName + "." + attrValue));
-								entryPointsClasses.add(tagName + ";" + this.packageName + "." + attrValue);
-							}
-							else {
-								classes.add(new Class(attrValue));
-								entryPointsClasses.add(tagName + ";" + attrValue);
-							}
+							if (attrValue.startsWith("."))
+								entryPointsClasses.add(this.packageName + attrValue);
+							else if (attrValue.substring(0, 1).equals(attrValue.substring(0, 1).toUpperCase()))
+								entryPointsClasses.add(this.packageName + "." + attrValue);
+							else
+								entryPointsClasses.add(attrValue);
 						}
 						else if (tagName.equals("uses-permission")) {
 							String permissionName = getAttributeValue(parser, "android:name");
@@ -180,7 +134,7 @@ public class ProcessManifest {
 		return "";
 	}
 
-	public void loadClassesFromTextManifest(InputStream manifestIS) {
+	protected void loadClassesFromTextManifest(InputStream manifestIS) {
 		try {
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = db.parse(manifestIS);
@@ -230,21 +184,15 @@ public class ProcessManifest {
 	
 	private void loadManifestEntry(Element activity, String baseClass, String packageName) {
 		String className = activity.getAttribute("android:name");		
-		if (className.startsWith(".")) {
-			classes.add(new Class(packageName + className));
-			entryPointsClasses.add(activity.getNodeName() + ";" + packageName + className);
-		}
-		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase())) {
-			classes.add(new Class(packageName + "." + className));
-			entryPointsClasses.add(activity.getNodeName() + ";" + packageName + "." + className);
-		}
-		else {
-			classes.add(new Class(className));
-			entryPointsClasses.add(activity.getNodeName() + ";" + className);
-		}
+		if (className.startsWith("."))
+			entryPointsClasses.add(packageName + className);
+		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase()))
+			entryPointsClasses.add(packageName + "." + className);
+		else
+			entryPointsClasses.add(className);
 	}
 
-	public List<String> getEntryPointClasses() {
+	public Set<String> getEntryPointClasses() {
 		return this.entryPointsClasses;
 	}
 	

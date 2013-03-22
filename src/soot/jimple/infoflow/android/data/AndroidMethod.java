@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import soot.SootMethod;
-import soot.Type;
+import soot.jimple.infoflow.data.SootMethodAndClass;
 
 /**
  * Class representing a single method in the Android SDK
@@ -14,82 +14,37 @@ import soot.Type;
  * @author Steven Arzt
  *
  */
-public class AndroidMethod {
+public class AndroidMethod extends SootMethodAndClass {
 
-	private final String methodName;
-	private final List<String> parameters;
-	private final String returnType;
-	
-	private final String className;
-	
 	private final Set<String> permissions;
 	
 	private boolean isSource = false;
 	private boolean isSink = false;
 	private boolean isNeitherNor = false;
-	
-	public AndroidMethod(String signature) {
-
-		String afterDoublePoint = signature.substring(signature.indexOf(":")+1).trim();
-		this.methodName = afterDoublePoint.substring(afterDoublePoint.indexOf(" ") + 1, afterDoublePoint.indexOf("(")).trim();
-		String allParams = afterDoublePoint.substring(afterDoublePoint.indexOf("(") + 1, afterDoublePoint.indexOf(")")).trim();
-		this.parameters = new ArrayList<String>();
-		for (String parameter : allParams.split(","))
-			this.parameters.add(parameter.trim());
-		this.returnType = afterDoublePoint.substring(0,afterDoublePoint.indexOf(" "));
-		this.className = signature.substring(1,signature.indexOf(":"));
-		this.permissions = Collections.emptySet();
-	}
-	
+		
 	public AndroidMethod(String methodName, String returnType, String className) {
-		this.methodName = methodName;
-		this.parameters = Collections.emptyList();
-		this.returnType = returnType;
-		this.className = className;
+		super(methodName, className, returnType, new ArrayList<String>());
 		this.permissions = Collections.emptySet();
 	}
 	
 	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className) {
-		this.methodName = methodName;
-		this.parameters = parameters;
-		this.returnType = returnType;
-		this.className = className;
+		super(methodName, className, returnType, parameters);
 		this.permissions = Collections.emptySet();
 	}
 
 	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className, Set<String> permissions) {
-		this.methodName = methodName;
-		this.parameters = parameters;
-		this.returnType = returnType;
-		this.className = className;
+		super(methodName, className, returnType, parameters);
 		this.permissions = permissions;
 	}
 	
 	public AndroidMethod(SootMethod sm) {
-		this.methodName = sm.getName();
-		this.returnType = sm.getReturnType().toString();
-		this.className = sm.getDeclaringClass().getName();
-		this.parameters = new ArrayList<String>();
-		for (Type p: sm.getParameterTypes()) {
-			this.parameters.add(p.toString());
-		}
+		super(sm);
 		this.permissions = Collections.emptySet();
 	}
-
-	public String getMethodName() {
-		return this.methodName;
-	}
 	
-	public List<String> getParameters() {
-		return this.parameters;
-	}
-	
-	public String getReturnType() {
-		return this.returnType;
-	}
-	
-	public String getClassName() {
-		return this.className;
+	public AndroidMethod(SootMethodAndClass methodAndClass) {
+		super (methodAndClass);
+		this.permissions = Collections.emptySet();
 	}
 	
 	public Set<String> getPermissions() {
@@ -126,15 +81,7 @@ public class AndroidMethod {
 	
 	@Override
 	public String toString() {
-		String s = "<" + this.className + ": " + (this.returnType.length() == 0 ? "" : this.returnType + " ")
-				+ this.methodName + "(";
-		for (int i = 0; i < this.parameters.size(); i++) {
-			if (i > 0)
-				s += ",";
-			s += this.parameters.get(i).trim();
-		}
-		s += ")>";
-
+		String s = getSignature();
 		for (String perm : permissions)
 			s += " " + perm;
 		
@@ -149,29 +96,6 @@ public class AndroidMethod {
 		return s;
 	}
 	
-	public String getSignature() {
-		String s = "<" + this.className + ": " + (this.returnType.length() == 0 ? "" : this.returnType + " ")
-				+ this.methodName + "(";
-		for (int i = 0; i < this.parameters.size(); i++) {
-			if (i > 0)
-				s += ",";
-			s += this.parameters.get(i).trim();
-		}
-		s += ")>";
-		return s;
-	}
-
-	public String getSubSignature() {
-		String s = (this.returnType.length() == 0 ? "" : this.returnType + " ") + this.methodName + "(";
-		for (int i = 0; i < this.parameters.size(); i++) {
-			if (i > 0)
-				s += ",";
-			s += this.parameters.get(i).trim();
-		}
-		s += ")";
-		return s;
-	}
-
 	@Override
 	public boolean equals(Object another) {
 		if (super.equals(another))
@@ -180,21 +104,21 @@ public class AndroidMethod {
 			return false;
 		AndroidMethod otherMethod = (AndroidMethod) another;
 		
-		if (!this.methodName.equals(otherMethod.methodName))
+		if (!this.getMethodName().equals(otherMethod.getMethodName()))
 			return false;
-		if (!this.parameters.equals(otherMethod.parameters))
+		if (!this.getParameters().equals(otherMethod.getParameters()))
 			return false;
-		if (!this.className.equals(otherMethod.className))
+		if (!this.getClassName().equals(otherMethod.getClassName()))
 			return false;
 		return true;
 	}
 	
 	@Override
 	public int hashCode() {
-		return this.methodName.hashCode()
-				+ this.parameters.hashCode() * 5
+		return this.getMethodName().hashCode()
+				+ this.getParameters().hashCode() * 5
 //				+ this.returnType.hashCode() * 7
-				+ this.className.hashCode() * 11;
+				+ this.getClassName().hashCode() * 11;
 	}
 
 	/**

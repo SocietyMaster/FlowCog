@@ -37,11 +37,9 @@ public class Test {
 		}
 		app.setApkFileLocation(args[0]);
 		app.setAndroidJar(args[1]);
-		app.setMatrixFileLocation("SourcesAndSinks.txt");
-		app.setEntryPointsFile("entrypoints-someLines.txt");
 		app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
 		
-		app.calculateSourcesSinksEntrypoints();
+		app.calculateSourcesSinksEntrypoints("entrypoints-someLines.txt", "SourcesAndSinks.txt");
 		
 		if (DEBUG) {
 			app.printEntrypoints();
