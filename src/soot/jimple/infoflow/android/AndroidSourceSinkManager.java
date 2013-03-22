@@ -13,6 +13,7 @@ import soot.jimple.AssignStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.data.AndroidMethod;
@@ -195,10 +196,13 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 			return true;
 		// This statement might access a sensitive parameter in a callback
 		// method
-		if (sCallSite instanceof IdentityStmt)
-			for (AndroidMethod am : this.callbackMethods)
-				if (am.getSignature().equals(cfg.getMethodOf(sCallSite).getSignature()))
-					return true;
+		if (sCallSite instanceof IdentityStmt) {
+			IdentityStmt is = (IdentityStmt) sCallSite;
+			if (is.getRightOp() instanceof ParameterRef)
+				for (AndroidMethod am : this.callbackMethods)
+					if (am.getSignature().equals(cfg.getMethodOf(sCallSite).getSignature()))
+						return true;
+		}
 		
 		return false;
 	}
