@@ -26,6 +26,10 @@ This example contains a location information leakage in the onResume() callback 
 The callback method onLocationChanged
  must be identified and should be classified as source.
 
+LocationLeakSimple:
+A simplified version of LocationLeak in which the activity directly implements the
+onLocationChanged interface instead of using an inner class for the job.
+
 PasswordField:
 A value from a password field is stored in the log.
 
