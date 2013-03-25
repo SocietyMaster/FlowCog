@@ -200,6 +200,12 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.VIDEO;
 		else if(category.equals("_AUDIO_"))
 			return CATEGORY.AUDIO;
+		else if(category.equals("_SYNCHRONIZATION_DATA_"))
+			return CATEGORY.SYNCHRONIZATION_DATA;
+		else if(category.equals("_NETWORK_"))
+			return CATEGORY.NETWORK;
+		else if(category.equals("_EMAIL_SETTINGS_"))
+			return CATEGORY.EMAIL_SETTINGS;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
