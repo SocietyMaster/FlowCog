@@ -26,7 +26,7 @@ public class AndroidMethod extends SootMethodAndClass {
 	private boolean isSink = false;
 	private boolean isNeitherNor = false;
 	
-    private CATEGORY category;
+    private CATEGORY category = null;
 		
 	public AndroidMethod(String methodName, String returnType, String className) {
 		super(methodName, className, returnType, new ArrayList<String>());
