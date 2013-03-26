@@ -107,6 +107,10 @@ public class AndroidMethod extends SootMethodAndClass {
 			s += " _SINK_ ";
 		if (this.isNeitherNor)
 			s += " _NONE_";
+		
+		if (this.category != null)
+			s += "|" + category;
+		
 		return s;
 	}
 	
