@@ -147,7 +147,7 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 				}
 				else if(target.equals("_IGNORE_"));
 					//do nothing
-				else if(target.equals("-")){
+				else if(target.startsWith("-")){
 					String cat = target.substring(target.indexOf('|')+1);
 					singleMethod.setCategory(returnCorrectCategory(cat));
 				}
@@ -210,6 +210,12 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.NETWORK;
 		else if(category.equals("_EMAIL_SETTINGS_"))
 			return CATEGORY.EMAIL_SETTINGS;
+		else if(category.equals("_EMAIL_INFORMATION_"))
+			return CATEGORY.EMAIL_INFORMATION;
+		else if(category.equals("_IMAGE_"))
+			return CATEGORY.IMAGE;
+		else if(category.equals("_FILE_INFORMATION_"))
+			return CATEGORY.FILE_INFORMATION;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
