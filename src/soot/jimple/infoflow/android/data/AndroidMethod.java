@@ -89,6 +89,10 @@ public class AndroidMethod extends SootMethodAndClass {
 		this.category = category;
 	}
 	
+	public CATEGORY getCategory() {
+		return this.category;
+	}
+	
 	@Override
 	public String toString() {
 		String s = getSignature();
