@@ -147,6 +147,10 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 				}
 				else if(target.equals("_IGNORE_"));
 					//do nothing
+				else if(target.equals("-")){
+					String cat = target.substring(target.indexOf('|')+1);
+					singleMethod.setCategory(returnCorrectCategory(cat));
+				}
 				else
 					throw new RuntimeException("error in target definition");
 		}
