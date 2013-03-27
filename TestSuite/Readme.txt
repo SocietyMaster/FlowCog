@@ -17,6 +17,9 @@ InheritedActivities:
 The activity has a superclass which defines a lifecycle method containing a sink.
 The superclass is not defined in the manifest.
 
+InstanceStateCallback:
+The activity contains two callback methods related to the instanceState which contain a dataflow from source to sink
+
 IntentSink:
 Taint is propagated via Intent. As other apps are not trustworthy by default, this is a sink, too.
 
@@ -36,3 +39,7 @@ A value from a password field is stored in the log.
 Lifecycle2:
 A taint value is written in the onResume() callback method and propagated to a sink in the onPause() callback method.
 Loops must be considered to find this taint.
+
+ServiceLifecycle:
+The app contains a Service with three callback methods. One of them contains a source, another one contains a sink
+which receives value originated from the source as input parameter.
