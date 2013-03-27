@@ -45,12 +45,14 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 				Matcher m = p.matcher(line);
 				if(m.find()) {
 					AndroidMethod singleMethod = parseMethod(m, currentPermission);
-					if(methodList.contains(singleMethod)){
-						int methodIndex = methodList.lastIndexOf(singleMethod);
-						methodList.get(methodIndex).addPermission(currentPermission);
+					if (singleMethod != null) {
+						if(methodList.contains(singleMethod)){
+							int methodIndex = methodList.lastIndexOf(singleMethod);
+							methodList.get(methodIndex).addPermission(currentPermission);
+						}
+						else	
+							methodList.add(singleMethod);
 					}
-					else	
-						methodList.add(singleMethod);
 				}
 			}
 		}
@@ -145,8 +147,8 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 					else
 						singleMethod.setNeitherNor(true);
 				}
-				else if(target.equals("_IGNORE_"));
-					//do nothing
+				else if(target.equals("_IGNORE_"))
+					return null;
 				else if(target.startsWith("-")){
 					String cat = target.substring(target.indexOf('|')+1);
 					singleMethod.setCategory(returnCorrectCategory(cat));
