@@ -4,7 +4,8 @@ Each of the included .apk-files either contains a flow from a source to a sink
 or does not disclose information and can be used to check your analysis for false positives.
 The apps are very lightwight and concentrate on one small scenario, in most cases there is no UI.
 
-
+BroadcastReceiverLifecycle:
+A source and a sink are called in the lifecycle method of a broadcastreceiver.
 
 ButtonXml:
 The IMEI is read out and after a click on a button it is sent via SMS (do not run this app on an actual decive).

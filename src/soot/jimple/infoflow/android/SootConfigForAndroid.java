@@ -18,7 +18,7 @@ public class SootConfigForAndroid implements IInfoflowSootConfig{
 		includeList.add("sun.misc.");
 		includeList.add("android.");
 		includeList.add("org.apache.http.");
-		includeList.add("de.test.");
+		includeList.add("de.");
 		includeList.add("soot.");
 		includeList.add("com.example.");
 		includeList.add("com.jakobkontor.");
