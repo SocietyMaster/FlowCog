@@ -218,6 +218,12 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.IMAGE;
 		else if(category.equals("_FILE_INFORMATION_"))
 			return CATEGORY.FILE_INFORMATION;
+		else if(category.equals("_BLUETOOTH_INFORMATION_"))
+			return CATEGORY.BLUETOOTH_INFORMATION;
+		else if(category.equals("_NFC_INFORMATION_"))
+			return CATEGORY.NFC_INFORMATION;
+		else if(category.equals("_BROWSER_INFORMATION_"))
+			return CATEGORY.BROWSER_INFORMATION;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
