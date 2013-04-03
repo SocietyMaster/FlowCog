@@ -2,6 +2,7 @@ package soot.jimple.infoflow.android.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
  * @author Steven Arzt, Siegfried Rasthofer
  *
  */
-public class AndroidMethod extends SootMethodAndClass {
+public class AndroidMethod extends SootMethodAndClass{
 
 	public enum CATEGORY {
 		// SOURCES		
@@ -32,6 +33,7 @@ public class AndroidMethod extends SootMethodAndClass {
 		BLUETOOTH_INFORMATION,
 		NFC_INFORMATION,
 		BROWSER_INFORMATION,
+		VOIP_INFORMATION,
 
 		// SINKS
 		NFC,
@@ -148,6 +150,13 @@ public class AndroidMethod extends SootMethodAndClass {
 		return s;
 	}
 	
+	public String getSignatureAndPermissions(){
+		String s = getSignature();
+		for (String perm : permissions)
+			s += " " + perm;
+		return s;
+	}
+	
 	@Override
 	public boolean equals(Object another) {
 		if (super.equals(another))
@@ -169,8 +178,7 @@ public class AndroidMethod extends SootMethodAndClass {
 	public int hashCode() {
 		return this.getMethodName().hashCode()
 				+ this.getParameters().hashCode() * 5
-//				+ this.returnType.hashCode() * 7
-				+ this.getClassName().hashCode() * 11;
+				+ this.getClassName().hashCode() * 7;
 	}
 
 	/**
@@ -182,5 +190,4 @@ public class AndroidMethod extends SootMethodAndClass {
 	public boolean isAnnotated() {
 		return isSource || isSink || isNeitherNor;
 	}
-
 }

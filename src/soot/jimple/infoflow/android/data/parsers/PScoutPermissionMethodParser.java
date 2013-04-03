@@ -114,8 +114,13 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			String targets = m.group(5).substring(3);
 			
 			for(String target : targets.split(" "))
-				if(target.startsWith("_SOURCE_"))
+				if(target.startsWith("_SOURCE_")){
 					singleMethod.setSource(true);
+					if(target.contains("|")){
+						String cat = target.substring(target.indexOf('|')+1);
+						singleMethod.setCategory(returnCorrectCategory(cat));
+					}
+				}
 				else if(target.startsWith("_SINK_")){
 					singleMethod.setSink(true);
 					if(target.contains("|")){
@@ -224,6 +229,8 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.BROWSER_INFORMATION;
 		else if(category.equals("_FILE_"))
 			return CATEGORY.FILE;
+		else if(category.equals("_VOIP_INFORMATION_"))
+			return CATEGORY.VOIP_INFORMATION;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
