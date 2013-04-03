@@ -2,6 +2,7 @@ package soot.jimple.infoflow.android.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,12 +15,12 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
  * @author Steven Arzt, Siegfried Rasthofer
  *
  */
-public class AndroidMethod extends SootMethodAndClass {
+public class AndroidMethod extends SootMethodAndClass{
 
 	public enum CATEGORY {NO_CATEGORY, HARDWARE_INFO, NFC, PHONE_CONNECTION, INTER_APP_COMMUNICATION, VOIP, CONTACT_INFORMATION, UNIQUE_IDENTIFIER, PHONE_STATE, SYSTEM_SETTINGS, 
 		LOCATION_INFORMATION, NETWORK_INFORMATION, EMAIL, SMS_MMS, CALENDAR_INFORMATION, ACCOUNT_INFORMATION, BLUETOOTH, MUSIC, CONNECTION_INFORMATION, ACCOUNT_SETTINGS, VIDEO, AUDIO,
 		SYNCHRONIZATION_DATA, NETWORK, EMAIL_SETTINGS, EMAIL_INFORMATION, IMAGE, FILE_INFORMATION, BLUETOOTH_INFORMATION, NFC_INFORMATION, BROWSER_INFORMATION,
-		FILE}
+		FILE, VOIP_INFORMATION}
 
 	private final Set<String> permissions;
 	
@@ -115,6 +116,13 @@ public class AndroidMethod extends SootMethodAndClass {
 		return s;
 	}
 	
+	public String getSignatureAndPermissions(){
+		String s = getSignature();
+		for (String perm : permissions)
+			s += " " + perm;
+		return s;
+	}
+	
 	@Override
 	public boolean equals(Object another) {
 		if (super.equals(another))
@@ -136,8 +144,7 @@ public class AndroidMethod extends SootMethodAndClass {
 	public int hashCode() {
 		return this.getMethodName().hashCode()
 				+ this.getParameters().hashCode() * 5
-//				+ this.returnType.hashCode() * 7
-				+ this.getClassName().hashCode() * 11;
+				+ this.getClassName().hashCode() * 7;
 	}
 
 	/**
@@ -149,5 +156,4 @@ public class AndroidMethod extends SootMethodAndClass {
 	public boolean isAnnotated() {
 		return isSource || isSink || isNeitherNor;
 	}
-
 }
