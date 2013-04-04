@@ -201,8 +201,6 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.ACCOUNT_INFORMATION;
 		else if(category.equals("_BLUETOOTH_"))
 			return CATEGORY.BLUETOOTH;
-		else if(category.equals("_CONNECTION_INFORMATION_"))
-			return CATEGORY.CONNECTION_INFORMATION;
 		else if(category.equals("_ACCOUNT_SETTINGS_"))
 			return CATEGORY.ACCOUNT_SETTINGS;
 		else if(category.equals("_VIDEO_"))
