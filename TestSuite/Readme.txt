@@ -11,6 +11,9 @@ ButtonXml:
 The IMEI is read out and after a click on a button it is sent via SMS (do not run this app on an actual decive).
 The method which is called is referenced in the layout-xml.
 
+CompleteTest:
+Contains various difficulties for static analysis, essentially a summary of some of the other testcases.
+
 EasyLifecycle:
 A taint value is written in one lifecycle method and propagated to a sink in another lifecycle method.
 
