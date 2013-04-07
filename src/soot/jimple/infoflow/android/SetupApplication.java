@@ -153,7 +153,7 @@ public class SetupApplication {
 		
 		//add sink for Intents:
 		AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
-				("<android.app.Activity: void setResult(int, android.content.Intent)>"));
+				("<android.app.Activity: void startActivity(android.content.Intent)>"));
 		setResult.setSink(true);
 		sinks.add(setResult);
 	}
