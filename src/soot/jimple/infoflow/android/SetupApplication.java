@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import soot.Main;
@@ -20,6 +21,9 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.ResourceId;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
@@ -125,6 +129,19 @@ public class SetupApplication {
 		for (AndroidMethod am : jimpleClass.getCallbackMethods())
 			this.callbackMethods.add(am);		
 		this.layoutControls = lfp.getUserControls();
+		
+		// Collect the XML-based callback methods
+		for (Entry<SootClass, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet())
+			for (Integer classId : lcentry.getValue()) {
+				AbstractResource resource = resParser.findResource(classId);
+				if (resource instanceof StringResource) {
+					StringResource strRes = (StringResource) resource;
+					for (String methodName : lfp.getCallbackMethods().get(strRes.getValue()))
+						this.callbackMethods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
+				}
+				else
+					System.err.println("Unexpected resource type for layout class");
+			}
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		for (AndroidMethod am : parser.parse()){

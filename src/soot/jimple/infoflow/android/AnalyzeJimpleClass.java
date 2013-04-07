@@ -1,17 +1,25 @@
 package soot.jimple.infoflow.android;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import soot.MethodOrMethodContext;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
+import soot.Unit;
+import soot.Value;
+import soot.jimple.IntConstant;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 
 /**
@@ -23,7 +31,8 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
  */
 public class AnalyzeJimpleClass {
 
-	private List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
+	private final List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
+	private final Map<SootClass, Set<Integer>> layoutClasses = new HashMap<SootClass, Set<Integer>>();
 
 	public AnalyzeJimpleClass() {
 	}
@@ -36,7 +45,11 @@ public class AnalyzeJimpleClass {
 	 */
 	public void collectCallbackMethods() {
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
-			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {			
+			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
+				// Find the mappings between classes and layouts
+				findClassLayoutMappings();
+				
+				// Scan for listeners in the class hierarchy
 				for (SootClass sc : Scene.v().getClasses())
 					analyzeClass(sc);
 			}
@@ -44,6 +57,39 @@ public class AnalyzeJimpleClass {
 		PackManager.v().getPack("wjtp").add(transform);
 	}
 	
+	/**
+	 * Finds the mappings between classes and their respective layout files
+	 */
+	private void findClassLayoutMappings() {
+		Iterator<MethodOrMethodContext> rmIterator = Scene.v().getReachableMethods().listener();
+		while (rmIterator.hasNext()) {
+			SootMethod sm = rmIterator.next().method();
+			if (!sm.isConcrete())
+				continue;
+			for (Unit u : sm.retrieveActiveBody().getUnits())
+				if (u instanceof Stmt) {
+					Stmt stmt = (Stmt) u;
+					if (stmt.containsInvokeExpr()) {
+						InvokeExpr inv = stmt.getInvokeExpr();
+						if (inv.getMethod().getName().equals("setContentView")
+								&& inv.getMethod().getDeclaringClass().getName().equals("android.app.Activity")) {
+							for (Value val : inv.getArgs())
+								if (val instanceof IntConstant) {
+									IntConstant constVal = (IntConstant) val;
+									if (this.layoutClasses.containsKey(sm.getDeclaringClass()))
+										this.layoutClasses.get(sm.getDeclaringClass()).add(constVal.value);
+									else {
+										Set<Integer> layoutIDs = new HashSet<Integer>();
+										layoutIDs.add(constVal.value);
+										this.layoutClasses.put(sm.getDeclaringClass(), layoutIDs);
+									}
+								}
+						}
+					}
+				}
+		}
+	}
+
 	private void analyzeClass(SootClass sootClass) {
 		analyzeClass(sootClass, sootClass);
 	}
@@ -1063,6 +1109,10 @@ public class AnalyzeJimpleClass {
 	
 	public List<AndroidMethod> getCallbackMethods() {
 		return this.callbackMethods;
+	}
+	
+	public Map<SootClass, Set<Integer>> getLayoutClasses() {
+		return this.layoutClasses;
 	}
 		
 }
