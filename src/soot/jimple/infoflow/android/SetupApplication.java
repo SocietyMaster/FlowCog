@@ -22,7 +22,6 @@ import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
-import soot.jimple.infoflow.android.resources.ARSCFileParser.ResourceId;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
@@ -136,8 +135,9 @@ public class SetupApplication {
 				AbstractResource resource = resParser.findResource(classId);
 				if (resource instanceof StringResource) {
 					StringResource strRes = (StringResource) resource;
-					for (String methodName : lfp.getCallbackMethods().get(strRes.getValue()))
-						this.callbackMethods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
+					if (lfp.getCallbackMethods().containsKey(strRes.getValue()))
+						for (String methodName : lfp.getCallbackMethods().get(strRes.getValue()))
+							this.callbackMethods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
 				}
 				else
 					System.err.println("Unexpected resource type for layout class");
