@@ -4,6 +4,10 @@ Each of the included .apk-files either contains a flow from a source to a sink
 or does not disclose information and can be used to check your analysis for false positives.
 The apps are very lightwight and concentrate on one small scenario, in most cases there is no UI.
 
+AnonymousClass:
+Contains a location listener that is defined as an anonymous class. It contains the onLocationChanged() method. That method 
+sets the sources (longitude and latitude) and the onResume() callback contains the sink (Log.i)
+
 BroadcastReceiverLifecycle:
 A source and a sink are called in the lifecycle method of a broadcastreceiver.
 
@@ -39,8 +43,20 @@ Lifecycle2:
 A taint value is written in the onResume() callback method and propagated to a sink in the onPause() callback method.
 Loops must be considered to find this taint.
 
+ListenerSpecific:
+This app contains the following difficulties:
+	- Ability to check Listeners
+	- Ability to know that the callback of button3 is clickOnButton3 (XML-file)
+	- There is only one data leak iff first button3 and then button1 is pressed!
+
 LocaionLeak:
 This example contains a location information leakage in the onResume() callback method.
+
+LoopExample1:
+This example contains a simple loop and a data leakage.
+
+LoopExample2:
+This example contains a nested loop-if-loop construct and a data leakage:
  
 The callback method onLocationChanged
  must be identified and should be classified as source.
@@ -59,3 +75,6 @@ A value from a password field is stored in the log.
 ServiceLifecycle:
 The app contains a Service with three callback methods. One of them contains a source, another one contains a sink
 which receives value originated from the source as input parameter.
+
+SourceCodeSpecific:
+This app contains a Set<String> and the conditional operator "( ) ? :".
