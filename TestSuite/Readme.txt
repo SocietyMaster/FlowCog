@@ -29,6 +29,9 @@ InheritedActivities:
 The activity has a superclass which defines a lifecycle method containing a sink.
 The superclass is not defined in the manifest.
 
+InheritedObjects:
+This activity uses inheritance and a conditional statement to create an informaiton flow from a source to a sink.
+
 InstanceStateCallback:
 The activity contains two callback methods related to the instanceState which contain a dataflow from source to sink
 
