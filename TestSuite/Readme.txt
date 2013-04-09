@@ -25,6 +25,10 @@ FieldSensitivity2:
 A dataobject has two fields - a tainted value is written to one field, the value of the other field is propagated
 to a sink in a different lifecycle method. Negative testcase, there should be no flow from source to sink.
 
+FieldSensitivity2Pos:
+Similar to FieldSensitivity, but with information flow: A dataobject has two fields - a tainted value is written to 
+one field, the value of the this field is propagated to a sink in a different lifecycle method.
+
 InheritedActivities:
 The activity has a superclass which defines a lifecycle method containing a sink.
 The superclass is not defined in the manifest.
