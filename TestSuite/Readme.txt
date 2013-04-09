@@ -60,9 +60,17 @@ ObjectSensitivity1:
 A tainted value is written to one object, the value of a different object (of the same type) is propagated to a sink.
 Negative testcase, there should be no flow from source to sink.
 
+OverwriteValue:
+A tainted value is stored in a local variable and a field, but overwritten before they reach a sink.
+Negative testcase, there should be no flow from source to sink.
+
 PasswordField:
 A value from a password field is stored in the log.
 
 ServiceLifecycle:
 The app contains a Service with three callback methods. One of them contains a source, another one contains a sink
 which receives value originated from the source as input parameter.
+
+StaticFieldActivities:
+A static field gets tainted from a different activity. Both lifecycles have to be analyzed and combined to find 
+this information flow.
