@@ -146,12 +146,17 @@ public class ARSCFileParser extends AbstractResourceParser {
 	 */
 	public final static int FLAG_PUBLIC = 0x0002;
 
-	private final List<String> stringTable = new ArrayList<String>();
+	private final Map<Integer, String> stringTable = new HashMap<Integer, String>();
 	private final List<ResPackage> packages = new ArrayList<ResPackage>();
 	
 	public class ResPackage {
+		private int packageId;
 		private String packageName;
 		private List<ResType> types = new ArrayList<ResType>();
+		
+		public int getPackageId() {
+			return this.packageId;
+		}
 		
 		public String getPackageName() {
 			return this.packageName;
@@ -199,12 +204,26 @@ public class ARSCFileParser extends AbstractResourceParser {
 		 * Gets the first resource of the current type that has the given name
 		 * @param resourceName The resource name to look for
 		 * @return The resource with the given name if it exists, otherwise
-		 * false
+		 * null
 		 */
 		public AbstractResource getFirstResource(String resourceName) {
 			for (ResConfig rc : this.configurations)
 				for (AbstractResource res : rc.getResources())
 					if (res.resourceName.equals(resourceName))
+						return res;
+			return null;
+		}
+
+		/**
+		 * Gets the first resource of the current type with the given ID 
+		 * @param resourceID The resource ID to look for
+		 * @return The resource with the given ID if it exists, otherwise
+		 * null
+		 */
+		public AbstractResource getFirstResource(int resourceID) {
+			for (ResConfig rc : this.configurations)
+				for (AbstractResource res : rc.getResources())
+					if (res.resourceID == resourceID)
 						return res;
 			return null;
 		}
@@ -672,6 +691,39 @@ public class ARSCFileParser extends AbstractResourceParser {
 		Res_Value value = new Res_Value();
 	}
 
+	/**
+	 * Class containing the data encoded in an Android resource ID
+	 */
+	public class ResourceId {
+		private int packageId;
+		private int typeId;
+		private int itemIndex;
+		
+		public ResourceId(int packageId, int typeId, int itemIndex) {
+			this.packageId = packageId;
+			this.typeId = typeId;
+			this.itemIndex = itemIndex;
+		}
+		
+		public int getPackageId() {
+			return this.packageId;
+		}
+		
+		public int getTypeId() {
+			return this.typeId;
+		}
+		
+		public int getItemIndex() {
+			return this.itemIndex;
+		}
+		
+		@Override
+		public String toString() {
+			return "Package " + this.packageId + ", type "
+					+ this.typeId + ", item " + this.itemIndex;
+		}
+	}
+	
 	public ARSCFileParser() {
 	}
 
@@ -743,10 +795,8 @@ public class ARSCFileParser extends AbstractResourceParser {
 				offset = parseStringPoolHeader(stringPoolHeader, remainingData, offset);
 				
 				// Read the string data
-				Map<Integer, String> strings = new HashMap<Integer, String>();
 				offset = readStringTable(remainingData, offset, beforeBlock,
-						stringPoolHeader, strings);
-				this.stringTable.addAll(strings.values());
+						stringPoolHeader, this.stringTable);
 				assert this.stringTable.size() == stringPoolHeader.stringCount;
 			}
 			else if (nextChunkHeader.type == RES_TABLE_PACKAGE_TYPE) {
@@ -766,6 +816,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 				// Create the data object and set the base data
 				ResPackage resPackage = new ResPackage();
 				this.packages.add(resPackage);
+				resPackage.packageId = packageTable.id;
 				resPackage.packageName = packageTable.name;
 				
 				{
@@ -1336,12 +1387,43 @@ public class ARSCFileParser extends AbstractResourceParser {
 				+ (Math.abs(b1) << 8) + Math.abs(b0);
 	}
 	
-	public List<String> getGlobalStringPool() {
+	public Map<Integer, String> getGlobalStringPool() {
 		return this.stringTable;
 	}
 	
 	public List<ResPackage> getPackages() {
 		return this.packages;
+	}
+	
+	/**
+	 * Finds the resource with the given Android resource ID. This method is
+	 * configuration-agnostic and simply returns the first match it finds.
+	 * @param resourceId The Android resource ID for which to the find the
+	 * resource object
+	 * @return The resource object with the given Android resource ID if it
+	 * has been found, otherwise null.
+	 */
+	public AbstractResource findResource(int resourceId) {
+		ResourceId id = parseResourceId(resourceId);
+		for (ResPackage resPackage : this.packages)
+			if (resPackage.packageId == id.packageId) {
+				for (ResType resType : resPackage.types)
+					if (resType.id == id.typeId) {
+						return resType.getFirstResource(resourceId);
+					}
+				break;
+			}
+		return null;
+	}
+	
+	/**
+	 * Parses an Android resource ID into its components
+	 * @param resourceId The numeric resource ID to parse
+	 * @return The data contained in the given Android resource ID
+	 */
+	public ResourceId parseResourceId(int resourceId) {
+		return new ResourceId((resourceId & 0xFF000000) >> 24,
+				(resourceId & 0x00FF0000) >> 16, resourceId & 0x0000FFFF);
 	}
 
 }
