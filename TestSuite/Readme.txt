@@ -104,3 +104,6 @@ This app contains a Set<String> and the conditional operator "( ) ? :".
 StaticFieldActivities:
 A static field gets tainted from a different activity. Both lifecycles have to be analyzed and combined to find 
 this information flow.
+
+StaticInitialization:
+The sink is called in a static initialization method of a static class.
