@@ -21,6 +21,7 @@ import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointConstants;
 
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
@@ -89,11 +90,86 @@ public class AnalyzeJimpleClass {
 				}
 		}
 	}
-
+	
+	/**
+	 * Analyzes the given class to find callback methods
+	 * @param sootClass The class to analyze
+	 */
 	private void analyzeClass(SootClass sootClass) {
-		analyzeClass(sootClass, sootClass);
+		// Check for callback handlers implemented via interfaces
+		analyzeClassInterfaceCallbacks(sootClass, sootClass);
+
+		// Check for method overrides
+		analyzeMethodOverrideCallbacks(sootClass);
 	}
 	
+	/**
+	 * Enumeration for the types of classes we can have
+	 */
+	private enum ClassType {
+		Activity,
+		Service,
+		BroadcastReceiver,
+		ContentProvider,
+		Plain
+	}
+
+	private void analyzeMethodOverrideCallbacks(SootClass sootClass) {
+		if (!sootClass.isConcrete())
+			return;
+		
+		// There are also some classes that implement interesting callback methods.
+		// We model this as follows: Whenever the user overwrites a method in an
+		// Android OS class that is not a well-known lifecycle method, we treat
+		// it as a potential callback.
+		ClassType classType = ClassType.Plain;
+		Set<String> systemMethods = new HashSet<String>(10000);
+		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sootClass)) {
+			if (parentClass.getName().equals(AndroidEntryPointConstants.ACTIVITYCLASS))
+				classType = ClassType.Activity; 
+			else if (parentClass.getName().equals(AndroidEntryPointConstants.SERVICECLASS))
+				classType = ClassType.Service;
+			else if (parentClass.getName().equals(AndroidEntryPointConstants.BROADCASTRECEIVERCLASS))
+				classType = ClassType.BroadcastReceiver;
+			else if (parentClass.getName().equals(AndroidEntryPointConstants.CONTENTPROVIDERCLASS))
+				classType = ClassType.ContentProvider;
+			
+			if (parentClass.getName().startsWith("android."))
+				for (SootMethod sm : parentClass.getMethods())
+					if (!sm.isConstructor())
+						systemMethods.add(sm.getSubSignature());
+		}
+		
+		// Iterate over all user-implemented methods. If they are inherited
+		// from a system class, they are callback candidates.
+		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sootClass)) {
+			if (parentClass.getName().startsWith("android."))
+				continue;
+			for (SootMethod method : parentClass.getMethods()) {
+				if (!systemMethods.contains(method.getSubSignature()))
+					continue;
+				
+				// This is an overridden system method. Check that we don't have
+				// one of the lifecycle methods as they are treated separately.
+				if (classType == ClassType.Activity
+							&& AndroidEntryPointConstants.getActivityLifecycleMethods().contains(method.getSubSignature()))
+						continue;
+				if (classType == ClassType.Service
+						&& AndroidEntryPointConstants.getServiceLifecycleMethods().contains(method.getSubSignature()))
+					continue;
+				if (classType == ClassType.BroadcastReceiver
+						&& AndroidEntryPointConstants.getBroadcastLifecycleMethods().contains(method.getSubSignature()))
+					continue;
+				if (classType == ClassType.ContentProvider
+						&& AndroidEntryPointConstants.getContentproviderLifecycleMethods().contains(method.getSubSignature()))
+					continue;
+				
+				// This is a real callback method
+				this.callbackMethods.add(new AndroidMethod(method));
+			}
+		}
+	}
+
 	private SootMethod getMethodFromHierarchy(SootClass c, String methodName) {
 		if (c.declaresMethodByName(methodName))
 			return c.getMethodByName(methodName);
@@ -110,7 +186,7 @@ public class AnalyzeJimpleClass {
 		throw new RuntimeException("Could not find method");
 	}
 
-	private void analyzeClass(SootClass baseClass, SootClass sootClass) {
+	private void analyzeClassInterfaceCallbacks(SootClass baseClass, SootClass sootClass) {
 		// There's no information we could use in an interface
 		if (sootClass.isInterface())
 			return;
@@ -128,7 +204,7 @@ public class AnalyzeJimpleClass {
 		// If we are a class, one of our superclasses might implement an Android
 		// interface
 		if (sootClass.hasSuperclass())
-			analyzeClass(baseClass, sootClass.getSuperclass());
+			analyzeClassInterfaceCallbacks(baseClass, sootClass.getSuperclass());
 		
 		// Do we implement one of the well-known interfaces?
 		for (SootClass i : collectAllInterfaces(sootClass)) {
