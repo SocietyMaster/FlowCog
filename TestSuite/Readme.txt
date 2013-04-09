@@ -8,6 +8,10 @@ AnonymousClass:
 Contains a location listener that is defined as an anonymous class. It contains the onLocationChanged() method. That method 
 sets the sources (longitude and latitude) and the onResume() callback contains the sink (Log.i)
 
+ArrayAccess:
+A tainted value is stored in an array. The value of a different array position is propagated to a sink.
+Negative testcase, there should be no flow from source to sink.
+
 BroadcastReceiverLifecycle:
 A source and a sink are called in the lifecycle method of a broadcastreceiver.
 
@@ -29,9 +33,16 @@ FieldSensitivity2:
 A dataobject has two fields - a tainted value is written to one field, the value of the other field is propagated
 to a sink in a different lifecycle method. Negative testcase, there should be no flow from source to sink.
 
+FieldSensitivity2Pos:
+Similar to FieldSensitivity, but with information flow: A dataobject has two fields - a tainted value is written to 
+one field, the value of the this field is propagated to a sink in a different lifecycle method.
+
 InheritedActivities:
 The activity has a superclass which defines a lifecycle method containing a sink.
 The superclass is not defined in the manifest.
+
+InheritedObjects:
+This activity uses inheritance and a conditional statement to create an informaiton flow from a source to a sink.
 
 InstanceStateCallback:
 The activity contains two callback methods related to the instanceState which contain a dataflow from source to sink
@@ -48,6 +59,10 @@ This app contains the following difficulties:
 	- Ability to check Listeners
 	- Ability to know that the callback of button3 is clickOnButton3 (XML-file)
 	- There is only one data leak iff first button3 and then button1 is pressed!
+
+ListAccess:
+A tainted value is stored in a list. The value of a different list position is propagated to a sink.
+Negative testcase, there should be no flow from source to sink.
 
 LocaionLeak:
 This example contains a location information leakage in the onResume() callback method.
@@ -69,6 +84,10 @@ ObjectSensitivity1:
 A tainted value is written to one object, the value of a different object (of the same type) is propagated to a sink.
 Negative testcase, there should be no flow from source to sink.
 
+OverwriteValue:
+A tainted value is stored in a local variable and a field, but overwritten before they reach a sink.
+Negative testcase, there should be no flow from source to sink.
+
 PasswordField:
 A value from a password field is stored in the log.
 
@@ -76,5 +95,12 @@ ServiceLifecycle:
 The app contains a Service with three callback methods. One of them contains a source, another one contains a sink
 which receives value originated from the source as input parameter.
 
+
+
 SourceCodeSpecific:
+
 This app contains a Set<String> and the conditional operator "( ) ? :".
+
+StaticFieldActivities:
+A static field gets tainted from a different activity. Both lifecycles have to be analyzed and combined to find 
+this information flow.
