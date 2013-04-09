@@ -37,6 +37,18 @@ FieldSensitivity2Pos:
 Similar to FieldSensitivity, but with information flow: A dataobject has two fields - a tainted value is written to 
 one field, the value of the this field is propagated to a sink in a different lifecycle method.
 
+IndirectFlow1:
+App contains an indirect flow.
+
+IndirectFlow2:
+App contains an indirect flow.
+
+IndirectFlow3:
+App contains an indirect flow.
+
+IndirectFlow4:
+App contains an indirect flow.
+
 InheritedActivities:
 The activity has a superclass which defines a lifecycle method containing a sink.
 The superclass is not defined in the manifest.
