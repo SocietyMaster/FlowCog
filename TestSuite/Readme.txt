@@ -4,6 +4,10 @@ Each of the included .apk-files either contains a flow from a source to a sink
 or does not disclose information and can be used to check your analysis for false positives.
 The apps are very lightwight and concentrate on one small scenario, in most cases there is no UI.
 
+ArrayAccess:
+A tainted value is stored in an array. The value of a different array position is propagated to a sink.
+Negative testcase, there should be no flow from source to sink.
+
 BroadcastReceiverLifecycle:
 A source and a sink are called in the lifecycle method of a broadcastreceiver.
 
@@ -45,6 +49,10 @@ Taint is propagated via Intent. As other apps are not trustworthy by default, th
 Lifecycle2:
 A taint value is written in the onResume() callback method and propagated to a sink in the onPause() callback method.
 Loops must be considered to find this taint.
+
+ListAccess:
+A tainted value is stored in a list. The value of a different list position is propagated to a sink.
+Negative testcase, there should be no flow from source to sink.
 
 LocaionLeak:
 This example contains a location information leakage in the onResume() callback method.
