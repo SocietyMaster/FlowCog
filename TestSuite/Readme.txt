@@ -92,6 +92,9 @@ LocationLeakSimple:
 A simplified version of LocationLeak in which the activity directly implements the
 onLocationChanged interface instead of using an inner class for the job.
 
+MethodOverrides:
+Source is propageted in a callback method.
+
 ObjectSensitivity1:
 A tainted value is written to one object, the value of a different object (of the same type) is propagated to a sink.
 Negative testcase, there should be no flow from source to sink.
