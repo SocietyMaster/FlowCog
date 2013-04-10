@@ -12,6 +12,10 @@ ArrayAccess:
 A tainted value is stored in an array. The value of a different array position is propagated to a sink.
 Negative testcase, there should be no flow from source to sink.
 
+ArrayAccess2:
+This app contains an access to a field in an array that is not tainted. This field is send via sms (no data leakage). The important
+aspect here is that the index of the array is not a constant, it is created via a method (some arithmetic operations).
+
 BroadcastReceiverLifecycle:
 A source and a sink are called in the lifecycle method of a broadcastreceiver.
 
