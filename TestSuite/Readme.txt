@@ -62,6 +62,9 @@ The activity contains two callback methods related to the instanceState which co
 IntentSink:
 Taint is propagated via Intent. As other apps are not trustworthy by default, this is a sink, too.
 
+IntentSink2:
+Taint is sent via intent to another app. The taint is created and sent in the sendIntent callback (layout-XML) method.
+
 Lifecycle2:
 A taint value is written in the onResume() callback method and propagated to a sink in the onPause() callback method.
 Loops must be considered to find this taint.
