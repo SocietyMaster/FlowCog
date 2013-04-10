@@ -110,10 +110,7 @@ ServiceLifecycle:
 The app contains a Service with three callback methods. One of them contains a source, another one contains a sink
 which receives value originated from the source as input parameter.
 
-
-
 SourceCodeSpecific:
-
 This app contains a Set<String> and the conditional operator "( ) ? :".
 
 StaticFieldActivities:
