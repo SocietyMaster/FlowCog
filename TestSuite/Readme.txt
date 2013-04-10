@@ -79,14 +79,21 @@ Negative testcase, there should be no flow from source to sink.
 LocaionLeak:
 This example contains a location information leakage in the onResume() callback method.
 
+
+
 LoopExample1:
 This example contains a simple loop and a data leakage.
+
 
 LoopExample2:
 This example contains a nested loop-if-loop construct and a data leakage:
  
 The callback method onLocationChanged
  must be identified and should be classified as source.
+
+MethodOverrides:
+Overriding an internal Android OS method inside Android.app.Activity to get called when the activity launches
+without using one of the well-known callbacks or entry points.
 
 LocationLeakSimple:
 A simplified version of LocationLeak in which the activity directly implements the
