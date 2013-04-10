@@ -92,6 +92,9 @@ LocationLeakSimple:
 A simplified version of LocationLeak in which the activity directly implements the
 onLocationChanged interface instead of using an inner class for the job.
 
+MethodOverrides:
+This is a special-case where a system method gets overwriden (check for correct implementation of lifecycle)
+
 ObjectSensitivity1:
 A tainted value is written to one object, the value of a different object (of the same type) is propagated to a sink.
 Negative testcase, there should be no flow from source to sink.
@@ -119,3 +122,6 @@ this information flow.
 
 StaticInitialization:
 The sink is called in a static initialization method of a static class.
+
+UnreachableCode:
+This app contains a method call that contains a data leakage but is never called.
