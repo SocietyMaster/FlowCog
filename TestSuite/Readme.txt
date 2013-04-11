@@ -26,6 +26,9 @@ The method which is called is referenced in the layout-xml.
 CompleteTest:
 Contains various difficulties for static analysis, essentially a summary of some of the other testcases.
 
+DirectLeak:
+Reads out the subscriber id and sends it via SMS in the activity's onCreate() event. Basic test case.
+
 EasyLifecycle:
 A taint value is written in one lifecycle method and propagated to a sink in another lifecycle method.
 
