@@ -86,6 +86,9 @@ Negative testcase, there should be no flow from source to sink.
 LocaionLeak:
 This example contains a location information leakage in the onResume() callback method.
 
+LogNoLeak:
+This app does not contain any leaking data.
+
 LoopExample1:
 This example contains a simple loop and a data leakage.
 
