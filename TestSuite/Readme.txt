@@ -41,6 +41,9 @@ FieldSensitivity2Pos:
 Similar to FieldSensitivity, but with information flow: A dataobject has two fields - a tainted value is written to 
 one field, the value of the this field is propagated to a sink in a different lifecycle method.
 
+InactiveActivity:
+This app contains an activity that is not enabled (see Manifest.xml). That means this activity is never executed and the analysis should notice that.
+
 IndirectFlow1:
 App contains an indirect flow.
 
