@@ -23,7 +23,7 @@ import test.AXMLPrinter;
 import android.content.res.AXmlResourceParser;
 
 public class ProcessManifest {
-
+	
 	private Set<String> entryPointsClasses = new HashSet<String>();
 	private String packageName = "";
 	private Set<String> permissions = new HashSet<String>();
@@ -88,6 +88,7 @@ public class ProcessManifest {
 			parser.open(manifestIS);
 
 			int type = -1;
+			boolean applicationEnabled = true;
 			while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
 				switch (type) {
 					case XmlPullParser.START_DOCUMENT:
@@ -100,6 +101,16 @@ public class ProcessManifest {
 								|| tagName.equals("receiver")
 								|| tagName.equals("service")
 								|| tagName.equals("provider")) {
+							// We ignore disabled activities
+							if (!applicationEnabled)
+								continue;
+							if (tagName.equals("activity")) {
+								String attrValue = getAttributeValue(parser, "enabled");
+								if (attrValue != null && attrValue.equals("false"))
+									continue;
+							}
+							
+							// Get the class name
 							String attrValue = getAttributeValue(parser, "name");
 							if (attrValue.startsWith("."))
 								entryPointsClasses.add(this.packageName + attrValue);
@@ -114,6 +125,11 @@ public class ProcessManifest {
 							// to the user
 							// permissionName = permissionName.substring(permissionName.lastIndexOf(".") + 1);
 							this.permissions.add(permissionName);
+						}
+						else if (tagName.equals("application")) {
+							// Check whether the application is disabled
+							String attrValue = getAttributeValue(parser, "enabled");
+							applicationEnabled = (attrValue == null || !attrValue.equals("false"));
 						}
 						break;
 					case XmlPullParser.END_TAG:
