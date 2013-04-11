@@ -8668,7 +8668,7 @@
 <com.android.providers.contacts.VoicemailPermissions: void checkCallerHasFullAccess()> com.android.voicemail.permission.ADD_VOICEMAIL -> _NONE_
 <com.android.internal.widget.RotarySelector: void vibrate(long)> android.permission.VIBRATE android.permission.WAKE_LOCK -> _NONE_
 <com.android.phone.BluetoothHandsfree$17: android.bluetooth.AtCommandResult handleBasicCommand(java.lang.String)> com.android.voicemail.permission.ADD_VOICEMAIL android.permission.BLUETOOTH android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.READ_CALL_LOG android.permission.BLUETOOTH_ADMIN android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
-<java.net.URL: java.net.URLConnection openConnection()> android.permission.INTERNET -> _NONE_
+<java.net.URL: java.net.URLConnection openConnection()> android.permission.INTERNET -> _SINK_
 <android.net.wifi.WifiManager: android.net.DhcpInfo getDhcpInfo()> android.permission.ACCESS_WIFI_STATE -> _SOURCE_
 <android.bluetooth.BluetoothDeviceProfileState: boolean handleIncomingConnection(int,boolean)> android.permission.BLUETOOTH android.permission.WRITE_SETTINGS android.permission.BLUETOOTH_ADMIN android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <com.android.browser.widget.BookmarkThumbnailWidgetService$BookmarkFactory: void loadBookmarks()> com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
