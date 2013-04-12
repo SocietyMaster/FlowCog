@@ -53,16 +53,16 @@ InactiveActivity:
 This app contains an activity that is not enabled (see Manifest.xml). That means this activity is never executed and the analysis should notice that.
 
 
-IndirectFlow1:
+ImplicitFlow1:
 App contains an indirect flow.
 
-IndirectFlow2:
+ImplicitFlow2:
 App contains an indirect flow.
 
-IndirectFlow3:
+ImplicitFlow3:
 App contains an indirect flow.
 
-IndirectFlow4:
+ImplicitFlow4:
 App contains an indirect flow.
 
 InheritedActivities:
@@ -70,7 +70,7 @@ The activity has a superclass which defines a lifecycle method containing a sink
 The superclass is not defined in the manifest.
 
 InheritedObjects:
-This activity uses inheritance and a conditional statement to create an informaiton flow from a source to a sink.
+This activity uses inheritance and a conditional statement to create an information flow from a source to a sink.
 
 InstanceStateCallback:
 The activity contains two callback methods related to the instanceState which contain a dataflow from source to sink
@@ -90,6 +90,10 @@ Loops must be considered to find this taint.
 
 
 
+ListAccess:
+A tainted value is stored in a list. The value of a different list position is propagated to a sink.
+Negative testcase, there should be no flow from source to sink.
+
 ListenerSpecific:
 
 This app contains the following difficulties:
@@ -100,14 +104,17 @@ This app contains the following difficulties:
 
 	- There is only one data leak iff first button3 and then button1 is pressed!
 
-ListAccess:
-A tainted value is stored in a list. The value of a different list position is propagated to a sink.
-Negative testcase, there should be no flow from source to sink.
-
-LocaionLeak:
+LocationLeak:
 This example contains a location information leakage in the onResume() callback method.
 
+
+
+LocationLeakSimple:
+A simplified version of LocationLeak in which the activity directly implements the
+onLocationChanged interface instead of using an inner class for the job.
+
 LogNoLeak:
+
 This app does not contain any leaking data.
 
 
@@ -121,10 +128,6 @@ LoopExample2:
 
 This example contains a nested loop-if-loop construct and a data leakage. The callback method onLocationChanged
  must be identified and should be classified as source.
-
-LocationLeakSimple:
-A simplified version of LocationLeak in which the activity directly implements the
-onLocationChanged interface instead of using an inner class for the job.
 
 MethodOverrides:
 This is a special-case where a system method gets overwriden (check for correct implementation of lifecycle)
