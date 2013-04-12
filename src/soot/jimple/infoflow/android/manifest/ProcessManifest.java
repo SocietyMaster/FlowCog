@@ -104,14 +104,12 @@ public class ProcessManifest {
 							// We ignore disabled activities
 							if (!applicationEnabled)
 								continue;
-							if (tagName.equals("activity")) {
-								String attrValue = getAttributeValue(parser, "enabled");
-								if (attrValue != null && attrValue.equals("false"))
-									continue;
-							}
+							String attrValue = getAttributeValue(parser, "enabled");
+							if (attrValue != null && attrValue.equals("false"))
+								continue;
 							
 							// Get the class name
-							String attrValue = getAttributeValue(parser, "name");
+							attrValue = getAttributeValue(parser, "name");
 							if (attrValue.startsWith("."))
 								entryPointsClasses.add(this.packageName + attrValue);
 							else if (attrValue.substring(0, 1).equals(attrValue.substring(0, 1).toUpperCase()))
