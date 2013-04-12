@@ -1012,6 +1012,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 				break;
 			case TYPE_ATTRIBUTE:
 				res = new AttributeResource(val.data);
+				break;
 			case TYPE_STRING :
 				res = new StringResource(stringTable.get(val.data));
 				break;
