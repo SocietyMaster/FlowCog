@@ -1,9 +1,0 @@
-<com.jakobkontor.imei.NetworkActivity: void onCreate(android.os.Bundle)>
-<com.jakobkontor.imei.NetworkActivity: void onStart()>
-<com.jakobkontor.imei.NetworkActivity: void onDestroy()>
-<com.jakobkontor.imei.SettingsActivity: void onCreate(android.os.Bundle)>
-<com.jakobkontor.imei.SettingsActivity: void onResume()>
-<com.jakobkontor.imei.SettingsActivity: void onPause()>
-<com.jakobkontor.imei.SettingsActivity: void onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)>
-<com.jakobkontor.imei.NetworkActivity$NetworkReceiver: void onReceive(android.content.Context, android.content.Intent)>
-<com.jakobkontor.imei.NetworkActivity$DownloadXmlTask: void onPostExecute(java.lang.String)>
