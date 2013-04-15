@@ -126,7 +126,7 @@ public class SetupApplication {
 
 		// Collect the results of the soot-based phases
 		for (AndroidMethod am : jimpleClass.getCallbackMethods())
-			this.callbackMethods.add(am);		
+			this.callbackMethods.add(am);
 		this.layoutControls = lfp.getUserControls();
 		
 		// Collect the XML-based callback methods
@@ -142,6 +142,7 @@ public class SetupApplication {
 				else
 					System.err.println("Unexpected resource type for layout class");
 			}
+		System.out.println("Found " + this.callbackMethods.size() + " callback methods");
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		for (AndroidMethod am : parser.parse()){
