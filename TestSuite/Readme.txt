@@ -2,7 +2,7 @@ Android application testsuite for taint analysis
 
 Each of the included .apk-files either contains a flow from a source to a sink
 or does not disclose information and can be used to check your analysis for false positives.
-The apps are very lightwight and concentrate on one small scenario, in most cases there is no UI.
+The apps are very lightweight and concentrate on one small scenario, in most cases there is no UI.
 
 AnonymousClass:
 Contains a location listener that is defined as an anonymous class. It contains the onLocationChanged() method. That method 
