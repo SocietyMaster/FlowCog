@@ -35,6 +35,7 @@ public class Test {
 				System.err.println("Cleanup of output directory "+ outputDir + " failed!");
 			}
 		}
+		long beforeRun = System.nanoTime();
 		app.setApkFileLocation(args[0]);
 		app.setAndroidJar(args[1]);
 		app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
@@ -52,6 +53,7 @@ public class Test {
 			System.out.println("No results found.");
 		else
 			results.printResults();
+		System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
 	}
 
 }
