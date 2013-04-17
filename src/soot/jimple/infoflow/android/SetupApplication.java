@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,7 +35,7 @@ public class SetupApplication {
 
 	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
-	private List<AndroidMethod> callbackMethods = new ArrayList<AndroidMethod>();
+	private Set<AndroidMethod> callbackMethods = new HashSet<AndroidMethod>(10000);
 	
 	private Set<String> entrypoints = null;
 	
@@ -207,7 +208,7 @@ public class SetupApplication {
 			info.setSootConfig(new SootConfigForAndroid());
 			
 			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
-				(sources, sinks, callbackMethods, false,
+				(sources, sinks, new ArrayList<AndroidMethod>(callbackMethods), false,
 				LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);

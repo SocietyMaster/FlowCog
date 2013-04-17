@@ -51,8 +51,13 @@ public class AnalyzeJimpleClass {
 				findClassLayoutMappings();
 				
 				// Scan for listeners in the class hierarchy
-				for (SootClass sc : Scene.v().getClasses())
-					analyzeClass(sc);
+				Set<SootClass> reachableClasses = new HashSet<SootClass>(10000);
+				Iterator<MethodOrMethodContext> reachableMethods = Scene.v().getReachableMethods().listener();
+				while (reachableMethods.hasNext()) {
+					SootClass curClass = reachableMethods.next().method().getDeclaringClass();
+					if (reachableClasses.add(curClass))
+						analyzeClass(curClass);
+				}
 			}
 		});
 		PackManager.v().getPack("wjtp").add(transform);

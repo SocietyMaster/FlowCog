@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class ARSCFileParser extends AbstractResourceParser {
 	
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 
 	protected final static int RES_STRING_POOL_TYPE = 0x0001;
 	protected final static int RES_TABLE_TYPE = 0x0002;
