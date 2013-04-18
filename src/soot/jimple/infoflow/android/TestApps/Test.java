@@ -46,6 +46,9 @@ public class Test {
 					
 				@Override
 				public boolean accept(File dir, String name) {
+					if (name.equals("v2_com.fsck.k9_1_16024_K-9 Mail.apk")
+							|| name.equals("v2_com.byril.battleship_1_8_Schiffeversenken.apk"))
+						return false;
 					return (name.endsWith(".apk"));
 				}
 				

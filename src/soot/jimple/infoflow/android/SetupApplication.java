@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class SetupApplication {
 
 	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
 	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
-	private Set<AndroidMethod> callbackMethods = new HashSet<AndroidMethod>(10000);
+	private Map<String, List<AndroidMethod>> callbackMethods = new HashMap<String, List<AndroidMethod>>(10000);
 	
 	private Set<String> entrypoints = null;
 	
@@ -115,7 +116,7 @@ public class SetupApplication {
 		soot.G.reset();
 
 		// Collect the callback interfaces implemented in the app's source code
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass();
+		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(this.entrypoints);
 		jimpleClass.collectCallbackMethods();
 		
 		// Find the user-defined sources in the layout XML files
@@ -126,8 +127,12 @@ public class SetupApplication {
 		runSootBasedPhases();
 
 		// Collect the results of the soot-based phases
-		for (AndroidMethod am : jimpleClass.getCallbackMethods())
-			this.callbackMethods.add(am);
+		for (Entry<String, List<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
+			if (this.callbackMethods.containsKey(entry.getKey()))
+				this.callbackMethods.get(entry.getKey()).addAll(entry.getValue());
+			else
+				this.callbackMethods.put(entry.getKey(), new ArrayList<AndroidMethod>(entry.getValue()));
+		}
 		this.layoutControls = lfp.getUserControls();
 		
 		// Collect the XML-based callback methods
@@ -137,8 +142,14 @@ public class SetupApplication {
 				if (resource instanceof StringResource) {
 					StringResource strRes = (StringResource) resource;
 					if (lfp.getCallbackMethods().containsKey(strRes.getValue()))
-						for (String methodName : lfp.getCallbackMethods().get(strRes.getValue()))
-							this.callbackMethods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
+						for (String methodName : lfp.getCallbackMethods().get(strRes.getValue())) {
+							List<AndroidMethod> methods = this.callbackMethods.get(lcentry.getKey().getName());
+							if (methods == null) {
+								methods = new ArrayList<AndroidMethod>();
+								this.callbackMethods.put(lcentry.getKey().getName(), methods);
+							}
+							methods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
+						}
 				}
 				else
 					System.err.println("Unexpected resource type for layout class");
@@ -207,19 +218,28 @@ public class SetupApplication {
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
 			
+			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
+			for (List<AndroidMethod> methods : this.callbackMethods.values())
+				callbacks.addAll(methods);
+			
 			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
-				(sources, sinks, new ArrayList<AndroidMethod>(callbackMethods), false,
+				(sources, sinks, new ArrayList<AndroidMethod>(callbacks), false,
 				LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			
 			AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
 				(new ArrayList<String>(this.entrypoints));
-			List<String> callbackMethodSigs = new ArrayList<String>();
-			for (AndroidMethod am : this.callbackMethods)
-				callbackMethodSigs.add(am.getSignature());
+			Map<String, List<String>> callbackMethodSigs = new HashMap<String, List<String>>();
+			for (String className : this.callbackMethods.keySet()) {
+				List<String> methodSigs = new ArrayList<String>();
+				callbackMethodSigs.put(className, methodSigs);
+				for (AndroidMethod am : this.callbackMethods.get(className))
+					methodSigs.add(am.getSignature());
+			}
 			entryPointCreator.setCallbackFunctions(callbackMethodSigs);
 			
+			System.out.println("Starting infoflow computation...");
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 					sourceSinkManager);
 			return info.getResults();
