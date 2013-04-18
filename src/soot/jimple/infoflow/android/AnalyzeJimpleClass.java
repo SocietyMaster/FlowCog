@@ -22,7 +22,6 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointConstants;
-import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 
 /**
@@ -499,7 +498,7 @@ public class AnalyzeJimpleClass {
 				if (i.declaresMethodByName("onAccuracyChanged"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onAccuracyChanged"), lifecycleElement);
 				if (i.declaresMethodByName("onSensorChanged"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSensorChanged"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onSensorChanged(android.hardware.SensorEvent)"), lifecycleElement);
 			}
 			// android.hardware.display
 			else if (i.getName().equals("android.hardware.display.DisplayManager$DisplayListener")) {
