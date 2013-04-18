@@ -181,6 +181,10 @@ public class LayoutFileParser extends AbstractResourceParser {
 					
 					@Override
 					public void handleResourceFile(final String fileName, Set<String> fileNameFilter, InputStream stream) {
+						if (!fileName.endsWith(".xml")) {
+							System.err.println("Skipping file " + fileName + " in layout folder...");
+							return;
+						}
 						String entryClass = fileName.substring(0, fileName.lastIndexOf("."));
 						if (!packageName.isEmpty())
 							entryClass = packageName + "." + entryClass;
