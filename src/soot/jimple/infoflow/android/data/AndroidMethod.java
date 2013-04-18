@@ -32,6 +32,8 @@ public class AndroidMethod extends SootMethodAndClass{
 		NFC_INFORMATION,
 		BROWSER_INFORMATION,
 		VOIP_INFORMATION,
+		DATABASE_INFORMATION,
+		PHONE_INFORMATION,
 
 		// SINKS
 		NFC,
