@@ -103,6 +103,12 @@ public class LayoutFileParser extends AbstractResourceParser {
 
     	@Override
        	public NodeVisitor child(String ns, String name) {
+    		if (name == null) {
+    			System.err.println("Encountered a null node name "
+    					+ "in file " + layoutFile + ", skipping node...");
+    			return null;
+    		}
+    			
 			final SootClass childClass = getLayoutClass(name.trim());
 			if (isLayoutClass(childClass) || isViewClass(childClass))
        			return new LayoutParser(layoutFile, childClass);
@@ -215,6 +221,8 @@ public class LayoutFileParser extends AbstractResourceParser {
 								bos.write(in);
 							bos.flush();
 							byte[] data = bos.toByteArray();
+							if (data == null || data.length == 0)	// File empty?
+								return;
 							
 							AxmlReader rdr = new AxmlReader(data);
 							rdr.accept(new AxmlVisitor() {
