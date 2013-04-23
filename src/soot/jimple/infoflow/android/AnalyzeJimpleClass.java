@@ -69,17 +69,6 @@ public class AnalyzeJimpleClass {
 							analyzeClass(curClass, sc);
 					}
 				}
-				
-				/*
-				// Scan for listeners in the class hierarchy
-				Set<SootClass> reachableClasses = new HashSet<SootClass>(10000);
-				Iterator<MethodOrMethodContext> reachableMethods = Scene.v().getReachableMethods().listener();
-				while (reachableMethods.hasNext()) {
-					SootClass curClass = reachableMethods.next().method().getDeclaringClass();
-					if (reachableClasses.add(curClass))
-						analyzeClass(curClass);
-				}
-				*/
 			}
 		});
 		PackManager.v().getPack("wjtp").add(transform);
@@ -223,13 +212,9 @@ public class AnalyzeJimpleClass {
 
 	private void analyzeClassInterfaceCallbacks(SootClass baseClass, SootClass sootClass,
 			SootClass lifecycleElement) {
-		// There's no information we could use in an interface
-		if (sootClass.isInterface())
-			return;
-		
 		// We cannot create instances of abstract classes anyway, so there is no
 		// reason to look for interface implementations
-		if (baseClass.isAbstract())
+		if (!baseClass.isConcrete())
 			return;
 		
 		// For a first take, we consider all classes in the android.* packages

@@ -1,7 +1,6 @@
 package soot.jimple.infoflow.android.resources;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -188,7 +187,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 					@Override
 					public void handleResourceFile(final String fileName, Set<String> fileNameFilter, InputStream stream) {
 						// We only process valid layout XML files
-						if (!fileName.startsWith("res/layout/"))
+						if (!fileName.startsWith("res/layout"))
 							return;
 						if (!fileName.endsWith(".xml")) {
 							System.err.println("Skipping file " + fileName + " in layout folder...");
@@ -240,7 +239,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 							System.out.println("Found " + userControls.size() + " layout controls in file "
 									+ fileName);
 						}
-						catch (IOException ex) {
+						catch (Exception ex) {
 							System.err.println("Could not read binary XML file: " + ex.getMessage());
 							ex.printStackTrace();
 						}
