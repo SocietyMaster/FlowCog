@@ -134,7 +134,75 @@ public class ARSCFileParser extends AbstractResourceParser {
 	protected final static int ATTR_MANY = (0x01000000 | (9 & 0xFFFF));
 
     protected final static int NO_ENTRY = 0xFFFFFFFF;
-	
+    
+    /**
+     * Where the unit type information is.  This gives us 16 possible types, as
+     * defined below.
+     */
+    protected final static int COMPLEX_UNIT_SHIFT = 0x0;
+    protected final static int COMPLEX_UNIT_MASK = 0xf;    
+    /**
+     * TYPE_DIMENSION: Value is raw pixels.
+     */
+    protected final static int COMPLEX_UNIT_PX = 0;
+    /**
+     * TYPE_DIMENSION: Value is Device Independent Pixels.
+     */
+    protected final static int COMPLEX_UNIT_DIP = 1;
+    /**
+     * TYPE_DIMENSION: Value is a Scaled device independent Pixels.
+     */
+    protected final static int COMPLEX_UNIT_SP = 2;
+    /**
+     * TYPE_DIMENSION: Value is in points.
+     */
+    protected final static int COMPLEX_UNIT_PT = 3;
+    /**
+     * TYPE_DIMENSION: Value is in inches.
+     */
+    protected final static int COMPLEX_UNIT_IN = 4;
+    /**
+     * TYPE_DIMENSION: Value is in millimeters.
+     */
+    protected final static int COMPLEX_UNIT_MM = 5;
+	/**
+	 * TYPE_FRACTION: A basic fraction of the overall size.
+	 */
+    protected final static int COMPLEX_UNIT_FRACTION = 0;
+    /**
+     * TYPE_FRACTION: A fraction of the parent size.
+     */
+    protected final static int COMPLEX_UNIT_FRACTION_PARENT = 1;
+	/**
+	 * Where the radix information is, telling where the decimal place appears
+	 * in the mantissa.  This give us 4 possible fixed point representations as
+	 * defined below.
+	 */
+    protected final static int COMPLEX_RADIX_SHIFT = 4;
+    protected final static int COMPLEX_RADIX_MASK = 0x3;
+    /**
+     * The mantissa is an integral number -- i.e., 0xnnnnnn.0
+     */
+    protected final static int COMPLEX_RADIX_23p0 = 0;
+    /**
+     * The mantissa magnitude is 16 bits -- i.e, 0xnnnn.nn
+     */
+    protected final static int COMPLEX_RADIX_16p7 = 1;
+	/**
+	 * The mantissa magnitude is 8 bits -- i.e, 0xnn.nnnn
+	 */
+    protected final static int COMPLEX_RADIX_8p15 = 2;
+    /**
+     * The mantissa magnitude is 0 bits -- i.e, 0x0.nnnnnn
+     */
+    protected final static int COMPLEX_RADIX_0p23 = 3;
+    /**
+     * Where the actual value is.  This gives us 23 bits of precision. The top
+     * bit is the sign.
+     */
+    protected final static int COMPLEX_MANTISSA_SHIFT = 8;
+    protected final static int COMPLEX_MANTISSA_MASK = 0xffffff;
+    
 	/**
 	 * If set, this is a complex entry, holding a set of name/value mappings.
 	 * It is followed by an array of ResTable_Map structures.
@@ -322,6 +390,21 @@ public class ARSCFileParser extends AbstractResourceParser {
 			return this.value;
 		}
 	}
+	
+	/**
+	 * Android resource containing a single-precision floating point number
+	 */
+	public class FloatResource extends AbstractResource {
+		private float value;
+		
+		public FloatResource(float value) {
+			this.value = value;
+		}
+		
+		public float getValue() {
+			return this.value;
+		}
+	}
 
 	/**
 	 * Android resource containing boolean data.
@@ -368,6 +451,65 @@ public class ARSCFileParser extends AbstractResourceParser {
 
 		public int getB() {
 			return this.b;
+		}
+	}
+	
+	/**
+	 * Enumeration containing all dimension units available in Android
+	 */
+	public enum Dimension {
+		PX,
+		DIP,
+		SP,
+		PT,
+		IN,
+		MM
+	}
+	
+	/**
+	 * Android resource containing dimension data like "11pt".
+	 */
+	public class DimensionResource extends AbstractResource {
+		private int value;
+		private Dimension unit;
+		
+		public DimensionResource(int value, Dimension unit) {
+			this.value = value;
+			this.unit = unit;
+		}
+		
+		DimensionResource(int dimension, int value) {
+			this.value = value;
+			switch (dimension) {
+			case COMPLEX_UNIT_PX:
+				this.unit = Dimension.PX;
+				break;
+			case COMPLEX_UNIT_DIP:
+				this.unit = Dimension.DIP;
+				break;
+			case COMPLEX_UNIT_SP:
+				this.unit = Dimension.SP;
+				break;
+			case COMPLEX_UNIT_PT:
+				this.unit = Dimension.PT;
+				break;
+			case COMPLEX_UNIT_IN:
+				this.unit = Dimension.IN;
+				break;
+			case COMPLEX_UNIT_MM:
+				this.unit = Dimension.MM;
+				break;
+			default:
+				throw new RuntimeException("Invalid dimension: " + dimension);
+			}
+		}
+		
+		public int getValue() {
+			return this.value;
+		}
+		
+		public Dimension getUnit() {
+			return this.unit;
 		}
 	}
 	
@@ -1042,6 +1184,13 @@ public class ARSCFileParser extends AbstractResourceParser {
 				res = new ColorResource(0,
 						val.data & 0xF00 >> 2 * 8, val.data & 0x0F0 >> 8,
 						val.data & 0x00F);
+				break;
+			case TYPE_DIMENSION:
+				res = new DimensionResource(val.data & COMPLEX_UNIT_MASK,
+						val.data >> COMPLEX_UNIT_SHIFT);
+				break;
+			case TYPE_FLOAT:
+				res = new FloatResource(Float.intBitsToFloat(val.data));
 				break;
 			default:
 				return null;
