@@ -233,6 +233,8 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 			return CATEGORY.DATABASE_INFORMATION;
 		else if(category.equals("_PHONE_INFORMATION_"))
 			return CATEGORY.PHONE_INFORMATION;
+		else if(category.equals("_LOG_"))
+			return CATEGORY.LOG;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
 	}
