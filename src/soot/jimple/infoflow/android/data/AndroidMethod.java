@@ -27,13 +27,11 @@ public class AndroidMethod extends SootMethodAndClass{
 		EMAIL_INFORMATION,
 		FILE_INFORMATION,
 		BLUETOOTH_INFORMATION,
-		NFC_INFORMATION,
 		VOIP_INFORMATION,
 		DATABASE_INFORMATION,
 		PHONE_INFORMATION,
 
 		// SINKS
-		NFC,
 		PHONE_CONNECTION,
 		INTER_APP_COMMUNICATION,
 		VOIP,
@@ -55,7 +53,8 @@ public class AndroidMethod extends SootMethodAndClass{
 		CALENDAR_INFORMATION,
 		SYSTEM_SETTINGS,
 		IMAGE,
-		BROWSER_INFORMATION}
+		BROWSER_INFORMATION,
+		NFC}
 
 	private final Set<String> permissions;
 	
