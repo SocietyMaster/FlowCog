@@ -1,7 +1,7 @@
 package soot.jimple.infoflow.android.data.parsers;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
 
@@ -14,6 +14,6 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
  */
 public interface IPermissionMethodParser {
 	
-	List<AndroidMethod> parse() throws IOException;
+	Set<AndroidMethod> parse() throws IOException;
 
 }

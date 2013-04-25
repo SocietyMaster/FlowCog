@@ -2,9 +2,10 @@ package soot.jimple.infoflow.android;
 
 import heros.InterproceduralCFG;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import soot.Local;
 import soot.SootMethod;
@@ -30,6 +31,8 @@ import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
  * @author Steven Arzt
  */
 public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
+	
+	private static final boolean FAST_MATCHING = true;
 	
 	/**
 	 * Possible modes for matching layout components as data flow sources
@@ -59,9 +62,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	private final static String View_FindViewById =
 			"<android.app.View: android.view.View findViewById(int)>";
 
-	private final List<AndroidMethod> sourceMethods;
-	private final List<AndroidMethod> sinkMethods;
-	private final List<AndroidMethod> callbackMethods;
+	private final Set<AndroidMethod> sourceMethods;
+	private final Set<AndroidMethod> sinkMethods;
+	private final Set<AndroidMethod> callbackMethods;
 	private final boolean weakMatching;
 	
 	private final LayoutMatchingMode layoutMatching;
@@ -78,8 +81,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * @param sinks The list of sink methods 
 	 */
 	public AndroidSourceSinkManager
-			(List<AndroidMethod> sources,
-			List<AndroidMethod> sinks) {
+			(Set<AndroidMethod> sources,
+			Set<AndroidMethod> sinks) {
 		this (sources, sinks, false);
 	}
 	
@@ -94,10 +97,10 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * signature in the code exactly match the one in the list.
 	 */
 	public AndroidSourceSinkManager
-			(List<AndroidMethod> sources,
-			List<AndroidMethod> sinks,
+			(Set<AndroidMethod> sources,
+			Set<AndroidMethod> sinks,
 			boolean weakMatching) {
-		this(sources, sinks, new ArrayList<AndroidMethod>(), weakMatching,
+		this(sources, sinks, new HashSet<AndroidMethod>(), weakMatching,
 				LayoutMatchingMode.NoMatch, null);
 	}
 
@@ -120,9 +123,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * Android layout controls
 	 */
 	public AndroidSourceSinkManager
-			(List<AndroidMethod> sources,
-			List<AndroidMethod> sinks,
-			List<AndroidMethod> callbackMethods,
+			(Set<AndroidMethod> sources,
+			Set<AndroidMethod> sinks,
+			Set<AndroidMethod> callbackMethods,
 			boolean weakMatching,
 			LayoutMatchingMode layoutMatching,
 			Map<Integer, LayoutControl> layoutControls) {
@@ -146,32 +149,36 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * @return True if the given method matches an entry in the list, otherwise
 	 * false
 	 */
-	private boolean matchesMethod(SootMethod sMethod, List<AndroidMethod> aMethods) {
-		for (AndroidMethod am : aMethods) {
-			if (!am.getClassName().equals(sMethod.getDeclaringClass().getName()))
-				continue;
-			if (!am.getMethodName().equals(sMethod.getName()))
-				continue;
-			if (am.getParameters().size() != sMethod.getParameterCount())
-				continue;
-			
-			boolean matches = true;
-			for (int i = 0; i < am.getParameters().size(); i++)
-				if (!am.getParameters().get(i).equals(sMethod.getParameterType(i).toString())) {
-					matches = false;
-					break;
-				}
-			if (!matches)
-				continue;
-			
-			if (!weakMatching)
-				if (!am.getReturnType().isEmpty())
-					if (!am.getReturnType().equals(sMethod.getReturnType().toString()))
-						continue;
-			
-			return true;
+	private boolean matchesMethod(SootMethod sMethod, Set<AndroidMethod> aMethods) {
+		if (FAST_MATCHING)
+			return aMethods.contains(new AndroidMethod(sMethod));
+		else {
+			for (AndroidMethod am : aMethods) {
+				if (!am.getClassName().equals(sMethod.getDeclaringClass().getName()))
+					continue;
+				if (!am.getMethodName().equals(sMethod.getName()))
+					continue;
+				if (am.getParameters().size() != sMethod.getParameterCount())
+					continue;
+				
+				boolean matches = true;
+				for (int i = 0; i < am.getParameters().size(); i++)
+					if (!am.getParameters().get(i).equals(sMethod.getParameterType(i).toString())) {
+						matches = false;
+						break;
+					}
+				if (!matches)
+					continue;
+				
+				if (!weakMatching)
+					if (!am.getReturnType().isEmpty())
+						if (!am.getReturnType().equals(sMethod.getReturnType().toString()))
+							continue;
+				
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 	
 	@Override
@@ -400,7 +407,7 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * Adds a list of methods as sinks
 	 * @param sinks The methods to be added as sinks
 	 */
-	public void addSink(List<AndroidMethod> sinks) {
+	public void addSink(Set<AndroidMethod> sinks) {
 		this.sinkMethods.addAll(sinks);
 	}
 

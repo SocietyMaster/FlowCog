@@ -18,6 +18,8 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
  */
 public class CSVPermissionMethodParser implements IPermissionMethodParser {
 
+	private static final int INITIAL_SET_SIZE = 10000;
+
 	private final String fileName;
 	
 	public CSVPermissionMethodParser(String fileName) {
@@ -25,9 +27,9 @@ public class CSVPermissionMethodParser implements IPermissionMethodParser {
 	}
 	
 	@Override
-	public List<AndroidMethod> parse() throws IOException {
+	public Set<AndroidMethod> parse() throws IOException {
 		BufferedReader rdr = null;
-		List<AndroidMethod> resList = new ArrayList<AndroidMethod>();
+		Set<AndroidMethod> resList = new HashSet<AndroidMethod>(INITIAL_SET_SIZE);
 		try {
 			rdr = new BufferedReader(new FileReader(this.fileName));
 			String line = null;

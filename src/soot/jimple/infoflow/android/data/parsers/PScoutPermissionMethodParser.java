@@ -20,6 +20,8 @@ import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
  * @author Siegfried Rasthofer
  */
 public class PScoutPermissionMethodParser implements IPermissionMethodParser {
+	private static final int INITIAL_SET_SIZE = 10000;
+
 	private final String fileName;
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>.+?(->.+)?$";
 	private final boolean SET_IMPLICIT_SOURCE_TO_SOURCE = false;
@@ -30,8 +32,8 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 	}
 	
 	@Override
-	public List<AndroidMethod> parse() throws IOException {
-		List<AndroidMethod> methodList = new ArrayList<AndroidMethod>();
+	public Set<AndroidMethod> parse() throws IOException {
+		Set<AndroidMethod> methodList = new HashSet<AndroidMethod>(INITIAL_SET_SIZE);
 		BufferedReader rdr = readFile();
 		
 		String line = null;
@@ -46,12 +48,13 @@ public class PScoutPermissionMethodParser implements IPermissionMethodParser {
 				if(m.find()) {
 					AndroidMethod singleMethod = parseMethod(m, currentPermission);
 					if (singleMethod != null) {
-						if(methodList.contains(singleMethod)){
-							int methodIndex = methodList.lastIndexOf(singleMethod);
-							methodList.get(methodIndex).addPermission(currentPermission);
+						if(!methodList.add(singleMethod)){
+							for (AndroidMethod am : methodList)
+								if (am.equals(singleMethod)) {
+									am.addPermission(currentPermission);
+								break;
+							}
 						}
-						else	
-							methodList.add(singleMethod);
 					}
 				}
 			}

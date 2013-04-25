@@ -19,6 +19,8 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
  */
 public class PermissionMethodParser implements IPermissionMethodParser {
 	
+	private static final int INITIAL_SET_SIZE = 10000;
+	
 	private List<String> data;
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>\\s*(.*?)(\\s+->\\s+(.*))?$";
 //	private final String regexNoRet = "^<(.+):\\s(.+)\\s?(.+)\\s*\\((.*)\\)>\\s+(.*?)(\\s+->\\s+(.*))?+$";
@@ -61,8 +63,8 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 		}
 	}
 	
-	public List<AndroidMethod> parse() throws IOException{
-		List<AndroidMethod> methodList = new ArrayList<AndroidMethod>();
+	public Set<AndroidMethod> parse() throws IOException{
+		Set<AndroidMethod> methodList = new HashSet<AndroidMethod>(INITIAL_SET_SIZE);
 		
 		Pattern p = Pattern.compile(regex);
 		Pattern pNoRet = Pattern.compile(regexNoRet);

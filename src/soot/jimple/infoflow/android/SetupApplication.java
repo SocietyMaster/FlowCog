@@ -34,8 +34,8 @@ import soot.options.Options;
 
 public class SetupApplication {
 
-	private List<AndroidMethod> sinks = new ArrayList<AndroidMethod>();
-	private List<AndroidMethod> sources = new ArrayList<AndroidMethod>();
+	private Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
+	private Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
 	private Map<String, List<AndroidMethod>> callbackMethods = new HashMap<String, List<AndroidMethod>>(10000);
 	
 	private Set<String> entrypoints = null;
@@ -169,6 +169,8 @@ public class SetupApplication {
 				("<android.app.Activity: void startActivity(android.content.Intent)>"));
 		setResult.setSink(true);
 		sinks.add(setResult);
+		
+		System.out.println("Entry point calculation done.");
 	}
 
 	/**
@@ -223,7 +225,7 @@ public class SetupApplication {
 				callbacks.addAll(methods);
 			
 			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
-				(sources, sinks, new ArrayList<AndroidMethod>(callbacks), false,
+				(sources, sinks, callbacks, false,
 				LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
