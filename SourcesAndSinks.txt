@@ -1049,7 +1049,7 @@
 <android.bluetooth.BluetoothAdapter: int getProfileConnectionState(int)> android.permission.BLUETOOTH -> _SOURCE_
 <com.android.settings.widget.SettingsAppWidgetProvider$GpsStateTracker$1: void onPostExecute(java.lang.Boolean)> android.permission.BLUETOOTH android.permission.WRITE_SETTINGS android.permission.READ_SYNC_SETTINGS android.permission.ACCESS_WIFI_STATE android.permission.BLUETOOTH_ADMIN -> _NONE_
 <com.android.gallery3d.app.MovieActivity$1: void onResume()> android.permission.WAKE_LOCK -> _NONE_
-<android.location.ILocationManager$Stub: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
+<android.location.ILocationManager$Stub: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _NONE_ 
 <com.android.deskclock.AlarmPreference$1: java.lang.Object doInBackground(java.lang.Object[])> android.permission.WAKE_LOCK -> _NONE_
 <com.android.internal.telephony.cat.IconLoader: void loadIcon(int,android.os.Message)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.mms.transaction.MessageStatusService: void onHandleIntent(android.content.Intent)> android.permission.READ_SMS android.permission.SEND_SMS android.permission.WRITE_SMS android.permission.VIBRATE android.permission.RECEIVE_SMS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.WAKE_LOCK -> _NONE_

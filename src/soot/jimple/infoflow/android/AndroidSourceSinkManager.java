@@ -248,9 +248,10 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 					id = ((IntConstant) ie.getArg(0)).value;
 				else if (ie.getArg(0) instanceof Local) {
 					Integer idVal = findLastResIDAssignment(sCallSite, (Local)
-							ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg);
+							ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg,
+							new HashSet<Stmt>(cfg.getMethodOf(sCallSite).getActiveBody().getUnits().size()));
 					if (idVal == null) {
-						System.err.println("Could not find assignment to layout ID local");
+						System.out.println(cfg.getMethodOf(sCallSite).getActiveBody().toString());
 						return false;
 					}
 					else
@@ -283,7 +284,12 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * @param local The variable for which to look for assignments
 	 * @return The last value assigned to the given variable
 	 */
-	private Integer findLastResIDAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+	private Integer findLastResIDAssignment
+			(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg,
+			Set<Stmt> doneSet) {
+		if (!doneSet.add(stmt))
+			return null;
+		
 		// If this is an assign statement, we need to check whether it changes
 		// the variable we're looking for
 		if (stmt instanceof AssignStmt) {
@@ -337,7 +343,7 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		for (Unit pred : cfg.getPredsOf(stmt)) {
 			if (!(pred instanceof Stmt))
 				continue;
-			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, local, cfg);
+			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, local, cfg, doneSet);
 			if (lastAssignment != null)
 				return lastAssignment;
 		}
