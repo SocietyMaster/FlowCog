@@ -1,0 +1,9 @@
+Name of Testcase:
+Version: 
+Author:
+optional Author e-mail:
+
+Description: <describe the general purpose of the testcase>
+Dataflow: <describe the dataflow from source to sink>
+Number of Leaks: <how many leaks should be detected?>
+Challenges: <what are the main challenges of this test case?>
