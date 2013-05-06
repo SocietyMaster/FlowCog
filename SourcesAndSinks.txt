@@ -1049,7 +1049,6 @@
 <android.bluetooth.BluetoothAdapter: int getProfileConnectionState(int)> android.permission.BLUETOOTH -> _SOURCE_
 <com.android.settings.widget.SettingsAppWidgetProvider$GpsStateTracker$1: void onPostExecute(java.lang.Boolean)> android.permission.BLUETOOTH android.permission.WRITE_SETTINGS android.permission.READ_SYNC_SETTINGS android.permission.ACCESS_WIFI_STATE android.permission.BLUETOOTH_ADMIN -> _NONE_
 <com.android.gallery3d.app.MovieActivity$1: void onResume()> android.permission.WAKE_LOCK -> _NONE_
-<android.location.ILocationManager$Stub: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _NONE_ 
 <com.android.deskclock.AlarmPreference$1: java.lang.Object doInBackground(java.lang.Object[])> android.permission.WAKE_LOCK -> _NONE_
 <com.android.internal.telephony.cat.IconLoader: void loadIcon(int,android.os.Message)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.mms.transaction.MessageStatusService: void onHandleIntent(android.content.Intent)> android.permission.READ_SMS android.permission.SEND_SMS android.permission.WRITE_SMS android.permission.VIBRATE android.permission.RECEIVE_SMS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.WAKE_LOCK -> _NONE_
@@ -2980,7 +2979,6 @@
 <android.bluetooth.IBluetooth: void removeServiceRecord(int)> android.permission.BLUETOOTH -> _NONE_
 <android.filterpacks.imageproc.CropRectFilter: void performClose(android.filterfw.core.FilterContext)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.server.sip.SipWakeLock: void acquire(java.lang.Object)> android.permission.WAKE_LOCK -> _NONE_
-<android.location.ILocationManager$Stub$Proxy: void requestLocationUpdatesPI(java.lang.String,android.location.Criteria,long,float,boolean,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.server.am.ActivityManagerService: void wakingUp()> android.permission.WAKE_LOCK -> _NONE_
 <com.android.gallery3d.data.LocalAlbumSet: long reload()> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <android.bluetooth.BluetoothHeadset: boolean connectHeadsetInternal(android.bluetooth.BluetoothDevice)> android.permission.BLUETOOTH android.permission.WRITE_SETTINGS android.permission.BLUETOOTH_ADMIN android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
@@ -3229,7 +3227,6 @@
 <com.android.exchange.EasSyncService: boolean tryProvision(com.android.exchange.EasSyncService)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.email.Controller: void serviceLogging(int)> android.permission.READ_PHONE_STATE -> _NONE_
 <com.android.contacts.model.AccountTypeManagerImpl: java.util.Map access$400(com.android.contacts.model.AccountTypeManagerImpl,android.content.Context)> android.permission.READ_SOCIAL_STREAM android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
-<android.location.ILocationManager: void requestLocationUpdatesPI(java.lang.String,android.location.Criteria,long,float,boolean,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _NONE_
 <com.android.gallery3d.gadget.MediaSetSource: void reload()> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <com.android.browser.SnapshotTab: void <init>(com.android.browser.WebViewController,long)> android.permission.INTERNET com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
 <android.bluetooth.BluetoothDeviceProfileState: void cancelCommand(int)> android.permission.BLUETOOTH -> _NONE_
@@ -3282,7 +3279,6 @@
 <com.android.inputmethod.keyboard.KeyboardSwitcher: void onPressKey(int)> android.permission.READ_SOCIAL_STREAM android.permission.VIBRATE android.permission.READ_CONTACTS android.permission.READ_USER_DICTIONARY android.permission.WRITE_CONTACTS -> _NONE_
 <com.android.phone.MobileNetworkSettings$MyHandler: void handleGetPreferredNetworkTypeResponse(android.os.Message)> android.permission.WRITE_SETTINGS android.permission.WAKE_LOCK -> _NONE_
 <com.android.calendar.DayView: boolean onLongClick(android.view.View)> android.permission.READ_CALENDAR -> _NONE_
-<android.location.ILocationManager$Stub$Proxy: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.contacts.list.DefaultContactBrowseListFragment: void finish()> android.permission.READ_PHONE_STATE android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.GET_ACCOUNTS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
 <com.android.gallery3d.app.AbstractGalleryActivity: void onBackPressed()> android.permission.NFC android.permission.CAMERA android.permission.ACCESS_FINE_LOCATION android.permission.VIBRATE android.permission.ACCESS_COARSE_LOCATION android.permission.RECORD_AUDIO android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <com.android.browser.PieControl: void access$000(com.android.browser.PieControl)> com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
@@ -3345,7 +3341,6 @@
 <com.android.mms.ui.ComposeMessageActivity: void loadMessageContent()> android.permission.READ_SMS android.permission.WRITE_SMS -> _NONE_
 <com.android.internal.telephony.gsm.SIMFileHandler: void loadEFLinearFixed(int,int,android.os.Message)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.settings.bluetooth.BluetoothSettings: boolean onOptionsItemSelected(android.view.MenuItem)> android.permission.BLUETOOTH android.permission.BLUETOOTH_ADMIN -> _NONE_
-<android.location.LocationManager: void _requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.LocationListener,android.os.Looper)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SOURCE_
 <com.android.inputmethod.pinyin.SkbContainer: boolean onTouchEvent(android.view.MotionEvent)> android.permission.VIBRATE -> _NONE_
 <com.android.commands.monkey.Monkey: boolean getSystemInterfaces()> android.permission.RECEIVE_BOOT_COMPLETED android.permission.WAKE_LOCK -> _SOURCE_
 <com.android.commands.monkey.Monkey: int runMonkeyCycles()> android.permission.WRITE_SETTINGS -> _NONE_
@@ -3714,7 +3709,6 @@
 <android.nfc.tech.MifareUltralight: void connect()> android.permission.NFC -> _NONE_
 <com.android.contacts.list.ContactEntryListFragment: void onAttach(android.app.Activity)> android.permission.READ_PHONE_STATE android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.GET_ACCOUNTS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
 <com.android.phone.CallNotifier: void onUnknownConnectionAppeared(android.os.AsyncResult)> android.permission.READ_PHONE_STATE android.permission.BLUETOOTH android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
-<com.android.server.LocationManagerService: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.calendar.agenda.AgendaListView: void initView(android.content.Context)> android.permission.READ_CALENDAR -> _NONE_
 <com.android.settings.users.UserDetailsSettings: boolean onOptionsItemSelected(android.view.MenuItem)> android.permission.BLUETOOTH android.permission.READ_SYNC_SETTINGS android.permission.ACCESS_WIFI_STATE android.permission.BLUETOOTH_ADMIN -> _NONE_
 <com.android.inputmethod.keyboard.PointerTracker: void startLongPressTimer(com.android.inputmethod.keyboard.Key)> android.permission.READ_SOCIAL_STREAM android.permission.VIBRATE android.permission.READ_CONTACTS android.permission.READ_USER_DICTIONARY android.permission.WRITE_CONTACTS -> _NONE_
@@ -5059,7 +5053,6 @@
 <com.android.phone.BluetoothHandsfree$21: android.bluetooth.AtCommandResult handleActionCommand()> android.permission.READ_PHONE_STATE com.android.voicemail.permission.ADD_VOICEMAIL android.permission.BLUETOOTH android.permission.READ_SOCIAL_STREAM android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.READ_CALL_LOG android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <com.android.deskclock.SetAlarm: void saveAndExit()> android.permission.WRITE_SETTINGS -> _NONE_
 <com.android.launcher2.Launcher: void showFirstRunWorkspaceCling()> android.permission.GET_ACCOUNTS -> _NONE_
-<com.android.server.LocationManagerService: void requestLocationUpdatesPI(java.lang.String,android.location.Criteria,long,float,boolean,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.contacts.GroupMemberLoader: void <init>(android.content.Context,long,java.lang.String[])> android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
 <android.bluetooth.IBluetooth$Stub: void setBluetoothTethering(boolean)> android.permission.BLUETOOTH android.permission.CHANGE_NETWORK_STATE android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <com.android.internal.telephony.gsm.GsmConnection: void proceedAfterWaitChar()> android.permission.WAKE_LOCK -> _NONE_
@@ -5919,7 +5912,6 @@
 <com.android.server.VibratorService: void cancelVibrate(android.os.IBinder)> android.permission.VIBRATE -> _NONE_
 <com.android.exchange.adapter.ContactsSyncAdapter: boolean isSyncable()> android.permission.READ_SYNC_SETTINGS -> _SOURCE_
 <com.android.mms.ui.MmsThumbnailPresenter: void present(com.android.mms.util.ItemLoadedCallback)> android.permission.READ_SMS android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.WAKE_LOCK -> _NONE_
-<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.location.LocationListener,android.os.Looper)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.browser.BrowserYesNoPreference: void onDialogClosed(boolean)> com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
 <com.android.internal.telephony.CallManager: void hangupForegroundResumeBackground(com.android.internal.telephony.Call)> android.permission.WAKE_LOCK -> _SINK_ 
 <com.android.settings.RadioInfo$21: void onClick(android.view.View)> android.permission.WAKE_LOCK -> _NONE_
@@ -6078,7 +6070,6 @@
 <com.android.mms.ui.ClassZeroActivity$3: void onClick(android.content.DialogInterface,int)> android.permission.READ_SMS android.permission.SEND_SMS android.permission.WRITE_SMS android.permission.RECEIVE_SMS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
 <android.content.IContentService: void addPeriodicSync(android.accounts.Account,java.lang.String,android.os.Bundle,long)> android.permission.WRITE_SYNC_SETTINGS -> _SINK_ 
 <com.android.browser.NavScreen: void access$100(com.android.browser.NavScreen,com.android.browser.Tab)> android.permission.INTERNET com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
-<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.location.LocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.inputmethod.latin.LatinIME: void access$300(com.android.inputmethod.latin.LatinIME,android.view.inputmethod.EditorInfo,boolean)> android.permission.READ_SOCIAL_STREAM android.permission.READ_CONTACTS android.permission.READ_USER_DICTIONARY android.permission.WRITE_CONTACTS -> _NONE_
 <android.bluetooth.IBluetooth$Stub: boolean connectChannelToSink(android.bluetooth.BluetoothDevice,android.bluetooth.BluetoothHealthAppConfiguration,int)> android.permission.BLUETOOTH -> _NONE_
 <com.android.settings.wifi.WifiConfigInfo: void onResume()> android.permission.ACCESS_WIFI_STATE -> _NONE_
@@ -6833,7 +6824,6 @@
 <android.webkit.HTML5VideoViewProxy: void play(java.lang.String,int,int)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.internal.policy.impl.KeyguardViewMediator: void <init>(android.content.Context,com.android.internal.policy.impl.PhoneWindowManager,android.os.LocalPowerManager)> android.permission.USE_CREDENTIALS android.permission.WRITE_SETTINGS android.permission.MANAGE_ACCOUNTS android.permission.GET_ACCOUNTS android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <android.bluetooth.IBluetoothHeadset$Stub$Proxy: int getPriority(android.bluetooth.BluetoothDevice)> android.permission.BLUETOOTH_ADMIN -> _SOURCE_
-<android.location.LocationManager: void _requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SOURCE_
 <com.android.internal.widget.multiwaveview.GlowPadView: void handleMove(android.view.MotionEvent)> android.permission.READ_PHONE_STATE android.permission.USE_CREDENTIALS android.permission.BLUETOOTH android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.MANAGE_ACCOUNTS android.permission.WRITE_SOCIAL_STREAM android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.GET_ACCOUNTS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <com.android.gallery3d.ui.DownUpDetector$DownUpListener: void onUp(android.view.MotionEvent)> android.permission.NFC android.permission.VIBRATE -> _NONE_
 <com.android.email.activity.setup.AccountSettingsFragment: void onPause()> android.permission.WRITE_SYNC_SETTINGS -> _NONE_
@@ -6881,7 +6871,6 @@
 <android.media.effect.effects.FillLightEffect: void release()> android.permission.WAKE_LOCK -> _NONE_
 <com.android.browser.Controller: void setActiveTab(com.android.browser.Tab)> android.permission.INTERNET com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
 <com.android.music.IMediaPlaybackService$Stub$Proxy: void play()> android.permission.WAKE_LOCK -> _NONE_
-<android.location.ILocationManager: void requestLocationUpdates(java.lang.String,android.location.Criteria,long,float,boolean,android.location.ILocationListener)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _NONE_
 <com.android.nfc.NfcService$TagService: int setTimeout(int,int)> android.permission.NFC -> _NONE_
 <android.os.Vibrator: void cancel()> android.permission.VIBRATE -> _NONE_
 <com.android.phone.AccelerometerListener$1: void onSensorChanged(android.hardware.SensorEvent)> android.permission.BLUETOOTH android.permission.WAKE_LOCK -> _NONE_
@@ -9660,7 +9649,6 @@
 <com.android.phone.BluetoothHandsfree$4: android.bluetooth.AtCommandResult handleSetCommand(java.lang.Object[])> android.permission.READ_PHONE_STATE com.android.voicemail.permission.ADD_VOICEMAIL android.permission.BLUETOOTH android.permission.READ_SOCIAL_STREAM android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.READ_CALL_LOG android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <android.bluetooth.IBluetooth$Stub: int getBluetoothState()> android.permission.BLUETOOTH -> _SOURCE_
 <com.android.browser.NavTabScroller$2: void onAnimationEnd(android.animation.Animator)> android.permission.INTERNET com.android.browser.permission.WRITE_HISTORY_BOOKMARKS android.permission.GET_ACCOUNTS com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _NONE_
-<android.location.LocationManager: void requestLocationUpdates(long,float,android.location.Criteria,android.location.LocationListener,android.os.Looper)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.settings.SecuritySettings: void setNonMarketAppsAllowed(boolean)> android.permission.WRITE_SETTINGS -> _SINK_ 
 <com.android.phone.BluetoothHandsfree$2: android.bluetooth.AtCommandResult handleSetCommand(java.lang.Object[])> android.permission.READ_PHONE_STATE com.android.voicemail.permission.ADD_VOICEMAIL android.permission.BLUETOOTH android.permission.READ_SOCIAL_STREAM android.permission.BROADCAST_STICKY android.permission.VIBRATE android.permission.READ_CALL_LOG android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <com.android.providers.contacts.ContactsProvider2: void enforceSocialStreamReadPermission(android.net.Uri)> android.permission.READ_SOCIAL_STREAM -> _NONE_
@@ -9718,7 +9706,6 @@
 <android.app.backup.IBackupManager$Stub$Proxy: java.lang.String selectBackupTransport(java.lang.String)> android.permission.WRITE_SETTINGS -> _NONE_
 <com.android.common.widget.CompositeCursorAdapter: void bindView(android.view.View,int,android.database.Cursor,int)> android.permission.READ_SYNC_SETTINGS android.permission.READ_SOCIAL_STREAM android.permission.WRITE_SOCIAL_STREAM android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
 <com.android.phone.BluetoothHandsfree$19: android.bluetooth.AtCommandResult handleTestCommand()> com.android.voicemail.permission.ADD_VOICEMAIL android.permission.BLUETOOTH android.permission.READ_SOCIAL_STREAM android.permission.READ_CALL_LOG android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS android.permission.BLUETOOTH_ADMIN android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
-<android.location.LocationManager: void requestLocationUpdates(long,float,android.location.Criteria,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.email.activity.MessageViewFragmentBase$MessageViewAttachmentInfo: void <init>(android.content.Context,com.android.email.AttachmentInfo)> android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <com.android.internal.widget.PasswordEntryKeyboardView: boolean onTouchEvent(android.view.MotionEvent)> android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
 <com.android.exchange.EasOutboxService: android.os.Bundle validate(java.lang.Class,com.android.emailcommon.provider.HostAuth,android.content.Context)> android.permission.READ_CALENDAR android.permission.WAKE_LOCK -> _NONE_
@@ -11682,7 +11669,6 @@
 <com.android.internal.telephony.cdma.CDMALTEPhone: void notifyDataConnection(java.lang.String)> android.permission.BROADCAST_STICKY -> _SINK_ 
 <com.android.calendar.month.MonthByWeekAdapter: void init()> android.permission.READ_CALENDAR -> _NONE_
 <android.net.wifi.WifiStateMachine: void setCountryCode(java.lang.String,boolean)> android.permission.WRITE_SETTINGS -> _SINK_ 
-<android.location.LocationManager: void requestLocationUpdates(java.lang.String,long,float,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <android.filterpacks.base.FrameBranch: void open(android.filterfw.core.FilterContext)> android.permission.CAMERA android.permission.RECORD_AUDIO android.permission.WAKE_LOCK -> _NONE_
 <com.android.quicksearchbox.google.GoogleSuggestClient: boolean isNetworkConnected()> android.permission.ACCESS_NETWORK_STATE -> _SOURCE_
 <com.android.mms.data.WorkingMessage: void deleteDraftSmsMessage(long)> android.permission.READ_SMS android.permission.SEND_SMS android.permission.WRITE_SMS android.permission.RECEIVE_SMS android.permission.READ_CONTACTS android.permission.WRITE_CONTACTS -> _NONE_
@@ -12578,7 +12564,6 @@
 <android.provider.Browser: boolean canClearHistory(android.content.ContentResolver)> com.android.browser.permission.READ_HISTORY_BOOKMARKS -> _SINK_ 
 <com.android.nfc.NfcService$NfcServiceHandler: void dispatchTagEndpoint(com.android.nfc.DeviceHost$TagEndpoint)> android.permission.BLUETOOTH android.permission.WRITE_SETTINGS android.permission.BLUETOOTH_ADMIN -> _NONE_
 <com.android.server.input.InputManagerService$Callbacks: void notifyLidSwitchChanged(long,boolean)> android.permission.USE_CREDENTIALS android.permission.MANAGE_ACCOUNTS android.permission.GET_ACCOUNTS android.permission.WAKE_LOCK android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
-<android.location.ILocationManager$Stub: void requestLocationUpdatesPI(java.lang.String,android.location.Criteria,long,float,boolean,android.app.PendingIntent)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SINK_ 
 <com.android.calendar.agenda.AgendaByDayAdapter: void <init>(android.content.Context)> android.permission.READ_CALENDAR -> _NONE_
 <com.android.internal.policy.impl.PhoneFallbackEventHandler: boolean onKeyDown(int,android.view.KeyEvent)> android.permission.WAKE_LOCK -> _NONE_
 <com.android.server.am.ActivityManagerService: void ensureBootCompleted()> android.permission.RECEIVE_BOOT_COMPLETED android.permission.WAKE_LOCK -> _NONE_
@@ -12898,7 +12883,6 @@
 <com.android.camera.Camera: void onResume()> android.permission.NFC android.permission.CAMERA android.permission.ACCESS_FINE_LOCATION android.permission.VIBRATE android.permission.ACCESS_COARSE_LOCATION android.permission.RECORD_AUDIO android.permission.ACCESS_NETWORK_STATE -> _NONE_
 <com.android.calendar.DeleteEventHelper: void access$900(com.android.calendar.DeleteEventHelper)> android.permission.WRITE_CALENDAR android.permission.READ_CALENDAR -> _NONE_
 <com.android.phone.InCallScreen: void connectBluetoothAudio()> android.permission.BLUETOOTH android.permission.BLUETOOTH_ADMIN android.permission.MODIFY_AUDIO_SETTINGS -> _NONE_
-<com.android.server.LocationManagerService: void requestLocationUpdatesLocked(java.lang.String,long,float,boolean,com.android.server.LocationManagerService$Receiver)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SOURCE_
 <android.filterpacks.imageproc.CrossProcessFilter: void performProcess(android.filterfw.core.FilterContext)> android.permission.CAMERA android.permission.RECORD_AUDIO android.permission.WAKE_LOCK -> _NONE_
 <com.android.systemui.media.RingtonePlayer: void onConfigurationChanged(android.content.res.Configuration)> android.permission.VIBRATE -> _NONE_
 <android.bluetooth.BluetoothDevice: boolean setAlias(java.lang.String)> android.permission.BLUETOOTH -> _SINK_ 

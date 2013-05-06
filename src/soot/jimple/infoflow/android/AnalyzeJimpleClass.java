@@ -183,13 +183,7 @@ public class AnalyzeJimpleClass {
 					continue;
 				
 				// This is a real callback method
-				if (this.callbackMethods.containsKey(method.getName()))
-					this.callbackMethods.get(sootClass.getName()).add(new AndroidMethod(method));
-				else {
-					List<AndroidMethod> methods = new ArrayList<AndroidMethod>();
-					methods.add(new AndroidMethod(method));
-					this.callbackMethods.put(sootClass.getName(), methods);
-				}
+				checkAndAddMethod(method, sootClass);
 			}
 		}
 	}
