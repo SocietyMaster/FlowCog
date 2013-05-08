@@ -1073,7 +1073,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 								res = parseValue(val);
 								if (res == null) {
 									System.err.println("Could not parse resource " + keyStrings.get(entry.key)
-											+ ", skipping entry");
+											+ "of type " + Integer.toHexString(val.dataType) + ", skipping entry");
 									continue;
 								}
 							}

@@ -16,15 +16,7 @@ public class Class {
 	public void addMethod(String method){
 		methods.add(method);
 	}
-	
-	public void printClass(){
 		
-		for(int i=0;i<methods.size();i++){
-			
-			System.out.println("<" + className + ": " + methods.get(i) + ">");
-		}
-	}
-	
 	public List<String> getMethods(){
 		List<String> returnList = new ArrayList<String>();
 		for(int i = 0; i<methods.size();i++){
