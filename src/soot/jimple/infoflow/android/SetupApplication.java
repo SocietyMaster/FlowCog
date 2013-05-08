@@ -148,7 +148,25 @@ public class SetupApplication {
 								methods = new ArrayList<AndroidMethod>();
 								this.callbackMethods.put(lcentry.getKey().getName(), methods);
 							}
-							methods.add(new AndroidMethod(lcentry.getKey().getMethodByName(methodName)));
+							
+							// The callback may be declared directly in the class
+							// or in one of the superclasses
+							SootMethod callbackMethod = null;
+							SootClass callbackClass = lcentry.getKey();
+							while (callbackMethod == null) {
+								if (callbackClass.declaresMethodByName(methodName))
+									callbackMethod = callbackClass.getMethodByName(methodName);
+								if (callbackClass.hasSuperclass())
+									callbackClass = callbackClass.getSuperclass();
+								else
+									break;
+							}
+							if (callbackMethod == null) {
+								System.err.println("Callback method " + methodName + " not found in class "
+										+ lcentry.getKey().getName());
+								continue;
+							}
+							methods.add(new AndroidMethod(callbackMethod));
 						}
 				}
 				else
