@@ -251,7 +251,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 							ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg,
 							new HashSet<Stmt>(cfg.getMethodOf(sCallSite).getActiveBody().getUnits().size()));
 					if (idVal == null) {
-						System.out.println(cfg.getMethodOf(sCallSite).getActiveBody().toString());
+						System.err.println("Could not find assignment to local " + ((Local) ie.getArg(0)).getName()
+								+ " in method " + cfg.getMethodOf(sCallSite).getName());
 						return false;
 					}
 					else
