@@ -157,30 +157,6 @@ public class AndroidMethod extends SootMethodAndClass{
 		return s;
 	}
 	
-	@Override
-	public boolean equals(Object another) {
-		if (super.equals(another))
-			return true;
-		if (!(another instanceof AndroidMethod))
-			return false;
-		AndroidMethod otherMethod = (AndroidMethod) another;
-		
-		if (!this.getMethodName().equals(otherMethod.getMethodName()))
-			return false;
-		if (!this.getParameters().equals(otherMethod.getParameters()))
-			return false;
-		if (!this.getClassName().equals(otherMethod.getClassName()))
-			return false;
-		return true;
-	}
-	
-	@Override
-	public int hashCode() {
-		return this.getMethodName().hashCode()
-				+ this.getParameters().hashCode() * 5
-				+ this.getClassName().hashCode() * 7;
-	}
-
 	/**
 	 * Gets whether this method has been annotated as a source, sink or
 	 * neither nor.
