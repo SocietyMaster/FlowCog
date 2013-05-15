@@ -1,0 +1,12 @@
+#Fill the following paths to compile with jars:
+
+#Location of soot.jar
+soot.jar=
+
+#Location of FlowDroid infoflow jar
+infoflow.jar=
+
+
+
+
+# TODO: compile with projects checked out and recompile them with build.xml
