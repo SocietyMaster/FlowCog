@@ -138,8 +138,11 @@ public class Test {
 			final SetupApplication app = new SetupApplication();
 			app.setApkFileLocation(fullFilePath);
 			app.setAndroidJar(args[1]);
-			app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
-			app.calculateSourcesSinksEntrypoints("entrypoints-someLines.txt", "SourcesAndSinks.txt");
+			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
+				app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
+			else
+				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 			
 			if (DEBUG) {
 				app.printEntrypoints();

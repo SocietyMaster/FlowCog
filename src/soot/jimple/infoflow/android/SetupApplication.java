@@ -98,8 +98,7 @@ public class SetupApplication {
 	}
 
 	public void calculateSourcesSinksEntrypoints
-			(String entryPointsFile,
-			String sourceSinkFile) throws IOException {
+			(String sourceSinkFile) throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
 
 		// To look for callbacks, we need to start somewhere. We use the Android
