@@ -17,6 +17,9 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
 public class AndroidMethod extends SootMethodAndClass{
 
 	public enum CATEGORY {
+		// all categories
+		ALL,
+		
 		// SOURCES		
 		NO_CATEGORY,
 		HARDWARE_INFO,
@@ -54,7 +57,8 @@ public class AndroidMethod extends SootMethodAndClass{
 		SYSTEM_SETTINGS,
 		IMAGE,
 		BROWSER_INFORMATION,
-		NFC}
+		NFC
+	}
 
 	private final Set<String> permissions;
 	
