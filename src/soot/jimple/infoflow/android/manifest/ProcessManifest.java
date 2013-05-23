@@ -26,6 +26,7 @@ public class ProcessManifest {
 	
 	private Set<String> entryPointsClasses = new HashSet<String>();
 	private String packageName = "";
+	private String applicationName = "";
 	private Set<String> permissions = new HashSet<String>();
 	
 	/**
@@ -110,15 +111,10 @@ public class ProcessManifest {
 							
 							// Get the class name
 							attrValue = getAttributeValue(parser, "name");
-							if (attrValue.startsWith("."))
-								entryPointsClasses.add(this.packageName + attrValue);
-							else if (attrValue.substring(0, 1).equals(attrValue.substring(0, 1).toUpperCase()))
-								entryPointsClasses.add(this.packageName + "." + attrValue);
-							else
-								entryPointsClasses.add(attrValue);
+							entryPointsClasses.add(expandClassName(attrValue));
 						}
 						else if (tagName.equals("uses-permission")) {
-							String permissionName = getAttributeValue(parser, "android:name");
+							String permissionName = getAttributeValue(parser, "name");
 							// We probably don't want to do this in some cases, so leave it
 							// to the user
 							// permissionName = permissionName.substring(permissionName.lastIndexOf(".") + 1);
@@ -128,6 +124,12 @@ public class ProcessManifest {
 							// Check whether the application is disabled
 							String attrValue = getAttributeValue(parser, "enabled");
 							applicationEnabled = (attrValue == null || !attrValue.equals("false"));
+							
+							// Get the application name which is also the fully-qualified
+							// name of the custom application object
+							this.applicationName = getAttributeValue(parser, "name");
+							if (this.applicationName != null && !this.applicationName.isEmpty())
+								this.entryPointsClasses.add(expandClassName(this.applicationName));
 						}
 						break;
 					case XmlPullParser.END_TAG:
@@ -141,6 +143,21 @@ public class ProcessManifest {
 		}
 	}
 	
+	/**
+	 * Generates a full class name from a short class name by appending the
+	 * globally-defined package when necessary
+	 * @param className The class name to expand
+	 * @return The expanded class name for the given short name
+	 */
+	private String expandClassName(String className) {
+		if (className.startsWith("."))
+			return this.packageName + className;
+		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase()))
+			return this.packageName + "." + className;
+		else
+			return className;
+	}
+
 	private String getAttributeValue(AXmlResourceParser parser, String attributeName) {
 		for (int i = 0; i < parser.getAttributeCount(); i++)
 			if (parser.getAttributeName(i).equals(attributeName))
@@ -157,8 +174,14 @@ public class ProcessManifest {
 			this.packageName = rootElement.getAttribute("package");
 			
 			NodeList appsElement = rootElement.getElementsByTagName("application");
+			if (appsElement.getLength() > 1)
+				throw new RuntimeException("More than one application tag in manifest");
 			for (int appIdx = 0; appIdx < appsElement.getLength(); appIdx++) {
 				Element appElement = (Element) appsElement.item(appIdx);
+
+				this.applicationName = appElement.getAttribute("android:name");
+				if (this.applicationName != null && !this.applicationName.isEmpty())
+					this.entryPointsClasses.add(expandClassName(this.applicationName));
 
 				NodeList activities = appElement.getElementsByTagName("activity");
 				NodeList receivers = appElement.getElementsByTagName("receiver");
@@ -197,17 +220,19 @@ public class ProcessManifest {
 	}
 	
 	private void loadManifestEntry(Element activity, String baseClass, String packageName) {
+		if (activity.getAttribute("android:enabled").equals("false"))
+			return;
+		
 		String className = activity.getAttribute("android:name");		
-		if (className.startsWith("."))
-			entryPointsClasses.add(packageName + className);
-		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase()))
-			entryPointsClasses.add(packageName + "." + className);
-		else
-			entryPointsClasses.add(className);
+		entryPointsClasses.add(expandClassName(className));
 	}
 
 	public Set<String> getEntryPointClasses() {
 		return this.entryPointsClasses;
+	}
+	
+	public String getApplicationName() {
+		return this.applicationName;
 	}
 	
 	public Set<String> getPermissions() {
