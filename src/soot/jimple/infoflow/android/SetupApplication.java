@@ -113,6 +113,7 @@ public class SetupApplication {
 		this.resourcePackages = resParser.getPackages();
 		
 		soot.G.reset();
+		initializeSoot();
 
 		// Collect the callback interfaces implemented in the app's source code
 		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(this.entrypoints);
@@ -123,7 +124,7 @@ public class SetupApplication {
 		lfp.parseLayoutFile(apkFileLocation, entrypoints);
 		
 		// Run the soot-based operations
-		runSootBasedPhases();
+		PackManager.v().runPacks();
 
 		// Collect the results of the soot-based phases
 		for (Entry<String, List<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
@@ -191,10 +192,10 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Runs Soot and executes all analysis phases that have been registered so
-	 * far.
+	 * Initializes soot for running the soot-based phases of the application
+	 * metadata analysis
 	 */
-	private void runSootBasedPhases() {
+	private void initializeSoot() {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
@@ -219,7 +220,6 @@ public class SetupApplication {
 		SootMethod entryPoint = entryPointCreator.createDummyMain();
 		
 		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
-		PackManager.v().runPacks();
 	}
 
 	/**
