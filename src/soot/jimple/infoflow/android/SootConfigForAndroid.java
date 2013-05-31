@@ -3,10 +3,10 @@ package soot.jimple.infoflow.android;
 import java.util.LinkedList;
 import java.util.List;
 
-import soot.jimple.infoflow.config.IInfoflowSootConfig;
+import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.options.Options;
 
-public class SootConfigForAndroid implements IInfoflowSootConfig{
+public class SootConfigForAndroid implements IInfoflowConfig{
 
 	@Override
 	public void setSootOptions(Options options) {
