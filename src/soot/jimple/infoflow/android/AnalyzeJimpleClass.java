@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import soot.MethodOrMethodContext;
@@ -34,7 +35,8 @@ import soot.jimple.toolkits.callgraph.ReachableMethods;
 public class AnalyzeJimpleClass {
 
 	private final Set<String> entryPointClasses;
-	private final Map<String, List<AndroidMethod>> callbackMethods = new HashMap<String, List<AndroidMethod>>();
+	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>();
+	private final Map<String, Set<AndroidMethod>> callbackWorklist = new HashMap<String, Set<AndroidMethod>>();
 	private final Map<SootClass, Set<Integer>> layoutClasses = new HashMap<SootClass, Set<Integer>>();
 
 	public AnalyzeJimpleClass(Set<String> entryPointClasses) {
@@ -53,27 +55,64 @@ public class AnalyzeJimpleClass {
 				// Find the mappings between classes and layouts
 				findClassLayoutMappings();
 
+				// Process the callback classes directly reachable from the
+				// entry points
 				for (String className : entryPointClasses) {
 					SootClass sc = Scene.v().getSootClass(className);
 					List<MethodOrMethodContext> methods = new ArrayList<MethodOrMethodContext>();
 					methods.addAll(sc.getMethods());
-					ReachableMethods rm = new ReachableMethods(Scene.v().getCallGraph(), methods);
-					rm.update();
-
-					// Scan for listeners in the class hierarchy
-					Set<SootClass> reachableClasses = new HashSet<SootClass>(10000);
-					Iterator<MethodOrMethodContext> reachableMethods = rm.listener();
-					while (reachableMethods.hasNext()) {
-						SootClass curClass = reachableMethods.next().method().getDeclaringClass();
-						if (reachableClasses.add(curClass))
-							analyzeClass(curClass, sc);
-					}
+					analyzeRechableMethods(sc, methods);
 				}
+				System.out.println("Callback analysis done.");
 			}
 		});
 		PackManager.v().getPack("wjtp").add(transform);
 	}
 	
+	/**
+	 * Incrementally collects the callback methods for all Android default
+	 * handlers implemented in the source code. This just processes the contents
+	 * of the worklist.
+	 * Note that this operation runs inside Soot, so this method only registers
+	 * a new phase that will be executed when Soot is next run
+	 */
+	public void collectCallbackMethodsIncremental() {
+		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
+			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
+				// Process the worklist from last time
+				Map<String, Set<AndroidMethod>> workListCopy = new HashMap<String, Set<AndroidMethod>>
+					(callbackWorklist);
+				for (Entry<String, Set<AndroidMethod>> entry : workListCopy.entrySet()) {
+					List<MethodOrMethodContext> entryClasses = new ArrayList<MethodOrMethodContext>();
+					for (AndroidMethod am : entry.getValue()) {
+						entryClasses.add(Scene.v().getMethod(am.getSignature()));
+						callbackWorklist.get(entry.getKey()).remove(entry.getValue());
+						if (callbackWorklist.get(entry.getKey()).isEmpty())
+							callbackWorklist.remove(entry.getKey());
+					}
+					analyzeRechableMethods(Scene.v().getSootClass(entry.getKey()), entryClasses);
+				}
+				System.out.println("Incremental callback analysis done.");
+			}
+		});
+		PackManager.v().getPack("wjtp").add(transform);
+	}
+
+	private void analyzeRechableMethods(SootClass sc, List<MethodOrMethodContext> methods) {
+		ReachableMethods rm = new ReachableMethods(Scene.v().getCallGraph(), methods);
+		rm.update();
+
+		// Scan for listeners in the class hierarchy
+		Set<SootClass> reachableClasses = new HashSet<SootClass>(10000);
+		Iterator<MethodOrMethodContext> reachableMethods = rm.listener();
+		while (reachableMethods.hasNext()) {
+			SootMethod method = reachableMethods.next().method();
+			SootClass curClass = method.getDeclaringClass();
+			if (reachableClasses.add(curClass))
+				analyzeClass(curClass, sc);
+		}
+	}
+
 	/**
 	 * Finds the mappings between classes and their respective layout files
 	 */
@@ -1190,13 +1229,23 @@ public class AnalyzeJimpleClass {
 	private void checkAndAddMethod(SootMethod method, SootClass baseClass) {
 		AndroidMethod am = new AndroidMethod(method);
 		if (!am.getClassName().startsWith("android.")) {
+			boolean isNew;
 			if (this.callbackMethods.containsKey(baseClass.getName()))
-				this.callbackMethods.get(baseClass.getName()).add(am);
+				isNew = this.callbackMethods.get(baseClass.getName()).add(am);
 			else {
-				List<AndroidMethod> methods = new ArrayList<AndroidMethod>();
-				methods.add(am);
+				Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+				isNew = methods.add(am);
 				this.callbackMethods.put(baseClass.getName(), methods);
 			}
+			
+			if (isNew)
+				if (this.callbackWorklist.containsKey(baseClass.getName()))
+						this.callbackWorklist.get(baseClass.getName()).add(am);
+				else {
+					Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+					isNew = methods.add(am);
+					this.callbackWorklist.put(baseClass.getName(), methods);
+				}
 		}
 	}
 
@@ -1207,7 +1256,7 @@ public class AnalyzeJimpleClass {
 		return interfaces;
 	}
 	
-	public Map<String, List<AndroidMethod>> getCallbackMethods() {
+	public Map<String, Set<AndroidMethod>> getCallbackMethods() {
 		return this.callbackMethods;
 	}
 	

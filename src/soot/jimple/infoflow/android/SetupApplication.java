@@ -36,7 +36,7 @@ public class SetupApplication {
 
 	private Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
 	private Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
-	private Map<String, List<AndroidMethod>> callbackMethods = new HashMap<String, List<AndroidMethod>>(10000);
+	private Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
 	private Set<String> entrypoints = null;
 	
@@ -111,29 +111,44 @@ public class SetupApplication {
 		ARSCFileParser resParser = new ARSCFileParser();
 		resParser.parse(apkFileLocation);
 		this.resourcePackages = resParser.getPackages();
-		
-		soot.G.reset();
-		initializeSoot();
 
-		// Collect the callback interfaces implemented in the app's source code
-		AnalyzeJimpleClass jimpleClass = new AnalyzeJimpleClass(this.entrypoints);
-		jimpleClass.collectCallbackMethods();
-		
-		// Find the user-defined sources in the layout XML files
+		AnalyzeJimpleClass jimpleClass = null;
 		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName);
-		lfp.parseLayoutFile(apkFileLocation, entrypoints);
 		
-		// Run the soot-based operations
-		PackManager.v().runPacks();
+		boolean hasChanged = true;
+		while (hasChanged) {
+			hasChanged = false;
+			soot.G.reset();
+			initializeSoot();
+	
+			if (jimpleClass == null) {
+				// Collect the callback interfaces implemented in the app's source code
+				jimpleClass = new AnalyzeJimpleClass(entrypoints);
+				jimpleClass.collectCallbackMethods();
 
-		// Collect the results of the soot-based phases
-		for (Entry<String, List<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
-			if (this.callbackMethods.containsKey(entry.getKey()))
-				this.callbackMethods.get(entry.getKey()).addAll(entry.getValue());
+				// Find the user-defined sources in the layout XML files
+				lfp.parseLayoutFile(apkFileLocation, entrypoints);
+			}
 			else
-				this.callbackMethods.put(entry.getKey(), new ArrayList<AndroidMethod>(entry.getValue()));
+				jimpleClass.collectCallbackMethodsIncremental();
+			
+			
+			// Run the soot-based operations
+			PackManager.v().runPacks();
+			
+			// Collect the results of the soot-based phases
+			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
+				if (this.callbackMethods.containsKey(entry.getKey())) {
+					if (this.callbackMethods.get(entry.getKey()).addAll(entry.getValue()))
+						hasChanged = true;
+				}
+				else {
+					this.callbackMethods.put(entry.getKey(), new HashSet<AndroidMethod>(entry.getValue()));
+					hasChanged = true;
+				}
+			}
+			this.layoutControls = lfp.getUserControls();
 		}
-		this.layoutControls = lfp.getUserControls();
 		
 		// Collect the XML-based callback methods
 		for (Entry<SootClass, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet())
@@ -143,9 +158,9 @@ public class SetupApplication {
 					StringResource strRes = (StringResource) resource;
 					if (lfp.getCallbackMethods().containsKey(strRes.getValue()))
 						for (String methodName : lfp.getCallbackMethods().get(strRes.getValue())) {
-							List<AndroidMethod> methods = this.callbackMethods.get(lcentry.getKey().getName());
+							Set<AndroidMethod> methods = this.callbackMethods.get(lcentry.getKey().getName());
 							if (methods == null) {
-								methods = new ArrayList<AndroidMethod>();
+								methods = new HashSet<AndroidMethod>();
 								this.callbackMethods.put(lcentry.getKey().getName(), methods);
 							}
 							
@@ -172,7 +187,11 @@ public class SetupApplication {
 				else
 					System.err.println("Unexpected resource type for layout class");
 			}
-		System.out.println("Found " + this.callbackMethods.size() + " callback methods");
+		Set<AndroidMethod> callbacksPlain = new HashSet<AndroidMethod>();
+		for (Set<AndroidMethod> set : this.callbackMethods.values())
+			callbacksPlain.addAll(set);
+		System.out.println("Found " + callbacksPlain.size() + " callback methods for "
+				+ this.callbackMethods.size() + " components");
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		for (AndroidMethod am : parser.parse()){
@@ -194,8 +213,9 @@ public class SetupApplication {
 	/**
 	 * Initializes soot for running the soot-based phases of the application
 	 * metadata analysis
+	 * @return The entry point used for running soot
 	 */
-	private void initializeSoot() {
+	private SootMethod initializeSoot() {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
@@ -215,11 +235,9 @@ public class SetupApplication {
 			c.setApplicationClass();	
 		}
 
-		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
-			(new ArrayList<String>(this.entrypoints));
-		SootMethod entryPoint = entryPointCreator.createDummyMain();
-		
+		SootMethod entryPoint = getEntryPointCreator().createDummyMain();
 		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
+		return entryPoint;
 	}
 
 	/**
@@ -238,7 +256,7 @@ public class SetupApplication {
 			info.setSootConfig(new SootConfigForAndroid());
 			
 			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
-			for (List<AndroidMethod> methods : this.callbackMethods.values())
+			for (Set<AndroidMethod> methods : this.callbackMethods.values())
 				callbacks.addAll(methods);
 			
 			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
@@ -247,16 +265,7 @@ public class SetupApplication {
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			
-			AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
-				(new ArrayList<String>(this.entrypoints));
-			Map<String, List<String>> callbackMethodSigs = new HashMap<String, List<String>>();
-			for (String className : this.callbackMethods.keySet()) {
-				List<String> methodSigs = new ArrayList<String>();
-				callbackMethodSigs.put(className, methodSigs);
-				for (AndroidMethod am : this.callbackMethods.get(className))
-					methodSigs.add(am.getSignature());
-			}
-			entryPointCreator.setCallbackFunctions(callbackMethodSigs);
+			AndroidEntryPointCreator entryPointCreator = getEntryPointCreator();
 			
 			System.out.println("Starting infoflow computation...");
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
@@ -266,6 +275,20 @@ public class SetupApplication {
 		catch (IOException ex) {
 			throw new RuntimeException("Error processing taint wrapper file", ex);
 		}
+	}
+
+	private AndroidEntryPointCreator getEntryPointCreator() {
+		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
+			(new ArrayList<String>(this.entrypoints));
+		Map<String, List<String>> callbackMethodSigs = new HashMap<String, List<String>>();
+		for (String className : this.callbackMethods.keySet()) {
+			List<String> methodSigs = new ArrayList<String>();
+			callbackMethodSigs.put(className, methodSigs);
+			for (AndroidMethod am : this.callbackMethods.get(className))
+				methodSigs.add(am.getSignature());
+		}
+		entryPointCreator.setCallbackFunctions(callbackMethodSigs);
+		return entryPointCreator;
 	}
 	
 }
