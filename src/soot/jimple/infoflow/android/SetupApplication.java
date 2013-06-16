@@ -187,11 +187,13 @@ public class SetupApplication {
 				else
 					System.err.println("Unexpected resource type for layout class");
 			}
+		{
 		Set<AndroidMethod> callbacksPlain = new HashSet<AndroidMethod>();
 		for (Set<AndroidMethod> set : this.callbackMethods.values())
 			callbacksPlain.addAll(set);
 		System.out.println("Found " + callbacksPlain.size() + " callback methods for "
 				+ this.callbackMethods.size() + " components");
+		}
 
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		for (AndroidMethod am : parser.parse()){
