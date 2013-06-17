@@ -18,6 +18,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -38,6 +39,8 @@ public class SetupApplication {
 	private Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
 	private Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
+	private PathTrackingMethod pathTracking = PathTrackingMethod.NoTracking;
+
 	private Set<String> entrypoints = null;
 	
 	private Map<Integer, LayoutControl> layoutControls;
@@ -270,6 +273,7 @@ public class SetupApplication {
 			AndroidEntryPointCreator entryPointCreator = getEntryPointCreator();
 			
 			System.out.println("Starting infoflow computation...");
+			info.setPathTracking(pathTracking);
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 					sourceSinkManager);
 			return info.getResults();
@@ -293,4 +297,14 @@ public class SetupApplication {
 		return entryPointCreator;
 	}
 	
+	/**
+	 * Sets whether and how data leakage paths through the application shall be
+	 * tracked
+	 * @param method The mode for tracking data leakage paths through the
+	 * application
+	 */
+	public void setPathTracking(PathTrackingMethod method) {
+		this.pathTracking = method;
+	}
+
 }
