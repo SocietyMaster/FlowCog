@@ -1228,7 +1228,8 @@ public class AnalyzeJimpleClass {
 	 */
 	private void checkAndAddMethod(SootMethod method, SootClass baseClass) {
 		AndroidMethod am = new AndroidMethod(method);
-		if (!am.getClassName().startsWith("android.")) {
+		if (!am.getClassName().startsWith("android.")
+				&& !am.getClassName().startsWith("java.")) {
 			boolean isNew;
 			if (this.callbackMethods.containsKey(baseClass.getName()))
 				isNew = this.callbackMethods.get(baseClass.getName()).add(am);
