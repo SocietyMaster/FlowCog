@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
 import soot.jimple.infoflow.android.SetupApplication;
 
 public class Test {
@@ -26,6 +27,7 @@ public class Test {
 			System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");	
 			return;
 		}
+		
 		//start with cleanup:
 		File outputDir = new File("JimpleOutput");
 		if (outputDir.isDirectory()){
@@ -143,6 +145,7 @@ public class Test {
 			else
 				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+//			app.setPathTracking(PathTrackingMethod.ForwardTracking);
 			
 			if (DEBUG) {
 				app.printEntrypoints();
