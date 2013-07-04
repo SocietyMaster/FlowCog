@@ -116,7 +116,7 @@ public class SetupApplication {
 		this.resourcePackages = resParser.getPackages();
 
 		AnalyzeJimpleClass jimpleClass = null;
-		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName);
+		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName, resParser);
 		
 		boolean hasChanged = true;
 		while (hasChanged) {
@@ -129,12 +129,12 @@ public class SetupApplication {
 				jimpleClass = new AnalyzeJimpleClass(entrypoints);
 				jimpleClass.collectCallbackMethods();
 
-				// Find the user-defined sources in the layout XML files
+				// Find the user-defined sources in the layout XML files. This
+				// only needs to be done once, but is a Soot phase.
 				lfp.parseLayoutFile(apkFileLocation, entrypoints);
 			}
 			else
 				jimpleClass.collectCallbackMethodsIncremental();
-			
 			
 			// Run the soot-based operations
 			PackManager.v().runPacks();
@@ -213,6 +213,9 @@ public class SetupApplication {
 		sinks.add(setResult);
 		
 		System.out.println("Entry point calculation done.");
+		
+		// Clean up everything we no longer need
+		soot.G.reset();
 	}
 
 	/**

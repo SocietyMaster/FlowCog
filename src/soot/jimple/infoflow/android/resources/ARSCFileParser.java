@@ -295,6 +295,11 @@ public class ARSCFileParser extends AbstractResourceParser {
 						return res;
 			return null;
 		}
+		
+		@Override
+		public String toString() {
+			return this.typeName;
+		}
 	}
 	
 	/**
@@ -372,6 +377,11 @@ public class ARSCFileParser extends AbstractResourceParser {
 		}
 		
 		public String getValue() {
+			return this.value;
+		}
+		
+		@Override
+		public String toString() {
 			return this.value;
 		}
 	}

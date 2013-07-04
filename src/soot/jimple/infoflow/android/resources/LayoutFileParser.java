@@ -15,6 +15,8 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.Transform;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 
 /**
  * Parser for analyzing the layout XML files inside an android application
@@ -28,18 +30,26 @@ public class LayoutFileParser extends AbstractResourceParser {
 	
 	private final Map<Integer, LayoutControl> userControls = new HashMap<Integer, LayoutControl>();
 	private final Map<String, Set<String>> callbackMethods = new HashMap<String, Set<String>>();
+	private final Map<String, Set<String>> includeDependencies = new HashMap<String, Set<String>>();
 	private final String packageName;
+	private final ARSCFileParser resParser;
 	
 	private final static int TYPE_NUMBER_VARIATION_PASSWORD = 0x00000010;
 	private final static int TYPE_TEXT_VARIATION_PASSWORD = 0x00000080;
 	private final static int TYPE_TEXT_VARIATION_VISIBLE_PASSWORD = 0x00000090;
 	private final static int TYPE_TEXT_VARIATION_WEB_PASSWORD = 0x000000e0;
 	
-	public LayoutFileParser(String packageName) {
+	public LayoutFileParser(String packageName, ARSCFileParser resParser) {
 		this.packageName = packageName;
+		this.resParser = resParser;
 	}
 	
 	private SootClass getLayoutClass(String className) {
+		if (className.contains("(") || className.contains("<") || className.contains("/")) {
+			System.err.println("Invalid class name " + className);
+			return null;
+		}
+		
 		SootClass sc = Scene.v().forceResolve(className, SootClass.BODIES);
 		if ((sc == null || sc.isPhantom()) && !packageName.isEmpty())
 			sc = Scene.v().forceResolve(packageName + "." + className, SootClass.BODIES);
@@ -47,9 +57,11 @@ public class LayoutFileParser extends AbstractResourceParser {
 			sc = Scene.v().forceResolve("android.widget." + className, SootClass.BODIES);
 		if (sc == null || sc.isPhantom())
 			sc = Scene.v().forceResolve("android.webkit." + className, SootClass.BODIES);
-		if (sc == null || sc.isPhantom())
+		if (sc == null || sc.isPhantom()) {
    			System.err.println("Could not find layout class " + className);
-		return sc;
+   			return null;
+		}
+		return sc;		
 	}
 	
 	private boolean isLayoutClass(SootClass theClass) {
@@ -88,6 +100,92 @@ public class LayoutFileParser extends AbstractResourceParser {
    		return true;
 	}
 	
+	/**
+	 * Checks whether the given namespace belongs to the Android operating system
+	 * @param ns The namespace to check
+	 * @return True if the namespace belongs to Android, otherwise false
+	 */
+	private boolean isAndroidNamespace(String ns) {
+		if (ns == null)
+			return false;
+		ns = ns.trim();
+		if (ns.startsWith("*"))
+			ns = ns.substring(1);
+		if (!ns.equals("http://schemas.android.com/apk/res/android"))
+			return false;
+		return true;
+	}
+	
+	private <X,Y> void addToMapSet(Map<X, Set<Y>> target, X layoutFile, Y callback) {
+		if (target.containsKey(layoutFile))
+			target.get(layoutFile).add(callback);
+		else {
+			Set<Y> callbackSet = new HashSet<Y>();
+			callbackSet.add(callback);
+			target.put(layoutFile, callbackSet);
+		}
+	}
+
+	/**
+	 * Adds a callback method found in an XML file to the result set
+	 * @param layoutFile The XML file in which the callback has been found
+	 * @param callback The callback found in the given XML file
+	 */
+	private void addCallbackMethod(String layoutFile, String callback) {
+		addToMapSet(callbackMethods, layoutFile, callback);
+		
+		// Recursively process any dependencies we might have collected before
+		// we have processed the target
+		if (includeDependencies.containsKey(layoutFile))
+			for (String target : includeDependencies.get(layoutFile))
+				addCallbackMethod(target, callback);
+	}
+	
+	/**
+	 * Parser for "include" directives in layout XML files
+	 */
+	private class IncludeParser extends NodeVisitor {
+		
+		private final String layoutFile;
+
+    	public IncludeParser(String layoutFile) {
+    		this.layoutFile = layoutFile;
+    	}
+    	
+    	@Override
+    	public void attr(String ns, String name, int resourceId, int type, Object obj) {
+    		// Is this the target file attribute?
+    		name = name.trim();
+    		if (name.equals("layout")) {
+    			if (type == AxmlVisitor.TYPE_REFERENCE && obj instanceof Integer) {
+    				// We need to get the target XML file from the binary manifest
+    				AbstractResource targetRes = resParser.findResource((Integer) obj);
+    				if (!(targetRes instanceof StringResource)) {
+    					System.err.println("Invalid target node for include tag in layout XML");
+    					return;
+    				}
+    				String targetFile = ((StringResource) targetRes).getValue();
+    				
+    				// If we have already processed the target file, we can
+    				// simply copy the callbacks we have found there
+        			if (callbackMethods.containsKey(targetFile))
+        				for (String callback : callbackMethods.get(targetFile))
+        					addCallbackMethod(layoutFile, callback);
+        			else {
+        				// We need to record a dependency to resolve later
+        				addToMapSet(includeDependencies, targetFile, layoutFile);
+        			}
+    			}
+    		}
+    		
+    		super.attr(ns, name, resourceId, type, obj);
+    	}
+    	
+	}
+	
+	/**
+	 * Parser for layout components defined in XML files
+	 */
 	private class LayoutParser extends NodeVisitor {
 
 		private final String layoutFile;
@@ -102,28 +200,28 @@ public class LayoutFileParser extends AbstractResourceParser {
 
     	@Override
        	public NodeVisitor child(String ns, String name) {
-    		if (name == null) {
-    			System.err.println("Encountered a null node name "
+    		if (name == null || name.isEmpty()) {
+    			System.err.println("Encountered a null or empty node name "
     					+ "in file " + layoutFile + ", skipping node...");
     			return null;
     		}
-    			
-			final SootClass childClass = getLayoutClass(name.trim());
-			if (isLayoutClass(childClass) || isViewClass(childClass))
+    		
+    		// Check for inclusions
+    		name = name.trim();
+    		if (name.equals("include"))
+    			return new IncludeParser(layoutFile);
+    		
+			final SootClass childClass = getLayoutClass(name);
+			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
        			return new LayoutParser(layoutFile, childClass);
 			else
 				return super.child(ns, name);
        	}
-		        	
+		
     	@Override
     	public void attr(String ns, String name, int resourceId, int type, Object obj) {
     		// Check that we're actually working on an android attribute
-    		if (ns == null)
-    			return;
-    		ns = ns.trim();
-    		if (ns.startsWith("*"))
-    			ns = ns.substring(1);
-    		if (!ns.equals("http://schemas.android.com/apk/res/android"))
+    		if (!isAndroidNamespace(ns))
     			return;
 
     		// Read out the field data
@@ -141,13 +239,7 @@ public class LayoutFileParser extends AbstractResourceParser {
     		}
     		else if (isActionListener(name) && type == AxmlVisitor.TYPE_STRING && obj instanceof String) {
     			String strData = ((String) obj).trim();
-    			if (callbackMethods.containsKey(layoutFile))
-    				callbackMethods.get(layoutFile).add(strData);
-    			else {
-    				Set<String> callbackSet = new HashSet<String>();
-    				callbackSet.add(strData);
-    				callbackMethods.put(layoutFile, callbackSet);
-    			}
+    			addCallbackMethod(layoutFile, strData);
     		}
     		else {
     			if (DEBUG && type == AxmlVisitor.TYPE_STRING)
