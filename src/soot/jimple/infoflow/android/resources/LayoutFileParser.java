@@ -54,6 +54,8 @@ public class LayoutFileParser extends AbstractResourceParser {
 		if ((sc == null || sc.isPhantom()) && !packageName.isEmpty())
 			sc = Scene.v().forceResolve(packageName + "." + className, SootClass.BODIES);
 		if (sc == null || sc.isPhantom())
+			sc = Scene.v().forceResolve("android.view." + className, SootClass.BODIES);
+		if (sc == null || sc.isPhantom())
 			sc = Scene.v().forceResolve("android.widget." + className, SootClass.BODIES);
 		if (sc == null || sc.isPhantom())
 			sc = Scene.v().forceResolve("android.webkit." + className, SootClass.BODIES);
@@ -155,8 +157,8 @@ public class LayoutFileParser extends AbstractResourceParser {
     	@Override
     	public void attr(String ns, String name, int resourceId, int type, Object obj) {
     		// Is this the target file attribute?
-    		name = name.trim();
-    		if (name.equals("layout")) {
+    		String tname = name.trim();
+    		if (tname.equals("layout")) {
     			if (type == AxmlVisitor.TYPE_REFERENCE && obj instanceof Integer) {
     				// We need to get the target XML file from the binary manifest
     				AbstractResource targetRes = resParser.findResource((Integer) obj);
@@ -207,11 +209,11 @@ public class LayoutFileParser extends AbstractResourceParser {
     		}
     		
     		// Check for inclusions
-    		name = name.trim();
-    		if (name.equals("include"))
+    		String tname = name.trim();
+    		if (tname.equals("include"))
     			return new IncludeParser(layoutFile);
     		
-			final SootClass childClass = getLayoutClass(name);
+			final SootClass childClass = getLayoutClass(tname);
 			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
        			return new LayoutParser(layoutFile, childClass);
 			else
@@ -225,26 +227,28 @@ public class LayoutFileParser extends AbstractResourceParser {
     			return;
 
     		// Read out the field data
-    		name = name.trim();
-    		if (name.equals("id") && type == AxmlVisitor.TYPE_REFERENCE)
+    		String tname = name.trim();
+    		if (tname.equals("id") && type == AxmlVisitor.TYPE_REFERENCE)
     			this.id = (Integer) obj;
-    		else if (name.equals("password") && type == AxmlVisitor.TYPE_INT_BOOLEAN)
+    		else if (tname.equals("password") && type == AxmlVisitor.TYPE_INT_BOOLEAN)
     			isSensitive = ((Integer) obj) != 0; // -1 for true, 0 for false
-    		else if (!isSensitive && name.equals("inputType") && type == AxmlVisitor.TYPE_INT_HEX) {
+    		else if (!isSensitive && tname.equals("inputType") && type == AxmlVisitor.TYPE_INT_HEX) {
     			int tp = (Integer) obj;
     			isSensitive = ((tp & TYPE_NUMBER_VARIATION_PASSWORD) == TYPE_NUMBER_VARIATION_PASSWORD)
     					|| ((tp & TYPE_TEXT_VARIATION_PASSWORD) == TYPE_TEXT_VARIATION_PASSWORD)
     					|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
     					|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
     		}
-    		else if (isActionListener(name) && type == AxmlVisitor.TYPE_STRING && obj instanceof String) {
+    		else if (isActionListener(tname) && type == AxmlVisitor.TYPE_STRING && obj instanceof String) {
     			String strData = ((String) obj).trim();
     			addCallbackMethod(layoutFile, strData);
     		}
     		else {
     			if (DEBUG && type == AxmlVisitor.TYPE_STRING)
-    				System.out.println("Found unrecognized XML attribute:  " + name);
+    				System.out.println("Found unrecognized XML attribute:  " + tname);
     		}
+    		
+    		super.attr(ns, name, resourceId, type, obj);
     	}
     	
 		/**
