@@ -153,6 +153,11 @@ public class AnalyzeJimpleClass {
 	 * to which the callback methods belong
 	 */
 	private void analyzeClass(SootClass sootClass, SootClass lifecycleElement) {
+		// Do not analyze system classes
+		if (sootClass.getName().startsWith("android.")
+				|| sootClass.getName().startsWith("java."))
+			return;
+		
 		// Check for callback handlers implemented via interfaces
 		analyzeClassInterfaceCallbacks(sootClass, sootClass, lifecycleElement);
 
