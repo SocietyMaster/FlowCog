@@ -5,13 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import soot.Scene;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
 
@@ -20,7 +20,7 @@ import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
  * 
  * @author Siegfried Rasthofer
  */
-public class CategorizedAndroidSourceSinkParser implements IPermissionMethodParser{
+public class CategorizedAndroidSourceSinkParser{
 	private Set<CATEGORY> categories;
 	private final String fileName;
 	
@@ -32,9 +32,8 @@ public class CategorizedAndroidSourceSinkParser implements IPermissionMethodPars
 	}
 
 	
-	@Override
-	public Set<AndroidMethod> parse() throws IOException {
-		Set<AndroidMethod> methodList = new HashSet<AndroidMethod>();
+	public HashMap<String, Set<AndroidMethod>> parse() throws IOException {
+		HashMap<String, Set<AndroidMethod>> catMethodMap = new HashMap<String, Set<AndroidMethod>>();
 		
 		BufferedReader rdr = readFile();
 		
@@ -47,7 +46,13 @@ public class CategorizedAndroidSourceSinkParser implements IPermissionMethodPars
 				CATEGORY cat = CATEGORY.valueOf(m.group(5));
 				if(cat == CATEGORY.ALL || categories.contains(cat)){
 					AndroidMethod method = parseMethod(m);
-					methodList.add(method);
+					if(catMethodMap.containsKey(cat.toString()))
+						catMethodMap.get(cat.toString()).add(method);
+					else{
+						Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+						methods.add(method);
+						catMethodMap.put(cat.toString(), methods);
+					}
 				}
 			}
 		}
@@ -59,7 +64,7 @@ public class CategorizedAndroidSourceSinkParser implements IPermissionMethodPars
 			e.printStackTrace();
 		}
 		
-		return methodList;
+		return catMethodMap;
 	}
 		
 	private BufferedReader readFile(){
