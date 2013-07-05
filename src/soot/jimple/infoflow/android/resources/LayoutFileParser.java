@@ -84,11 +84,11 @@ public class LayoutFileParser extends AbstractResourceParser {
 	private boolean isViewClass(SootClass theClass) {
 		if (theClass == null)
 			return false;
-
+		
 		// To make sure that nothing all wonky is going on here, we
    		// check the hierarchy to find the android view class
    		boolean found = false;
-   		for (SootClass parent : Scene.v().getActiveHierarchy().getSuperclassesOf(theClass))
+   		for (SootClass parent : Scene.v().getActiveHierarchy().getSuperclassesOfIncluding(theClass))
    			if (parent.getName().equals("android.view.View")
    					|| parent.getName().equals("android.webkit.WebView")) {
    				found = true;
