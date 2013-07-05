@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import soot.Local;
+import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.AssignStmt;
+import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
@@ -24,6 +26,8 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
+import soot.tagkit.IntegerConstantValueTag;
+import soot.tagkit.Tag;
 
 /**
  * SourceManager implementation for AndroidSources
@@ -252,7 +256,7 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 							new HashSet<Stmt>(cfg.getMethodOf(sCallSite).getActiveBody().getUnits().size()));
 					if (idVal == null) {
 						System.err.println("Could not find assignment to local " + ((Local) ie.getArg(0)).getName()
-								+ " in method " + cfg.getMethodOf(sCallSite).getName());
+								+ " in method " + cfg.getMethodOf(sCallSite).getSignature());
 						return false;
 					}
 					else
@@ -299,8 +303,15 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 				// ok, now find the new value from the right side
 				if (assign.getRightOp() instanceof IntConstant)
 					return ((IntConstant) assign.getRightOp()).value;
-				
-				if (assign.getRightOp() instanceof InvokeExpr) {
+				else if (assign.getRightOp() instanceof FieldRef) {
+					SootField field = ((FieldRef) assign.getRightOp()).getField();
+					for (Tag tag : field.getTags())
+						if (tag instanceof IntegerConstantValueTag)
+							return ((IntegerConstantValueTag) tag).getIntValue();
+						else
+							System.err.println("Constant " + field + " was of unexpected type");
+				}
+				else if (assign.getRightOp() instanceof InvokeExpr) {
 					InvokeExpr inv = (InvokeExpr) assign.getRightOp();
 					if (inv.getMethod().getName().equals("getIdentifier")
 							&& inv.getMethod().getDeclaringClass().getName().equals("android.content.res.Resources")
