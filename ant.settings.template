@@ -6,7 +6,8 @@ soot.jar=
 #Location of FlowDroid infoflow jar
 infoflow.jar=
 
-
+# Target JAR file
+infoflow-android.jar=
 
 
 # TODO: compile with projects checked out and recompile them with build.xml

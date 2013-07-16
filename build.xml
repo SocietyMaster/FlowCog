@@ -3,12 +3,13 @@
 	    <target name="settings">
 	        <fail
 	            message="Please copy ant.settings.template to ant.settings, and set the variables in it."
-	        	 unless="jasmin.jar"
+	        	 unless="soot.jar"
 	        />
 	    </target>
 	
 	
 	<target name="clean">
+		<delete quiet="true" dir="bin" />
 		<delete quiet="true" dir="build" />
 	</target>
 
@@ -17,25 +18,21 @@
 		<mkdir dir="build/classes" />
 		<javac srcdir="src" includeantruntime="true" source="1.6" target="1.6" destdir="build/classes">
 			<classpath>
-				<pathelement location="classes" />
 				<pathelement location="${soot.jar}" />
+				<pathelement location="${heros.jar}" />
 				<pathelement location="${infoflow.jar}" />
+				<fileset dir="lib">
+					<include name="*.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
-	
-	<target name="classesjar" depends="settings,compile">
-
-	    	<jar destfile="$flowDroidClasses.jar" manifest="META-INF/MANIFEST.MF">
-	            <fileset dir="classes"/>
-	        </jar>
-			<delete dir="META-INF"/>
-	    </target>
 
 	<target name="jar" depends="compile">
 		<mkdir dir="build/jar" />
-		<jar destfile="build/jar/flowDroidComplete.jar" basedir="build/classes">
+		<jar destfile="${infoflow-android.jar}" basedir="build/classes">
 			<manifest>
+				<attribute name="Main-Class" value="soot.jimple.infoflow.android.TestApps.Test" />
 				<!-- <attribute name="Main-Class" value="?"/>-->
 			</manifest>
 		</jar>

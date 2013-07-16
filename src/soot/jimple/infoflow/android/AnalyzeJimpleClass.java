@@ -410,7 +410,7 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.content.DialogInterface$OnMultiChoiceClickListener")) {
 				if (i.declaresMethodByName("onClick"))
-					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.content.DialogInterface,int)"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onClick(android.content.DialogInterface,int,boolean)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.content.DialogInterface$OnShowListener")) {
 				if (i.declaresMethodByName("onShow"))
