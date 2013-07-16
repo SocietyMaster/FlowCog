@@ -9,6 +9,7 @@
 	
 	
 	<target name="clean">
+		<delete quiet="true" dir="bin" />
 		<delete quiet="true" dir="build" />
 	</target>
 
