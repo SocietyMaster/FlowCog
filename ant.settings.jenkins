@@ -1,3 +1,4 @@
 soot.jar=/var/www/static/abc/soot.jar
 infoflow.jar=lib/soot-infoflow.jar
 infoflow-android.jar=build/jar/soot-infoflow-android.jar
+droidBenchDir=DroidBench/apk

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot"/>
 	<classpathentry kind="lib" path="lib/polyglot.jar"/>
 	<classpathentry kind="lib" path="lib/AXMLPrinter2.jar" sourcepath="lib/AXMLPrinter2-src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow"/>
 	<classpathentry kind="lib" path="lib/axml-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -9,5 +9,7 @@ infoflow.jar=
 # Target JAR file
 infoflow-android.jar=
 
+# Path to DroidBench
+droidBenchDir=
 
 # TODO: compile with projects checked out and recompile them with build.xml

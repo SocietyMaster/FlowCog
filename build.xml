@@ -9,7 +9,6 @@
 	
 	
 	<target name="clean">
-		<delete quiet="true" dir="bin" />
 		<delete quiet="true" dir="build" />
 	</target>
 
@@ -36,6 +35,52 @@
 				<!-- <attribute name="Main-Class" value="?"/>-->
 			</manifest>
 		</jar>
+	</target>
+
+	<target name="compiletests" depends="settings,compile">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src:test" includeantruntime="true" source="1.6" target="1.6" destdir="build/classes" debug="true">
+			<classpath>
+				<pathelement location="${soot.jar}" />
+				<pathelement location="${heros.jar}" />
+				<pathelement location="${infoflow.jar}" />
+				<pathelement location="build/classes" />
+				<fileset dir="lib">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="rundroidbench" depends="compiletests">
+		<mkdir dir="reports" />
+		<junit printsummary="yes">
+			<jvmarg value="-Xmx10G" />
+			<sysproperty key="DROIDBENCH" value="${droidBenchDir}" />
+			<classpath>
+				<pathelement location="${soot.jar}" />
+				<pathelement location="${heros.jar}" />
+				<pathelement location="${infoflow.jar}" />
+				<pathelement location="build/classes" />
+				<fileset dir="lib">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+
+			<formatter type="xml" usefile="true" />
+			<batchtest todir="reports">
+				<fileset dir="build/classes" includes="soot/jimple/infoflow/android/test/**/*Tests.class" excludes="soot/jimple/infoflow/android/test/droidBench/JUnitTests.class" />
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="reportdroidbench" depends="rundroidbench">
+		<junitreport tofile="TESTS-TestSuites.xml" todir="reports">
+			<fileset dir="reports">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="reports" />
+		</junitreport>
 	</target>
 
 </project>
