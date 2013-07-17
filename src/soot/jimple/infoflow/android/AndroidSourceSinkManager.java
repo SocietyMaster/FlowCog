@@ -26,6 +26,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
+import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
 import soot.tagkit.IntegerConstantValueTag;
 import soot.tagkit.Tag;
 
@@ -76,6 +77,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	private List<ARSCFileParser.ResPackage> resourcePackages;
 	
 	private String appPackageName = "";
+	
+	private final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
 	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
@@ -235,6 +238,11 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 			InvokeExpr ie = sCallSite.getInvokeExpr();
 			if (ie.getMethod().getSignature().equals(Activity_FindViewById)
 					|| ie.getMethod().getSignature().equals(View_FindViewById)) {
+				// Perform a constant propagation inside this method exactly once
+				SootMethod uiMethod = cfg.getMethodOf(sCallSite);
+				if (analyzedLayoutMethods.add(uiMethod))
+					ConstantPropagatorAndFolder.v().transform(uiMethod.getActiveBody());
+				
 				// If we match all controls, we don't care about the specific
 				// control we're dealing with
 				if (this.layoutMatching == LayoutMatchingMode.MatchAll)
