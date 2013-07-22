@@ -480,7 +480,7 @@ public class AnalyzeJimpleClass {
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesturingStarted"), lifecycleElement);
 			}
 			// android.graphics
-			else if (i.getName().equals("android.graphics.SurfaceTexture%OnFrameAvailableListener")) {
+			else if (i.getName().equals("android.graphics.SurfaceTexture$OnFrameAvailableListener")) {
 				if (i.declaresMethodByName("onFrameAvailable"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFrameAvailable"), lifecycleElement);
 			}
@@ -1107,7 +1107,7 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.widget.CompoundButton$OnCheckedChangeListener")) {
 				if (i.declaresMethodByName("onCheckedChanged"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onCheckedChanged(android.widget.CompoundButton,boolean)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.widget.DatePicker$OnDateChangedListener")) {
 				if (i.declaresMethodByName("onDateChanged"))
@@ -1155,7 +1155,7 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.widget.RadioGroup$OnCheckedChangeListener")) {
 				if (i.declaresMethodByName("onCheckedChanged"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCheckedChanged"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onCheckedChanged(android.widget.RadioGroup,int)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.widget.RatingBar$OnRatingBarChangeListener")) {
 				if (i.declaresMethodByName("onRatingChanged"))
