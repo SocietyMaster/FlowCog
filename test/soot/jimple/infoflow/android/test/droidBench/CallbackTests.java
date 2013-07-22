@@ -72,6 +72,7 @@ public class CallbackTests extends JUnitTests {
 	}
 
 	@Test
+	@Ignore		// Callback ordering is not supported
 	public void runTestOrdering1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("Callbacks_Ordering1.apk");
 		Assert.assertEquals(0, res.size());
