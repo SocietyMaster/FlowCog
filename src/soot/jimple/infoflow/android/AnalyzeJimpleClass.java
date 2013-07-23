@@ -957,7 +957,8 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.view.View$OnCreateContextMenuListener")) {
 				if (i.declaresMethodByName("onCreateContextMenu"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCreateContextMenu"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onCreateContextMenu"
+							+"(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.view.View$OnDragListener")) {
 				if (i.declaresMethodByName("onDrag"))
