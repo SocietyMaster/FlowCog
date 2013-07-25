@@ -162,8 +162,13 @@ public class LayoutFileParser extends AbstractResourceParser {
     			if (type == AxmlVisitor.TYPE_REFERENCE && obj instanceof Integer) {
     				// We need to get the target XML file from the binary manifest
     				AbstractResource targetRes = resParser.findResource((Integer) obj);
+    				if (targetRes == null) {
+    					System.err.println("Target resource " + obj + " for layout include not found");
+    					return;
+    				}
     				if (!(targetRes instanceof StringResource)) {
-    					System.err.println("Invalid target node for include tag in layout XML");
+    					System.err.println("Invalid target node for include tag in layout XML, was "
+    							+ targetRes.getClass().getName());
     					return;
     				}
     				String targetFile = ((StringResource) targetRes).getValue();
@@ -212,6 +217,11 @@ public class LayoutFileParser extends AbstractResourceParser {
     		String tname = name.trim();
     		if (tname.equals("include"))
     			return new IncludeParser(layoutFile);
+    		
+    		// The "merge" tag merges the next hierarchy level into the current
+    		// one for flattening hierarchies.
+    		if (tname.equals("merge"))
+       			return new LayoutParser(layoutFile, theClass);
     		
 			final SootClass childClass = getLayoutClass(tname);
 			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
@@ -324,7 +334,12 @@ public class LayoutFileParser extends AbstractResourceParser {
 								
 								@Override
 								public NodeVisitor first(String ns, String name) {
-									final SootClass theClass = name == null ? null : getLayoutClass(name.trim());
+									if (name == null)
+										return new LayoutParser(fileName, null);
+									
+									final String tname = name.trim();
+									final SootClass theClass = tname.isEmpty() || tname.equals("merge")
+											|| tname.equals("include") ? null : getLayoutClass(name.trim());
 									if (theClass == null || isLayoutClass(theClass))
 										return new LayoutParser(fileName, theClass);
 									else
