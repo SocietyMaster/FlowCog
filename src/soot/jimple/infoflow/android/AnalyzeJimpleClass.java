@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import soot.Body;
 import soot.MethodOrMethodContext;
 import soot.PackManager;
 import soot.RefType;
@@ -23,9 +24,12 @@ import soot.Transform;
 import soot.Type;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.IdentityRef;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointConstants;
@@ -165,7 +169,7 @@ public class AnalyzeJimpleClass {
 			return;
 		if (!method.isConcrete())
 			return;
-		
+
 		for (Unit u : method.retrieveActiveBody().getUnits()) {
 			Stmt stmt = (Stmt) u;
 			// Callback registrations are always instance invoke expressions
@@ -189,7 +193,7 @@ public class AnalyzeJimpleClass {
 	 */
 	private boolean isCallbackRegistrationMethod(SootMethod method) {
 		// Only calls to system APIs can register callbacks
-		if (method.getDeclaringClass().getName().startsWith("android."))
+		if (!method.getDeclaringClass().getName().startsWith("android."))
 			return false;
 		
 		for (Type paramType : method.getParameterTypes())
@@ -1331,26 +1335,40 @@ public class AnalyzeJimpleClass {
 	 */
 	private void checkAndAddMethod(SootMethod method, SootClass baseClass) {
 		AndroidMethod am = new AndroidMethod(method);
-		if (!am.getClassName().startsWith("android.")
-				&& !am.getClassName().startsWith("java.")) {
-			boolean isNew;
-			if (this.callbackMethods.containsKey(baseClass.getName()))
-				isNew = this.callbackMethods.get(baseClass.getName()).add(am);
+		
+		// Do not call system methods
+		if (am.getClassName().startsWith("android.")
+				|| am.getClassName().startsWith("java."))
+			return;
+
+		// Skip empty methods
+		if (method.isConcrete() && isEmpty(method.retrieveActiveBody()))
+			return;
+			
+		boolean isNew;
+		if (this.callbackMethods.containsKey(baseClass.getName()))
+			isNew = this.callbackMethods.get(baseClass.getName()).add(am);
+		else {
+			Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+			isNew = methods.add(am);
+			this.callbackMethods.put(baseClass.getName(), methods);
+		}
+			
+		if (isNew)
+			if (this.callbackWorklist.containsKey(baseClass.getName()))
+					this.callbackWorklist.get(baseClass.getName()).add(am);
 			else {
 				Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
 				isNew = methods.add(am);
-				this.callbackMethods.put(baseClass.getName(), methods);
+				this.callbackWorklist.put(baseClass.getName(), methods);
 			}
-			
-			if (isNew)
-				if (this.callbackWorklist.containsKey(baseClass.getName()))
-						this.callbackWorklist.get(baseClass.getName()).add(am);
-				else {
-					Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
-					isNew = methods.add(am);
-					this.callbackWorklist.put(baseClass.getName(), methods);
-				}
-		}
+	}
+
+	private boolean isEmpty(Body activeBody) {
+		for (Unit u : activeBody.getUnits())
+			if (!(u instanceof IdentityStmt || u instanceof ReturnVoidStmt))
+				return false;
+		return true;
 	}
 
 	private Set<SootClass> collectAllInterfaces(SootClass sootClass) {

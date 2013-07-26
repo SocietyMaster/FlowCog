@@ -111,11 +111,28 @@ public class Test {
 //							|| name.equals("v2_com.zynga.livepoker_1_77_Zynga Poker.apk")	// dexpler fails
 							|| name.equals("v2_com.baudeineapp.mcdcoupon_1_4_McDonalds Gutscheine App.apk")		// broken apk? field ref
 //							|| name.equals("v2_de.sellfisch.android.wwr_1_56_Wer Wird Reich (Quiz).apk")		// dexpler fails
-							|| name.equals("v2_com.aviary.android.feather_1_82_Photo Editor von Aviary.apk")		// runs forever							
+							|| name.equals("v2_com.aviary.android.feather_1_82_Photo Editor von Aviary.apk")		// runs forever
+							
+							|| name.equals("v2_com.maxmpz.audioplayer_1_525_Poweramp.apk")	// runs forever
+							|| name.equals("v2_com.ebay.mobile_1_30_Offizielle eBay-App.apk")	// runs forever
+							|| name.equals("v2_com.aldiko.android_1_200196_Aldiko Book Reader.apk")	// runs forever
+							|| name.equals("v2_com.bestcoolfungames.antsmasher_1_80_Ameisen-Quetscher Kostenlos.apk")	// runs forever
+							|| name.equals("v2_tunein.player_1_47_TuneIn Radio.apk")	// out of memory
+							|| name.equals("v2_com.twitter.android_1_400_Twitter.apk")	// runs forever
+							|| name.equals("v2_com.feelingtouch.strikeforce2_1_7_SWAT_End War.apk")	// out of memory
+							|| name.equals("v2_ch.smalltech.battery.free_1_126_Akku & Batterie HD.apk")	// runs forever
+							|| name.equals("v2_com.androidgonzalez2013.buggie_1_5_Hugo Runner.apk")		// runs forever
+							|| name.equals("v2_com.avast.android.mobilesecurity_1_4304_avast! Mobile Security.apk")		// runs forever
 							)
 						return false;
 					return (name.endsWith(".apk"));
 				}
+				
+				
+				// Apps that work:
+				//		v2_com.sec.spp.push_1_18_Samsung Push Service.apk
+				//		v2_com.djinnworks.linerunnerfree_1_21_Line Runner (Free).apk
+				//		-1374644725134111744_Vitamio Plugin ARMv7+NEON.apk
 				
 			});
 			for (String s : dirFiles)
