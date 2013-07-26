@@ -24,7 +24,6 @@ import soot.Transform;
 import soot.Type;
 import soot.Unit;
 import soot.Value;
-import soot.jimple.IdentityRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
