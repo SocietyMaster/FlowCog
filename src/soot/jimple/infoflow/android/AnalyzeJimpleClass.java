@@ -178,8 +178,9 @@ public class AnalyzeJimpleClass {
 					for (Value param : iinv.getArgs())
 						if (param.getType() instanceof RefType) {
 							SootClass callbackClass = ((RefType) param.getType()).getSootClass();
-							for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
-								analyzeClass(c, lifecycleElement);
+							if (!callbackClass.isInterface())
+								for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+									analyzeClass(c, lifecycleElement);
 						}
 			}
 		}
@@ -278,6 +279,8 @@ public class AnalyzeJimpleClass {
 
 	private void analyzeMethodOverrideCallbacks(SootClass sootClass) {
 		if (!sootClass.isConcrete())
+			return;
+		if (sootClass.isInterface())
 			return;
 		
 		// There are also some classes that implement interesting callback methods.
