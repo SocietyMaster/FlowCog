@@ -302,31 +302,33 @@ public class AnalyzeJimpleClass {
 
 		// Iterate over all user-implemented methods. If they are inherited
 		// from a system class, they are callback candidates.
-		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sootClass)) {
-			if (parentClass.getName().startsWith("android."))
-				continue;
-			for (SootMethod method : parentClass.getMethods()) {
-				if (!systemMethods.contains(method.getSubSignature()))
-					continue;
+		if (!sootClass.isInterface()) {
+    		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sootClass)) {
+    			if (parentClass.getName().startsWith("android."))
+    				continue;
+    			for (SootMethod method : parentClass.getMethods()) {
+    				if (!systemMethods.contains(method.getSubSignature()))
+    					continue;
 
-				// This is an overridden system method. Check that we don't have
-				// one of the lifecycle methods as they are treated separately.
-				if (classType == ClassType.Activity
-							&& AndroidEntryPointConstants.getActivityLifecycleMethods().contains(method.getSubSignature()))
-						continue;
-				if (classType == ClassType.Service
-						&& AndroidEntryPointConstants.getServiceLifecycleMethods().contains(method.getSubSignature()))
-					continue;
-				if (classType == ClassType.BroadcastReceiver
-						&& AndroidEntryPointConstants.getBroadcastLifecycleMethods().contains(method.getSubSignature()))
-					continue;
-				if (classType == ClassType.ContentProvider
-						&& AndroidEntryPointConstants.getContentproviderLifecycleMethods().contains(method.getSubSignature()))
-					continue;
+    				// This is an overridden system method. Check that we don't have
+    				// one of the lifecycle methods as they are treated separately.
+    				if (classType == ClassType.Activity
+    							&& AndroidEntryPointConstants.getActivityLifecycleMethods().contains(method.getSubSignature()))
+    						continue;
+    				if (classType == ClassType.Service
+    						&& AndroidEntryPointConstants.getServiceLifecycleMethods().contains(method.getSubSignature()))
+    					continue;
+    				if (classType == ClassType.BroadcastReceiver
+    						&& AndroidEntryPointConstants.getBroadcastLifecycleMethods().contains(method.getSubSignature()))
+    					continue;
+    				if (classType == ClassType.ContentProvider
+    						&& AndroidEntryPointConstants.getContentproviderLifecycleMethods().contains(method.getSubSignature()))
+    					continue;
 
-				// This is a real callback method
-				checkAndAddMethod(method, sootClass);
-			}
+    				// This is a real callback method
+    				checkAndAddMethod(method, sootClass);
+    			}
+    		}
 		}
 	}
 
