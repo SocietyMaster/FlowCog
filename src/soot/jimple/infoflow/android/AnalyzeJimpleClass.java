@@ -34,7 +34,7 @@ import soot.jimple.toolkits.callgraph.ReachableMethods;
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
  * well-known Android callback and handler interfaces.
- * 
+ *
  * @author Steven Arzt
  *
  */
@@ -98,7 +98,7 @@ public class AnalyzeJimpleClass {
 					SootClass sc = Scene.v().getSootClass(className);
 					List<MethodOrMethodContext> methods = new ArrayList<MethodOrMethodContext>();
 					methods.addAll(sc.getMethods());
-					
+
 					// Check for callbacks registered in the code
 					analyzeRechableMethods(sc, methods);
 
@@ -110,7 +110,7 @@ public class AnalyzeJimpleClass {
 		});
 		PackManager.v().getPack("wjtp").add(transform);
 	}
-	
+
 	/**
 	 * Incrementally collects the callback methods for all Android default
 	 * handlers implemented in the source code. This just processes the contents
@@ -165,7 +165,7 @@ public class AnalyzeJimpleClass {
 			return;
 		if (!method.isConcrete())
 			return;
-		
+
 		for (Unit u : method.retrieveActiveBody().getUnits()) {
 			Stmt stmt = (Stmt) u;
 			// Callback registrations are always instance invoke expressions
@@ -175,8 +175,9 @@ public class AnalyzeJimpleClass {
 					for (Value param : iinv.getArgs())
 						if (param.getType() instanceof RefType) {
 							SootClass callbackClass = ((RefType) param.getType()).getSootClass();
-							for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
-								analyzeClass(c, lifecycleElement);
+							if (!callbackClass.isInterface())
+							    for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+							        analyzeClass(c, lifecycleElement);
 						}
 			}
 		}
@@ -191,12 +192,12 @@ public class AnalyzeJimpleClass {
 		// Only calls to system APIs can register callbacks
 		if (method.getDeclaringClass().getName().startsWith("android."))
 			return false;
-		
+
 		for (Type paramType : method.getParameterTypes())
 			if (paramType instanceof RefType)
 				if (isCallbackInterface(((RefType) paramType).getSootClass()))
 					return true;
-				
+
 		return false;
 	}
 
@@ -245,7 +246,7 @@ public class AnalyzeJimpleClass {
 				}
 		}
 	}
-	
+
 	/**
 	 * Analyzes the given class to find callback methods
 	 * @param sootClass The class to analyze
@@ -257,11 +258,11 @@ public class AnalyzeJimpleClass {
 		if (sootClass.getName().startsWith("android.")
 				|| sootClass.getName().startsWith("java."))
 			return;
-		
+
 		// Check for callback handlers implemented via interfaces
 		analyzeClassInterfaceCallbacks(sootClass, sootClass, lifecycleElement);
 	}
-	
+
 	/**
 	 * Enumeration for the types of classes we can have
 	 */
@@ -276,7 +277,7 @@ public class AnalyzeJimpleClass {
 	private void analyzeMethodOverrideCallbacks(SootClass sootClass) {
 		if (!sootClass.isConcrete())
 			return;
-		
+
 		// There are also some classes that implement interesting callback methods.
 		// We model this as follows: Whenever the user overwrites a method in an
 		// Android OS class that is not a well-known lifecycle method, we treat
@@ -285,20 +286,20 @@ public class AnalyzeJimpleClass {
 		Set<String> systemMethods = new HashSet<String>(10000);
 		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sootClass)) {
 			if (parentClass.getName().equals(AndroidEntryPointConstants.ACTIVITYCLASS))
-				classType = ClassType.Activity; 
+				classType = ClassType.Activity;
 			else if (parentClass.getName().equals(AndroidEntryPointConstants.SERVICECLASS))
 				classType = ClassType.Service;
 			else if (parentClass.getName().equals(AndroidEntryPointConstants.BROADCASTRECEIVERCLASS))
 				classType = ClassType.BroadcastReceiver;
 			else if (parentClass.getName().equals(AndroidEntryPointConstants.CONTENTPROVIDERCLASS))
 				classType = ClassType.ContentProvider;
-			
+
 			if (parentClass.getName().startsWith("android."))
 				for (SootMethod sm : parentClass.getMethods())
 					if (!sm.isConstructor())
 						systemMethods.add(sm.getSubSignature());
 		}
-		
+
 		// Iterate over all user-implemented methods. If they are inherited
 		// from a system class, they are callback candidates.
 		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sootClass)) {
@@ -307,7 +308,7 @@ public class AnalyzeJimpleClass {
 			for (SootMethod method : parentClass.getMethods()) {
 				if (!systemMethods.contains(method.getSubSignature()))
 					continue;
-				
+
 				// This is an overridden system method. Check that we don't have
 				// one of the lifecycle methods as they are treated separately.
 				if (classType == ClassType.Activity
@@ -322,7 +323,7 @@ public class AnalyzeJimpleClass {
 				if (classType == ClassType.ContentProvider
 						&& AndroidEntryPointConstants.getContentproviderLifecycleMethods().contains(method.getSubSignature()))
 					continue;
-				
+
 				// This is a real callback method
 				checkAndAddMethod(method, sootClass);
 			}
@@ -336,7 +337,7 @@ public class AnalyzeJimpleClass {
 			return getMethodFromHierarchy(c.getSuperclass(), methodName);
 		throw new RuntimeException("Could not find method");
 	}
-	
+
 	private SootMethod getMethodFromHierarchyEx(SootClass c, String methodSignature) {
 		if (c.declaresMethod(methodSignature))
 			return c.getMethod(methodSignature);
@@ -351,17 +352,17 @@ public class AnalyzeJimpleClass {
 		// reason to look for interface implementations
 		if (!baseClass.isConcrete())
 			return;
-		
+
 		// For a first take, we consider all classes in the android.* packages
 		// to be part of the operating system
 		if (baseClass.getName().startsWith("android."))
 			return;
-		
+
 		// If we are a class, one of our superclasses might implement an Android
 		// interface
 		if (sootClass.hasSuperclass())
 			analyzeClassInterfaceCallbacks(baseClass, sootClass.getSuperclass(), lifecycleElement);
-		
+
 		// Do we implement one of the well-known interfaces?
 		for (SootClass i : collectAllInterfaces(sootClass)) {
 			// android.accounts
@@ -488,7 +489,7 @@ public class AnalyzeJimpleClass {
 			else if (i.getName().equals("android.content.ComponentCallbacks2")) {
 				if (i.declaresMethodByName("onTrimMemory"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onTrimMemory"), lifecycleElement);
-			}			
+			}
 			else if (i.getName().equals("android.content.DialogInterface$OnCancelListener")) {
 				if (i.declaresMethodByName("onCancel"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCancel"), lifecycleElement);
@@ -555,7 +556,7 @@ public class AnalyzeJimpleClass {
 				if (i.declaresMethodByName("onInfo"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInfo"), lifecycleElement);
 			}
-			// android.gesture			
+			// android.gesture
 			else if (i.getName().equals("android.gesture.GestureOverlayView$OnGestureListener")) {
 				if (i.declaresMethodByName("onGesture"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onGesture"), lifecycleElement);
@@ -943,11 +944,11 @@ public class AnalyzeJimpleClass {
 			else if (i.getName().equals("android.speech.tts.TextToSpeech$OnInitListener")) {
 				if (i.declaresMethodByName("onInit"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onInit"), lifecycleElement);
-			}			
+			}
 			else if (i.getName().equals("android.speech.tts.TextToSpeech$OnUtteranceCompletedListener")) {
 				if (i.declaresMethodByName("onUtteranceCompleted"))
 					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onUtteranceCompleted"), lifecycleElement);
-			}			
+			}
 			// android.support - omitted
 			// android.view
 			else if (i.getName().equals("android.view.ActionMode$Callback")) {
@@ -1341,7 +1342,7 @@ public class AnalyzeJimpleClass {
 				isNew = methods.add(am);
 				this.callbackMethods.put(baseClass.getName(), methods);
 			}
-			
+
 			if (isNew)
 				if (this.callbackWorklist.containsKey(baseClass.getName()))
 						this.callbackWorklist.get(baseClass.getName()).add(am);
@@ -1359,13 +1360,13 @@ public class AnalyzeJimpleClass {
 			interfaces.addAll(collectAllInterfaces(i));
 		return interfaces;
 	}
-	
+
 	public Map<String, Set<AndroidMethod>> getCallbackMethods() {
 		return this.callbackMethods;
 	}
-	
+
 	public Map<SootClass, Set<Integer>> getLayoutClasses() {
 		return this.layoutClasses;
 	}
-		
+
 }
