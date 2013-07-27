@@ -21,7 +21,6 @@ import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
-import soot.Type;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.IdentityStmt;
@@ -168,53 +167,27 @@ public class AnalyzeJimpleClass {
 			return;
 		if (!method.isConcrete())
 			return;
-
+		
 		for (Unit u : method.retrieveActiveBody().getUnits()) {
 			Stmt stmt = (Stmt) u;
 			// Callback registrations are always instance invoke expressions
 			if (stmt.containsInvokeExpr() && stmt.getInvokeExpr() instanceof InstanceInvokeExpr) {
 				InstanceInvokeExpr iinv = (InstanceInvokeExpr) stmt.getInvokeExpr();
-				if (isCallbackRegistrationMethod(iinv.getMethod()))
-					for (Value param : iinv.getArgs())
-						if (param.getType() instanceof RefType) {
-							SootClass callbackClass = ((RefType) param.getType()).getSootClass();
-							if (!callbackClass.isInterface())
+				for (Value param : iinv.getArgs())
+					if (param.getType() instanceof RefType) {
+						SootClass callbackClass = ((RefType) param.getType()).getSootClass();
+						if (androidCallbacks.contains(callbackClass.getName())) {
+							if (callbackClass.isInterface())
+								for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
+									for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
+										analyzeClass(c, lifecycleElement);								
+							else
 								for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
 									analyzeClass(c, lifecycleElement);
 						}
+					}
 			}
 		}
-	}
-
-	/**
-	 * Checks whether the given method registers a new callback with the system
-	 * @param method The method which is called
-	 * @return True if the given method registers a new callback, otherwise false
-	 */
-	private boolean isCallbackRegistrationMethod(SootMethod method) {
-		// Only calls to system APIs can register callbacks
-		if (!method.getDeclaringClass().getName().startsWith("android."))
-			return false;
-		
-		for (Type paramType : method.getParameterTypes())
-			if (paramType instanceof RefType)
-				if (isCallbackInterface(((RefType) paramType).getSootClass()))
-					return true;
-				
-		return false;
-	}
-
-	/**
-	 * Checks whether the given Soot class is one of the well-known callback
-	 * interfaces
-	 * @param sootClass The Soot class to check.
-	 * @return True if the given Soot class is one of the well-known callback
-	 * interfaces, otherwise false
-	 */
-	private boolean isCallbackInterface(SootClass sootClass) {
-		if (!sootClass.isInterface())
-			return false;
-		return androidCallbacks.contains(sootClass.getName());
 	}
 
 	/**
