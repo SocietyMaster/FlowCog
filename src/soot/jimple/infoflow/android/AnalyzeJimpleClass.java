@@ -21,6 +21,7 @@ import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
+import soot.Type;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.IdentityStmt;
@@ -173,10 +174,11 @@ public class AnalyzeJimpleClass {
 			// Callback registrations are always instance invoke expressions
 			if (stmt.containsInvokeExpr() && stmt.getInvokeExpr() instanceof InstanceInvokeExpr) {
 				InstanceInvokeExpr iinv = (InstanceInvokeExpr) stmt.getInvokeExpr();
-				for (Value param : iinv.getArgs())
-					if (param.getType() instanceof RefType) {
-						SootClass callbackClass = ((RefType) param.getType()).getSootClass();
-						if (androidCallbacks.contains(callbackClass.getName())) {
+				for (int i = 0; i < iinv.getArgCount(); i++) {
+					Type paramType = iinv.getMethod().getParameterType(i);
+					if (paramType instanceof RefType && iinv.getArg(i).getType() instanceof RefType) {
+						if (androidCallbacks.contains(((RefType) paramType).getSootClass().getName())) {
+							SootClass callbackClass = ((RefType) iinv.getArg(i).getType()).getSootClass();
 							if (callbackClass.isInterface())
 								for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
 									for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
@@ -186,6 +188,7 @@ public class AnalyzeJimpleClass {
 									analyzeClass(c, lifecycleElement);
 						}
 					}
+				}
 			}
 		}
 	}
