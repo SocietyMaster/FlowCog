@@ -172,8 +172,14 @@ public class SetupApplication {
 							SootMethod callbackMethod = null;
 							SootClass callbackClass = lcentry.getKey();
 							while (callbackMethod == null) {
-								if (callbackClass.declaresMethodByName(methodName))
-									callbackMethod = callbackClass.getMethodByName(methodName);
+								if (callbackClass.declaresMethodByName(methodName)) {
+									String subSig = "void " + methodName + "(android.view.View)";
+									for (SootMethod sm : callbackClass.getMethods())
+										if (sm.getSubSignature().equals(subSig)) {
+											callbackMethod = sm;
+											break;
+										}
+								}
 								if (callbackClass.hasSuperclass())
 									callbackClass = callbackClass.getSuperclass();
 								else
