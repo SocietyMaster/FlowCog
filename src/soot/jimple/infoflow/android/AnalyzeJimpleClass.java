@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import soot.Body;
+import soot.Local;
 import soot.MethodOrMethodContext;
 import soot.PackManager;
 import soot.RefType;
@@ -24,6 +25,7 @@ import soot.Transform;
 import soot.Type;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
@@ -33,6 +35,9 @@ import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointConstants;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.scalar.SimpleLiveLocals;
+import soot.toolkits.scalar.SmartLocalDefs;
 
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
@@ -169,28 +174,49 @@ public class AnalyzeJimpleClass {
 		if (!method.isConcrete())
 			return;
 		
+		ExceptionalUnitGraph graph = new ExceptionalUnitGraph(method.retrieveActiveBody());
+		SmartLocalDefs smd = new SmartLocalDefs(graph, new SimpleLiveLocals(graph));
+
+		// Iterate over all statement and find callback registration methods
+		Set<SootClass> callbackClasses = new HashSet<SootClass>();
 		for (Unit u : method.retrieveActiveBody().getUnits()) {
 			Stmt stmt = (Stmt) u;
 			// Callback registrations are always instance invoke expressions
 			if (stmt.containsInvokeExpr() && stmt.getInvokeExpr() instanceof InstanceInvokeExpr) {
 				InstanceInvokeExpr iinv = (InstanceInvokeExpr) stmt.getInvokeExpr();
 				for (int i = 0; i < iinv.getArgCount(); i++) {
+					Value arg = iinv.getArg(i);
+					Type argType = iinv.getArg(i).getType();
 					Type paramType = iinv.getMethod().getParameterType(i);
-					if (paramType instanceof RefType && iinv.getArg(i).getType() instanceof RefType) {
+					if (paramType instanceof RefType && argType instanceof RefType) {
 						if (androidCallbacks.contains(((RefType) paramType).getSootClass().getName())) {
-							SootClass callbackClass = ((RefType) iinv.getArg(i).getType()).getSootClass();
-							if (callbackClass.isInterface())
-								for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
-									for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
-										analyzeClass(c, lifecycleElement);								
-							else
-								for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
-									analyzeClass(c, lifecycleElement);
+							// We have a formal parameter type that corresponds to one of the Android
+							// callback interfaces. Look for definitions of the parameter to estimate
+							// the actual type.
+							if (arg instanceof Local)
+								for (Unit def : smd.getDefsOfAt((Local) arg, u))
+									if (def instanceof DefinitionStmt) {
+										Type tp = ((DefinitionStmt) def).getRightOp().getType();
+										if (tp instanceof RefType) {
+											SootClass callbackClass = ((RefType) tp).getSootClass();
+											if (callbackClass.isInterface())
+												for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
+													for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
+														callbackClasses.add(c);
+											else
+												for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+													callbackClasses.add(c);
+										}
+									}
 						}
 					}
 				}
 			}
 		}
+		
+		// Analyze all found callback classes
+		for (SootClass callbackClass : callbackClasses)
+			analyzeClass(callbackClass, lifecycleElement);
 	}
 
 	/**
