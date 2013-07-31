@@ -139,15 +139,24 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 				groupIdx++;
 			}
 		if (!classData.isEmpty())
-			for(String target : classData.split(" "))
-				if(target.equals("_SOURCE_"))
-					singleMethod.setSource(true);
-				else if(target.equals("_SINK_"))
-					singleMethod.setSink(true);
-				else if(target.equals("_NONE_"))
-					singleMethod.setNeitherNor(true);
-				else
-					throw new RuntimeException("error in target definition");
+			for(String target : classData.split("\\s")) {
+				target = target.trim();
+				
+				// Throw away categories
+				if (target.contains("|"))
+					target = target.substring(target.indexOf('|'));
+				
+				if (!target.isEmpty() && !target.startsWith("|")) {
+					if(target.equals("_SOURCE_"))
+						singleMethod.setSource(true);
+					else if(target.equals("_SINK_"))
+						singleMethod.setSink(true);
+					else if(target.equals("_NONE_"))
+						singleMethod.setNeitherNor(true);
+					else
+						throw new RuntimeException("error in target definition: " + target);
+				}
+			}
 		return singleMethod;
 	}
 }
