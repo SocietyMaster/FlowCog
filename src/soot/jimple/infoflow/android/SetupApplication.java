@@ -17,8 +17,8 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
+import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -29,6 +29,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
+import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
@@ -259,6 +260,16 @@ public class SetupApplication {
 	 * @return The results of the data flow analysis
 	 */
 	public InfoflowResults runInfoflow(){
+		return runInfoflow(null);
+	}
+	
+	/**
+	 * Runs the data flow analysis
+	 * @param onResultsAvailable The callback to be invoked when data flow
+	 * results are available
+	 * @return The results of the data flow analysis
+	 */
+	public InfoflowResults runInfoflow(ResultsAvailableHandler onResultsAvailable){
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
@@ -268,6 +279,7 @@ public class SetupApplication {
 			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
+			info.addResultsAvailableHandler(onResultsAvailable);
 			
 			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
 			for (Set<AndroidMethod> methods : this.callbackMethods.values())
