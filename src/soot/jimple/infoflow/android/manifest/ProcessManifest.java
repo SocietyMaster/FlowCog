@@ -24,10 +24,10 @@ import android.content.res.AXmlResourceParser;
 
 public class ProcessManifest {
 	
-	private Set<String> entryPointsClasses = new HashSet<String>();
+	private final Set<String> entryPointsClasses = new HashSet<String>();
 	private String packageName = "";
 	private String applicationName = "";
-	private Set<String> permissions = new HashSet<String>();
+	private final Set<String> permissions = new HashSet<String>();
 	
 	/**
 	 * Opens the given apk file and provides the given handler with a stream for
