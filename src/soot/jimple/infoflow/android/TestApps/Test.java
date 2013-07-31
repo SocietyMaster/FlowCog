@@ -1,14 +1,29 @@
 package soot.jimple.infoflow.android.TestApps;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.SootMethod;
+import soot.Unit;
 import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
+import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.InfoflowResults.SinkInfo;
+import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
 	
@@ -22,7 +37,7 @@ public class Test {
 	 * @param args[0] = path to apk-file
 	 * @param args[1] = path to android-dir (path/android-platforms/)
 	 */
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(final String[] args) throws IOException, InterruptedException {
 		if (args.length <2) {
 			System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");	
 			return;
@@ -123,6 +138,15 @@ public class Test {
 							|| name.equals("v2_ch.smalltech.battery.free_1_126_Akku & Batterie HD.apk")	// runs forever
 							|| name.equals("v2_com.androidgonzalez2013.buggie_1_5_Hugo Runner.apk")		// runs forever
 							|| name.equals("v2_com.avast.android.mobilesecurity_1_4304_avast! Mobile Security.apk")		// runs forever
+							|| name.equals("v2_com.zynga.livepoker_1_77_Zynga Poker.apk")		// runs forever
+							|| name.equals("v2_de.sellfisch.android.wwr_1_56_Wer Wird Reich (Quiz).apk")		// runs forever
+							|| name.equals("v2_com.picsart.studio_1_60_PicsArt - Photo Studio.apk")			// runs forever
+							|| name.equals("v2_com.androidity.vecchi_1_5_Old Face - vor sterben.apk")		// runs forever
+							|| name.equals("v2_de.blitzer_1_17_Blitzer.de.apk")		// runs forever
+							|| name.equals("v2_com.metaio.junaio_1_41_junaio Augmented Reality.apk")		// runs forever
+							|| name.equals("v2_com.splunchy.android.alarmclock_1_149_AlarmDroid.apk")		// runs forever
+							|| name.equals("v2_me.pou.app_1_103_Pou.apk")		// runs forever
+							|| name.equals("v2_com.groupon_1_2935_Groupon.apk")		// runs forever
 							)
 						return false;
 					return (name.endsWith(".apk"));
@@ -141,9 +165,8 @@ public class Test {
 		else
 			apkFiles.add(args[0]);
 
-		for (String fileName : apkFiles) {
-			long beforeRun = System.nanoTime();
-			String fullFilePath = fileName;
+		for (final String fileName : apkFiles) {
+			final String fullFilePath;
 			
 			// Directory handling
 			if (apkFiles.size() > 1) {
@@ -154,31 +177,99 @@ public class Test {
 					continue;
 				flagFile.createNewFile();
 			}
-			
-			final SetupApplication app = new SetupApplication();
-			app.setApkFileLocation(fullFilePath);
-			app.setAndroidJar(args[1]);
-			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-				app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
 			else
-				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
-			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-//			app.setPathTracking(PathTrackingMethod.ForwardTracking);
+				fullFilePath = fileName;
+						
+			FutureTask<InfoflowResults> task = new FutureTask<InfoflowResults>(new Callable<InfoflowResults>() {
+
+				@Override
+				public InfoflowResults call() throws Exception {
+					final long beforeRun = System.nanoTime();
+					
+					final SetupApplication app = new SetupApplication();
+					app.setApkFileLocation(fullFilePath);
+					app.setAndroidJar(args[1]);
+					if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
+						app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
+					else
+						app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+					app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+					app.setPathTracking(PathTrackingMethod.ForwardTracking);
+					
+					if (DEBUG) {
+						app.printEntrypoints();
+						app.printSinks();
+						app.printSources();
+					}
+
+					final BufferedWriter wr = new BufferedWriter(new FileWriter("_out_" + new File(fileName).getName() + ".txt"));
+					try {
+						System.out.println("Running data flow analysis...");
+						final InfoflowResults res = app.runInfoflow(new ResultsAvailableHandler() {
+							
+							@Override
+							public void onResultsAvailable(
+									BiDiInterproceduralCFG<Unit, SootMethod> cfg,
+									InfoflowResults results) {
+								try {
+									// Dump the results
+									if (results == null) {
+										System.out.println("No results found.");
+										wr.write("No results found.\n");
+									}
+									else {
+										for (SinkInfo sink : results.getResults().keySet()) {
+											System.out.println("Found a flow to sink " + sink + ", from the following sources:");
+											wr.write("Found a flow to sink " + sink + ", from the following sources:\n");
+											for (SourceInfo source : results.getResults().get(sink)) {
+												System.out.println("\t- " + source.getSource() + " (in "
+														+ cfg.getMethodOf(source.getContext()).getSignature()  + ")");
+												wr.write("\t- " + source.getSource() + " (in "
+														+ cfg.getMethodOf(source.getContext()).getSignature()  + ")\n");
+												if (source.getPath() != null && !source.getPath().isEmpty()) {
+													System.out.println("\t\ton Path " + source.getPath());
+													wr.write("\t\ton Path " + source.getPath() + "\n");
+												}
+											}
+										}
+									}
+								}
+								catch (IOException ex) {
+									// ignore
+								}
+							}
+						});
+						System.out.println("Data flow analysis done.");
+
+						System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+						wr.write("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds\n");
+						
+						wr.flush();
+						return res;
+					}
+					finally {
+						if (wr != null)
+							wr.close();
+					}
+				}
+				
+			});
+			ExecutorService executor = Executors.newFixedThreadPool(1);
+			executor.execute(task);
 			
-			if (DEBUG) {
-				app.printEntrypoints();
-				app.printSinks();
-				app.printSources();
+			try {
+				System.out.println("Running infoflow task...");
+				task.get(15, TimeUnit.MINUTES);
+			} catch (ExecutionException e) {
+				System.err.println("Infoflow computation failed: " + e.getMessage());
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				System.err.println("Infoflow computation timed out: " + e.getMessage());
+				e.printStackTrace();
 			}
 			
-			InfoflowResults results = app.runInfoflow();
-			if (results == null)
-				System.out.println("No results found.");
-			else
-				results.printResults();
-			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
-			
 			// Make sure to remove leftovers
+			executor.shutdown();
 			System.gc();
 		}
 	}
