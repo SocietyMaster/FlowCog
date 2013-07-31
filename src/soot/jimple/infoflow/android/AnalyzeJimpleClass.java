@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -130,17 +131,16 @@ public class AnalyzeJimpleClass {
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				// Process the worklist from last time
+				System.out.println("Running incremental callback analysis for " + callbackWorklist.size()
+						+ " components...");
 				Map<String, Set<AndroidMethod>> workListCopy = new HashMap<String, Set<AndroidMethod>>
 					(callbackWorklist);
 				for (Entry<String, Set<AndroidMethod>> entry : workListCopy.entrySet()) {
-					List<MethodOrMethodContext> entryClasses = new ArrayList<MethodOrMethodContext>();
-					for (AndroidMethod am : entry.getValue()) {
+					List<MethodOrMethodContext> entryClasses = new LinkedList<MethodOrMethodContext>();
+					for (AndroidMethod am : entry.getValue())
 						entryClasses.add(Scene.v().getMethod(am.getSignature()));
-						callbackWorklist.get(entry.getKey()).remove(entry.getValue());
-						if (callbackWorklist.get(entry.getKey()).isEmpty())
-							callbackWorklist.remove(entry.getKey());
-					}
 					analyzeRechableMethods(Scene.v().getSootClass(entry.getKey()), entryClasses);
+					callbackWorklist.remove(entry.getKey());
 				}
 				System.out.println("Incremental callback analysis done.");
 			}
@@ -148,7 +148,7 @@ public class AnalyzeJimpleClass {
 		PackManager.v().getPack("wjtp").add(transform);
 	}
 
-	private void analyzeRechableMethods(SootClass sc, List<MethodOrMethodContext> methods) {
+	private void analyzeRechableMethods(SootClass lifecycleElement, List<MethodOrMethodContext> methods) {
 		ReachableMethods rm = new ReachableMethods(Scene.v().getCallGraph(), methods);
 		rm.update();
 
@@ -156,7 +156,7 @@ public class AnalyzeJimpleClass {
 		Iterator<MethodOrMethodContext> reachableMethods = rm.listener();
 		while (reachableMethods.hasNext()) {
 			SootMethod method = reachableMethods.next().method();
-			analyzeMethodForCallbackRegistrations(sc, method);
+			analyzeMethodForCallbackRegistrations(lifecycleElement, method);
 		}
 	}
 
@@ -194,20 +194,20 @@ public class AnalyzeJimpleClass {
 							// callback interfaces. Look for definitions of the parameter to estimate
 							// the actual type.
 							if (arg instanceof Local)
-								for (Unit def : smd.getDefsOfAt((Local) arg, u))
-									if (def instanceof DefinitionStmt) {
-										Type tp = ((DefinitionStmt) def).getRightOp().getType();
-										if (tp instanceof RefType) {
-											SootClass callbackClass = ((RefType) tp).getSootClass();
-											if (callbackClass.isInterface())
-												for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
-													for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
-														callbackClasses.add(c);
-											else
-												for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+								for (Unit def : smd.getDefsOfAt((Local) arg, u)) {
+									assert def instanceof DefinitionStmt; 
+									Type tp = ((DefinitionStmt) def).getRightOp().getType();
+									if (tp instanceof RefType) {
+										SootClass callbackClass = ((RefType) tp).getSootClass();
+										if (callbackClass.isInterface())
+											for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
+												for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
 													callbackClasses.add(c);
-										}
+										else
+											for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+												callbackClasses.add(c);
 									}
+								}
 						}
 					}
 				}
