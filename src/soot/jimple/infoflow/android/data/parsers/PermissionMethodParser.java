@@ -70,7 +70,7 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 		Pattern pNoRet = Pattern.compile(regexNoRet);
 		
 		for(String line : this.data){	
-			if (line.startsWith("%"))
+			if (line.isEmpty() || line.startsWith("%"))
 				continue;
 			Matcher m = p.matcher(line);
 			if(m.find()) {
