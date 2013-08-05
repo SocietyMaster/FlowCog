@@ -69,7 +69,9 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 		Pattern p = Pattern.compile(regex);
 		Pattern pNoRet = Pattern.compile(regexNoRet);
 		
-		for(String line : this.data){			
+		for(String line : this.data){	
+			if (line.startsWith("%"))
+				continue;
 			Matcher m = p.matcher(line);
 			if(m.find()) {
 				AndroidMethod singleMethod = parseMethod(m, true);
