@@ -922,7 +922,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 		while (totalBytesRead < remainingSize) {
 			byte[] block = new byte[Math.min(BLOCK_SIZE, remainingSize - totalBytesRead)];
 			int bytesRead = stream.read(block);
-			if (bytesRead < block.length) {
+			if (bytesRead < 0) {
 				System.err.println("Could not read block from resource file");
 				return;
 			}
