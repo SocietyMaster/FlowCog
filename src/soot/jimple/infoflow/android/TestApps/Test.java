@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Secure Software Engineering Group at EC SPRIDE.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser Public License v2.1
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
+ * Bodden, and others.
+ ******************************************************************************/
 package soot.jimple.infoflow.android.TestApps;
 
 import java.io.BufferedWriter;
@@ -27,19 +37,66 @@ import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
 	
+	private static final class MyResultsAvailableHandler implements
+			ResultsAvailableHandler {
+		private final BufferedWriter wr;
+
+		private MyResultsAvailableHandler() {
+			this.wr = null;
+		}
+
+		private MyResultsAvailableHandler(BufferedWriter wr) {
+			this.wr = wr;
+		}
+
+		@Override
+		public void onResultsAvailable(
+				BiDiInterproceduralCFG<Unit, SootMethod> cfg,
+				InfoflowResults results) {
+			// Dump the results
+			if (results == null) {
+				print("No results found.");
+			}
+			else {
+				for (SinkInfo sink : results.getResults().keySet()) {
+					print("Found a flow to sink " + sink + ", from the following sources:");
+					for (SourceInfo source : results.getResults().get(sink)) {
+						print("\t- " + source.getSource() + " (in "
+								+ cfg.getMethodOf(source.getContext()).getSignature()  + ")");
+						if (source.getPath() != null && !source.getPath().isEmpty())
+							print("\t\ton Path " + source.getPath());
+					}
+				}
+			}
+		}
+
+		private void print(String string) {
+			try {
+				System.out.println(string);
+				if (wr != null)
+					wr.write(string + "\n");
+			}
+			catch (IOException ex) {
+				// ignore
+			}
+		}
+	}
+	
 	static String command;
 	static boolean generate = false;
 	
+	private static int timeout = -1;
+	private static int sysTimeout = -1;
+	
 	private static boolean DEBUG = false;
-
 
 	/**
 	 * @param args[0] = path to apk-file
 	 * @param args[1] = path to android-dir (path/android-platforms/)
 	 */
 	public static void main(final String[] args) throws IOException, InterruptedException {
-		if (args.length <2) {
-			System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");	
+		if (args.length < 2) {
+			printUsage();	
 			return;
 		}
 		
@@ -53,7 +110,13 @@ public class Test {
 			if(!success){
 				System.err.println("Cleanup of output directory "+ outputDir + " failed!");
 			}
+			outputDir.delete();
 		}
+		
+		// Parse additional command-line arguments
+		parseAdditionalOptions(args);
+		if (!validateAdditionalOptions())
+			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
 		File apkFile = new File(args[0]);
@@ -172,106 +235,178 @@ public class Test {
 			if (apkFiles.size() > 1) {
 				fullFilePath = args[0] + File.separator + fileName;
 				System.out.println("Analyzing file " + fullFilePath + "...");
-				File flagFile = new File("_Run" + fileName);
+				File flagFile = new File("_Run_" + fileName);
 				if (flagFile.exists())
 					continue;
 				flagFile.createNewFile();
 			}
 			else
 				fullFilePath = fileName;
-						
-			FutureTask<InfoflowResults> task = new FutureTask<InfoflowResults>(new Callable<InfoflowResults>() {
 
-				@Override
-				public InfoflowResults call() throws Exception {
-					final long beforeRun = System.nanoTime();
-					
-					final SetupApplication app = new SetupApplication();
-					app.setApkFileLocation(fullFilePath);
-					app.setAndroidJar(args[1]);
-					if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-						app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
-					else
-						app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
-					app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-					app.setPathTracking(PathTrackingMethod.ForwardTracking);
-					
-					if (DEBUG) {
-						app.printEntrypoints();
-						app.printSinks();
-						app.printSources();
-					}
+			// Run the analysis
+			if (timeout > 0)
+				runAnalysisTimeout(fullFilePath, args[1]);
+			else if (sysTimeout > 0)
+				runAnalysisSysTimeout(fullFilePath, args[1]);
+			else
+				runAnalysis(fullFilePath, args[1]);
 
-					final BufferedWriter wr = new BufferedWriter(new FileWriter("_out_" + new File(fileName).getName() + ".txt"));
-					try {
-						System.out.println("Running data flow analysis...");
-						final InfoflowResults res = app.runInfoflow(new ResultsAvailableHandler() {
-							
-							@Override
-							public void onResultsAvailable(
-									BiDiInterproceduralCFG<Unit, SootMethod> cfg,
-									InfoflowResults results) {
-								try {
-									// Dump the results
-									if (results == null) {
-										System.out.println("No results found.");
-										wr.write("No results found.\n");
-									}
-									else {
-										for (SinkInfo sink : results.getResults().keySet()) {
-											System.out.println("Found a flow to sink " + sink + ", from the following sources:");
-											wr.write("Found a flow to sink " + sink + ", from the following sources:\n");
-											for (SourceInfo source : results.getResults().get(sink)) {
-												System.out.println("\t- " + source.getSource() + " (in "
-														+ cfg.getMethodOf(source.getContext()).getSignature()  + ")");
-												wr.write("\t- " + source.getSource() + " (in "
-														+ cfg.getMethodOf(source.getContext()).getSignature()  + ")\n");
-												if (source.getPath() != null && !source.getPath().isEmpty()) {
-													System.out.println("\t\ton Path " + source.getPath());
-													wr.write("\t\ton Path " + source.getPath() + "\n");
-												}
-											}
-										}
-									}
-								}
-								catch (IOException ex) {
-									// ignore
-								}
-							}
-						});
-						System.out.println("Data flow analysis done.");
-
-						System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
-						wr.write("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds\n");
-						
-						wr.flush();
-						return res;
-					}
-					finally {
-						if (wr != null)
-							wr.close();
-					}
-				}
-				
-			});
-			ExecutorService executor = Executors.newFixedThreadPool(1);
-			executor.execute(task);
-			
-			try {
-				System.out.println("Running infoflow task...");
-				task.get(15, TimeUnit.MINUTES);
-			} catch (ExecutionException e) {
-				System.err.println("Infoflow computation failed: " + e.getMessage());
-				e.printStackTrace();
-			} catch (TimeoutException e) {
-				System.err.println("Infoflow computation timed out: " + e.getMessage());
-				e.printStackTrace();
-			}
-			
-			// Make sure to remove leftovers
-			executor.shutdown();
 			System.gc();
 		}
+	}
+
+
+	private static void parseAdditionalOptions(String[] args) {
+		int i = 2;
+		while (i < args.length) {
+			if (args[i].equalsIgnoreCase("--timeout")) {
+				timeout = Integer.valueOf(args[i+1]);
+				i += 2;
+			}
+			else if (args[i].equalsIgnoreCase("--systimeout")) {
+				sysTimeout = Integer.valueOf(args[i+1]);
+				i += 2;
+			}
+			else
+				i++;
+		}
+	}
+	
+	private static boolean validateAdditionalOptions() {
+		if (timeout > 0 && sysTimeout > 0) {
+			System.err.println("Timeout and system timeout cannot be used together");
+			return false;
+		}
+		return true;
+	}
+	
+	private static void runAnalysisTimeout(final String fileName, final String androidJar) {
+		FutureTask<InfoflowResults> task = new FutureTask<InfoflowResults>(new Callable<InfoflowResults>() {
+
+			@Override
+			public InfoflowResults call() throws Exception {
+				final long beforeRun = System.nanoTime();
+				
+				final SetupApplication app = new SetupApplication();
+				app.setApkFileLocation(fileName);
+				app.setAndroidJar(androidJar);
+				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
+					app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
+				else
+					app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+				app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+				app.setPathTracking(PathTrackingMethod.ForwardTracking);
+				
+				if (DEBUG) {
+					app.printEntrypoints();
+					app.printSinks();
+					app.printSources();
+				}
+				
+				final BufferedWriter wr = new BufferedWriter(new FileWriter("_out_" + new File(fileName).getName() + ".txt"));
+				try {
+					System.out.println("Running data flow analysis...");
+					final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler(wr));
+					System.out.println("Data flow analysis done.");
+
+					System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+					wr.write("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds\n");
+					
+					wr.flush();
+					return res;
+				}
+				finally {
+					if (wr != null)
+						wr.close();
+				}
+			}
+			
+		});
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+		executor.execute(task);
+		
+		try {
+			System.out.println("Running infoflow task...");
+			task.get(timeout, TimeUnit.MINUTES);
+		} catch (ExecutionException e) {
+			System.err.println("Infoflow computation failed: " + e.getMessage());
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			System.err.println("Infoflow computation timed out: " + e.getMessage());
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			System.err.println("Infoflow computation interrupted: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		// Make sure to remove leftovers
+		executor.shutdown();		
+	}
+
+	private static void runAnalysisSysTimeout(final String fileName, final String androidJar) {
+		String classpath = System.getProperty("java.class.path");
+		String javaHome = System.getProperty("java.home");
+		String executable = "/usr/bin/timeout";
+		String[] command = new String[] { executable,
+				"-s", "KILL",
+				sysTimeout + "m",
+				javaHome + "/bin/java",
+				"-cp", classpath,
+				"soot.jimple.infoflow.android.TestApps.Test",
+				fileName,
+				androidJar };
+		System.out.println("Running command: " + executable + " " + command);
+		try {
+			ProcessBuilder pb = new ProcessBuilder(command);
+			pb.redirectOutput(new File("_out_" + new File(fileName).getName() + ".txt"));
+			pb.redirectError(new File("err_" + new File(fileName).getName() + ".txt"));
+			Process proc = pb.start();
+			proc.waitFor();
+		} catch (IOException ex) {
+			System.err.println("Could not execute timeout command: " + ex.getMessage());
+			ex.printStackTrace();
+		} catch (InterruptedException ex) {
+			System.err.println("Process was interrupted: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+
+	private static void runAnalysis(final String fileName, final String androidJar) {
+		try {
+			final long beforeRun = System.nanoTime();
+				
+			final SetupApplication app = new SetupApplication();
+			app.setApkFileLocation(fileName);
+			app.setAndroidJar(androidJar);
+			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
+				app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
+			else
+				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+			app.setPathTracking(PathTrackingMethod.ForwardTracking);
+				
+			if (DEBUG) {
+				app.printEntrypoints();
+				app.printSinks();
+				app.printSources();
+			}
+				
+			System.out.println("Running data flow analysis...");
+			app.runInfoflow(new MyResultsAvailableHandler());
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+		} catch (IOException ex) {
+			System.err.println("Could not read file: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+
+	private static void printUsage() {
+		System.out.println("FlowDroid (c) Secure Software Engineering Group @ EC SPRIDE");
+		System.out.println();
+		System.out.println("Incorrect arguments: [0] = apk-file, [1] = android-jar-directory");
+		System.out.println("Optional further parameters:");
+		System.out.println("\t--TIMEOUT n Time out after n seconds");
+		System.out.println("\t--SYSTIMEOUT n Hard time out (kill process) after n seconds, Unix only");
 	}
 
 }
