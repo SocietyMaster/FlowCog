@@ -19,17 +19,17 @@ import org.junit.Test;
 
 import soot.jimple.infoflow.InfoflowResults;
 
-public class AndroidNonspecificTests extends JUnitTests {
+public class GeneralJavaTests extends JUnitTests {
 	
 	@Test
 	public void runTestLoop1() throws IOException {
-		InfoflowResults res = analyzeAPKFile("AndroidNonspecific_Loop1.apk");
+		InfoflowResults res = analyzeAPKFile("GeneralJava_Loop1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test
 	public void runTestLoop2() throws IOException {
-		InfoflowResults res = analyzeAPKFile("AndroidNonspecific_Loop2.apk");
+		InfoflowResults res = analyzeAPKFile("GeneralJava_Loop2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
@@ -60,20 +60,20 @@ public class AndroidNonspecificTests extends JUnitTests {
 
 	@Test
 	public void runTestSourceCodeSpecific1() throws IOException {
-		InfoflowResults res = analyzeAPKFile("AndroidNonspecific_SourceCodeSpecific1.apk");
+		InfoflowResults res = analyzeAPKFile("GeneralJava_SourceCodeSpecific1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test
 	@Ignore		// not supported yet in FlowDroid
 	public void runTestStaticInitialization1() throws IOException {
-		InfoflowResults res = analyzeAPKFile("AndroidNonspecific_StaticInitialization1.apk");
+		InfoflowResults res = analyzeAPKFile("GeneralJava_StaticInitialization1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test
 	public void runTestUnreachableCode() throws IOException {
-		InfoflowResults res = analyzeAPKFile("AndroidNonspecific_UnreachableCode.apk");
+		InfoflowResults res = analyzeAPKFile("GeneralJava_UnreachableCode.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}
