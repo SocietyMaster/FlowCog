@@ -289,7 +289,8 @@ public class SetupApplication {
 			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
-			info.addResultsAvailableHandler(onResultsAvailable);
+			if (onResultsAvailable != null)
+				info.addResultsAvailableHandler(onResultsAvailable);
 			
 			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
 			for (Set<AndroidMethod> methods : this.callbackMethods.values())
