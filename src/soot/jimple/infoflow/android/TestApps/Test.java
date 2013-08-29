@@ -194,9 +194,7 @@ public class Test {
 			public InfoflowResults call() throws Exception {
 				final long beforeRun = System.nanoTime();
 				
-				final SetupApplication app = new SetupApplication();
-				app.setApkFileLocation(fileName);
-				app.setAndroidJar(androidJar);
+				final SetupApplication app = new SetupApplication(androidJar, fileName);
 				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
 					app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
 				else
@@ -282,9 +280,7 @@ public class Test {
 		try {
 			final long beforeRun = System.nanoTime();
 				
-			final SetupApplication app = new SetupApplication();
-			app.setApkFileLocation(fileName);
-			app.setAndroidJar(androidJar);
+			final SetupApplication app = new SetupApplication(androidJar, fileName);
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
 				app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
 			else
