@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Secure Software Engineering Group at EC SPRIDE.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser Public License v2.1
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
+ * Bodden, and others.
+ ******************************************************************************/
 package soot.jimple.infoflow.android;
 
 import java.io.File;
@@ -17,8 +27,8 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
+import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -29,15 +39,16 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
+import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
 
 public class SetupApplication {
 
-	private Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
-	private Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
-	private Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
+	private final Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
+	private final Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
+	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
 	private PathTrackingMethod pathTracking = PathTrackingMethod.NoTracking;
 
@@ -47,19 +58,28 @@ public class SetupApplication {
 	private List<ARSCFileParser.ResPackage> resourcePackages = null;
 	private String appPackageName = "";
 	
-	private String androidJar;
-	private String apkFileLocation;
+	private final String androidJar;
+	private final String apkFileLocation;
 	private String taintWrapperFile;
-
-	public SetupApplication(){
-		
-	}
+	
+	private AndroidSourceSinkManager sourceSinkManager = null;
 	
 	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
 	}
+	
+	/**
+	 * Gets the set of sinks loaded into FlowDroid
+	 * @return The set of sinks loaded into FlowDroid
+	 */
+	public Set<AndroidMethod> getSinks() {
+		return sinks;
+	}
 
+	/**
+	 * Prints the list of sinks registered with FlowDroud to stdout
+	 */
 	public void printSinks(){
 		System.out.println("Sinks:");
 		for (AndroidMethod am : sinks) {
@@ -67,8 +87,18 @@ public class SetupApplication {
 		}
 		System.out.println("End of Sinks");
 	}
-
 	
+	/**
+	 * Gets the set of sources loaded into FlowDroid
+	 * @return The set of sources loaded into FlowDroid
+	 */
+	public Set<AndroidMethod> getSources() {
+		return sources;
+	}
+
+	/**
+	 * Prints the list of sources registered with FlowDroud to stdout
+	 */
 	public void printSources(){
 		System.out.println("Sources:");
 		for (AndroidMethod am : sources) {
@@ -77,6 +107,9 @@ public class SetupApplication {
 		System.out.println("End of Sources");
 	}
 
+	/**
+	 * Prints list of classes containing entry points to stdout
+	 */
 	public void printEntrypoints(){
 		if (this.entrypoints == null)
 			System.out.println("Entry points not initialized");
@@ -88,18 +121,23 @@ public class SetupApplication {
 		}
 	}
 
-	public void setAndroidJar(String androidJar) {
-		this.androidJar = androidJar;
-	}
-
-	public void setApkFileLocation(String apkFileLocation) {
-		this.apkFileLocation = apkFileLocation;
-	}
-	
+	/**
+	 * Sets the file from which to load taint wrapper information. If this value
+	 * is null or empty, no taint wrapping is used.
+	 * @param taintWrapperFile The taint wrapper file to use or null to disable
+	 * taint wrapping
+	 */
 	public void setTaintWrapperFile(String taintWrapperFile) {
 		this.taintWrapperFile = taintWrapperFile;
 	}
 
+	/**
+	 * Calculates the sets of sources, sinks, entry points, and callbacks methods
+	 * for the given APK file.
+	 * @param sourceSinkFile The full path and file name of the file containing
+	 * the sources and sinks
+	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 */
 	public void calculateSourcesSinksEntrypoints
 			(String sourceSinkFile) throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
@@ -172,8 +210,14 @@ public class SetupApplication {
 							SootMethod callbackMethod = null;
 							SootClass callbackClass = lcentry.getKey();
 							while (callbackMethod == null) {
-								if (callbackClass.declaresMethodByName(methodName))
-									callbackMethod = callbackClass.getMethodByName(methodName);
+								if (callbackClass.declaresMethodByName(methodName)) {
+									String subSig = "void " + methodName + "(android.view.View)";
+									for (SootMethod sm : callbackClass.getMethods())
+										if (sm.getSubSignature().equals(subSig)) {
+											callbackMethod = sm;
+											break;
+										}
+								}
 								if (callbackClass.hasSuperclass())
 									callbackClass = callbackClass.getSuperclass();
 								else
@@ -190,32 +234,58 @@ public class SetupApplication {
 				else
 					System.err.println("Unexpected resource type for layout class");
 			}
+		
+		// Add the callback methods as sources and sinks
 		{
-		Set<AndroidMethod> callbacksPlain = new HashSet<AndroidMethod>();
-		for (Set<AndroidMethod> set : this.callbackMethods.values())
-			callbacksPlain.addAll(set);
-		System.out.println("Found " + callbacksPlain.size() + " callback methods for "
-				+ this.callbackMethods.size() + " components");
-		}
-
-		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
-		for (AndroidMethod am : parser.parse()){
-			if (am.isSource())
-				sources.add(am);
-			if(am.isSink())
-				sinks.add(am);
+			Set<AndroidMethod> callbacksPlain = new HashSet<AndroidMethod>();
+			for (Set<AndroidMethod> set : this.callbackMethods.values())
+				callbacksPlain.addAll(set);
+			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
+					+ this.callbackMethods.size() + " components");
+			}
+	
+			PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			for (AndroidMethod am : parser.parse()){
+				if (am.isSource())
+					sources.add(am);
+				if(am.isSink())
+					sinks.add(am);
 		}
 		
 		//add sink for Intents:
-		AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
-				("<android.app.Activity: void startActivity(android.content.Intent)>"));
-		setResult.setSink(true);
-		sinks.add(setResult);
+		{
+			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
+					("<android.app.Activity: void startActivity(android.content.Intent)>"));
+			setResult.setSink(true);
+			sinks.add(setResult);
+		}
 		
 		System.out.println("Entry point calculation done.");
 		
 		// Clean up everything we no longer need
 		soot.G.reset();
+		
+		// Create the SourceSinkManager
+		{
+			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
+			for (Set<AndroidMethod> methods : this.callbackMethods.values())
+				callbacks.addAll(methods);
+			
+			sourceSinkManager = new AndroidSourceSinkManager
+					(sources, sinks, callbacks, false,
+					LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
+			sourceSinkManager.setAppPackageName(this.appPackageName);
+			sourceSinkManager.setResourcePackages(this.resourcePackages);
+		}
+	}
+	
+	/**
+	 * Gets the source/sink manager constructed for FlowDroid. Make sure to call
+	 * calculateSourcesSinksEntryPoints() first, or you will get a null result.
+	 * @return FlowDroid's source/sink manager
+	 */
+	public AndroidSourceSinkManager getSourceSinkManager() {
+		return sourceSinkManager;
 	}
 
 	/**
@@ -253,6 +323,17 @@ public class SetupApplication {
 	 * @return The results of the data flow analysis
 	 */
 	public InfoflowResults runInfoflow(){
+		return runInfoflow(null);
+	}
+	
+	/**
+	 * Runs the data flow analysis. Make sure to populate the sets of sources,
+	 * sinks, and entry points first.
+	 * @param onResultsAvailable The callback to be invoked when data flow
+	 * results are available
+	 * @return The results of the data flow analysis
+	 */
+	public InfoflowResults runInfoflow(ResultsAvailableHandler onResultsAvailable){
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
@@ -262,17 +343,9 @@ public class SetupApplication {
 			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
 				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
 			info.setSootConfig(new SootConfigForAndroid());
-			
-			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
-			for (Set<AndroidMethod> methods : this.callbackMethods.values())
-				callbacks.addAll(methods);
-			
-			AndroidSourceSinkManager sourceSinkManager = new AndroidSourceSinkManager
-				(sources, sinks, callbacks, false,
-				LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
-			sourceSinkManager.setAppPackageName(this.appPackageName);
-			sourceSinkManager.setResourcePackages(this.resourcePackages);
-			
+			if (onResultsAvailable != null)
+				info.addResultsAvailableHandler(onResultsAvailable);
+									
 			AndroidEntryPointCreator entryPointCreator = getEntryPointCreator();
 			
 			System.out.println("Starting infoflow computation...");

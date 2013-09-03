@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Secure Software Engineering Group at EC SPRIDE.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser Public License v2.1
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
+ * Bodden, and others.
+ ******************************************************************************/
 package soot.jimple.infoflow.android.data.parsers;
 
 import java.io.BufferedReader;
@@ -69,7 +79,9 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 		Pattern p = Pattern.compile(regex);
 		Pattern pNoRet = Pattern.compile(regexNoRet);
 		
-		for(String line : this.data){			
+		for(String line : this.data){	
+			if (line.isEmpty() || line.startsWith("%"))
+				continue;
 			Matcher m = p.matcher(line);
 			if(m.find()) {
 				AndroidMethod singleMethod = parseMethod(m, true);
@@ -139,15 +151,24 @@ public class PermissionMethodParser implements IPermissionMethodParser {
 				groupIdx++;
 			}
 		if (!classData.isEmpty())
-			for(String target : classData.split(" "))
-				if(target.equals("_SOURCE_"))
-					singleMethod.setSource(true);
-				else if(target.equals("_SINK_"))
-					singleMethod.setSink(true);
-				else if(target.equals("_NONE_"))
-					singleMethod.setNeitherNor(true);
-				else
-					throw new RuntimeException("error in target definition");
+			for(String target : classData.split("\\s")) {
+				target = target.trim();
+				
+				// Throw away categories
+				if (target.contains("|"))
+					target = target.substring(target.indexOf('|'));
+				
+				if (!target.isEmpty() && !target.startsWith("|")) {
+					if(target.equals("_SOURCE_"))
+						singleMethod.setSource(true);
+					else if(target.equals("_SINK_"))
+						singleMethod.setSink(true);
+					else if(target.equals("_NONE_"))
+						singleMethod.setNeitherNor(true);
+					else
+						throw new RuntimeException("error in target definition: " + target);
+				}
+			}
 		return singleMethod;
 	}
 }

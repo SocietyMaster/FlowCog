@@ -1,29 +1,54 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Secure Software Engineering Group at EC SPRIDE.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser Public License v2.1
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
+ * Bodden, and others.
+ ******************************************************************************/
 package soot.jimple.infoflow.android;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import soot.Body;
+import soot.Local;
 import soot.MethodOrMethodContext;
 import soot.PackManager;
+import soot.RefType;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
+import soot.Type;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.IdentityStmt;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointConstants;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.scalar.SimpleLiveLocals;
+import soot.toolkits.scalar.SmartLocalDefs;
 
 /**
  * Analyzes the classes in the APK file to find custom implementations of the
@@ -35,12 +60,43 @@ import soot.jimple.toolkits.callgraph.ReachableMethods;
 public class AnalyzeJimpleClass {
 
 	private final Set<String> entryPointClasses;
+	private final Set<String> androidCallbacks;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>();
 	private final Map<String, Set<AndroidMethod>> callbackWorklist = new HashMap<String, Set<AndroidMethod>>();
 	private final Map<SootClass, Set<Integer>> layoutClasses = new HashMap<SootClass, Set<Integer>>();
 
-	public AnalyzeJimpleClass(Set<String> entryPointClasses) {
+	public AnalyzeJimpleClass(Set<String> entryPointClasses) throws IOException {
 		this.entryPointClasses = entryPointClasses;
+		this.androidCallbacks = loadAndroidCallbacks();
+	}
+
+	public AnalyzeJimpleClass(Set<String> entryPointClasses,
+			Set<String> androidCallbacks) {
+		this.entryPointClasses = entryPointClasses;
+		this.androidCallbacks = new HashSet<String>();
+	}
+
+	/**
+	 * Loads the set of interfaces that are used to implement Android callback
+	 * handlers from a file on disk
+	 * @return A set containing the names of the interfaces that are used to
+	 * implement Android callback handlers
+	 */
+	private Set<String> loadAndroidCallbacks() throws IOException {
+		Set<String> androidCallbacks = new HashSet<String>();
+		BufferedReader rdr = null;
+		try {
+			rdr = new BufferedReader(new FileReader("AndroidCallbacks.txt"));
+			String line;
+			while ((line = rdr.readLine()) != null)
+				if (!line.isEmpty())
+					androidCallbacks.add(line);
+		}
+		finally {
+			if (rdr != null)
+				rdr.close();
+		}
+		return androidCallbacks;
 	}
 
 	/**
@@ -61,7 +117,12 @@ public class AnalyzeJimpleClass {
 					SootClass sc = Scene.v().getSootClass(className);
 					List<MethodOrMethodContext> methods = new ArrayList<MethodOrMethodContext>();
 					methods.addAll(sc.getMethods());
+					
+					// Check for callbacks registered in the code
 					analyzeRechableMethods(sc, methods);
+
+					// Check for method overrides
+					analyzeMethodOverrideCallbacks(sc);
 				}
 				System.out.println("Callback analysis done.");
 			}
@@ -80,17 +141,16 @@ public class AnalyzeJimpleClass {
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				// Process the worklist from last time
+				System.out.println("Running incremental callback analysis for " + callbackWorklist.size()
+						+ " components...");
 				Map<String, Set<AndroidMethod>> workListCopy = new HashMap<String, Set<AndroidMethod>>
 					(callbackWorklist);
 				for (Entry<String, Set<AndroidMethod>> entry : workListCopy.entrySet()) {
-					List<MethodOrMethodContext> entryClasses = new ArrayList<MethodOrMethodContext>();
-					for (AndroidMethod am : entry.getValue()) {
+					List<MethodOrMethodContext> entryClasses = new LinkedList<MethodOrMethodContext>();
+					for (AndroidMethod am : entry.getValue())
 						entryClasses.add(Scene.v().getMethod(am.getSignature()));
-						callbackWorklist.get(entry.getKey()).remove(entry.getValue());
-						if (callbackWorklist.get(entry.getKey()).isEmpty())
-							callbackWorklist.remove(entry.getKey());
-					}
 					analyzeRechableMethods(Scene.v().getSootClass(entry.getKey()), entryClasses);
+					callbackWorklist.remove(entry.getKey());
 				}
 				System.out.println("Incremental callback analysis done.");
 			}
@@ -98,19 +158,75 @@ public class AnalyzeJimpleClass {
 		PackManager.v().getPack("wjtp").add(transform);
 	}
 
-	private void analyzeRechableMethods(SootClass sc, List<MethodOrMethodContext> methods) {
+	private void analyzeRechableMethods(SootClass lifecycleElement, List<MethodOrMethodContext> methods) {
 		ReachableMethods rm = new ReachableMethods(Scene.v().getCallGraph(), methods);
 		rm.update();
 
 		// Scan for listeners in the class hierarchy
-		Set<SootClass> reachableClasses = new HashSet<SootClass>(10000);
 		Iterator<MethodOrMethodContext> reachableMethods = rm.listener();
 		while (reachableMethods.hasNext()) {
 			SootMethod method = reachableMethods.next().method();
-			SootClass curClass = method.getDeclaringClass();
-			if (reachableClasses.add(curClass))
-				analyzeClass(curClass, sc);
+			analyzeMethodForCallbackRegistrations(lifecycleElement, method);
 		}
+	}
+
+	/**
+	 * Analyzes the given method and looks for callback registrations
+	 * @param lifecycleElement The lifecycle element (activity, etc.) with which
+	 * to associate the found callbacks
+	 * @param method The method in which to look for callbacks
+	 */
+	private void analyzeMethodForCallbackRegistrations(SootClass lifecycleElement, SootMethod method) {
+		// Do not analyze system classes
+		if (method.getDeclaringClass().getName().startsWith("android.")
+				|| method.getDeclaringClass().getName().startsWith("java."))
+			return;
+		if (!method.isConcrete())
+			return;
+		
+		ExceptionalUnitGraph graph = new ExceptionalUnitGraph(method.retrieveActiveBody());
+		SmartLocalDefs smd = new SmartLocalDefs(graph, new SimpleLiveLocals(graph));
+
+		// Iterate over all statement and find callback registration methods
+		Set<SootClass> callbackClasses = new HashSet<SootClass>();
+		for (Unit u : method.retrieveActiveBody().getUnits()) {
+			Stmt stmt = (Stmt) u;
+			// Callback registrations are always instance invoke expressions
+			if (stmt.containsInvokeExpr() && stmt.getInvokeExpr() instanceof InstanceInvokeExpr) {
+				InstanceInvokeExpr iinv = (InstanceInvokeExpr) stmt.getInvokeExpr();
+				for (int i = 0; i < iinv.getArgCount(); i++) {
+					Value arg = iinv.getArg(i);
+					Type argType = iinv.getArg(i).getType();
+					Type paramType = iinv.getMethod().getParameterType(i);
+					if (paramType instanceof RefType && argType instanceof RefType) {
+						if (androidCallbacks.contains(((RefType) paramType).getSootClass().getName())) {
+							// We have a formal parameter type that corresponds to one of the Android
+							// callback interfaces. Look for definitions of the parameter to estimate
+							// the actual type.
+							if (arg instanceof Local)
+								for (Unit def : smd.getDefsOfAt((Local) arg, u)) {
+									assert def instanceof DefinitionStmt; 
+									Type tp = ((DefinitionStmt) def).getRightOp().getType();
+									if (tp instanceof RefType) {
+										SootClass callbackClass = ((RefType) tp).getSootClass();
+										if (callbackClass.isInterface())
+											for (SootClass impl : Scene.v().getActiveHierarchy().getImplementersOf(callbackClass))
+												for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(impl))
+													callbackClasses.add(c);
+										else
+											for (SootClass c : Scene.v().getActiveHierarchy().getSubclassesOfIncluding(callbackClass))
+												callbackClasses.add(c);
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		
+		// Analyze all found callback classes
+		for (SootClass callbackClass : callbackClasses)
+			analyzeClass(callbackClass, lifecycleElement);
 	}
 
 	/**
@@ -160,9 +276,6 @@ public class AnalyzeJimpleClass {
 		
 		// Check for callback handlers implemented via interfaces
 		analyzeClassInterfaceCallbacks(sootClass, sootClass, lifecycleElement);
-
-		// Check for method overrides
-		analyzeMethodOverrideCallbacks(sootClass);
 	}
 	
 	/**
@@ -178,6 +291,8 @@ public class AnalyzeJimpleClass {
 
 	private void analyzeMethodOverrideCallbacks(SootClass sootClass) {
 		if (!sootClass.isConcrete())
+			return;
+		if (sootClass.isInterface())
 			return;
 		
 		// There are also some classes that implement interesting callback methods.
@@ -957,7 +1072,8 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.view.View$OnCreateContextMenuListener")) {
 				if (i.declaresMethodByName("onCreateContextMenu"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCreateContextMenu"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onCreateContextMenu"
+							+"(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.view.View$OnDragListener")) {
 				if (i.declaresMethodByName("onDrag"))
@@ -1233,26 +1349,40 @@ public class AnalyzeJimpleClass {
 	 */
 	private void checkAndAddMethod(SootMethod method, SootClass baseClass) {
 		AndroidMethod am = new AndroidMethod(method);
-		if (!am.getClassName().startsWith("android.")
-				&& !am.getClassName().startsWith("java.")) {
-			boolean isNew;
-			if (this.callbackMethods.containsKey(baseClass.getName()))
-				isNew = this.callbackMethods.get(baseClass.getName()).add(am);
+		
+		// Do not call system methods
+		if (am.getClassName().startsWith("android.")
+				|| am.getClassName().startsWith("java."))
+			return;
+
+		// Skip empty methods
+		if (method.isConcrete() && isEmpty(method.retrieveActiveBody()))
+			return;
+			
+		boolean isNew;
+		if (this.callbackMethods.containsKey(baseClass.getName()))
+			isNew = this.callbackMethods.get(baseClass.getName()).add(am);
+		else {
+			Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+			isNew = methods.add(am);
+			this.callbackMethods.put(baseClass.getName(), methods);
+		}
+			
+		if (isNew)
+			if (this.callbackWorklist.containsKey(baseClass.getName()))
+					this.callbackWorklist.get(baseClass.getName()).add(am);
 			else {
 				Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
 				isNew = methods.add(am);
-				this.callbackMethods.put(baseClass.getName(), methods);
+				this.callbackWorklist.put(baseClass.getName(), methods);
 			}
-			
-			if (isNew)
-				if (this.callbackWorklist.containsKey(baseClass.getName()))
-						this.callbackWorklist.get(baseClass.getName()).add(am);
-				else {
-					Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
-					isNew = methods.add(am);
-					this.callbackWorklist.put(baseClass.getName(), methods);
-				}
-		}
+	}
+
+	private boolean isEmpty(Body activeBody) {
+		for (Unit u : activeBody.getUnits())
+			if (!(u instanceof IdentityStmt || u instanceof ReturnVoidStmt))
+				return false;
+		return true;
 	}
 
 	private Set<SootClass> collectAllInterfaces(SootClass sootClass) {
