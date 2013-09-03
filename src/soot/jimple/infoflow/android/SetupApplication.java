@@ -46,8 +46,8 @@ import soot.options.Options;
 
 public class SetupApplication {
 
-	private final Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
-	private final Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
+	private Set<AndroidMethod> sinks = null;
+	private Set<AndroidMethod> sources = null;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
 	private PathTrackingMethod pathTracking = PathTrackingMethod.NoTracking;
@@ -81,6 +81,10 @@ public class SetupApplication {
 	 * Prints the list of sinks registered with FlowDroud to stdout
 	 */
 	public void printSinks(){
+		if (sinks == null) {
+			System.err.println("Sinks not calculated yet");
+			return;
+		}
 		System.out.println("Sinks:");
 		for (AndroidMethod am : sinks) {
 			System.out.println(am.toString());
@@ -100,6 +104,10 @@ public class SetupApplication {
 	 * Prints the list of sources registered with FlowDroud to stdout
 	 */
 	public void printSources(){
+		if (sources == null) {
+			System.err.println("Sources not calculated yet");
+			return;
+		}
 		System.out.println("Sources:");
 		for (AndroidMethod am : sources) {
 			System.out.println(am.toString());
@@ -140,6 +148,28 @@ public class SetupApplication {
 	 */
 	public void calculateSourcesSinksEntrypoints
 			(String sourceSinkFile) throws IOException {
+		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
+		Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
+		Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
+		for (AndroidMethod am : parser.parse()){
+			if (am.isSource())
+				sources.add(am);
+			if(am.isSink())
+				sinks.add(am);
+		}
+		calculateSourcesSinksEntrypoints(sources, sinks);
+	}
+	
+	/**
+	 * Calculates the sets of sources, sinks, entry points, and callbacks methods
+	 * for the given APK file.
+	 * @param sourceMethods The set of methods to be considered as sources
+	 * @param sinkMethods The set of methods to be considered as sinks
+	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 */
+	public void calculateSourcesSinksEntrypoints
+			(Set<AndroidMethod> sourceMethods,
+			Set<AndroidMethod> sinkMethods) throws IOException {
 		ProcessManifest processMan = new ProcessManifest();
 
 		// To look for callbacks, we need to start somewhere. We use the Android
@@ -242,14 +272,9 @@ public class SetupApplication {
 				callbacksPlain.addAll(set);
 			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
 					+ this.callbackMethods.size() + " components");
-			}
 	
-			PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
-			for (AndroidMethod am : parser.parse()){
-				if (am.isSource())
-					sources.add(am);
-				if(am.isSink())
-					sinks.add(am);
+			sources = new HashSet<AndroidMethod>(sourceMethods);
+			sinks = new HashSet<AndroidMethod>(sinkMethods);
 		}
 		
 		//add sink for Intents:
@@ -334,6 +359,9 @@ public class SetupApplication {
 	 * @return The results of the data flow analysis
 	 */
 	public InfoflowResults runInfoflow(ResultsAvailableHandler onResultsAvailable){
+		if (sources == null || sinks == null)
+			throw new RuntimeException("Sources and/or sinks not calculated yet");
+
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
