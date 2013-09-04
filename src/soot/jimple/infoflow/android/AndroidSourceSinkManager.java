@@ -72,6 +72,29 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		MatchSensitiveOnly
 	}
 	
+	/**
+	 * Types of sources supported by this SourceSinkManager 
+	 * @author Steven Arzt
+	 */
+	public enum SourceType {
+		/**
+		 * Not a source
+		 */
+		NoSource,
+		/**
+		 * The data is obtained via a method call
+		 */
+		MethodCall,
+		/**
+		 * The data is retrieved through a callback parameter
+		 */
+		Callback,
+		/**
+		 * The data is read from a UI element
+		 */
+		UISource
+	}
+	
 	private final static String Activity_FindViewById =
 			"<android.app.Activity: android.view.View findViewById(int)>";
 	private final static String View_FindViewById =
@@ -213,15 +236,28 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 
 	@Override
 	public boolean isSource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		return getSourceType(sCallSite, cfg) != SourceType.NoSource;
+	}
+
+	/**
+	 * Checks whether the given statement is a source, i.e. introduces new
+	 * information into the application. If so, the type of source is returned,
+	 * otherwise the return value is SourceType.NoSource.
+	 * @param sCallSite The statement to check for a source
+	 * @param cfg An interprocedural CFG containing the statement
+	 * @return The type of source that was detected in the statement of NoSource
+	 * if the statement does not contain a source
+	 */
+	public SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		assert cfg != null;
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
 		// This might be a normal source method
 		if (super.isSource(sCallSite, cfg))
-			return true;
+			return SourceType.MethodCall;
 		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
-			return true;
+			return SourceType.UISource;
 		// This statement might access a sensitive parameter in a callback
 		// method
 		if (sCallSite instanceof IdentityStmt) {
@@ -229,10 +265,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 			if (is.getRightOp() instanceof ParameterRef)
 				for (AndroidMethod am : this.callbackMethods)
 					if (am.getSignature().equals(cfg.getMethodOf(sCallSite).getSignature()))
-						return true;
+						return SourceType.Callback;
 		}
-		
-		return false;
+		return SourceType.NoSource;
 	}
 
 	/**
