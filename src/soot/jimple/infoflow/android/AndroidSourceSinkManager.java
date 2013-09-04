@@ -167,6 +167,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	 * false
 	 */
 	private boolean matchesMethod(SootMethod sMethod, Set<AndroidMethod> aMethods) {
+		assert sMethod != null;
+		assert aMethods != null;
+		
 		if (FAST_MATCHING)
 			return aMethods.contains(new AndroidMethod(sMethod));
 		else {
@@ -210,6 +213,7 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 
 	@Override
 	public boolean isSource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		assert cfg != null;
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
 		// This might be a normal source method
