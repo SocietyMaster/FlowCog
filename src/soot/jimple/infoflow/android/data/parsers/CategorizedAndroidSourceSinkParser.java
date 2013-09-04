@@ -33,17 +33,21 @@ import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
 public class CategorizedAndroidSourceSinkParser{
 	private Set<CATEGORY> categories;
 	private final String fileName;
+	private boolean isSources;
+	private boolean isSinks;
 	
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>.+?\\((.+)\\)$";
 	
-	public CategorizedAndroidSourceSinkParser(Set<CATEGORY> categories, String filename){
+	public CategorizedAndroidSourceSinkParser(Set<CATEGORY> categories, String filename, boolean isSources, boolean isSinks){
 		this.categories = categories;
 		this.fileName = filename;
+		this.isSources = isSources;
+		this.isSinks = isSinks;
 	}
 
 	
-	public HashMap<String, Set<AndroidMethod>> parse() throws IOException {
-		HashMap<String, Set<AndroidMethod>> catMethodMap = new HashMap<String, Set<AndroidMethod>>();
+	public Set<AndroidMethod> parse() throws IOException {
+		Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
 		
 		BufferedReader rdr = readFile();
 		
@@ -54,15 +58,19 @@ public class CategorizedAndroidSourceSinkParser{
 			Matcher m = p.matcher(line);
 			if(m.find()) {
 				CATEGORY cat = CATEGORY.valueOf(m.group(5));
+				
 				if(cat == CATEGORY.ALL || categories.contains(cat)){
 					AndroidMethod method = parseMethod(m);
-					if(catMethodMap.containsKey(cat.toString()))
-						catMethodMap.get(cat.toString()).add(method);
-					else{
-						Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
-						methods.add(method);
-						catMethodMap.put(cat.toString(), methods);
-					}
+					method.setCategory(cat);
+					
+					if(isSources)
+						method.setSource(true);
+					else if(isSinks)
+						method.setSink(true);
+					else
+						throw new RuntimeException("Oops, something went all wonky!");
+					
+					methods.add(method);
 				}
 			}
 		}
@@ -74,7 +82,7 @@ public class CategorizedAndroidSourceSinkParser{
 			e.printStackTrace();
 		}
 		
-		return catMethodMap;
+		return methods;
 	}
 		
 	private BufferedReader readFile(){
