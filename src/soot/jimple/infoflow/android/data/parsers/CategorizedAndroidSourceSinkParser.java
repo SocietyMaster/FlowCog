@@ -59,7 +59,7 @@ public class CategorizedAndroidSourceSinkParser{
 			if(m.find()) {
 				CATEGORY cat = CATEGORY.valueOf(m.group(5));
 				
-				if(cat == CATEGORY.ALL || categories.contains(cat)){
+				if(categories.contains(CATEGORY.ALL) || categories.contains(cat)){
 					AndroidMethod method = parseMethod(m);
 					method.setCategory(cat);
 					
