@@ -37,6 +37,8 @@ public class ProcessManifest {
 	private final Set<String> entryPointsClasses = new HashSet<String>();
 	private String packageName = "";
 	private String applicationName = "";
+	private int minSdkVersion = -1;
+	private int targetSdkVersion = -1;
 	private final Set<String> permissions = new HashSet<String>();
 	
 	/**
@@ -129,6 +131,14 @@ public class ProcessManifest {
 							// to the user
 							// permissionName = permissionName.substring(permissionName.lastIndexOf(".") + 1);
 							this.permissions.add(permissionName);
+						}
+						else if (tagName.equals("uses-sdk")) {
+							String minVersion = getAttributeValue(parser, "minSdkVersion");
+							if (minVersion != null && minVersion.length() > 0)
+								this.minSdkVersion = Integer.valueOf(minVersion);
+							String targetVersion = getAttributeValue(parser, "targetSdkVersion");
+							if (targetVersion != null && targetVersion.length() > 0)
+								this.targetSdkVersion = Integer.valueOf(targetVersion);
 						}
 						else if (tagName.equals("application")) {
 							// Check whether the application is disabled
@@ -251,6 +261,14 @@ public class ProcessManifest {
 
 	public String getPackageName() {
 		return this.packageName;
+	}
+
+	public int getMinSdkVersion() {
+		return this.minSdkVersion;
+	}
+	
+	public int targetSdkVersion() {
+		return this.targetSdkVersion;
 	}
 	
 }
