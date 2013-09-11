@@ -200,7 +200,7 @@ public class Test {
 				else
 					app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
 				app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-				app.setPathTracking(PathTrackingMethod.ForwardTracking);
+//				app.setPathTracking(PathTrackingMethod.ForwardTracking);
 				
 				if (DEBUG) {
 					app.printEntrypoints();
@@ -286,7 +286,7 @@ public class Test {
 			else
 				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-			app.setPathTracking(PathTrackingMethod.ForwardTracking);
+//			app.setPathTracking(PathTrackingMethod.ForwardTracking);
 				
 			if (DEBUG) {
 				app.printEntrypoints();
