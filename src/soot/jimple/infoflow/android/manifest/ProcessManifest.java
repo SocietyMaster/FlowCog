@@ -35,10 +35,15 @@ import android.content.res.AXmlResourceParser;
 public class ProcessManifest {
 	
 	private final Set<String> entryPointsClasses = new HashSet<String>();
-	private String packageName = "";
 	private String applicationName = "";
+	
+	private int versionCode = -1;
+	private String versionName = "";
+
+	private String packageName = "";
 	private int minSdkVersion = -1;
 	private int targetSdkVersion = -1;
+	
 	private final Set<String> permissions = new HashSet<String>();
 	
 	/**
@@ -108,8 +113,13 @@ public class ProcessManifest {
 						break;
 					case XmlPullParser.START_TAG:
 						String tagName = parser.getName();
-						if (tagName.equals("manifest"))
+						if (tagName.equals("manifest")) {
 							this.packageName = getAttributeValue(parser, "package");
+							String versionCode = getAttributeValue(parser, "versionCode");
+							if (versionCode != null && versionCode.length() > 0)
+								this.versionCode = Integer.valueOf(versionCode);
+							this.versionName = getAttributeValue(parser, "versionName");
+						}
 						else if (tagName.equals("activity")
 								|| tagName.equals("receiver")
 								|| tagName.equals("service")
@@ -192,6 +202,10 @@ public class ProcessManifest {
 			
 			Element rootElement = doc.getDocumentElement();
 			this.packageName = rootElement.getAttribute("package");
+			String versionCode = rootElement.getAttribute("android:versionCode");
+			if (versionCode != null && versionCode.length() > 0)
+				this.versionCode = Integer.valueOf(versionCode);
+			this.versionName = rootElement.getAttribute("android:versionName");
 			
 			NodeList appsElement = rootElement.getElementsByTagName("application");
 			if (appsElement.getLength() > 1)
@@ -225,6 +239,17 @@ public class ProcessManifest {
 					Element permission = (Element) permissions.item(i);
 					this.permissions.add(permission.getAttribute("android:name"));
 				}
+
+				NodeList usesSdkList = appElement.getElementsByTagName("uses-sdk");
+				for (int i = 0; i < usesSdkList.getLength(); i++) {
+					Element usesSdk = (Element) usesSdkList.item(i);
+					String minVersion = usesSdk.getAttribute("android:minSdkVersion");
+					if (minVersion != null && minVersion.length() > 0)
+						this.minSdkVersion = Integer.valueOf(minVersion);
+					String targetVersion = usesSdk.getAttribute("android:targetSdkVersion");
+					if (targetVersion != null && targetVersion.length() > 0)
+						this.targetSdkVersion = Integer.valueOf(targetVersion);
+				}
 			}			
 		}
 		catch (IOException ex) {
@@ -257,6 +282,14 @@ public class ProcessManifest {
 	
 	public Set<String> getPermissions() {
 		return this.permissions;
+	}
+	
+	public int getVersionCode() {
+		return this.versionCode;
+	}
+	
+	public String getVersionName() {
+		return this.versionName;
 	}
 
 	public String getPackageName() {
