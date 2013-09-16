@@ -27,7 +27,6 @@ import java.util.concurrent.TimeoutException;
 
 import soot.SootMethod;
 import soot.Unit;
-import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
@@ -87,6 +86,8 @@ public class Test {
 	
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
+	
+	private static boolean implicitFlows = false;
 	
 	private static boolean DEBUG = false;
 
@@ -174,6 +175,10 @@ public class Test {
 				sysTimeout = Integer.valueOf(args[i+1]);
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--implicit")) {
+				implicitFlows = true;
+				i++;
+			}
 			else
 				i++;
 		}
@@ -181,7 +186,6 @@ public class Test {
 	
 	private static boolean validateAdditionalOptions() {
 		if (timeout > 0 && sysTimeout > 0) {
-			System.err.println("Timeout and system timeout cannot be used together");
 			return false;
 		}
 		return true;
@@ -192,29 +196,12 @@ public class Test {
 
 			@Override
 			public InfoflowResults call() throws Exception {
-				final long beforeRun = System.nanoTime();
-				
-				final SetupApplication app = new SetupApplication(androidJar, fileName);
-				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-					app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
-				else
-					app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
-				app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-//				app.setPathTracking(PathTrackingMethod.ForwardTracking);
-				
-				if (DEBUG) {
-					app.printEntrypoints();
-					app.printSinks();
-					app.printSources();
-				}
 				
 				final BufferedWriter wr = new BufferedWriter(new FileWriter("_out_" + new File(fileName).getName() + ".txt"));
 				try {
-					System.out.println("Running data flow analysis...");
-					final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler(wr));
-					System.out.println("Data flow analysis done.");
-
-					System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+					final long beforeRun = System.nanoTime();
+					wr.write("Running data flow analysis...\n");
+					final InfoflowResults res = runAnalysis(fileName, androidJar);
 					wr.write("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds\n");
 					
 					wr.flush();
@@ -255,6 +242,7 @@ public class Test {
 		String[] command = new String[] { executable,
 				"-s", "KILL",
 				sysTimeout + "m",
+				implicitFlows ? "--implicit" : "--explicit",
 				javaHome + "/bin/java",
 				"-cp", classpath,
 				"soot.jimple.infoflow.android.TestApps.Test",
@@ -276,7 +264,7 @@ public class Test {
 		}
 	}
 
-	private static void runAnalysis(final String fileName, final String androidJar) {
+	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
 				
@@ -295,11 +283,13 @@ public class Test {
 			}
 				
 			System.out.println("Running data flow analysis...");
-			app.runInfoflow(new MyResultsAvailableHandler());
+			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+			return res;
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
 			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		}
 	}
 
@@ -310,6 +300,7 @@ public class Test {
 		System.out.println("Optional further parameters:");
 		System.out.println("\t--TIMEOUT n Time out after n seconds");
 		System.out.println("\t--SYSTIMEOUT n Hard time out (kill process) after n seconds, Unix only");
+		System.out.println("\t--IMPLICIT Enable implicit flows");
 	}
 
 }
