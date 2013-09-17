@@ -28,6 +28,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.AbstractInfoflowProblem.PathTrackingMethod;
+import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
@@ -364,7 +365,7 @@ public class SetupApplication {
 
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
-		soot.jimple.infoflow.Infoflow info = new soot.jimple.infoflow.Infoflow(androidJar, false);
+		Infoflow info = new Infoflow(androidJar, false);
 		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		try {
@@ -378,6 +379,7 @@ public class SetupApplication {
 			
 			System.out.println("Starting infoflow computation...");
 			info.setPathTracking(pathTracking);
+			info.setInspectSinks(false);
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 					sourceSinkManager);
 			return info.getResults();
