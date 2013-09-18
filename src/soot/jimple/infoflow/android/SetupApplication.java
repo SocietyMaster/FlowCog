@@ -64,6 +64,7 @@ public class SetupApplication {
 	private String taintWrapperFile;
 	
 	private AndroidSourceSinkManager sourceSinkManager = null;
+	private AndroidEntryPointCreator entryPointCreator = null;
 	
 	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
@@ -303,6 +304,8 @@ public class SetupApplication {
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 		}
+		
+		entryPointCreator = createEntryPointCreator();
 	}
 	
 	/**
@@ -339,7 +342,9 @@ public class SetupApplication {
 			c.setApplicationClass();	
 		}
 
-		SootMethod entryPoint = getEntryPointCreator().createDummyMain();
+		// Always update the entry point creator to reflect the newest set
+		// of callback methods
+		SootMethod entryPoint = createEntryPointCreator().createDummyMain();
 		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
 		return entryPoint;
 	}
@@ -374,9 +379,7 @@ public class SetupApplication {
 			info.setSootConfig(new SootConfigForAndroid());
 			if (onResultsAvailable != null)
 				info.addResultsAvailableHandler(onResultsAvailable);
-									
-			AndroidEntryPointCreator entryPointCreator = getEntryPointCreator();
-			
+						
 			System.out.println("Starting infoflow computation...");
 			info.setPathTracking(pathTracking);
 			info.setInspectSinks(false);
@@ -389,7 +392,7 @@ public class SetupApplication {
 		}
 	}
 
-	private AndroidEntryPointCreator getEntryPointCreator() {
+	private AndroidEntryPointCreator createEntryPointCreator() {
 		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
 			(new ArrayList<String>(this.entrypoints));
 		Map<String, List<String>> callbackMethodSigs = new HashMap<String, List<String>>();
@@ -400,6 +403,16 @@ public class SetupApplication {
 				methodSigs.add(am.getSignature());
 		}
 		entryPointCreator.setCallbackFunctions(callbackMethodSigs);
+		return entryPointCreator;
+	}
+	
+	/**
+	 * Gets the entry point creator used for generating the dummy main method
+	 * emulating the Android lifecycle and the callbacks. Make sure to call
+	 * calculateSourcesSinksEntryPoints() first, or you will get a null result.
+	 * @return The entry point creator
+	 */
+	public AndroidEntryPointCreator getEntryPointCreator() {
 		return entryPointCreator;
 	}
 	
