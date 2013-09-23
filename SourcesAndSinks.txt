@@ -122,7 +122,7 @@
 <android.media.AudioRecord: int read(short[],int,int)> -> _SOURCE_
 <android.media.AudioRecord: int read(byte[],int,int)> -> _SOURCE_
 <android.media.AudioRecord: int read(java.nio.ByteBuffer,int)> -> _SOURCE_
-<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)> android.permission.ACCESS_FINE_LOCATION android.permission.ACCESS_COARSE_LOCATION -> _SOURCE_
+<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)> -> _SOURCE_
 <android.content.pm.PackageManager: java.util.List getInstalledApplications(int)> -> _SOURCE_
 <android.content.pm.PackageManager: java.util.List getInstalledPackages(int)> -> _SOURCE_
 <android.content.pm.PackageManager: java.util.List queryIntentActivities(android.content.Intent,int)> -> _SOURCE_
@@ -154,6 +154,10 @@
 <java.io.OutputStream: void write(byte[])> -> _SINK_
 <java.io.OutputStream: void write(byte[],int,int)> -> _SINK_
 <java.io.OutputStream: void write(int)> -> _SINK_
+
+<java.io.FileOutputStream: void write(byte[])> -> _SINK_
+<java.io.FileOutputStream: void write(byte[],int,int)> -> _SINK_
+<java.io.FileOutputStream: void write(int)> -> _SINK_
 
 <java.io.Writer: void write(char[])> -> _SINK_
 <java.io.Writer: void write(char[],int,int)> -> _SINK_
