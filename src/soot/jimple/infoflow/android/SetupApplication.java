@@ -117,6 +117,14 @@ public class SetupApplication {
 		}
 		System.out.println("End of Sources");
 	}
+	
+	/**
+	 * Gets the set of classes containing entry point methods for the lifecycle
+	 * @return The set of classes containing entry point methods for the lifecycle
+	 */
+	public Set<String> getEntrypointClasses() {
+		return entrypoints;
+	}
 
 	/**
 	 * Prints list of classes containing entry points to stdout
