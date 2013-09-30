@@ -1261,6 +1261,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 					res = new FractionResource(FractionType.Fraction, data);
 				else
 					res = new FractionResource(FractionType.FractionParent, data);
+				break;
 			default:
 				return null;
 		}
