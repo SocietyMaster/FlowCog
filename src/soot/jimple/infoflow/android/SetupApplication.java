@@ -52,6 +52,7 @@ public class SetupApplication {
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
 	private PathTrackingMethod pathTracking = PathTrackingMethod.NoTracking;
+	private boolean enableImplicitFlows = false;
 
 	private Set<String> entrypoints = null;
 	
@@ -382,6 +383,7 @@ public class SetupApplication {
 						
 			System.out.println("Starting infoflow computation...");
 			info.setPathTracking(pathTracking);
+			info.setEnableImplicitFlows(enableImplicitFlows);
 			info.setInspectSinks(false);
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 					sourceSinkManager);
@@ -424,6 +426,17 @@ public class SetupApplication {
 	 */
 	public void setPathTracking(PathTrackingMethod method) {
 		this.pathTracking = method;
+	}
+	
+	/**
+	 * Sets whether implicit flow tracking shall be enabled. While this allows
+	 * control flow-based leaks to be found, it can severly affect performance
+	 * and lead to an increased number of false positives.
+	 * @param enableImplicitFlows True if implicit flow tracking shall be enabled,
+	 * otherwise false
+	 */
+	public void setEnableImplicitFlows(boolean enableImplicitFlows) {
+		this.enableImplicitFlows = enableImplicitFlows;
 	}
 
 }

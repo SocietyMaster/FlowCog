@@ -274,6 +274,7 @@ public class Test {
 			else
 				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+			app.setEnableImplicitFlows(implicitFlows);
 //			app.setPathTracking(PathTrackingMethod.ForwardTracking);
 				
 			if (DEBUG) {
