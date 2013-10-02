@@ -19,13 +19,12 @@ import org.junit.Test;
 
 import soot.jimple.infoflow.InfoflowResults;
 
-@Ignore
 public class ImplicitFlowTests extends JUnitTests {
 	
 	@Test
 	public void runTestImplicitFlow1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow1.apk");
-		Assert.assertEquals(2, res.size());
+		Assert.assertEquals(1, res.size());		// same source and sink, gets collapsed into one leak
 	}
 
 	@Test
@@ -35,6 +34,7 @@ public class ImplicitFlowTests extends JUnitTests {
 	}
 
 	@Test
+	@Ignore		// not supported yet
 	public void runTestImplicitFlow3() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow3.apk");
 		Assert.assertEquals(2, res.size());
@@ -43,7 +43,7 @@ public class ImplicitFlowTests extends JUnitTests {
 	@Test
 	public void runTestImplicitFlow4() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow4.apk");
-		Assert.assertEquals(2, res.size());
+		Assert.assertEquals(3, res.size());		// 2 + Exception
 	}
 
 }
