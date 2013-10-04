@@ -13,7 +13,6 @@ package soot.jimple.infoflow.android;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -340,7 +339,6 @@ public class SetupApplication {
 				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_process_dir(Arrays.asList(this.entrypoints.toArray()));
 		Options.v().set_app(true);
 		Main.v().autoSetOptions();
 
