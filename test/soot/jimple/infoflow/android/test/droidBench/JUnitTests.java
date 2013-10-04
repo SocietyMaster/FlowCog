@@ -18,7 +18,27 @@ import soot.jimple.infoflow.android.SetupApplication;
 
 public class JUnitTests {
 	
+	/**
+	 * Analyzes the given APK file for data flows
+	 * @param fileName The full path and file name of the APK file to analyze
+	 * @return The data leaks found in the given APK file
+	 * @throws IOException Thrown if the given APK file or any other required
+	 * file could not be found
+	 */
 	public InfoflowResults analyzeAPKFile(String fileName) throws IOException {
+		return analyzeAPKFile(fileName, false);
+	}
+	
+	/**
+	 * Analyzes the given APK file for data flows
+	 * @param fileName The full path and file name of the APK file to analyze
+	 * @param enableImplicitFlows True if implicit flows shall be tracked,
+	 * otherwise false
+	 * @return The data leaks found in the given APK file
+	 * @throws IOException Thrown if the given APK file or any other required
+	 * file could not be found
+	 */
+	public InfoflowResults analyzeAPKFile(String fileName, boolean enableImplicitFlows) throws IOException {
 		String androidJars = System.getenv("ANDROID_JARS");
 		if (androidJars == null)
 			throw new RuntimeException("Android JAR dir not set");
@@ -35,6 +55,7 @@ public class JUnitTests {
 				droidBenchDir + File.separator + fileName);
 		setupApplication.setTaintWrapperFile("EasyTaintWrapperSource.txt");
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
 		return setupApplication.runInfoflow();
 	}
 

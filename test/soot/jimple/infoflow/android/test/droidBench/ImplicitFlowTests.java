@@ -23,26 +23,26 @@ public class ImplicitFlowTests extends JUnitTests {
 	
 	@Test
 	public void runTestImplicitFlow1() throws IOException {
-		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow1.apk");
+		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow1.apk", true);
 		Assert.assertEquals(1, res.size());		// same source and sink, gets collapsed into one leak
 	}
 
 	@Test
 	public void runTestImplicitFlow2() throws IOException {
-		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow2.apk");
+		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow2.apk", true);
 		Assert.assertEquals(2, res.size());
 	}
 
 	@Test
 	@Ignore		// not supported yet
 	public void runTestImplicitFlow3() throws IOException {
-		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow3.apk");
+		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow3.apk", true);
 		Assert.assertEquals(2, res.size());
 	}
 
 	@Test
 	public void runTestImplicitFlow4() throws IOException {
-		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow4.apk");
+		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow4.apk", true);
 		Assert.assertEquals(3, res.size());		// 2 + Exception
 	}
 
