@@ -39,7 +39,6 @@ import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
-import soot.jimple.infoflow.problems.AbstractInfoflowProblem.PathTrackingMethod;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
@@ -50,7 +49,6 @@ public class SetupApplication {
 	private Set<AndroidMethod> sources = null;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
-	private PathTrackingMethod pathTracking = PathTrackingMethod.NoTracking;
 	private boolean enableImplicitFlows = false;
 
 	private Set<String> entrypoints = null;
@@ -388,7 +386,6 @@ public class SetupApplication {
 				info.addResultsAvailableHandler(onResultsAvailable);
 						
 			System.out.println("Starting infoflow computation...");
-			info.setPathTracking(pathTracking);
 			info.setEnableImplicitFlows(enableImplicitFlows);
 			info.setInspectSinks(false);
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
@@ -423,17 +420,7 @@ public class SetupApplication {
 	public AndroidEntryPointCreator getEntryPointCreator() {
 		return entryPointCreator;
 	}
-	
-	/**
-	 * Sets whether and how data leakage paths through the application shall be
-	 * tracked
-	 * @param method The mode for tracking data leakage paths through the
-	 * application
-	 */
-	public void setPathTracking(PathTrackingMethod method) {
-		this.pathTracking = method;
-	}
-	
+		
 	/**
 	 * Sets whether implicit flow tracking shall be enabled. While this allows
 	 * control flow-based leaks to be found, it can severly affect performance
