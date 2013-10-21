@@ -34,6 +34,7 @@ import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
@@ -123,6 +124,7 @@ public class Test {
 		
 		List<String> apkFiles = new ArrayList<String>();
 		File apkFile = new File(args[0]);
+		String extension = apkFile.getName().substring(apkFile.getName().lastIndexOf("."));
 		if (apkFile.isDirectory()) {
 			String[] dirFiles = apkFile.list(new FilenameFilter() {
 			
@@ -135,17 +137,17 @@ public class Test {
 			for (String s : dirFiles)
 				apkFiles.add(s);
 		}
-		else if (apkFile.getName().substring(apkFile.getName().lastIndexOf(".")).equalsIgnoreCase(".txt")) {
+		else if (extension.equalsIgnoreCase(".txt")) {
 			BufferedReader rdr = new BufferedReader(new FileReader(apkFile));
 			String line = null;
 			while ((line = rdr.readLine()) != null)
 				apkFiles.add(line);
 			rdr.close();
 		}
-		else if (apkFile.getName().substring(apkFile.getName().lastIndexOf(".")).equalsIgnoreCase(".apk"))
+		else if (extension.equalsIgnoreCase(".apk"))
 			apkFiles.add(args[0]);
 		else {
-			System.err.println("Invalid input file format");
+			System.err.println("Invalid input file format: " + extension);
 			return;
 		}
 
@@ -154,9 +156,12 @@ public class Test {
 			
 			// Directory handling
 			if (apkFiles.size() > 1) {
-				fullFilePath = args[0] + File.separator + fileName;
+				if (apkFile.isDirectory())
+					fullFilePath = args[0] + File.separator + fileName;
+				else
+					fullFilePath = fileName;
 				System.out.println("Analyzing file " + fullFilePath + "...");
-				File flagFile = new File("_Run_" + fileName);
+				File flagFile = new File("_Run_" + new File(fileName).getName());
 				if (flagFile.exists())
 					continue;
 				flagFile.createNewFile();
@@ -255,12 +260,12 @@ public class Test {
 		String[] command = new String[] { executable,
 				"-s", "KILL",
 				sysTimeout + "m",
-				implicitFlows ? "--implicit" : "--explicit",
 				javaHome + "/bin/java",
 				"-cp", classpath,
 				"soot.jimple.infoflow.android.TestApps.Test",
 				fileName,
-				androidJar };
+				androidJar,
+				implicitFlows ? "--implicit" : "--explicit" };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -283,9 +288,9 @@ public class Test {
 				
 			final SetupApplication app = new SetupApplication(androidJar, fileName);
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-				app.setTaintWrapperFile("../soot-infoflow/EasyTaintWrapperSource.txt");
+				app.setTaintWrapper(new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt"));
 			else
-				app.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+				app.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 			app.setEnableImplicitFlows(implicitFlows);
 //			app.setPathTracking(PathTrackingMethod.ForwardTracking);

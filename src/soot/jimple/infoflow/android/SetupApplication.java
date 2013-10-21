@@ -40,7 +40,7 @@ import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
-import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
+import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
 
@@ -60,7 +60,7 @@ public class SetupApplication {
 	
 	private final String androidJar;
 	private final String apkFileLocation;
-	private String taintWrapperFile;
+	private ITaintPropagationWrapper taintWrapper;
 	
 	private AndroidSourceSinkManager sourceSinkManager = null;
 	private AndroidEntryPointCreator entryPointCreator = null;
@@ -141,13 +141,22 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets the file from which to load taint wrapper information. If this value
-	 * is null or empty, no taint wrapping is used.
-	 * @param taintWrapperFile The taint wrapper file to use or null to disable
-	 * taint wrapping
+	 * Sets the taint wrapper to be used for propagating taints over unknown
+	 * (library) callees. If this value is null, no taint wrapping is used.
+	 * @param taintWrapper The taint wrapper to use or null to disable taint
+	 * wrapping
 	 */
-	public void setTaintWrapperFile(String taintWrapperFile) {
-		this.taintWrapperFile = taintWrapperFile;
+	public void setTaintWrapper(ITaintPropagationWrapper taintWrapper) {
+		this.taintWrapper = taintWrapper;
+	}
+	
+	/**
+	 * Gets the taint wrapper to be used for propagating taints over unknown
+	 * (library) callees. If this value is null, no taint wrapping is used.
+	 * @return The taint wrapper to use or null if taint wrapping is disabled
+	 */
+	public ITaintPropagationWrapper getTaintWrapper() {
+		return this.taintWrapper;
 	}
 
 	/**
@@ -381,24 +390,19 @@ public class SetupApplication {
 		Infoflow info = new Infoflow(androidJar, false);
 		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
-		try {
-			if (this.taintWrapperFile != null && !this.taintWrapperFile.isEmpty())
-				info.setTaintWrapper(new EasyTaintWrapper(new File(this.taintWrapperFile)));
-			info.setSootConfig(new SootConfigForAndroid());
-			if (onResultsAvailable != null)
-				info.addResultsAvailableHandler(onResultsAvailable);
+		info.setTaintWrapper(taintWrapper);
+		info.setSootConfig(new SootConfigForAndroid());
+		if (onResultsAvailable != null)
+			info.addResultsAvailableHandler(onResultsAvailable);
 						
-			System.out.println("Starting infoflow computation...");
-			info.setSootConfig(sootConfig);
-			info.setEnableImplicitFlows(enableImplicitFlows);
-			info.setInspectSinks(false);
-			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
-					sourceSinkManager);
-			return info.getResults();
-		}
-		catch (IOException ex) {
-			throw new RuntimeException("Error processing taint wrapper file", ex);
-		}
+		System.out.println("Starting infoflow computation...");
+		info.setSootConfig(sootConfig);
+		info.setEnableImplicitFlows(enableImplicitFlows);
+		info.setInspectSources(false);
+		info.setInspectSinks(false);
+		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
+				sourceSinkManager);
+		return info.getResults();
 	}
 
 	private AndroidEntryPointCreator createEntryPointCreator() {
