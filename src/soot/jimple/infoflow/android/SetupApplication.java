@@ -26,6 +26,7 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
@@ -66,6 +67,7 @@ public class SetupApplication {
 	private AndroidEntryPointCreator entryPointCreator = null;
 	
 	private IInfoflowConfig sootConfig = null;
+	private BiDirICFGFactory cfgFactory = null;
 	
 	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
@@ -397,6 +399,8 @@ public class SetupApplication {
 						
 		System.out.println("Starting infoflow computation...");
 		info.setSootConfig(sootConfig);
+		if (cfgFactory != null)
+			info.setIcfgFactory(cfgFactory);
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
@@ -458,6 +462,16 @@ public class SetupApplication {
 	 */
 	public void setSootConfig(IInfoflowConfig config) {
 		this.sootConfig = config;
+	}
+	
+	/**
+	 * Sets the factory class to be used for constructing interprocedural
+	 * control flow graphs
+	 * @param factory The factory to be used. If null is passed, the default
+	 * factory is used.
+	 */
+	public void setIcfgFactory(BiDirICFGFactory factory) {
+		this.cfgFactory = factory;
 	}
 
 }
