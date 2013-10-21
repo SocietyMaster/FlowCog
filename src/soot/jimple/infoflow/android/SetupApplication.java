@@ -37,6 +37,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
+import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
@@ -63,6 +64,8 @@ public class SetupApplication {
 	
 	private AndroidSourceSinkManager sourceSinkManager = null;
 	private AndroidEntryPointCreator entryPointCreator = null;
+	
+	private IInfoflowConfig sootConfig = null;
 	
 	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
@@ -386,6 +389,7 @@ public class SetupApplication {
 				info.addResultsAvailableHandler(onResultsAvailable);
 						
 			System.out.println("Starting infoflow computation...");
+			info.setSootConfig(sootConfig);
 			info.setEnableImplicitFlows(enableImplicitFlows);
 			info.setInspectSinks(false);
 			info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
@@ -430,6 +434,26 @@ public class SetupApplication {
 	 */
 	public void setEnableImplicitFlows(boolean enableImplicitFlows) {
 		this.enableImplicitFlows = enableImplicitFlows;
+	}
+	
+	/**
+	 * Gets the extra Soot configuration options to be used when running the
+	 * analysis
+	 * @return The extra Soot configuration options to be used when running the
+	 * analysis, null if the defaults shall be used
+	 */
+	public IInfoflowConfig getSootConfig() {
+		return this.sootConfig;
+	}
+
+	/**
+	 * Sets the extra Soot configuration options to be used when running the
+	 * analysis
+	 * @param config The extra Soot configuration options to be used when
+	 * running the analysis, null if the defaults shall be used
+	 */
+	public void setSootConfig(IInfoflowConfig config) {
+		this.sootConfig = config;
 	}
 
 }

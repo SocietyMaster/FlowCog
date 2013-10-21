@@ -10,8 +10,10 @@
  ******************************************************************************/
 package soot.jimple.infoflow.android.TestApps;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -133,8 +135,19 @@ public class Test {
 			for (String s : dirFiles)
 				apkFiles.add(s);
 		}
-		else
+		else if (apkFile.getName().substring(apkFile.getName().lastIndexOf(".")).equalsIgnoreCase(".txt")) {
+			BufferedReader rdr = new BufferedReader(new FileReader(apkFile));
+			String line = null;
+			while ((line = rdr.readLine()) != null)
+				apkFiles.add(line);
+			rdr.close();
+		}
+		else if (apkFile.getName().substring(apkFile.getName().lastIndexOf(".")).equalsIgnoreCase(".apk"))
 			apkFiles.add(args[0]);
+		else {
+			System.err.println("Invalid input file format");
+			return;
+		}
 
 		for (final String fileName : apkFiles) {
 			final String fullFilePath;
