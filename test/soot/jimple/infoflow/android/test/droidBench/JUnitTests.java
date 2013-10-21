@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
 public class JUnitTests {
 	
@@ -53,7 +54,7 @@ public class JUnitTests {
 		
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				droidBenchDir + File.separator + fileName);
-		setupApplication.setTaintWrapperFile("EasyTaintWrapperSource.txt");
+		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
 		return setupApplication.runInfoflow();
