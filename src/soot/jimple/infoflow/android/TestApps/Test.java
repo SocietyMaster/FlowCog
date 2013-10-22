@@ -29,6 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 import soot.SootMethod;
 import soot.Unit;
+import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
@@ -95,6 +96,8 @@ public class Test {
 	private static boolean staticTracking = true;
 	private static int accessPathLength = 5;
 	
+	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
+	
 	private static boolean DEBUG = false;
 
 	/**
@@ -121,7 +124,8 @@ public class Test {
 		}
 		
 		// Parse additional command-line arguments
-		parseAdditionalOptions(args);
+		if (!parseAdditionalOptions(args))
+			return;
 		if (!validateAdditionalOptions())
 			return;
 		
@@ -185,7 +189,7 @@ public class Test {
 	}
 
 
-	private static void parseAdditionalOptions(String[] args) {
+	private static boolean parseAdditionalOptions(String[] args) {
 		int i = 2;
 		while (i < args.length) {
 			if (args[i].equalsIgnoreCase("--timeout")) {
@@ -212,9 +216,24 @@ public class Test {
 				accessPathLength = Integer.valueOf(args[i+1]);
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--cgalgo")) {
+				String algo = args[i+1];
+				if (algo.equalsIgnoreCase("AUTO"))
+					callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
+				else if (algo.equalsIgnoreCase("VTA"))
+					callgraphAlgorithm = CallgraphAlgorithm.VTA;
+				else if (algo.equalsIgnoreCase("RTA"))
+					callgraphAlgorithm = CallgraphAlgorithm.RTA;
+				else {
+					System.err.println("Invalid callgraph algorithm");
+					return false;
+				}
+				i += 2;
+			}
 			else
 				i++;
 		}
+		return true;
 	}
 	
 	private static boolean validateAdditionalOptions() {
@@ -283,7 +302,8 @@ public class Test {
 				stopAfterFirstFlow ? "--singleflow" : "--nosingleflow",
 				implicitFlows ? "--implicit" : "--noimplicit",
 				staticTracking ? "--static" : "--nostatic", 
-				"-aplength", Integer.toString(accessPathLength) };
+				"-aplength", Integer.toString(accessPathLength),
+				"-cgalgo", callgraphAlgorithmToString(callgraphAlgorithm) };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -297,6 +317,19 @@ public class Test {
 		} catch (InterruptedException ex) {
 			System.err.println("Process was interrupted: " + ex.getMessage());
 			ex.printStackTrace();
+		}
+	}
+	
+	public static String callgraphAlgorithmToString(CallgraphAlgorithm algorihm) {
+		switch (algorihm) {
+			case AutomaticSelection:
+				return "AUTO";
+			case VTA:
+				return "VTA";
+			case RTA:
+				return "RTA";
+			default:
+				return "unknown";
 		}
 	}
 
@@ -315,7 +348,7 @@ public class Test {
 			app.setEnableImplicitFlows(implicitFlows);
 			app.setEnableStaticFieldTracking(staticTracking);
 			app.setAccessPathLength(accessPathLength);
-				
+			
 			if (DEBUG) {
 				app.printEntrypoints();
 				app.printSinks();
@@ -344,6 +377,9 @@ public class Test {
 		System.out.println("\t--IMPLICIT Enable implicit flows");
 		System.out.println("\t--NOSTATIC Disable static field tracking");
 		System.out.println("\t--APLENGTH n Set access path length to n");
+		System.out.println("\t--CGALGO x Use callgraph algorithm x");
+		System.out.println();
+		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
 	}
 
 }

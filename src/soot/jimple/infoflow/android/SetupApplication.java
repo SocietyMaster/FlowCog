@@ -29,6 +29,7 @@ import soot.SootMethod;
 import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -55,6 +56,8 @@ public class SetupApplication {
 	private boolean enableImplicitFlows = false;
 	private boolean enableStaticFields = true;
 	private int accessPathLength = 5;
+	
+	private CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 
 	private Set<String> entrypoints = null;
 	
@@ -409,8 +412,11 @@ public class SetupApplication {
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setEnableStaticFieldTracking(enableStaticFields);
 		info.setAccessPathLength(accessPathLength);
+		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
+		
+		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
 		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 				sourceSinkManager);
@@ -478,6 +484,14 @@ public class SetupApplication {
 	 */
 	public void setAccessPathLength(int accessPathLength) {
 		this.accessPathLength = accessPathLength;
+	}
+	
+	/**
+	 * Sets the callgraph algorithm to be used by the data flow tracker
+	 * @param algorithm The callgraph algorithm to be used by the data flow tracker
+	 */
+	public void setCallgraphAlgorithm(CallgraphAlgorithm algorithm) {
+		this.callgraphAlgorithm = algorithm;
 	}
 
 	/**
