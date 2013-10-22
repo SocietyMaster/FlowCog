@@ -52,6 +52,8 @@ public class SetupApplication {
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
 	private boolean enableImplicitFlows = false;
+	private boolean enableStaticFields = true;
+	private int accessPathLength = 5;
 
 	private Set<String> entrypoints = null;
 	
@@ -402,6 +404,8 @@ public class SetupApplication {
 		if (cfgFactory != null)
 			info.setIcfgFactory(cfgFactory);
 		info.setEnableImplicitFlows(enableImplicitFlows);
+		info.setEnableStaticFieldTracking(enableStaticFields);
+		info.setAccessPathLength(accessPathLength);
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
 		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
@@ -444,6 +448,24 @@ public class SetupApplication {
 		this.enableImplicitFlows = enableImplicitFlows;
 	}
 	
+	/**
+	 * Sets whether static fields shall be tracked in the data flow tracker
+	 * @param enable StaticFields True if static fields shall be tracked,
+	 * otherwise false
+	 */
+	public void setEnableStaticFieldTracking(boolean enableStaticFields) {
+		this.enableStaticFields = enableStaticFields;
+	}
+	
+	/**
+	 * Sets the maximum access path length to be used in the solver
+	 * @param accessPathLength The maximum access path length to be used in the
+	 * solver
+	 */
+	public void setAccessPathLength(int accessPathLength) {
+		this.accessPathLength = accessPathLength;
+	}
+
 	/**
 	 * Gets the extra Soot configuration options to be used when running the
 	 * analysis

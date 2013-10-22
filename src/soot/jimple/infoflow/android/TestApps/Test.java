@@ -91,6 +91,8 @@ public class Test {
 	private static int sysTimeout = -1;
 	
 	private static boolean implicitFlows = false;
+	private static boolean staticTracking = true;
+	private static int accessPathLength = 5;
 	
 	private static boolean DEBUG = false;
 
@@ -197,6 +199,14 @@ public class Test {
 				implicitFlows = true;
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--nostatic")) {
+				staticTracking = false;
+				i++;
+			}
+			else if (args[i].equalsIgnoreCase("--aplength")) {
+				accessPathLength = Integer.valueOf(args[i+1]);
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -265,7 +275,9 @@ public class Test {
 				"soot.jimple.infoflow.android.TestApps.Test",
 				fileName,
 				androidJar,
-				implicitFlows ? "--implicit" : "--explicit" };
+				implicitFlows ? "--implicit" : "--noimplicit",
+				staticTracking ? "--static" : "--nostatic", 
+				"-aplength", Integer.toString(accessPathLength) };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -293,7 +305,8 @@ public class Test {
 				app.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 			app.setEnableImplicitFlows(implicitFlows);
-//			app.setPathTracking(PathTrackingMethod.ForwardTracking);
+			app.setEnableStaticFieldTracking(staticTracking);
+			app.setAccessPathLength(accessPathLength);
 				
 			if (DEBUG) {
 				app.printEntrypoints();
@@ -320,6 +333,8 @@ public class Test {
 		System.out.println("\t--TIMEOUT n Time out after n seconds");
 		System.out.println("\t--SYSTIMEOUT n Hard time out (kill process) after n seconds, Unix only");
 		System.out.println("\t--IMPLICIT Enable implicit flows");
+		System.out.println("\t--NOSTATIC Disable static field tracking");
+		System.out.println("\t--APLENGTH n Set access path length to n");
 	}
 
 }
