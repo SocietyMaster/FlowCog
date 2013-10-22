@@ -51,6 +51,7 @@ public class SetupApplication {
 	private Set<AndroidMethod> sources = null;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
+	private boolean stopAfterFirstFlow = false;
 	private boolean enableImplicitFlows = false;
 	private boolean enableStaticFields = true;
 	private int accessPathLength = 5;
@@ -403,11 +404,14 @@ public class SetupApplication {
 		info.setSootConfig(sootConfig);
 		if (cfgFactory != null)
 			info.setIcfgFactory(cfgFactory);
+		
+		info.setStopAfterFirstFlow(stopAfterFirstFlow);
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setEnableStaticFieldTracking(enableStaticFields);
 		info.setAccessPathLength(accessPathLength);
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
+		
 		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
 				sourceSinkManager);
 		return info.getResults();
@@ -435,6 +439,16 @@ public class SetupApplication {
 	 */
 	public AndroidEntryPointCreator getEntryPointCreator() {
 		return entryPointCreator;
+	}
+	
+	/**
+	 * Sets whether the data flow tracker shall stop after the first leak has
+	 * been found
+	 * @param stopAfterFirstFlow True if the data flow tracker shall stop after
+	 * the first flow has been found, otherwise false
+	 */
+	public void setStopAfterFirstFlow(boolean stopAfterFirstFlow) {
+		this.stopAfterFirstFlow = stopAfterFirstFlow;
 	}
 		
 	/**

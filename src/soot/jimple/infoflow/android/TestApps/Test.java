@@ -90,6 +90,7 @@ public class Test {
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
 	
+	private static boolean stopAfterFirstFlow = false;
 	private static boolean implicitFlows = false;
 	private static boolean staticTracking = true;
 	private static int accessPathLength = 5;
@@ -195,6 +196,10 @@ public class Test {
 				sysTimeout = Integer.valueOf(args[i+1]);
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--singleflow")) {
+				stopAfterFirstFlow = true;
+				i++;
+			}
 			else if (args[i].equalsIgnoreCase("--implicit")) {
 				implicitFlows = true;
 				i++;
@@ -275,6 +280,7 @@ public class Test {
 				"soot.jimple.infoflow.android.TestApps.Test",
 				fileName,
 				androidJar,
+				stopAfterFirstFlow ? "--singleflow" : "--nosingleflow",
 				implicitFlows ? "--implicit" : "--noimplicit",
 				staticTracking ? "--static" : "--nostatic", 
 				"-aplength", Integer.toString(accessPathLength) };
@@ -304,6 +310,8 @@ public class Test {
 			else
 				app.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+			
+			app.setStopAfterFirstFlow(stopAfterFirstFlow);
 			app.setEnableImplicitFlows(implicitFlows);
 			app.setEnableStaticFieldTracking(staticTracking);
 			app.setAccessPathLength(accessPathLength);
@@ -332,6 +340,7 @@ public class Test {
 		System.out.println("Optional further parameters:");
 		System.out.println("\t--TIMEOUT n Time out after n seconds");
 		System.out.println("\t--SYSTIMEOUT n Hard time out (kill process) after n seconds, Unix only");
+		System.out.println("\t--SINGLEFLOW Stop after finding first leak");
 		System.out.println("\t--IMPLICIT Enable implicit flows");
 		System.out.println("\t--NOSTATIC Disable static field tracking");
 		System.out.println("\t--APLENGTH n Set access path length to n");
