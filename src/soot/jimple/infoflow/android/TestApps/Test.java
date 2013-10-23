@@ -380,6 +380,7 @@ public class Test {
 			app.setEnableStaticFieldTracking(staticTracking);
 			app.setEnableCallbacks(enableCallbacks);
 			app.setAccessPathLength(accessPathLength);
+			app.setLayoutMatchingMode(layoutMatchingMode);
 
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
 				app.setTaintWrapper(new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt"));

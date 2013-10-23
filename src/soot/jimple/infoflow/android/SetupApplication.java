@@ -57,6 +57,7 @@ public class SetupApplication {
 	private boolean enableStaticFields = true;
 	private boolean enableCallbacks = true;
 	private int accessPathLength = 5;
+	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
 	private CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 
@@ -240,7 +241,7 @@ public class SetupApplication {
 			
 			sourceSinkManager = new AndroidSourceSinkManager
 					(sources, sinks, callbacks, false,
-					LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
+					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 		}
@@ -530,6 +531,15 @@ public class SetupApplication {
 	 */
 	public void setCallgraphAlgorithm(CallgraphAlgorithm algorithm) {
 		this.callgraphAlgorithm = algorithm;
+	}
+	
+	/**
+	 * Sets the mode to be used when deciding whether a UI control is a source
+	 * or not
+	 * @param mode The mode to be used for classifying UI controls as sources
+	 */
+	public void setLayoutMatchingMode(LayoutMatchingMode mode) {
+		this.layoutMatchingMode = mode;
 	}
 
 	/**

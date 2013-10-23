@@ -296,6 +296,10 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 				// control we're dealing with
 				if (this.layoutMatching == LayoutMatchingMode.MatchAll)
 					return true;
+				// If we don't have a layout control list, we cannot perform any
+				// more specific checks
+				if (this.layoutControls == null)
+					return false;
 				
 				// If we match specific controls, we need to get the ID of
 				// control and look up the respective data object
