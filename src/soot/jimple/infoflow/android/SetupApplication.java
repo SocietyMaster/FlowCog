@@ -55,6 +55,7 @@ public class SetupApplication {
 	private boolean stopAfterFirstFlow = false;
 	private boolean enableImplicitFlows = false;
 	private boolean enableStaticFields = true;
+	private boolean enableCallbacks = true;
 	private int accessPathLength = 5;
 	
 	private CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
@@ -211,9 +212,52 @@ public class SetupApplication {
 		resParser.parse(apkFileLocation);
 		this.resourcePackages = resParser.getPackages();
 
+		// Add the callback methods
+		if (enableCallbacks)
+			calculateCallbackMethods(resParser);
+
+		sources = new HashSet<AndroidMethod>(sourceMethods);
+		sinks = new HashSet<AndroidMethod>(sinkMethods);
+		
+		//add sink for Intents:
+		{
+			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
+					("<android.app.Activity: void startActivity(android.content.Intent)>"));
+			setResult.setSink(true);
+			sinks.add(setResult);
+		}
+		
+		System.out.println("Entry point calculation done.");
+		
+		// Clean up everything we no longer need
+		soot.G.reset();
+		
+		// Create the SourceSinkManager
+		{
+			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
+			for (Set<AndroidMethod> methods : this.callbackMethods.values())
+				callbacks.addAll(methods);
+			
+			sourceSinkManager = new AndroidSourceSinkManager
+					(sources, sinks, callbacks, false,
+					LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
+			sourceSinkManager.setAppPackageName(this.appPackageName);
+			sourceSinkManager.setResourcePackages(this.resourcePackages);
+		}
+		
+		entryPointCreator = createEntryPointCreator();
+	}
+
+	/**
+	 * Calculates the set of callback methods declared in the XML resource
+	 * files or the app's source code
+	 * @param resParser The binary resource parser containing the app resources
+	 * @throws IOException Thrown if a required configuration cannot be read
+	 */
+	private void calculateCallbackMethods(ARSCFileParser resParser) throws IOException {
 		AnalyzeJimpleClass jimpleClass = null;
 		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName, resParser);
-		
+
 		boolean hasChanged = true;
 		while (hasChanged) {
 			hasChanged = false;
@@ -234,7 +278,8 @@ public class SetupApplication {
 			
 			// Run the soot-based operations
 			PackManager.v().runPacks();
-			
+			this.layoutControls = lfp.getUserControls();
+
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
 				if (this.callbackMethods.containsKey(entry.getKey())) {
@@ -246,7 +291,6 @@ public class SetupApplication {
 					hasChanged = true;
 				}
 			}
-			this.layoutControls = lfp.getUserControls();
 		}
 		
 		// Collect the XML-based callback methods
@@ -300,38 +344,7 @@ public class SetupApplication {
 				callbacksPlain.addAll(set);
 			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
 					+ this.callbackMethods.size() + " components");
-	
-			sources = new HashSet<AndroidMethod>(sourceMethods);
-			sinks = new HashSet<AndroidMethod>(sinkMethods);
 		}
-		
-		//add sink for Intents:
-		{
-			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
-					("<android.app.Activity: void startActivity(android.content.Intent)>"));
-			setResult.setSink(true);
-			sinks.add(setResult);
-		}
-		
-		System.out.println("Entry point calculation done.");
-		
-		// Clean up everything we no longer need
-		soot.G.reset();
-		
-		// Create the SourceSinkManager
-		{
-			Set<AndroidMethod> callbacks = new HashSet<AndroidMethod>();
-			for (Set<AndroidMethod> methods : this.callbackMethods.values())
-				callbacks.addAll(methods);
-			
-			sourceSinkManager = new AndroidSourceSinkManager
-					(sources, sinks, callbacks, false,
-					LayoutMatchingMode.MatchSensitiveOnly, layoutControls);
-			sourceSinkManager.setAppPackageName(this.appPackageName);
-			sourceSinkManager.setResourcePackages(this.resourcePackages);
-		}
-		
-		entryPointCreator = createEntryPointCreator();
 	}
 	
 	/**
@@ -357,8 +370,24 @@ public class SetupApplication {
 				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_app(true);
+//		Options.v().set_app(true);
 		Main.v().autoSetOptions();
+		
+		// Configure the callgraph algorithm
+		switch (callgraphAlgorithm) {
+			case AutomaticSelection:
+				Options.v().setPhaseOption("cg.spark", "on");
+			case RTA:
+				Options.v().setPhaseOption("cg.spark", "on");
+				Options.v().setPhaseOption("cg.spark", "rta:true");
+				break;
+			case VTA:
+				Options.v().setPhaseOption("cg.spark", "on");
+				Options.v().setPhaseOption("cg.spark", "vta:true");
+				break;
+			default:
+				throw new RuntimeException("Invalid callgraph algorithm");
+		}
 
 		Scene.v().loadNecessaryClasses();
 		
@@ -470,13 +499,22 @@ public class SetupApplication {
 	
 	/**
 	 * Sets whether static fields shall be tracked in the data flow tracker
-	 * @param enable StaticFields True if static fields shall be tracked,
+	 * @param enableStaticFields True if static fields shall be tracked,
 	 * otherwise false
 	 */
 	public void setEnableStaticFieldTracking(boolean enableStaticFields) {
 		this.enableStaticFields = enableStaticFields;
 	}
 	
+	/**
+	 * Sets whether the taint analysis shall consider callbacks
+	 * @param enableCallbacks True if taints shall be tracked through callbacks,
+	 * otherwise false
+	 */
+	public void setEnableCallbacks(boolean enableCallbacks) {
+		this.enableCallbacks = enableCallbacks;
+	}
+
 	/**
 	 * Sets the maximum access path length to be used in the solver
 	 * @param accessPathLength The maximum access path length to be used in the

@@ -34,6 +34,7 @@ import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
@@ -94,7 +95,9 @@ public class Test {
 	private static boolean stopAfterFirstFlow = false;
 	private static boolean implicitFlows = false;
 	private static boolean staticTracking = true;
+	private static boolean enableCallbacks = true;
 	private static int accessPathLength = 5;
+	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.NoMatch;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -230,6 +233,24 @@ public class Test {
 				}
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--nocallbacks")) {
+				enableCallbacks = false;
+				i++;
+			}
+			else if (args[i].equalsIgnoreCase("--layoutmode")) {
+				String algo = args[i+1];
+				if (algo.equalsIgnoreCase("NONE"))
+					layoutMatchingMode = LayoutMatchingMode.NoMatch;
+				else if (algo.equalsIgnoreCase("PWD"))
+					layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
+				else if (algo.equalsIgnoreCase("ALL"))
+					layoutMatchingMode = LayoutMatchingMode.MatchAll;
+				else {
+					System.err.println("Invalid layout matching mode");
+					return false;
+				}
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -302,8 +323,10 @@ public class Test {
 				stopAfterFirstFlow ? "--singleflow" : "--nosingleflow",
 				implicitFlows ? "--implicit" : "--noimplicit",
 				staticTracking ? "--static" : "--nostatic", 
-				"-aplength", Integer.toString(accessPathLength),
-				"-cgalgo", callgraphAlgorithmToString(callgraphAlgorithm) };
+				"--aplength", Integer.toString(accessPathLength),
+				"--cgalgo", callgraphAlgorithmToString(callgraphAlgorithm),
+				enableCallbacks ? "--callbacks" : "--nocallbacks",
+				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode) };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -333,21 +356,36 @@ public class Test {
 		}
 	}
 
+	public static String layoutMatchingModeToString(LayoutMatchingMode mode) {
+		switch (mode) {
+			case NoMatch:
+				return "NONE";
+			case MatchSensitiveOnly:
+				return "PWD";
+			case MatchAll:
+				return "ALL";
+			default:
+				return "unknown";
+		}
+	}
+
 	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
 				
 			final SetupApplication app = new SetupApplication(androidJar, fileName);
+
+			app.setStopAfterFirstFlow(stopAfterFirstFlow);
+			app.setEnableImplicitFlows(implicitFlows);
+			app.setEnableStaticFieldTracking(staticTracking);
+			app.setEnableCallbacks(enableCallbacks);
+			app.setAccessPathLength(accessPathLength);
+
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
 				app.setTaintWrapper(new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt"));
 			else
 				app.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-			
-			app.setStopAfterFirstFlow(stopAfterFirstFlow);
-			app.setEnableImplicitFlows(implicitFlows);
-			app.setEnableStaticFieldTracking(staticTracking);
-			app.setAccessPathLength(accessPathLength);
 			
 			if (DEBUG) {
 				app.printEntrypoints();
@@ -378,8 +416,11 @@ public class Test {
 		System.out.println("\t--NOSTATIC Disable static field tracking");
 		System.out.println("\t--APLENGTH n Set access path length to n");
 		System.out.println("\t--CGALGO x Use callgraph algorithm x");
+		System.out.println("\t--NOCALLBACKS Disable callback analysis");
+		System.out.println("\t--LAYOUTMODE x Set UI control analysis mode to x");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
+		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
 	}
 
 }
