@@ -234,3 +234,6 @@
 <android.provider.Browser: android.database.Cursor getAllBookmarks()> -> _SOURCE_
 <android.provider.Browser: android.database.Cursor getAllVisitedUrls()> -> _SOURCE_
 <java.net.URL: java.net.URLConnection openConnection()> -> _SOURCE_
+
+<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)> -> _SINK_
+<org.apache.http.client.HttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)> -> _SINK_
