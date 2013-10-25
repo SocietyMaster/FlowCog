@@ -371,13 +371,13 @@ public class SetupApplication {
 				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
-//		Options.v().set_app(true);
 		Main.v().autoSetOptions();
 		
 		// Configure the callgraph algorithm
 		switch (callgraphAlgorithm) {
 			case AutomaticSelection:
 				Options.v().setPhaseOption("cg.spark", "on");
+				break;
 			case RTA:
 				Options.v().setPhaseOption("cg.spark", "on");
 				Options.v().setPhaseOption("cg.spark", "rta:true");
@@ -390,17 +390,16 @@ public class SetupApplication {
 				throw new RuntimeException("Invalid callgraph algorithm");
 		}
 
-		Scene.v().loadNecessaryClasses();
-		
-		for (String className : this.entrypoints) {
-			SootClass c = Scene.v().forceResolve(className, SootClass.BODIES);
-			c.setApplicationClass();	
-		}
-
 		// Always update the entry point creator to reflect the newest set
 		// of callback methods
 		SootMethod entryPoint = createEntryPointCreator().createDummyMain();
 		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
+		Scene.v().addBasicClass(entryPoint.getDeclaringClass().getName(), SootClass.BODIES);
+
+		for (String className : this.entrypoints)
+			Scene.v().addBasicClass(className, SootClass.BODIES);	
+		Scene.v().loadNecessaryClasses();
+		
 		return entryPoint;
 	}
 
