@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import soot.jimple.infoflow.InfoflowResults;
@@ -34,7 +33,6 @@ public class ImplicitFlowTests extends JUnitTests {
 	}
 
 	@Test
-	@Ignore		// not supported yet
 	public void runTestImplicitFlow3() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows_ImplicitFlow3.apk", true);
 		Assert.assertEquals(2, res.size());

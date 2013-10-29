@@ -97,7 +97,7 @@ public class Test {
 	private static boolean staticTracking = true;
 	private static boolean enableCallbacks = true;
 	private static int accessPathLength = 5;
-	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.NoMatch;
+	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
