@@ -509,7 +509,7 @@ public class AnalyzeJimpleClass {
 			}			
 			else if (i.getName().equals("android.content.DialogInterface$OnCancelListener")) {
 				if (i.declaresMethodByName("onCancel"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onCancel"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onCancel(android.content.DialogInterface)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.content.DialogInterface$OnClickListener")) {
 				if (i.declaresMethodByName("onClick"))
