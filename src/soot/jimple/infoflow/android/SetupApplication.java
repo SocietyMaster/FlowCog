@@ -55,7 +55,9 @@ public class SetupApplication {
 	private boolean stopAfterFirstFlow = false;
 	private boolean enableImplicitFlows = false;
 	private boolean enableStaticFields = true;
+	private boolean enableExceptions = true;
 	private boolean enableCallbacks = true;
+	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
@@ -440,6 +442,7 @@ public class SetupApplication {
 		info.setStopAfterFirstFlow(stopAfterFirstFlow);
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setEnableStaticFieldTracking(enableStaticFields);
+		info.setEnableExceptionTracking(enableExceptions);
 		info.setAccessPathLength(accessPathLength);
 		
 		info.setInspectSources(false);
@@ -506,6 +509,16 @@ public class SetupApplication {
 		this.enableStaticFields = enableStaticFields;
 	}
 	
+	/**
+	 * Sets whether taints associated with thrown exception objects shall be
+	 * tracked
+	 * @param enableExceptions True if exceptions containing tainted data shall
+	 * be tracked, otherwise false
+	 */
+	public void setEnableExceptionTracking(boolean enableExceptions) {
+		this.enableExceptions = enableExceptions;
+	}
+
 	/**
 	 * Sets whether the taint analysis shall consider callbacks
 	 * @param enableCallbacks True if taints shall be tracked through callbacks,

@@ -96,6 +96,7 @@ public class Test {
 	private static boolean implicitFlows = false;
 	private static boolean staticTracking = true;
 	private static boolean enableCallbacks = true;
+	private static boolean enableExceptions = true;
 	private static int accessPathLength = 5;
 	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
@@ -237,6 +238,10 @@ public class Test {
 				enableCallbacks = false;
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--noexceptions")) {
+				enableExceptions = false;
+				i++;
+			}
 			else if (args[i].equalsIgnoreCase("--layoutmode")) {
 				String algo = args[i+1];
 				if (algo.equalsIgnoreCase("NONE"))
@@ -326,6 +331,7 @@ public class Test {
 				"--aplength", Integer.toString(accessPathLength),
 				"--cgalgo", callgraphAlgorithmToString(callgraphAlgorithm),
 				enableCallbacks ? "--callbacks" : "--nocallbacks",
+				enableExceptions ? "--exceptions" : "--noexceptions",
 				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode) };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
@@ -379,6 +385,7 @@ public class Test {
 			app.setEnableImplicitFlows(implicitFlows);
 			app.setEnableStaticFieldTracking(staticTracking);
 			app.setEnableCallbacks(enableCallbacks);
+			app.setEnableExceptionTracking(enableExceptions);
 			app.setAccessPathLength(accessPathLength);
 			app.setLayoutMatchingMode(layoutMatchingMode);
 
@@ -415,6 +422,7 @@ public class Test {
 		System.out.println("\t--SINGLEFLOW Stop after finding first leak");
 		System.out.println("\t--IMPLICIT Enable implicit flows");
 		System.out.println("\t--NOSTATIC Disable static field tracking");
+		System.out.println("\t--NOEXCEPTIONS Disable exception tracking");
 		System.out.println("\t--APLENGTH n Set access path length to n");
 		System.out.println("\t--CGALGO x Use callgraph algorithm x");
 		System.out.println("\t--NOCALLBACKS Disable callback analysis");
