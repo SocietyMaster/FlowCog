@@ -718,7 +718,7 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnBufferingUpdateListener")) {
 				if (i.declaresMethodByName("onBufferingUpdate"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onBufferingUpdate"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onBufferingUpdate(android.media.MediaPlayer,int)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.media.MediaPlayer$OnCompletionListener")) {
 				if (i.declaresMethodByName("onCompletion"))
@@ -992,17 +992,17 @@ public class AnalyzeJimpleClass {
 			}
 			else if (i.getName().equals("android.view.GestureDetector$OnGestureListener")) {
 				if (i.declaresMethodByName("onDown"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onDown"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "boolean onDown(android.view.MotionEvent)"), lifecycleElement);
 				if (i.declaresMethodByName("onFling"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onFling"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "boolean onFling(android.view.MotionEvent,android.view.MotionEvent,float,float)"), lifecycleElement);
 				if (i.declaresMethodByName("onLongPress"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onLongPress"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onLongPress(android.view.MotionEvent)"), lifecycleElement);
 				if (i.declaresMethodByName("onScroll"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onScroll"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "boolean onScroll(android.view.MotionEvent,android.view.MotionEvent,float,float)"), lifecycleElement);
 				if (i.declaresMethodByName("onShowPress"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onShowPress"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "void onShowPress(android.view.MotionEvent)"), lifecycleElement);
 				if (i.declaresMethodByName("onSingleTapUp"))
-					checkAndAddMethod(getMethodFromHierarchy(baseClass, "onSingleTapUp"), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, "boolean onSingleTapUp(android.view.MotionEvent)"), lifecycleElement);
 			}
 			else if (i.getName().equals("android.view.InputQueue$Callback")) {
 				if (i.declaresMethodByName("onInputQueueCreated"))
