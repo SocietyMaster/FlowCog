@@ -57,6 +57,8 @@ public class SetupApplication {
 	private boolean enableStaticFields = true;
 	private boolean enableExceptions = true;
 	private boolean enableCallbacks = true;
+	private boolean flowSensitiveAliasing = true;
+	private boolean computeResultPaths = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -444,6 +446,8 @@ public class SetupApplication {
 		info.setEnableStaticFieldTracking(enableStaticFields);
 		info.setEnableExceptionTracking(enableExceptions);
 		info.setAccessPathLength(accessPathLength);
+		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
+		info.setComputeResultPaths(computeResultPaths);
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
@@ -517,6 +521,24 @@ public class SetupApplication {
 	 */
 	public void setEnableExceptionTracking(boolean enableExceptions) {
 		this.enableExceptions = enableExceptions;
+	}
+
+	/**
+	 * Sets whether the solver shall compute the paths between the sources and
+	 * sinks instead of just reporting if there is a path or not.
+	 * @param computeResultPaths True if paths shall be computed, otherwise false
+	 */
+	public void setComputeResultPaths(boolean computeResultPaths) {
+		this.computeResultPaths = computeResultPaths;
+	}
+	
+	/**
+	 * Sets whether a flow sensitive aliasing algorithm shall be used
+	 * @param flowSensitiveAliasing True if a flow sensitive aliasing algorithm
+	 * shall be used, otherwise false
+	 */
+	public void setFlowSensitiveAliasing(boolean flowSensitiveAliasing) {
+		this.flowSensitiveAliasing = flowSensitiveAliasing;
 	}
 
 	/**

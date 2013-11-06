@@ -99,6 +99,8 @@ public class Test {
 	private static boolean enableExceptions = true;
 	private static int accessPathLength = 5;
 	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
+	private static boolean flowSensitiveAliasing = true;
+	private static boolean computeResultPaths = true;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -256,6 +258,14 @@ public class Test {
 				}
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--aliasflowins")) {
+				flowSensitiveAliasing = false;
+				i++;
+			}
+			else if (args[i].equalsIgnoreCase("--nopaths")) {
+				computeResultPaths = false;
+				i++;
+			}
 			else
 				i++;
 		}
@@ -332,7 +342,9 @@ public class Test {
 				"--cgalgo", callgraphAlgorithmToString(callgraphAlgorithm),
 				enableCallbacks ? "--callbacks" : "--nocallbacks",
 				enableExceptions ? "--exceptions" : "--noexceptions",
-				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode) };
+				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode),
+				flowSensitiveAliasing ? "--aliasflowsens" : "--aliasflowins",
+				computeResultPaths ? "--paths" : "--nopaths" };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -388,6 +400,8 @@ public class Test {
 			app.setEnableExceptionTracking(enableExceptions);
 			app.setAccessPathLength(accessPathLength);
 			app.setLayoutMatchingMode(layoutMatchingMode);
+			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
+			app.setComputeResultPaths(computeResultPaths);
 
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
 				app.setTaintWrapper(new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt"));
@@ -427,6 +441,8 @@ public class Test {
 		System.out.println("\t--CGALGO x Use callgraph algorithm x");
 		System.out.println("\t--NOCALLBACKS Disable callback analysis");
 		System.out.println("\t--LAYOUTMODE x Set UI control analysis mode to x");
+		System.out.println("\t--ALIASFLOWINS Use a flow insensitive alias search");
+		System.out.println("\t--NOPATHS Do not compute result paths");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
