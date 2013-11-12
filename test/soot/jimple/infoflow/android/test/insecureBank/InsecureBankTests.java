@@ -25,7 +25,6 @@ public class InsecureBankTests {
 	
 	/**
 	 * Analyzes the given APK file for data flows
-	 * @param fileName The full path and file name of the APK file to analyze
 	 * @param enableImplicitFlows True if implicit flows shall be tracked,
 	 * otherwise false
 	 * @return The data leaks found in the given APK file
