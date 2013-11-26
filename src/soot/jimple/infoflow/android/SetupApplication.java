@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.Main;
 import soot.PackManager;
 import soot.Scene;
@@ -48,7 +51,9 @@ import soot.options.Options;
 
 public class SetupApplication {
 
-	private Set<AndroidMethod> sinks = null;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private Set<AndroidMethod> sinks = null;
 	private Set<AndroidMethod> sources = null;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 	
@@ -213,8 +218,10 @@ public class SetupApplication {
 		this.entrypoints = processMan.getEntryPointClasses();
 
 		// Parse the resource file
+		long beforeARSC = System.nanoTime();
 		ARSCFileParser resParser = new ARSCFileParser();
 		resParser.parse(apkFileLocation);
+		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
 		this.resourcePackages = resParser.getPackages();
 
 		// Add the callback methods

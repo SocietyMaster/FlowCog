@@ -280,8 +280,23 @@ public class ARSCFileParser extends AbstractResourceParser {
 			for (ResConfig rc : this.configurations)
 				for (AbstractResource res : rc.getResources())
 					if (!resources.containsKey(res.resourceName))
-							resources.put(res.resourceName, res);
+						resources.put(res.resourceName, res);
 			return resources.values();
+		}
+		
+		/**
+		 * Gets the first resource with the given name or null if no such
+		 * resource exists
+		 * @param resourceName The resource name to look for
+		 * @return The first resource with the given name or null if no such
+		 * resource exists
+		 */
+		public AbstractResource getResourceByName(String resourceName) {
+			for (ResConfig rc : this.configurations)
+				for (AbstractResource res : rc.getResources())
+					if (res.getResourceName().equals(resourceName))
+						return res;
+			return null;
 		}
 		
 		/**
@@ -1148,11 +1163,9 @@ public class ARSCFileParser extends AbstractResourceParser {
 								res.resourceName = keyStrings.get(entry.key);
 							else
 								res.resourceName = "<INVALID RESOURCE>";
-							for (AbstractResource r : resType.getAllResources())
-								if (r.getResourceName().equals(res.resourceName)) {
-									res.resourceID = r.resourceID;
-									break;
-								}
+							AbstractResource r = resType.getResourceByName(res.resourceName);
+							if (r != null)
+								res.resourceID = r.resourceID;
 							if (res.resourceID <= 0)
 								res.resourceID = (packageTable.id << 24)
 										+ (typeTable.id << 16) + resourceIdx;
