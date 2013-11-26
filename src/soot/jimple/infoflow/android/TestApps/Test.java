@@ -101,6 +101,7 @@ public class Test {
 	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	private static boolean flowSensitiveAliasing = true;
 	private static boolean computeResultPaths = true;
+	private static boolean aggressiveTaintWrapper = false;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -266,6 +267,10 @@ public class Test {
 				computeResultPaths = false;
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--aggressivetw")) {
+				aggressiveTaintWrapper = false;
+				i++;
+			}
 			else
 				i++;
 		}
@@ -344,7 +349,8 @@ public class Test {
 				enableExceptions ? "--exceptions" : "--noexceptions",
 				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode),
 				flowSensitiveAliasing ? "--aliasflowsens" : "--aliasflowins",
-				computeResultPaths ? "--paths" : "--nopaths" };
+				computeResultPaths ? "--paths" : "--nopaths",
+				aggressiveTaintWrapper ? "--aggressivetw" : "--nonaggressivetw" };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -403,10 +409,13 @@ public class Test {
 			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
 			app.setComputeResultPaths(computeResultPaths);
 
+			final EasyTaintWrapper taintWrapper;
 			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-				app.setTaintWrapper(new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt"));
+				taintWrapper = new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt");
 			else
-				app.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
+				taintWrapper = new EasyTaintWrapper("EasyTaintWrapperSource.txt");
+			taintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+			app.setTaintWrapper(taintWrapper);
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 			
 			if (DEBUG) {
@@ -443,6 +452,7 @@ public class Test {
 		System.out.println("\t--LAYOUTMODE x Set UI control analysis mode to x");
 		System.out.println("\t--ALIASFLOWINS Use a flow insensitive alias search");
 		System.out.println("\t--NOPATHS Do not compute result paths");
+		System.out.println("\t--AGGRESSIVETW Use taint wrapper in aggressive mode");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
