@@ -435,7 +435,11 @@ public class SetupApplication {
 
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
-		Infoflow info = new Infoflow(androidJar, false);
+		Infoflow info;
+		if (cfgFactory == null)
+			info = new Infoflow(androidJar, false);
+		else
+			info = new Infoflow(androidJar, false, cfgFactory);
 		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
@@ -445,8 +449,6 @@ public class SetupApplication {
 						
 		System.out.println("Starting infoflow computation...");
 		info.setSootConfig(sootConfig);
-		if (cfgFactory != null)
-			info.setIcfgFactory(cfgFactory);
 		
 		info.setStopAfterFirstFlow(stopAfterFirstFlow);
 		info.setEnableImplicitFlows(enableImplicitFlows);
