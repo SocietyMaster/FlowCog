@@ -35,6 +35,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
+import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
 import soot.tagkit.IntegerConstantValueTag;
@@ -48,6 +49,7 @@ import soot.tagkit.Tag;
 public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	
 	private static final boolean FAST_MATCHING = true;
+	private static final SourceInfo sourceInfo = new SourceInfo(true);
 	
 	/**
 	 * Possible modes for matching layout components as data flow sources
@@ -225,8 +227,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	}
 	
 	@Override
-	public boolean isSourceMethod(SootMethod sMethod) {
-		return this.matchesMethod(sMethod, this.sourceMethods);
+	public SourceInfo getSourceMethodInfo(SootMethod sMethod) {
+		return this.matchesMethod(sMethod, this.sourceMethods) ? sourceInfo : null;
 	}
 
 	@Override
@@ -235,8 +237,8 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	}
 
 	@Override
-	public boolean isSource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		return getSourceType(sCallSite, cfg) != SourceType.NoSource;
+	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		return getSourceType(sCallSite, cfg) != SourceType.NoSource ? sourceInfo : null;
 	}
 
 	/**
@@ -253,7 +255,7 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
 		// This might be a normal source method
-		if (super.isSource(sCallSite, cfg))
+		if (super.getSourceInfo(sCallSite, cfg) != null)
 			return SourceType.MethodCall;
 		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
