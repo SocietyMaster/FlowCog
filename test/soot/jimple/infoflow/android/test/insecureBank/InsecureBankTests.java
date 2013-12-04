@@ -50,7 +50,8 @@ public class InsecureBankTests {
 	@Test
 	public void runTestInsecureBank() throws IOException {
 		InfoflowResults res = analyzeAPKFile(false);
-		Assert.assertEquals(7, res.size());
+		// 7 leaks + 1x inter-component communication (server ip going through an intent)
+		Assert.assertEquals(8, res.size());
 	}
 	
 }
