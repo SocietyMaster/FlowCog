@@ -27,6 +27,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.infoflow.InfoflowResults;
@@ -399,6 +401,7 @@ public class Test {
 				
 			final SetupApplication app = new SetupApplication(androidJar, fileName);
 
+
 			app.setStopAfterFirstFlow(stopAfterFirstFlow);
 			app.setEnableImplicitFlows(implicitFlows);
 			app.setEnableStaticFieldTracking(staticTracking);
@@ -417,11 +420,16 @@ public class Test {
 			taintWrapper.setAggressiveMode(aggressiveTaintWrapper);
 			app.setTaintWrapper(taintWrapper);
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
-			
+			app.setIPCMethods("IPCMethods.txt");
+
 			if (DEBUG) {
 				app.printEntrypoints();
 				app.printSinks();
 				app.printSources();
+			}
+
+			for (SootClass sc: Scene.v().getApplicationClasses()) {
+			    System.out.println("app class: "+ sc);
 			}
 				
 			System.out.println("Running data flow analysis...");
