@@ -35,11 +35,7 @@ import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
-import soot.jimple.infoflow.android.data.parsers.IPCMethodParser;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
-import soot.jimple.infoflow.android.entrypoint.ICCLink;
-import soot.jimple.infoflow.android.entrypoint.ICCLinksThroughDatabase;
-import soot.jimple.infoflow.android.entrypoint.IICCLinks;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -52,7 +48,6 @@ import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
-import soot.jimple.infoflow.android.AndroidIPCManager;
 
 public class SetupApplication {
 
@@ -91,21 +86,6 @@ public class SetupApplication {
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
 	
-    // // Infoflow-EPICC
-	public static Set<AndroidMethod> ipcAMethods = new HashSet<AndroidMethod>();
-    private AndroidIPCManager ipcManager = null;
-
-	public void setIPCMethods(String ipcFile) throws IOException {
-	    IPCMethodParser ipc_parser = IPCMethodParser.fromFile(ipcFile);
-	    System.out.println("add ipc methods!");
-	    for (AndroidMethod am: ipc_parser.parse()) {
-	        System.out.println("add "+ am.getSignature());
-	        ipcAMethods.add(am);
-        }
-	}
-
-    // //
-
 	public SetupApplication(String androidJar, String apkFileLocation) {
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
@@ -251,19 +231,16 @@ public class SetupApplication {
 		sources = new HashSet<AndroidMethod>(sourceMethods);
 		sinks = new HashSet<AndroidMethod>(sinkMethods);
 		
-        // // add sink for Intents:
-        // {
-        // AndroidMethod setResult = new AndroidMethod(
-        // SootMethodRepresentationParser
-        // .v()
-        // .parseSootMethodString(
-        // "<android.app.Activity: void startActivity(android.content.Intent)>"));
-        // setResult.setSink(true);
-        // sinks.add(setResult);
-        // }
+		//add sink for Intents:
+		{
+			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
+					("<android.app.Activity: void startActivity(android.content.Intent)>"));
+			setResult.setSink(true);
+			sinks.add(setResult);
+		}
 		
 		System.out.println("Entry point calculation done.");
-
+		
 		// Clean up everything we no longer need
 		soot.G.reset();
 		
@@ -279,7 +256,6 @@ public class SetupApplication {
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 		}
-
 		
 		entryPointCreator = createEntryPointCreator();
 	}
@@ -484,9 +460,6 @@ public class SetupApplication {
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
-
-    ipcManager = new AndroidIPCManager(ipcAMethods);
-    info.setIPCManager(ipcManager);
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
