@@ -25,6 +25,8 @@
 <org.apache.http.util.EntityUtils: byte[] toByteArray(org.apache.http.HttpEntity)> -> _SOURCE_
 <org.apache.http.util.EntityUtils: java.lang.String getContentCharSet(org.apache.http.HttpEntity)> -> _SOURCE_
 
+<org.apache.http.message.BasicNameValuePair: void <init>(java.lang.String,java.lang.String)> -> _SINK_
+
 <android.content.Intent: java.lang.String getAction()> -> _SOURCE_
 <android.content.Intent: boolean[] getBooleanArrayExtra(java.lang.String)> -> _SOURCE_
 <android.content.Intent: boolean getBooleanExtra(java.lang.String, boolean)> -> _SOURCE_
