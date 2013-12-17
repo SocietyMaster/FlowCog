@@ -249,3 +249,5 @@
 <java.net.URL: void <init>(java.lang.String)> -> _SINK_
 <java.net.URL: void <init>(java.net.URL,java.lang.String)> -> _SINK_
 <java.net.URL: void <init>(java.net.URL,java.lang.String,java.net.URLStreamHandler)> -> _SINK_
+
+<android.content.Context: void startActivity(android.content.Intent)> -> _SINK_
