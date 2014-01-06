@@ -272,6 +272,14 @@ public class ProcessManifest {
 		entryPointsClasses.add(expandClassName(className));
 	}
 
+    public void setApplicationName(String name) {
+        this.applicationName = name;
+    }
+
+    public void setPackageName(String name) {
+        this.packageName = name;
+    }
+
 	public Set<String> getEntryPointClasses() {
 		return this.entryPointsClasses;
 	}
