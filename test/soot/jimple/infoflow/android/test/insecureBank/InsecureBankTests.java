@@ -23,6 +23,23 @@ import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
 public class InsecureBankTests {
 	
+	private final static String sharedPrefs_putString =
+			"<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putString(java.lang.String,java.lang.String)>";
+	private final static String loginScreen_findViewById =
+			"<android.app.Activity: android.view.View findViewById(int)>";
+	private final static String loginScreen_startActivity =
+			"<android.app.Activity: void startActivity(android.content.Intent)>";
+	private final static String url_init =
+			"<java.net.URL: void <init>(java.lang.String)>";
+	private final static String intent_getExtras =
+			"<android.content.Intent: android.os.Bundle getExtras()>";
+	private final static String bundle_getString =
+			"<android.os.Bundle: java.lang.String getString(java.lang.String)>";
+	private final static String log_e =
+			"<android.util.Log: int e(java.lang.String,java.lang.String)>";
+	private final static String urlConnection_openConnection =
+			"<java.net.URL: java.net.URLConnection openConnection()>";
+	
 	/**
 	 * Analyzes the given APK file for data flows
 	 * @param enableImplicitFlows True if implicit flows shall be tracked,
@@ -52,6 +69,14 @@ public class InsecureBankTests {
 		InfoflowResults res = analyzeAPKFile(false);
 		// 7 leaks + 1x inter-component communication (server ip going through an intent)
 		Assert.assertEquals(8, res.size());
+		
+		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, loginScreen_findViewById));
+		Assert.assertTrue(res.isPathBetweenMethods(loginScreen_startActivity, loginScreen_findViewById));
+		Assert.assertTrue(res.isPathBetweenMethods(url_init, intent_getExtras));
+		Assert.assertTrue(res.isPathBetweenMethods(url_init, bundle_getString));
+		Assert.assertTrue(res.isPathBetweenMethods(log_e, intent_getExtras));
+		Assert.assertTrue(res.isPathBetweenMethods(log_e, bundle_getString));
+		Assert.assertTrue(res.isPathBetweenMethods(log_e, urlConnection_openConnection));
 	}
 	
 }
