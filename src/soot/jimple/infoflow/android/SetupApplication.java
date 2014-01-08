@@ -291,6 +291,7 @@ public class SetupApplication {
 			// Run the soot-based operations
 			PackManager.v().runPacks();
 			this.layoutControls = lfp.getUserControls();
+			System.out.println("Found " + this.layoutControls.size() + " layout controls");
 
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
