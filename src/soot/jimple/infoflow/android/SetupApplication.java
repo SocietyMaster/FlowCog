@@ -441,7 +441,7 @@ public class SetupApplication {
 			info = new Infoflow(androidJar, false);
 		else
 			info = new Infoflow(androidJar, false, cfgFactory);
-		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
 		info.setSootConfig(new SootConfigForAndroid());
@@ -464,7 +464,7 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
 				sourceSinkManager);
 		return info.getResults();
 	}
