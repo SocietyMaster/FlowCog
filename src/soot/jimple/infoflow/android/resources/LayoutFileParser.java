@@ -55,7 +55,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 	}
 	
 	private SootClass getLayoutClass(String className) {
-		// Cut off some junk returned by the üparser
+		// Cut off some junk returned by the parser
 		if (className.startsWith(";"))
 			className = className.substring(1);
 		
