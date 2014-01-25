@@ -250,7 +250,7 @@ public class SetupApplication {
 				callbacks.addAll(methods);
 			
 			sourceSinkManager = new AndroidSourceSinkManager
-					(sources, sinks, callbacks, false,
+					(sources, sinks, callbacks,
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
