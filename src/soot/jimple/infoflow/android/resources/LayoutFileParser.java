@@ -340,7 +340,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 								bos.write(in);
 							bos.flush();
 							byte[] data = bos.toByteArray();
-							if (data == null || data.length == 0)	// File empty?
+							if (data == null || data.length <= 0)	// File empty?
 								return;
 							
 							AxmlReader rdr = new AxmlReader(data);
