@@ -470,6 +470,7 @@ public class SetupApplication {
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
+		info.setPruneThis0AccessPaths(true);	// unsound, but usually ok
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
