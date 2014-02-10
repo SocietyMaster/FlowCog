@@ -10,7 +10,6 @@
  ******************************************************************************/
 package soot.jimple.infoflow.android;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,9 +29,9 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.BiDirICFGFactory;
+import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.InfoflowResults;
-import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -251,7 +250,7 @@ public class SetupApplication {
 				callbacks.addAll(methods);
 			
 			sourceSinkManager = new AndroidSourceSinkManager
-					(sources, sinks, callbacks, false,
+					(sources, sinks, callbacks,
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
@@ -273,9 +272,12 @@ public class SetupApplication {
 		boolean hasChanged = true;
 		while (hasChanged) {
 			hasChanged = false;
+			
+			// Create the new iteration of the main method
 			soot.G.reset();
 			initializeSoot();
-	
+			createMainMethod();
+			
 			if (jimpleClass == null) {
 				// Collect the callback interfaces implemented in the app's source code
 				jimpleClass = new AnalyzeJimpleClass(entrypoints);
@@ -289,8 +291,12 @@ public class SetupApplication {
 				jimpleClass.collectCallbackMethodsIncremental();
 			
 			// Run the soot-based operations
-			PackManager.v().runPacks();
+	        PackManager.v().getPack("wjpp").apply();
+	        PackManager.v().getPack("cg").apply();
+	        PackManager.v().getPack("wjtp").apply();
+	        
 			this.layoutControls = lfp.getUserControls();
+			System.out.println("Found " + this.layoutControls.size() + " layout controls");
 
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
@@ -358,7 +364,21 @@ public class SetupApplication {
 					+ this.callbackMethods.size() + " components");
 		}
 	}
-	
+
+	/**
+	 * Creates the main method based on the current callback information, injects
+	 * it into the Soot scene.
+	 */
+	private void createMainMethod() {
+		// Always update the entry point creator to reflect the newest set
+		// of callback methods
+		SootMethod entryPoint = createEntryPointCreator().createDummyMain();
+		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
+		if (Scene.v().containsClass(entryPoint.getDeclaringClass().getName()))
+			Scene.v().removeClass(entryPoint.getDeclaringClass());
+		Scene.v().addClass(entryPoint.getDeclaringClass());
+	}
+
 	/**
 	 * Gets the source/sink manager constructed for FlowDroid. Make sure to call
 	 * calculateSourcesSinksEntryPoints() first, or you will get a null result.
@@ -371,15 +391,14 @@ public class SetupApplication {
 	/**
 	 * Initializes soot for running the soot-based phases of the application
 	 * metadata analysis
-	 * @return The entry point used for running soot
 	 */
-	private SootMethod initializeSoot() {
+	private void initializeSoot() {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
-		Options.v().set_soot_classpath(apkFileLocation + File.pathSeparator
-				+ Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
+		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
+		Options.v().set_soot_classpath(Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
 		Main.v().autoSetOptions();
@@ -401,17 +420,8 @@ public class SetupApplication {
 				throw new RuntimeException("Invalid callgraph algorithm");
 		}
 
-		// Always update the entry point creator to reflect the newest set
-		// of callback methods
-		SootMethod entryPoint = createEntryPointCreator().createDummyMain();
-		Scene.v().setEntryPoints(Collections.singletonList(entryPoint));
-		Scene.v().addBasicClass(entryPoint.getDeclaringClass().getName(), SootClass.BODIES);
-
-		for (String className : this.entrypoints)
-			Scene.v().addBasicClass(className, SootClass.BODIES);	
+		// Load whetever we need
 		Scene.v().loadNecessaryClasses();
-		
-		return entryPoint;
 	}
 
 	/**
@@ -440,7 +450,7 @@ public class SetupApplication {
 			info = new Infoflow(androidJar, false);
 		else
 			info = new Infoflow(androidJar, false, cfgFactory);
-		String path = apkFileLocation + File.pathSeparator + Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
 		info.setSootConfig(new SootConfigForAndroid());
@@ -463,7 +473,7 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		info.computeInfoflow(path, entryPointCreator, new ArrayList<String>(),
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
 				sourceSinkManager);
 		return info.getResults();
 	}
