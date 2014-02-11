@@ -42,6 +42,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.config.IInfoflowConfig;
+import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
@@ -449,7 +450,7 @@ public class SetupApplication {
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, false);
 		else
-			info = new Infoflow(androidJar, false, cfgFactory);
+			info = new Infoflow(androidJar, false, cfgFactory, new DefaultPathBuilderFactory());
 		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
