@@ -50,6 +50,8 @@ public class JUnitTests {
 			boolean enableStaticFields, boolean flowSensitiveAliasing) throws IOException {
 		String androidJars = System.getenv("ANDROID_JARS");
 		if (androidJars == null)
+			androidJars = System.getProperty("ANDROID_JARS");
+		if (androidJars == null)
 			throw new RuntimeException("Android JAR dir not set");
 		System.out.println("Loading Android.jar files from " + androidJars);
 		
