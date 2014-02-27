@@ -10,6 +10,7 @@
  ******************************************************************************/
 package soot.jimple.infoflow.android;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +78,7 @@ public class SetupApplication {
 	private String appPackageName = "";
 	
 	private final String androidJar;
+	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
 	private ITaintPropagationWrapper taintWrapper;
 	
@@ -86,7 +88,17 @@ public class SetupApplication {
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
 	
+	/**
+	 * Creates a new instance of the {@link SetupApplication} class
+	 * @param androidJar The path to the Android SDK's "platforms" directory if
+	 * Soot shall automatically select the JAR file to be used or the path to
+	 * a single JAR file to force one.
+	 * @param apkFileLocation The path to the APK file to be analyzed
+	 */
 	public SetupApplication(String androidJar, String apkFileLocation) {
+		File f = new File(androidJar);
+		this.forceAndroidJar = f.isFile();
+		
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
 	}
@@ -399,8 +411,12 @@ public class SetupApplication {
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
-		Options.v().set_soot_classpath(Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
-		Options.v().set_android_jars(androidJar);
+		Options.v().set_soot_classpath(forceAndroidJar ? androidJar
+				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
+		if (forceAndroidJar)
+			Options.v().set_force_android_jar(androidJar);
+		else
+			Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
 		Main.v().autoSetOptions();
 		
@@ -448,9 +464,9 @@ public class SetupApplication {
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(androidJar, false);
+			info = new Infoflow(androidJar, forceAndroidJar);
 		else
-			info = new Infoflow(androidJar, false, cfgFactory, new DefaultPathBuilderFactory());
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory());
 		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
@@ -465,7 +481,7 @@ public class SetupApplication {
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setEnableStaticFieldTracking(enableStaticFields);
 		info.setEnableExceptionTracking(enableExceptions);
-		info.setAccessPathLength(accessPathLength);
+		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
 		info.setComputeResultPaths(computeResultPaths);
 		
