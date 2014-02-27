@@ -467,7 +467,12 @@ public class SetupApplication {
 			info = new Infoflow(androidJar, forceAndroidJar);
 		else
 			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory());
-		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+		
+		final String path;
+		if (forceAndroidJar)
+			path = androidJar;
+		else
+			path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
 		info.setSootConfig(new SootConfigForAndroid());
