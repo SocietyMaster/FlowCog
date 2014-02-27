@@ -22,25 +22,25 @@ import soot.jimple.infoflow.InfoflowResults;
 @Ignore	// we do not support tainting of single array fields or map entries yet
 public class ArrayAndListTests extends JUnitTests {
 	
-	@Test
+	@Test(timeout=300000)
 	public void runTestArrayAccess1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestArrayAccess2() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess2.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestHashMapAccess1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_HashMapAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestListAccess1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ListAccess1.apk");
 		Assert.assertEquals(0, res.size());

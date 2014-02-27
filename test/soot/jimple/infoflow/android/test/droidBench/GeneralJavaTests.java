@@ -21,57 +21,57 @@ import soot.jimple.infoflow.InfoflowResults;
 
 public class GeneralJavaTests extends JUnitTests {
 	
-	@Test
+	@Test(timeout=300000)
 	public void runTestLoop1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Loop1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestLoop2() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Loop2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestExceptions1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Exceptions1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestExceptions2() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Exceptions2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	@Ignore		// not supported yet, would require condition evaluation
 	public void runTestExceptions3() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Exceptions3.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestExceptions4() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Exceptions4.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestSourceCodeSpecific1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_SourceCodeSpecific1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	@Ignore		// not supported yet in FlowDroid
 	public void runTestStaticInitialization1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_StaticInitialization1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
-	@Test
+	@Test(timeout=300000)
 	public void runTestUnreachableCode() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_UnreachableCode.apk");
 		if (res != null)
