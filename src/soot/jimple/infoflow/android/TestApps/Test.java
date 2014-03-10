@@ -36,7 +36,10 @@ import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.methodSummary.data.impl.LazySummary;
+import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
+import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
@@ -102,6 +105,8 @@ public class Test {
 	private static boolean flowSensitiveAliasing = true;
 	private static boolean computeResultPaths = true;
 	private static boolean aggressiveTaintWrapper = false;
+	private static boolean librarySummaryTaintWrapper = false;
+	private static String summaryPath = "";
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -271,6 +276,14 @@ public class Test {
 				aggressiveTaintWrapper = false;
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--libsumtw")) {
+				librarySummaryTaintWrapper = false;
+				i++;
+			}
+			else if (args[i].equalsIgnoreCase("--summarypath")) {
+				summaryPath = args[i + 1];
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -279,6 +292,15 @@ public class Test {
 	
 	private static boolean validateAdditionalOptions() {
 		if (timeout > 0 && sysTimeout > 0) {
+			return false;
+		}
+		if (!flowSensitiveAliasing && callgraphAlgorithm != CallgraphAlgorithm.OnDemand) {
+			System.err.println("Flow-insensitive aliasing can only be configured for callgraph "
+					+ "algorithms that support this choice.");
+			return false;
+		}
+		if (librarySummaryTaintWrapper && summaryPath.isEmpty()) {
+			System.err.println("Summary path must be specified when using library summaries");
 			return false;
 		}
 		return true;
@@ -408,13 +430,19 @@ public class Test {
 			app.setLayoutMatchingMode(layoutMatchingMode);
 			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
 			app.setComputeResultPaths(computeResultPaths);
-
-			final EasyTaintWrapper taintWrapper;
-			if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-				taintWrapper = new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt");
-			else
-				taintWrapper = new EasyTaintWrapper("EasyTaintWrapperSource.txt");
-			taintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+			
+			final ITaintPropagationWrapper taintWrapper;
+			if (librarySummaryTaintWrapper)
+				taintWrapper = new SummaryTaintWrapper(new LazySummary(new File(summaryPath)));
+			else {
+				final EasyTaintWrapper easyTaintWrapper;
+				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
+					easyTaintWrapper = new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt");
+				else
+					easyTaintWrapper = new EasyTaintWrapper("EasyTaintWrapperSource.txt");
+				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+				taintWrapper = easyTaintWrapper;
+			}
 			app.setTaintWrapper(taintWrapper);
 			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 			
@@ -453,6 +481,8 @@ public class Test {
 		System.out.println("\t--ALIASFLOWINS Use a flow insensitive alias search");
 		System.out.println("\t--NOPATHS Do not compute result paths");
 		System.out.println("\t--AGGRESSIVETW Use taint wrapper in aggressive mode");
+		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
+		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
