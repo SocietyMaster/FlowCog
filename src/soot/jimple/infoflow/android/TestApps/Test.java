@@ -278,7 +278,7 @@ public class Test {
 				i++;
 			}
 			else if (args[i].equalsIgnoreCase("--libsumtw")) {
-				librarySummaryTaintWrapper = false;
+				librarySummaryTaintWrapper = true;
 				i++;
 			}
 			else if (args[i].equalsIgnoreCase("--summarypath")) {
