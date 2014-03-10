@@ -20,6 +20,7 @@
 				<pathelement location="${soot.jar}" />
 				<pathelement location="${heros.jar}" />
 				<pathelement location="${infoflow.jar}" />
+				<pathelement location="${infoflow-summaries.jar}" />
 				<fileset dir="lib">
 					<include name="*.jar" />
 				</fileset>

@@ -15,7 +15,11 @@ import java.io.IOException;
 
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.methodSummary.data.impl.LazySummary;
+import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
+import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
 
 public class JUnitTests {
 	
@@ -52,9 +56,23 @@ public class JUnitTests {
 			throw new RuntimeException("DroidBench dir not set");		
 		System.out.println("Loading DroidBench from " + droidBenchDir);
 		
+		/*
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				droidBenchDir + File.separator + fileName);
-		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
+		*/
+		SetupApplication setupApplication = new SetupApplication("D:\\Arbeit\\Android Analyse\\android-platforms",
+				droidBenchDir + File.separator + fileName);
+		// setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
+		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
+
+		/*
+		ITaintPropagationWrapper wrapper = new SummaryTaintWrapper(new LazySummary(new File("D:\\Arbeit\\Android Analyse\\soot-infoflow-summaries\\androidSummaries")));
+		TaintWrapperSet set = new TaintWrapperSet();
+		set.addWrapper(wrapper);
+		set.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
+		setupApplication.setTaintWrapper(set);
+		*/
+		
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
 		return setupApplication.runInfoflow();
