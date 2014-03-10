@@ -40,6 +40,7 @@ import soot.jimple.infoflow.methodSummary.data.impl.LazySummary;
 import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
@@ -432,8 +433,12 @@ public class Test {
 			app.setComputeResultPaths(computeResultPaths);
 			
 			final ITaintPropagationWrapper taintWrapper;
-			if (librarySummaryTaintWrapper)
-				taintWrapper = new SummaryTaintWrapper(new LazySummary(new File(summaryPath)));
+			if (librarySummaryTaintWrapper) {
+				final TaintWrapperSet taintWrapperSet = new TaintWrapperSet();
+				taintWrapperSet.addWrapper(new SummaryTaintWrapper(new LazySummary(new File(summaryPath))));
+				taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
+				taintWrapper = taintWrapperSet;
+			}
 			else {
 				final EasyTaintWrapper easyTaintWrapper;
 				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
