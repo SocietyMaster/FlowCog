@@ -295,7 +295,8 @@ public class Test {
 		if (timeout > 0 && sysTimeout > 0) {
 			return false;
 		}
-		if (!flowSensitiveAliasing && callgraphAlgorithm != CallgraphAlgorithm.OnDemand) {
+		if (!flowSensitiveAliasing && callgraphAlgorithm != CallgraphAlgorithm.OnDemand
+				&& callgraphAlgorithm != CallgraphAlgorithm.AutomaticSelection) {
 			System.err.println("Flow-insensitive aliasing can only be configured for callgraph "
 					+ "algorithms that support this choice.");
 			return false;
