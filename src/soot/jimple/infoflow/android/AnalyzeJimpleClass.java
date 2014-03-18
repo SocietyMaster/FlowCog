@@ -11,6 +11,7 @@
 package soot.jimple.infoflow.android;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,7 +86,13 @@ public class AnalyzeJimpleClass {
 		Set<String> androidCallbacks = new HashSet<String>();
 		BufferedReader rdr = null;
 		try {
-			rdr = new BufferedReader(new FileReader("AndroidCallbacks.txt"));
+			String fileName = "AndroidCallbacks.txt";
+			if (!new File(fileName).exists()) {
+				fileName = "../soot-infoflow-android/AndroidCallbacks.txt";
+				if (!new File(fileName).exists())
+					throw new RuntimeException("Callback definition file not found");
+			}
+			rdr = new BufferedReader(new FileReader(fileName));
 			String line;
 			while ((line = rdr.readLine()) != null)
 				if (!line.isEmpty())
