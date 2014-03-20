@@ -56,23 +56,15 @@ public class InsecureBankTests {
 			throw new RuntimeException("Android JAR dir not set");
 		System.out.println("Loading Android.jar files from " + androidJars);
 		
-		SetupApplication setupApplication = new SetupApplication("D:\\Arbeit\\Android Analyse\\android-platforms\\android-17\\android.jar",
-				"insecureBank" + File.separator + "InsecureBank.apk");
-		/*
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				"insecureBank" + File.separator + "InsecureBank.apk");
-		*/
-		
-		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
-		
-//		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
-		
+		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
 		return setupApplication.runInfoflow();
 	}
 
-	@Test(timeout=300000)
+	@Test
 	public void runTestInsecureBank() throws IOException {
 		InfoflowResults res = analyzeAPKFile(false);
 		// 7 leaks + 1x inter-component communication (server ip going through an intent)
