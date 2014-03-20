@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,15 +30,13 @@ import java.util.concurrent.TimeoutException;
 
 import soot.SootMethod;
 import soot.Unit;
-import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
+import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
-import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
+import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
-import soot.jimple.infoflow.methodSummary.data.impl.LazySummary;
-import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
@@ -435,10 +434,7 @@ public class Test {
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (librarySummaryTaintWrapper) {
-				final TaintWrapperSet taintWrapperSet = new TaintWrapperSet();
-				taintWrapperSet.addWrapper(new SummaryTaintWrapper(new LazySummary(new File(summaryPath))));
-				taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
-				taintWrapper = taintWrapperSet;
+				taintWrapper = createLibrarySummaryTW();
 			}
 			else {
 				final EasyTaintWrapper easyTaintWrapper;
@@ -466,6 +462,45 @@ public class Test {
 			System.err.println("Could not read file: " + ex.getMessage());
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
+		}
+	}
+	
+	/**
+	 * Creates the taint wrapper for using library summaries
+	 * @return The taint wrapper for using library summaries
+	 * @throws IOException Thrown if one of the required files could not be read
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static ITaintPropagationWrapper createLibrarySummaryTW()
+			throws IOException {
+		try {
+			Class clzLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.impl.LazySummary");
+			
+			Object lazySummary = clzLazySummary.getConstructor(File.class).newInstance(new File(summaryPath));
+			
+			ITaintPropagationWrapper summaryWrapper = (ITaintPropagationWrapper) Class.forName
+					("soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper").getConstructor
+					(clzLazySummary).newInstance(lazySummary);
+			
+			final TaintWrapperSet taintWrapperSet = new TaintWrapperSet();
+			taintWrapperSet.addWrapper(summaryWrapper);
+			taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
+			return taintWrapperSet;
+		}
+		catch (ClassNotFoundException | NoSuchMethodException ex) {
+			System.err.println("Could not find library summary classes: " + ex.getMessage());
+			ex.printStackTrace();
+			return null;
+		}
+		catch (InvocationTargetException ex) {
+			System.err.println("Could not initialize library summaries: " + ex.getMessage());
+			ex.printStackTrace();
+			return null;
+		}
+		catch (IllegalAccessException | InstantiationException ex) {
+			System.err.println("Internal error in library summary initialization: " + ex.getMessage());
+			ex.printStackTrace();
+			return null;
 		}
 	}
 
