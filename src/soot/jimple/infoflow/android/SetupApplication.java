@@ -47,7 +47,6 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
-import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
 
 public class SetupApplication {
@@ -242,14 +241,6 @@ public class SetupApplication {
 
 		sources = new HashSet<AndroidMethod>(sourceMethods);
 		sinks = new HashSet<AndroidMethod>(sinkMethods);
-		
-		//add sink for Intents:
-		{
-			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
-					("<android.app.Activity: void startActivity(android.content.Intent)>"));
-			setResult.setSink(true);
-			sinks.add(setResult);
-		}
 		
 		System.out.println("Entry point calculation done.");
 		
