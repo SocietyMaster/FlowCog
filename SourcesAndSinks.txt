@@ -117,6 +117,40 @@
 <android.os.Bundle: android.util.SparseArray getSparseParcelableArray(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
+
+%bundle sinks
+<android.os.Bundle: void putBinder(java.lang.String,android.os.IBinder)> -> _SINK_
+<android.os.Bundle: void putBoolean(java.lang.String,boolean)> -> _SINK_
+<android.os.Bundle: void putBooleanArray(java.lang.String,boolean[])> -> _SINK_
+<android.os.Bundle: void putBundle(java.lang.String,android.os.Bundle)> -> _SINK_
+<android.os.Bundle: void putByte(java.lang.String,byte)> -> _SINK_
+<android.os.Bundle: void putByteArray(java.lang.String,byte[])> -> _SINK_
+<android.os.Bundle: void putChar(java.lang.String,char)> -> _SINK_
+<android.os.Bundle: void putCharArray(java.lang.String,char[])> -> _SINK_
+<android.os.Bundle: void putCharSequence(java.lang.String,java.lang.CharSequence)> -> _SINK_
+<android.os.Bundle: void putCharSequenceArray(java.lang.String,java.lang.CharSequence[])> -> _SINK_
+<android.os.Bundle: void putCharSequenceArrayList(java.lang.String,java.util.ArrayList)> -> _SINK_
+<android.os.Bundle: void putDouble(java.lang.String,double)> -> _SINK_
+<android.os.Bundle: void putDoubleArray(java.lang.String,double[])> -> _SINK_
+<android.os.Bundle: void putFloat(java.lang.String,float)> -> _SINK_
+<android.os.Bundle: void putFloatArray(java.lang.String,float[])> -> _SINK_
+<android.os.Bundle: void putInt(java.lang.String,int)> -> _SINK_
+<android.os.Bundle: void putIntArray(java.lang.String,int[])> -> _SINK_
+<android.os.Bundle: void putIntegerArrayList(java.lang.String,java.util.ArrayList)> -> _SINK_
+<android.os.Bundle: void putLong(java.lang.String,long)> -> _SINK_
+<android.os.Bundle: void putLongArray(java.lang.String,long[])> -> _SINK_
+<android.os.Bundle: void putParcelable(java.lang.String,android.os.Parcelable)> -> _SINK_
+<android.os.Bundle: void putParcelableArray(java.lang.String,android.os.Parcelable[])> -> _SINK_
+<android.os.Bundle: void putParcelableArrayList(java.lang.String,java.util.ArrayList)> -> _SINK_
+<android.os.Bundle: void putSerializable(java.lang.String,java.io.Serializable)> -> _SINK_
+<android.os.Bundle: void putShort(java.lang.String,short)> -> _SINK_
+<android.os.Bundle: void putShortArray(java.lang.String,short[])> -> _SINK_
+<android.os.Bundle: void putSparseParcelableArray(java.lang.String,android.util.SparseArray)> -> _SINK_
+<android.os.Bundle: void putString(java.lang.String,java.lang.String)> -> _SINK_
+<android.os.Bundle: void putStringArray(java.lang.String,java.lang.String[])> -> _SINK_
+<android.os.Bundle: void putStringArrayList(java.lang.String,java.util.ArrayList)> -> _SINK_
+<android.os.Bundle: void putAll(android.os.Bundle)> -> _SINK_
+
 <android.app.PendingIntent: android.app.PendingIntent getActivity(android.content.Context,int,android.content.Intent,int)> -> _SOURCE_
 <android.app.PendingIntent: android.app.PendingIntent getActivity(android.content.Context,int,android.content.Intent,int,android.os.Bundle)> -> _SOURCE_
 <android.app.PendingIntent: android.app.PendingIntent getBroadcast(android.content.Context,int,android.content.Intent,int)> -> _SOURCE_
@@ -251,3 +285,4 @@
 <java.net.URL: void <init>(java.net.URL,java.lang.String,java.net.URLStreamHandler)> -> _SINK_
 
 <android.content.Context: void startActivity(android.content.Intent)> -> _SINK_
+<android.app.Activity: void startActivity(android.content.Intent)> -> _SINK_
