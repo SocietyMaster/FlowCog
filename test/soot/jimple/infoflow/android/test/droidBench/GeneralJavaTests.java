@@ -34,6 +34,13 @@ public class GeneralJavaTests extends JUnitTests {
 	}
 
 	@Test(timeout=300000)
+	@Ignore("overwrites inside a buffer")		// not supported yet in FlowDroid
+	public void runTestObfuscation1() throws IOException {
+		InfoflowResults res = analyzeAPKFile("GeneralJava_Obfuscation1.apk");
+		Assert.assertEquals(0, res.size());
+	}
+
+	@Test(timeout=300000)
 	public void runTestExceptions1() throws IOException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_Exceptions1.apk");
 		Assert.assertEquals(1, res.size());
