@@ -232,6 +232,8 @@ public class Test {
 				String algo = args[i+1];
 				if (algo.equalsIgnoreCase("AUTO"))
 					callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
+				else if (algo.equalsIgnoreCase("CHA"))
+					callgraphAlgorithm = CallgraphAlgorithm.CHA;
 				else if (algo.equalsIgnoreCase("VTA"))
 					callgraphAlgorithm = CallgraphAlgorithm.VTA;
 				else if (algo.equalsIgnoreCase("RTA"))
@@ -390,10 +392,12 @@ public class Test {
 		}
 	}
 	
-	public static String callgraphAlgorithmToString(CallgraphAlgorithm algorihm) {
+	private static String callgraphAlgorithmToString(CallgraphAlgorithm algorihm) {
 		switch (algorihm) {
 			case AutomaticSelection:
 				return "AUTO";
+			case CHA:
+				return "CHA";
 			case VTA:
 				return "VTA";
 			case RTA:
@@ -403,7 +407,7 @@ public class Test {
 		}
 	}
 
-	public static String layoutMatchingModeToString(LayoutMatchingMode mode) {
+	private static String layoutMatchingModeToString(LayoutMatchingMode mode) {
 		switch (mode) {
 			case NoMatch:
 				return "NONE";
@@ -525,7 +529,7 @@ public class Test {
 		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println();
-		System.out.println("Supported callgraph algorithms: AUTO, RTA, VTA");
+		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
 	}
 
