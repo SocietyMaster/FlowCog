@@ -238,6 +238,8 @@ public class Test {
 					callgraphAlgorithm = CallgraphAlgorithm.VTA;
 				else if (algo.equalsIgnoreCase("RTA"))
 					callgraphAlgorithm = CallgraphAlgorithm.RTA;
+				else if (algo.equalsIgnoreCase("SPARK"))
+					callgraphAlgorithm = CallgraphAlgorithm.SPARK;
 				else {
 					System.err.println("Invalid callgraph algorithm");
 					return false;
@@ -402,6 +404,8 @@ public class Test {
 				return "VTA";
 			case RTA:
 				return "RTA";
+			case SPARK:
+				return "SPARK";
 			default:
 				return "unknown";
 		}
@@ -529,7 +533,7 @@ public class Test {
 		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println();
-		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA");
+		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
 	}
 
