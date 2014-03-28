@@ -35,7 +35,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
-import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
+import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
@@ -47,7 +47,7 @@ import soot.tagkit.Tag;
  * 
  * @author Steven Arzt
  */
-public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
+public class AndroidSourceSinkManager implements ISourceSinkManager {
 	
 	private static final SourceInfo sourceInfo = new SourceInfo(true);
 	
@@ -171,13 +171,9 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	}
 	
 	@Override
-	public SourceInfo getSourceMethodInfo(SootMethod sMethod) {
-		return this.sourceMethods.containsKey(sMethod.getSignature()) ? sourceInfo : null;
-	}
-
-	@Override
-	public boolean isSinkMethod(SootMethod sMethod) {
-		return this.sinkMethods.containsKey(sMethod.getSignature());
+	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+		return sCallSite.containsInvokeExpr()
+				&& this.sinkMethods.containsKey(sCallSite.getInvokeExpr().getMethod().getSignature());
 	}
 
 	@Override
@@ -199,8 +195,11 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
 		// This might be a normal source method
-		if (super.getSourceInfo(sCallSite, cfg) != null)
-			return SourceType.MethodCall;
+		if (sCallSite.containsInvokeExpr()) {
+			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+			if (this.sourceMethods.containsKey(signature))
+				return SourceType.MethodCall;
+		}
 		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
 			return SourceType.UISource;
