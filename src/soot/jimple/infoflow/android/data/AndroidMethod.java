@@ -53,7 +53,6 @@ public class AndroidMethod extends SootMethodAndClass{
 		BLUETOOTH,
 		ACCOUNT_SETTINGS,
 		VIDEO,
-		AUDIO,
 		SYNCHRONIZATION_DATA,
 		NETWORK,
 		EMAIL_SETTINGS,
@@ -61,6 +60,7 @@ public class AndroidMethod extends SootMethodAndClass{
 		LOG,
 		
 		// SHARED
+		AUDIO,
 		SMS_MMS,
 		CONTACT_INFORMATION,
 		CALENDAR_INFORMATION,
