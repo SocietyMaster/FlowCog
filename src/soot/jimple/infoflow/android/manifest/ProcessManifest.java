@@ -35,6 +35,10 @@ import android.content.res.AXmlResourceParser;
 public class ProcessManifest {
 	
 	private final Set<String> entryPointsClasses = new HashSet<String>();
+	private final Set<String> activites = new HashSet<String>();
+	private final Set<String> services = new HashSet<String>();
+	private final Set<String> receivers = new HashSet<String>();
+	private final Set<String> providers = new HashSet<String>();
 	private String applicationName = "";
 	
 	private int versionCode = -1;
@@ -130,10 +134,23 @@ public class ProcessManifest {
 							String attrValue = getAttributeValue(parser, "enabled");
 							if (attrValue != null && attrValue.equals("false"))
 								continue;
-							
+										
 							// Get the class name
 							attrValue = getAttributeValue(parser, "name");
 							entryPointsClasses.add(expandClassName(attrValue));
+							
+							//store activities
+							if(tagName.equals("activity"))
+								activites.add(expandClassName(attrValue));
+							//store receivers
+							else if(tagName.equals("receiver"))
+								receivers.add(expandClassName(attrValue));
+							//store services
+							else if(tagName.equals("service"))
+								services.add(expandClassName(attrValue));
+							//store providers
+							else if(tagName.equals("provider"))
+								providers.add(expandClassName(attrValue));
 						}
 						else if (tagName.equals("uses-permission")) {
 							String permissionName = getAttributeValue(parser, "name");
@@ -311,5 +328,20 @@ public class ProcessManifest {
 	public int targetSdkVersion() {
 		return this.targetSdkVersion;
 	}
-	
+
+	public Set<String> getActivites() {
+		return activites;
+	}
+
+	public Set<String> getServices() {
+		return services;
+	}
+
+	public Set<String> getReceivers() {
+		return receivers;
+	}
+
+	public Set<String> getProviders() {
+		return providers;
+	}
 }
