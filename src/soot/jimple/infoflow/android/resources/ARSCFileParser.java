@@ -834,6 +834,9 @@ public class ARSCFileParser extends AbstractResourceParser {
 		
 		int screenWidthDp;		// uint16
 		int screenHeightDp;		// uint16
+		
+		char[] localeScript = new char[4];	// char[4]
+		char[] localeVariant = new char[8];	// char[8]
 	}
 	
 	/**
@@ -1437,6 +1440,20 @@ public class ARSCFileParser extends AbstractResourceParser {
 		offset += 2;
 		config.screenHeightDp = readUInt16(data, offset);
 		offset += 2;
+		if (config.size <= 36)
+			return offset;
+
+		for (int i = 0; i < 4; i++)
+			config.localeScript[i] = (char) data[offset + i];
+		offset += 4;
+		if (config.size <= 40)
+			return offset;
+		
+		for (int i = 0; i < 8; i++)
+			config.localeVariant[i] = (char) data[offset + i];
+		offset += 8;
+		if (config.size <= 48)
+			return offset;
 
 		return offset;
 	}
