@@ -16,6 +16,7 @@ import junit.framework.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.InfoflowResults;
 
@@ -23,25 +24,25 @@ import soot.jimple.infoflow.InfoflowResults;
 public class ArrayAndListTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	public void runTestArrayAccess1() throws IOException {
+	public void runTestArrayAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
-	public void runTestArrayAccess2() throws IOException {
+	public void runTestArrayAccess2() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess2.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
-	public void runTestHashMapAccess1() throws IOException {
+	public void runTestHashMapAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_HashMapAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
-	public void runTestListAccess1() throws IOException {
+	public void runTestListAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ListAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}

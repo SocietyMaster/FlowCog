@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 import soot.Main;
 import soot.PackManager;
@@ -195,9 +196,11 @@ public class SetupApplication {
 	 * @param sourceSinkFile The full path and file name of the file containing
 	 * the sources and sinks
 	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
 	public void calculateSourcesSinksEntrypoints
-			(String sourceSinkFile) throws IOException {
+			(String sourceSinkFile) throws IOException, XmlPullParserException {
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
 		Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
@@ -216,15 +219,15 @@ public class SetupApplication {
 	 * @param sourceMethods The set of methods to be considered as sources
 	 * @param sinkMethods The set of methods to be considered as sinks
 	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
 	public void calculateSourcesSinksEntrypoints
 			(Set<AndroidMethod> sourceMethods,
-			Set<AndroidMethod> sinkMethods) throws IOException {
-		ProcessManifest processMan = new ProcessManifest();
-
+			Set<AndroidMethod> sinkMethods) throws IOException, XmlPullParserException {
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
-		processMan.loadManifestFile(apkFileLocation);
+		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
 		this.appPackageName = processMan.getPackageName();
 		this.entrypoints = processMan.getEntryPointClasses();
 

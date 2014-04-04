@@ -16,34 +16,35 @@ import junit.framework.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.InfoflowResults;
 
 public class ReflectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	public void runTestReflection1() throws IOException {
+	public void runTestReflection1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Reflection_Reflection1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
-	public void runTestReflection2() throws IOException {
+	public void runTestReflection2() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Reflection_Reflection2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
-	public void runTestReflection3() throws IOException {
+	public void runTestReflection3() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Reflection_Reflection3.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
-	public void runTestReflection4() throws IOException {
+	public void runTestReflection4() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Reflection_Reflection4.apk");
 		Assert.assertEquals(1, res.size());
 	}

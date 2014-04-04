@@ -28,6 +28,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
@@ -468,6 +470,10 @@ public class Test {
 			return res;
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		} catch (XmlPullParserException ex) {
+			System.err.println("Could not read Android manifest file: " + ex.getMessage());
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		}
