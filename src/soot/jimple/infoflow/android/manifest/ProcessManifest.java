@@ -376,4 +376,17 @@ public class ProcessManifest {
 		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
 	}
 	
+	/**
+	 * Gets the permissions this application requests
+	 * @return The permissions requested by this application
+	 * @return
+	 */
+	public Set<String> getPermissions() {
+		List<AXmlNode> usesPerms = this.manifest.getChildrenWithTag("uses-permission");
+		Set<String> permissions = new HashSet<String>();
+		for (AXmlNode perm : usesPerms)
+			permissions.add((String) perm.getAttribute("name").getValue());
+		return permissions;
+	}
+	
 }
