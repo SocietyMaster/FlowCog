@@ -1,6 +1,7 @@
 package soot.jimple.infoflow.android.axml;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -49,15 +50,12 @@ public class AXmlHandler {
 	public AXmlHandler(InputStream aXmlIs) throws IOException, XmlPullParserException {
 		// wrap the InputStream within a BufferedInputStream
 		// to have mark() and reset() methods
-		BufferedInputStream buffer;
-		if(aXmlIs instanceof BufferedInputStream) buffer = (BufferedInputStream) aXmlIs;
-		else buffer = new BufferedInputStream(aXmlIs);
-		buffer.mark(0);
-
+		BufferedInputStream buffer = new BufferedInputStream(aXmlIs);
+		
 		// read xml one time for writing the output later on
 		this.xml = new byte[aXmlIs.available()];
 		buffer.read(this.xml);
-		buffer.reset();
+		buffer = new BufferedInputStream(new ByteArrayInputStream(this.xml));
 		
 		// init
 		AXmlNode node = null;
