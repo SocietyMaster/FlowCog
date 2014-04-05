@@ -211,7 +211,7 @@ public class ProcessManifest {
 	private void checkAndAddComponent(Set<String> entryPoints, AXmlNode node) {
 		AXmlAttribute<?> attrEnabled = node.getAttribute("enabled");
 		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE))
-			entryPoints.add((String) node.getAttribute("name").getValue());
+			entryPoints.add(expandClassName((String) node.getAttribute("name").getValue()));
 	}
 
 	/**
