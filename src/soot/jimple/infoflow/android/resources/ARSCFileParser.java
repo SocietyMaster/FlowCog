@@ -1128,8 +1128,10 @@ public class ARSCFileParser extends AbstractResourceParser {
 						for (int i = 0; i < typeTable.entryCount; i++) {
 							int entryOffset = readUInt32(remainingData, offset);
 							offset += 4;
-							if (entryOffset == 0xFFFFFFFF)	// NoEntry
+							if (entryOffset == 0xFFFFFFFF) {	// NoEntry
+								resourceIdx++;
 								continue;
+							}
 							entryOffset += beforeInnerBlock + typeTable.entriesStart;
 							ResTable_Entry entry = readEntryTable(remainingData, entryOffset);
 							entryOffset += entry.size;
@@ -1166,6 +1168,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 								res.resourceName = keyStrings.get(entry.key);
 							else
 								res.resourceName = "<INVALID RESOURCE>";
+							
 							AbstractResource r = resType.getResourceByName(res.resourceName);
 							if (r != null)
 								res.resourceID = r.resourceID;
