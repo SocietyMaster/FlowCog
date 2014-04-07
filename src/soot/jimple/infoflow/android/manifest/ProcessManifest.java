@@ -26,6 +26,17 @@ import soot.jimple.infoflow.android.axml.ApkHandler;
  * @see <a href="http://developer.android.com/guide/topics/manifest/manifest-intro.html">App Manifest</a>
  */
 public class ProcessManifest {
+	
+	/**
+	 * Enumeration containing the various component types supported in Android
+	 */
+	public enum ComponentType {
+		Activity,
+		Service,
+		ContentProvider,
+		BroadcastReceiver
+	}
+		
 	/**
 	 * Handler for zip-like apk files
 	 */
@@ -213,7 +224,29 @@ public class ProcessManifest {
 		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE))
 			entryPoints.add(expandClassName((String) node.getAttribute("name").getValue()));
 	}
-
+	
+	/**
+	 * Gets the type of the component identified by the given class name
+	 * @param className The class name for which to get the component type
+	 * @return The component type of the given class if this class has been
+	 * registered as a component in the manifest file, otherwise null
+	 */
+	public ComponentType getComponentType(String className) {
+		for (AXmlNode node : this.activities)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.Activity;
+		for (AXmlNode node : this.services)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.Service;
+		for (AXmlNode node : this.receivers)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.BroadcastReceiver;
+		for (AXmlNode node : this.providers)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.ContentProvider;
+		return null;
+	}
+	
 	/**
 	 * Returns a list containing all nodes with tag <code>activity</code>.
 	 * 
