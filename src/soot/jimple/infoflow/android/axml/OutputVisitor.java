@@ -1,13 +1,14 @@
 package soot.jimple.infoflow.android.axml;
 
-import pxb.android.axml.AxmlVisitor.NodeVisitor;
+import pxb.android.axml.AxmlVisitor;
+import pxb.android.axml.NodeVisitor;
 
 /**
  * Extends the {@link NodeVisitor} by applying changes done to the node this visitor visits.
  * 
  * @author Stefan Haas, Mario Schlipf
  */
-public class OutputVisitor extends NodeVisitor {
+public class OutputVisitor extends AxmlVisitor {
 	/**
 	 * Node object which represents the visited node
 	 */
