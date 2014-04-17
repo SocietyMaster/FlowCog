@@ -53,8 +53,28 @@ public class AXmlHandler {
 		BufferedInputStream buffer = new BufferedInputStream(aXmlIs);
 		
 		// read xml one time for writing the output later on
-		this.xml = new byte[aXmlIs.available()];
-		buffer.read(this.xml);
+		{
+			List<byte[]> chunks = new ArrayList<byte[]>();
+			int bytesRead = 0;
+			while (aXmlIs.available() > 0) {
+				byte[] nextChunk = new byte[aXmlIs.available()];
+				int chunkSize = buffer.read(nextChunk);
+				if (chunkSize < 0)
+					break;
+				chunks.add(nextChunk);
+				bytesRead += chunkSize;
+			}
+			
+			// Create the full array
+			this.xml = new byte[bytesRead];
+			int bytesCopied = 0;
+			for (byte[] chunk : chunks) {
+				int toCopy = Math.min(chunk.length, bytesRead - bytesCopied);
+				System.arraycopy(chunk, 0, this.xml, bytesCopied, toCopy);
+				bytesCopied += toCopy;
+			}
+		}
+		
 		buffer = new BufferedInputStream(new ByteArrayInputStream(this.xml));
 		
 		// init
