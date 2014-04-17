@@ -313,8 +313,14 @@ public class LayoutFileParser extends AbstractResourceParser {
 			if (attrName.equals("id")
 					&& (attr.getType() == AxmlVisitor.TYPE_REFERENCE || attr.getType() == AxmlVisitor.TYPE_INT_HEX))
 				id = (Integer) attr.getValue();
-			else if (attrName.equals("password") && attr.getType() == AxmlVisitor.TYPE_INT_BOOLEAN)
-				isSensitive = ((Integer) attr.getValue()) != 0; // -1 for true, 0 for false
+			else if (attrName.equals("password")) {
+				if (attr.getType() == AxmlVisitor.TYPE_INT_HEX)
+					isSensitive = ((Integer) attr.getValue()) != 0; // -1 for true, 0 for false
+				else if (attr.getType() == AxmlVisitor.TYPE_INT_BOOLEAN)
+					isSensitive = (Boolean) attr.getValue();
+				else
+					throw new RuntimeException("Unknown representation of boolean data type");
+			}
 			else if (!isSensitive && attrName.equals("inputType") && attr.getType() == AxmlVisitor.TYPE_INT_HEX) {
 				int tp = (Integer) attr.getValue();
 				isSensitive = ((tp & TYPE_NUMBER_VARIATION_PASSWORD) == TYPE_NUMBER_VARIATION_PASSWORD)
