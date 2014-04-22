@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import soot.Local;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
@@ -170,10 +171,57 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 				+ this.callbackMethods.size() + " callback methods.");
 	}
 	
+	/**
+	 * For ICC methods (e.g., startService), the classes name of these methods may change through user's definition. 
+	 * We match all the ICC methods through their base class name.
+	 */
 	@Override
-	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		return sCallSite.containsInvokeExpr()
-				&& this.sinkMethods.containsKey(sCallSite.getInvokeExpr().getMethod().getSignature());
+	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) 
+	{
+		if (! sCallSite.containsInvokeExpr())
+		{
+			return false;
+		}
+			
+		SootClass sc = sCallSite.getInvokeExpr().getMethod().getDeclaringClass();
+			
+		boolean isIccMethod = false;
+		String baseClassName = null;
+		
+		String[] iccBaseClassNames = new String[] {
+			"android.content.Context", 				//activity, service and broadcast
+			"android.content.ContentResolver" 		//provider
+		};
+		
+		while (sc.hasSuperclass())
+		{
+			for (String clsName : iccBaseClassNames)
+			{
+				if (clsName.contains(sc.getName()))
+				{
+					isIccMethod = true;
+					baseClassName = clsName;
+					break;
+				}
+			}
+			
+			if (isIccMethod)
+			{
+				break;
+			}
+			
+			sc = sc.getSuperclass();
+		}
+		
+		String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+		
+		if (isIccMethod)
+		{
+			String clsName = sCallSite.getInvokeExpr().getMethod().getDeclaringClass().getName();
+			signature = signature.replace(clsName, baseClassName);
+		}
+		
+		return this.sinkMethods.containsKey(signature);
 	}
 
 	@Override

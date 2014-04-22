@@ -39,6 +39,7 @@ import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.solver.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
@@ -58,8 +59,7 @@ public class Test {
 			this.wr = wr;
 		}
 
-		@Override
-		public void onResultsAvailable(
+		public void onResultsAvailableImpl(
 				BiDiInterproceduralCFG<Unit, SootMethod> cfg,
 				InfoflowResults results) {
 			// Dump the results
@@ -88,6 +88,12 @@ public class Test {
 			catch (IOException ex) {
 				// ignore
 			}
+		}
+
+		@Override
+		public void onResultsAvailable(IInfoflowCFG cfg, InfoflowResults results) 
+		{
+			onResultsAvailableImpl(cfg, results);
 		}
 	}
 	
