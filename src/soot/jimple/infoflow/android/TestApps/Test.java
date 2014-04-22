@@ -30,8 +30,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.SootMethod;
-import soot.Unit;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.InfoflowResults.SinkInfo;
@@ -43,7 +41,6 @@ import soot.jimple.infoflow.solver.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
-import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 
 public class Test {
 	
@@ -59,9 +56,9 @@ public class Test {
 			this.wr = wr;
 		}
 
-		public void onResultsAvailableImpl(
-				BiDiInterproceduralCFG<Unit, SootMethod> cfg,
-				InfoflowResults results) {
+		@Override
+		public void onResultsAvailable(
+				IInfoflowCFG cfg, InfoflowResults results) {
 			// Dump the results
 			if (results == null) {
 				print("No results found.");
@@ -88,12 +85,6 @@ public class Test {
 			catch (IOException ex) {
 				// ignore
 			}
-		}
-
-		@Override
-		public void onResultsAvailable(IInfoflowCFG cfg, InfoflowResults results) 
-		{
-			onResultsAvailableImpl(cfg, results);
 		}
 	}
 	
