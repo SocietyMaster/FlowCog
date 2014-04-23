@@ -190,7 +190,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		
 		String[] iccBaseClassNames = new String[] {
 			"android.content.Context", 				//activity, service and broadcast
-			"android.content.ContentResolver" 		//provider
+			"android.content.ContentResolver", 		//provider
+			"android.app.Activity"					//some methods (e.g., onActivityResult) only defined in Activity class
 		};
 		
 		while (sc.hasSuperclass())
