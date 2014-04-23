@@ -27,6 +27,7 @@
 
 <org.apache.http.message.BasicNameValuePair: void <init>(java.lang.String,java.lang.String)> -> _SINK_
 
+% add Activity.getIntent() as source instead of the next methods to avoid duplicate results.
 %<android.content.Intent: java.lang.String getAction()> -> _SOURCE_
 %<android.content.Intent: boolean[] getBooleanArrayExtra(java.lang.String)> -> _SOURCE_
 %<android.content.Intent: boolean getBooleanExtra(java.lang.String, boolean)> -> _SOURCE_
@@ -78,45 +79,46 @@
 %<android.content.Intent: void <init>(android.content.Context,java.lang.Class)> -> _SOURCE_
 %<android.content.Intent: void <init>(java.lang.String,android.net.Uri,android.content.Context,java.lang.Class)> -> _SOURCE_
 
-%<android.os.Bundle: java.lang.Object get(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: boolean getBoolean(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
-%<android.os.Bundle: boolean[] getBooleanArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: android.os.Bundle getBundle(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: byte getByte(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.lang.Byte getByte(java.lang.String,byte)> -> _SOURCE_
-%<android.os.Bundle: byte[] getByteArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: char getChar(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: char getChar(java.lang.String,char)> -> _SOURCE_
-%<android.os.Bundle: char[] getCharArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String,java.lang.CharSequence)> -> _SOURCE_
-%<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.lang.CharSequence[] getCharSequenceArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.util.ArrayList getCharSequenceArrayList(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.lang.ClassLoader getClassLoader()> -> _SOURCE_
-%<android.os.Bundle: double getDouble(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: double getDouble(java.lang.String,double)> -> _SOURCE_
-%<android.os.Bundle: double[] getDoubleArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: float getFloat(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: float getFloat(java.lang.String,float)> -> _SOURCE_
-%<android.os.Bundle: float[] getFloatArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: int getInt(java.lang.String,int)> -> _SOURCE_
-%<android.os.Bundle: int getInt(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: int[] getIntArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.util.ArrayList getIntegerArrayList(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: long getLong(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: long getLong(java.lang.String,long)> -> _SOURCE_
-%<android.os.Bundle: long[] getLongArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: android.os.Parcelable getParcelable(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: android.os.Parcelable[] getParcelableArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.util.ArrayList getParcelableArrayList(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.io.Serializable getSerializable(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: short getShort(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: short getShort(java.lang.String,short)> -> _SOURCE_
-%<android.os.Bundle: short[] getShortArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: android.util.SparseArray getSparseParcelableArray(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
-%<android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
+%bundle sources
+<android.os.Bundle: java.lang.Object get(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: boolean getBoolean(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
+<android.os.Bundle: boolean[] getBooleanArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Bundle getBundle(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: byte getByte(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.Byte getByte(java.lang.String,byte)> -> _SOURCE_
+<android.os.Bundle: byte[] getByteArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: char getChar(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: char getChar(java.lang.String,char)> -> _SOURCE_
+<android.os.Bundle: char[] getCharArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String,java.lang.CharSequence)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence[] getCharSequenceArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getCharSequenceArrayList(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.ClassLoader getClassLoader()> -> _SOURCE_
+<android.os.Bundle: double getDouble(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: double getDouble(java.lang.String,double)> -> _SOURCE_
+<android.os.Bundle: double[] getDoubleArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: float getFloat(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: float getFloat(java.lang.String,float)> -> _SOURCE_
+<android.os.Bundle: float[] getFloatArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: int getInt(java.lang.String,int)> -> _SOURCE_
+<android.os.Bundle: int getInt(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: int[] getIntArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getIntegerArrayList(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: long getLong(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: long getLong(java.lang.String,long)> -> _SOURCE_
+<android.os.Bundle: long[] getLongArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Parcelable getParcelable(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Parcelable[] getParcelableArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getParcelableArrayList(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.io.Serializable getSerializable(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: short getShort(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: short getShort(java.lang.String,short)> -> _SOURCE_
+<android.os.Bundle: short[] getShortArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.util.SparseArray getSparseParcelableArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
 
 %bundle sinks
 <android.os.Bundle: void putBinder(java.lang.String,android.os.IBinder)> -> _SINK_
