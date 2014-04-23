@@ -85,7 +85,6 @@ public class InsecureBankTests {
 		Assert.assertTrue(res.isPathBetweenMethods(url_init, intent_getExtras));
 		Assert.assertTrue(res.isPathBetweenMethods(url_init, bundle_getString));
 		
-		Assert.assertTrue(res.isPathBetweenMethods(log_e, postLogin_findViewById));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, intent_getExtras));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, bundle_getString));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, urlConnection_openConnection));
