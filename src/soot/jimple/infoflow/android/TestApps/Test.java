@@ -58,8 +58,7 @@ public class Test {
 
 		@Override
 		public void onResultsAvailable(
-				IInfoflowCFG cfg,
-				InfoflowResults results) {
+				IInfoflowCFG cfg, InfoflowResults results) {
 			// Dump the results
 			if (results == null) {
 				print("No results found.");
