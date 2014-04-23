@@ -251,11 +251,12 @@
 <android.telephony.SmsManager: void sendMultipartTextMessage(java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList,java.util.ArrayList)> android.permission.SEND_SMS -> _SINK_ 
 <java.net.Socket: void connect(java.net.SocketAddress)> -> _SINK_
 <android.os.Handler: boolean sendMessage(android.os.Message)> -> _SINK_
-%<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putBoolean(java.lang.String,boolean)> -> _SINK_
-%<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putFloat(java.lang.String,float)> -> _SINK_
-%<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putInt(java.lang.String,int)> -> _SINK_
-%<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putLong(java.lang.String,long)> -> _SINK_
-%<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putString(java.lang.String,java.lang.String)> -> _SINK_
+
+<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putBoolean(java.lang.String,boolean)> -> _SINK_
+<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putFloat(java.lang.String,float)> -> _SINK_
+<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putInt(java.lang.String,int)> -> _SINK_
+<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putLong(java.lang.String,long)> -> _SINK_
+<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putString(java.lang.String,java.lang.String)> -> _SINK_
 
 <android.content.SharedPreferences: android.content.SharedPreferences getDefaultSharedPreferences(android.content.Context)> -> _SOURCE_
 
