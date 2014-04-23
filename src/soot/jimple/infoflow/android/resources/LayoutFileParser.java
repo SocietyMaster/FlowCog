@@ -10,21 +10,23 @@
  ******************************************************************************/
 package soot.jimple.infoflow.android.resources;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import pxb.android.axml.AxmlReader;
 import pxb.android.axml.AxmlVisitor;
-import pxb.android.axml.AxmlVisitor.NodeVisitor;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.Transform;
+import soot.jimple.infoflow.android.axml.AXmlAttribute;
+import soot.jimple.infoflow.android.axml.AXmlHandler;
+import soot.jimple.infoflow.android.axml.AXmlNode;
+import soot.jimple.infoflow.android.axml.parsers.AXML20Parser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 
@@ -155,144 +157,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 		if (includeDependencies.containsKey(layoutFile))
 			for (String target : includeDependencies.get(layoutFile))
 				addCallbackMethod(target, callback);
-	}
-	
-	/**
-	 * Parser for "include" directives in layout XML files
-	 */
-	private class IncludeParser extends NodeVisitor {
-		
-		private final String layoutFile;
-
-    	public IncludeParser(String layoutFile) {
-    		this.layoutFile = layoutFile;
-    	}
-    	
-    	@Override
-    	public void attr(String ns, String name, int resourceId, int type, Object obj) {
-    		// Is this the target file attribute?
-    		String tname = name.trim();
-    		if (tname.equals("layout")) {
-    			if (type == AxmlVisitor.TYPE_REFERENCE && obj instanceof Integer) {
-    				// We need to get the target XML file from the binary manifest
-    				AbstractResource targetRes = resParser.findResource((Integer) obj);
-    				if (targetRes == null) {
-    					System.err.println("Target resource " + obj + " for layout include not found");
-    					return;
-    				}
-    				if (!(targetRes instanceof StringResource)) {
-    					System.err.println("Invalid target node for include tag in layout XML, was "
-    							+ targetRes.getClass().getName());
-    					return;
-    				}
-    				String targetFile = ((StringResource) targetRes).getValue();
-    				
-    				// If we have already processed the target file, we can
-    				// simply copy the callbacks we have found there
-        			if (callbackMethods.containsKey(targetFile))
-        				for (String callback : callbackMethods.get(targetFile))
-        					addCallbackMethod(layoutFile, callback);
-        			else {
-        				// We need to record a dependency to resolve later
-        				addToMapSet(includeDependencies, targetFile, layoutFile);
-        			}
-    			}
-    		}
-    		
-    		super.attr(ns, name, resourceId, type, obj);
-    	}
-    	
-	}
-	
-	/**
-	 * Parser for layout components defined in XML files
-	 */
-	private class LayoutParser extends NodeVisitor {
-
-		private final String layoutFile;
-		private final SootClass theClass;
-    	private Integer id = -1;
-    	private boolean isSensitive = false;
-    	
-    	public LayoutParser(String layoutFile, SootClass theClass) {
-    		this.layoutFile = layoutFile;
-    		this.theClass = theClass;
-    	}
-
-    	@Override
-       	public NodeVisitor child(String ns, String name) {
-    		if (name == null || name.isEmpty()) {
-    			System.err.println("Encountered a null or empty node name "
-    					+ "in file " + layoutFile + ", skipping node...");
-    			return null;
-    		}
-    		
-    		// Check for inclusions
-    		String tname = name.trim();
-    		if (tname.equals("include"))
-    			return new IncludeParser(layoutFile);
-    		
-    		// The "merge" tag merges the next hierarchy level into the current
-    		// one for flattening hierarchies.
-    		if (tname.equals("merge"))
-       			return new LayoutParser(layoutFile, theClass);
-    		
-			final SootClass childClass = getLayoutClass(tname);
-			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
-       			return new LayoutParser(layoutFile, childClass);
-			else
-				return super.child(ns, name);
-       	}
-		
-    	@Override
-    	public void attr(String ns, String name, int resourceId, int type, Object obj) {
-    		// Check that we're actually working on an android attribute
-    		if (!isAndroidNamespace(ns))
-    			return;
-
-    		// Read out the field data
-    		String tname = name.trim();
-    		if (tname.equals("id") && type == AxmlVisitor.TYPE_REFERENCE)
-    			this.id = (Integer) obj;
-    		else if (tname.equals("password") && type == AxmlVisitor.TYPE_INT_BOOLEAN)
-    			isSensitive = ((Integer) obj) != 0; // -1 for true, 0 for false
-    		else if (!isSensitive && tname.equals("inputType") && type == AxmlVisitor.TYPE_INT_HEX) {
-    			int tp = (Integer) obj;
-    			isSensitive = ((tp & TYPE_NUMBER_VARIATION_PASSWORD) == TYPE_NUMBER_VARIATION_PASSWORD)
-    					|| ((tp & TYPE_TEXT_VARIATION_PASSWORD) == TYPE_TEXT_VARIATION_PASSWORD)
-    					|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
-    					|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
-    		}
-    		else if (isActionListener(tname) && type == AxmlVisitor.TYPE_STRING && obj instanceof String) {
-    			String strData = ((String) obj).trim();
-    			addCallbackMethod(layoutFile, strData);
-    		}
-    		else {
-    			if (DEBUG && type == AxmlVisitor.TYPE_STRING)
-    				System.out.println("Found unrecognized XML attribute:  " + tname);
-    		}
-    		
-    		super.attr(ns, name, resourceId, type, obj);
-    	}
-    	
-		/**
-    	 * Checks whether this name is the name of a well-known Android listener
-    	 * attribute. This is a function to allow for future extension.
-    	 * @param name The attribute name to check. This name is guaranteed to
-    	 * be in the android namespace.
-    	 * @return True if the given attribute name corresponds to a listener,
-    	 * otherwise false.
-    	 */
-    	private boolean isActionListener(String name) {
-    		return name.equals("onClick");
-    	}
-
-		@Override
-    	public void end() {
-    		if (id > 0)
-    			userControls.put(id, new LayoutControl(id, theClass, isSensitive));
-    	}
-	}
+	}	
 	
 	/**
 	 * Parses all layout XML files in the given APK file and loads the IDs of
@@ -303,7 +168,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 		Transform transform = new Transform("wjtp.lfp", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				handleAndroidResourceFiles(fileName, /*classes,*/ null, new IResourceHandler() {
-					
+						
 					@Override
 					public void handleResourceFile(final String fileName, Set<String> fileNameFilter, InputStream stream) {
 						// We only process valid layout XML files
@@ -332,35 +197,10 @@ public class LayoutFileParser extends AbstractResourceParser {
 							if (!found)
 								return;
 						}
-
+						
 						try {
-							ByteArrayOutputStream bos = new ByteArrayOutputStream();
-							int in;
-							while ((in = stream.read()) >= 0)
-								bos.write(in);
-							bos.flush();
-							byte[] data = bos.toByteArray();
-							if (data == null || data.length <= 0)	// File empty?
-								return;
-							
-							AxmlReader rdr = new AxmlReader(data);
-							rdr.accept(new AxmlVisitor() {
-								
-								@Override
-								public NodeVisitor first(String ns, String name) {
-									if (name == null)
-										return new LayoutParser(fileName, null);
-									
-									final String tname = name.trim();
-									final SootClass theClass = tname.isEmpty() || tname.equals("merge")
-											|| tname.equals("include") ? null : getLayoutClass(name.trim());
-									if (theClass == null || isLayoutClass(theClass))
-										return new LayoutParser(fileName, theClass);
-									else
-										return super.first(ns, name);
-								}
-							});
-							
+							AXmlHandler handler = new AXmlHandler(stream, new AXML20Parser());
+							parseLayoutNode(fileName, handler.getRoot());
 							System.out.println("Found " + userControls.size() + " layout controls in file "
 									+ fileName);
 						}
@@ -375,6 +215,147 @@ public class LayoutFileParser extends AbstractResourceParser {
 		PackManager.v().getPack("wjtp").add(transform);
 	}
 	
+	/**
+	 * Parses the layout file with the given root node
+	 * @param layoutFile The full path and file name of the file being parsed
+	 * @param rootNode The root node from where to start parsing
+	 */
+	private void parseLayoutNode(String layoutFile, AXmlNode rootNode) {
+		if (rootNode.getTag() == null || rootNode.getTag().isEmpty()) {
+			System.err.println("Encountered a null or empty node name "
+					+ "in file " + layoutFile + ", skipping node...");
+			return;			
+		}
+		
+		String tname = rootNode.getTag().trim();
+		if (tname.equals("dummy")) {
+			// dummy root node, ignore it
+		}
+		// Check for inclusions
+		else if (tname.equals("include")) {
+			parseIncludeAttributes(layoutFile, rootNode);
+		}
+		// The "merge" tag merges the next hierarchy level into the current
+		// one for flattening hierarchies.
+		else if (tname.equals("merge"))  {
+			// TODO
+		}
+		else {
+			final SootClass childClass = getLayoutClass(tname);
+			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
+				parseLayoutAttributes(layoutFile, childClass, rootNode);
+		}
+
+		// Parse the child nodes
+		for (AXmlNode childNode : rootNode.getChildren())
+			parseLayoutNode(layoutFile, childNode);
+	}
+	
+	/**
+	 * Parses the attributes required for a layout file inclusion
+	 * @param layoutFile The full path and file name of the file being parsed
+	 * @param rootNode The AXml node containing the attributes
+	 */
+	private void parseIncludeAttributes(String layoutFile, AXmlNode rootNode) {
+		for (Entry<String, AXmlAttribute<?>> entry : rootNode.getAttributes().entrySet()) {
+			String attrName = entry.getKey().trim();
+			AXmlAttribute<?> attr = entry.getValue();
+			
+    		if (attrName.equals("layout")) {
+    			if ((attr.getType() == AxmlVisitor.TYPE_REFERENCE || attr.getType() == AxmlVisitor.TYPE_INT_HEX)
+    					&& attr.getValue() instanceof Integer) {
+    				// We need to get the target XML file from the binary manifest
+    				AbstractResource targetRes = resParser.findResource((Integer) attr.getValue());
+    				if (targetRes == null) {
+    					System.err.println("Target resource " + attr.getValue() + " for layout include not found");
+    					return;
+    				}
+    				if (!(targetRes instanceof StringResource)) {
+    					System.err.println("Invalid target node for include tag in layout XML, was "
+    							+ targetRes.getClass().getName());
+    					return;
+    				}
+    				String targetFile = ((StringResource) targetRes).getValue();
+    				
+    				// If we have already processed the target file, we can
+    				// simply copy the callbacks we have found there
+        			if (callbackMethods.containsKey(targetFile))
+        				for (String callback : callbackMethods.get(targetFile))
+        					addCallbackMethod(layoutFile, callback);
+        			else {
+        				// We need to record a dependency to resolve later
+        				addToMapSet(includeDependencies, targetFile, layoutFile);
+        			}
+    			}
+    		}
+		}
+	}
+
+	/**
+	 * Parses the layout attributes in the given AXml node 
+	 * @param layoutFile The full path and file name of the file being parsed
+	 * @param layoutClass The class for the attributes are parsed
+	 * @param rootNode The AXml node containing the attributes
+	 */
+	private void parseLayoutAttributes(String layoutFile, SootClass layoutClass, AXmlNode rootNode) {
+		boolean isSensitive = false;
+		int id = -1;
+		
+		for (Entry<String, AXmlAttribute<?>> entry : rootNode.getAttributes().entrySet()) {
+			String attrName = entry.getKey().trim();
+			AXmlAttribute<?> attr = entry.getValue();
+			
+			// Check that we're actually working on an android attribute
+			if (!isAndroidNamespace(attr.getNamespace()))
+				continue;
+			
+			// Read out the field data
+			if (attrName.equals("id")
+					&& (attr.getType() == AxmlVisitor.TYPE_REFERENCE || attr.getType() == AxmlVisitor.TYPE_INT_HEX))
+				id = (Integer) attr.getValue();
+			else if (attrName.equals("password")) {
+				if (attr.getType() == AxmlVisitor.TYPE_INT_HEX)
+					isSensitive = ((Integer) attr.getValue()) != 0; // -1 for true, 0 for false
+				else if (attr.getType() == AxmlVisitor.TYPE_INT_BOOLEAN)
+					isSensitive = (Boolean) attr.getValue();
+				else
+					throw new RuntimeException("Unknown representation of boolean data type");
+			}
+			else if (!isSensitive && attrName.equals("inputType") && attr.getType() == AxmlVisitor.TYPE_INT_HEX) {
+				int tp = (Integer) attr.getValue();
+				isSensitive = ((tp & TYPE_NUMBER_VARIATION_PASSWORD) == TYPE_NUMBER_VARIATION_PASSWORD)
+						|| ((tp & TYPE_TEXT_VARIATION_PASSWORD) == TYPE_TEXT_VARIATION_PASSWORD)
+						|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+						|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
+			}
+			else if (isActionListener(attrName) && attr.getType() == AxmlVisitor.TYPE_STRING
+					&& attr.getValue() instanceof String) {
+				String strData = ((String) attr.getValue()).trim();
+				addCallbackMethod(layoutFile, strData);
+			}
+			else {
+				if (DEBUG && attr.getType() == AxmlVisitor.TYPE_STRING)
+					System.out.println("Found unrecognized XML attribute:  " + attrName);
+			}
+		}
+		
+		// Register the new user control
+		if (id > 0)
+			userControls.put(id, new LayoutControl(id, layoutClass, isSensitive));
+	}
+
+	/**
+	 * Checks whether this name is the name of a well-known Android listener
+	 * attribute. This is a function to allow for future extension.
+	 * @param name The attribute name to check. This name is guaranteed to
+	 * be in the android namespace.
+	 * @return True if the given attribute name corresponds to a listener,
+	 * otherwise false.
+	 */
+	private boolean isActionListener(String name) {
+		return name.equals("onClick");
+	}
+
 	/**
 	 * Gets the user controls found in the layout XML file. The result is a
 	 * mapping from the id to the respective layout control.

@@ -13,8 +13,7 @@ package soot.jimple.infoflow.android.test.insecureBank;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -28,6 +27,8 @@ public class InsecureBankTests {
 			"<android.content.SharedPreferences$Editor: android.content.SharedPreferences$Editor putString(java.lang.String,java.lang.String)>";
 	private final static String loginScreen_findViewById =
 			"<android.app.Activity: android.view.View findViewById(int)>";
+	private final static String postLogin_findViewById =
+			"<com.android.insecurebank.PostLogin: android.view.View findViewById(int)>";
 	private final static String loginScreen_startActivity =
 			"<android.app.Activity: void startActivity(android.content.Intent)>";
 	private final static String url_init =
@@ -38,8 +39,12 @@ public class InsecureBankTests {
 			"<android.os.Bundle: java.lang.String getString(java.lang.String)>";
 	private final static String log_e =
 			"<android.util.Log: int e(java.lang.String,java.lang.String)>";
+	private final static String log_d =
+			"<android.util.Log: int d(java.lang.String,java.lang.String)>";
 	private final static String urlConnection_openConnection =
 			"<java.net.URL: java.net.URLConnection openConnection()>";
+	private final static String cursor_getString =
+			"<android.database.Cursor: java.lang.String getString(int)>";
 	
 	/**
 	 * Analyzes the given APK file for data flows
@@ -71,15 +76,23 @@ public class InsecureBankTests {
 	public void runTestInsecureBank() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile(false);
 		// 7 leaks + 1x inter-component communication (server ip going through an intent)
-		Assert.assertEquals(8, res.size());
+		Assert.assertEquals(12, res.size());
 		
 		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, loginScreen_findViewById));
+		
 		Assert.assertTrue(res.isPathBetweenMethods(loginScreen_startActivity, loginScreen_findViewById));
+		
 		Assert.assertTrue(res.isPathBetweenMethods(url_init, intent_getExtras));
 		Assert.assertTrue(res.isPathBetweenMethods(url_init, bundle_getString));
+		
+		Assert.assertTrue(res.isPathBetweenMethods(log_e, postLogin_findViewById));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, intent_getExtras));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, bundle_getString));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, urlConnection_openConnection));
+		
+		Assert.assertTrue(res.isPathBetweenMethods(log_d, cursor_getString));
+		
+		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, postLogin_findViewById));
 	}
 	
 }

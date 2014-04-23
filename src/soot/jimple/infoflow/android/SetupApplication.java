@@ -65,6 +65,7 @@ public class SetupApplication {
 	private boolean enableCallbacks = true;
 	private boolean flowSensitiveAliasing = true;
 	private boolean computeResultPaths = true;
+	private boolean ignoreFlowsInSystemPackages = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -230,7 +231,7 @@ public class SetupApplication {
 		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
 		this.appPackageName = processMan.getPackageName();
 		this.entrypoints = processMan.getEntryPointClasses();
-
+		
 		// Parse the resource file
 		long beforeARSC = System.nanoTime();
 		ARSCFileParser resParser = new ARSCFileParser();
@@ -241,7 +242,7 @@ public class SetupApplication {
 		// Add the callback methods
 		if (enableCallbacks)
 			calculateCallbackMethods(resParser);
-
+		
 		sources = new HashSet<AndroidMethod>(sourceMethods);
 		sinks = new HashSet<AndroidMethod>(sinkMethods);
 		
@@ -483,6 +484,7 @@ public class SetupApplication {
 		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
 		info.setComputeResultPaths(computeResultPaths);
+		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
@@ -567,6 +569,16 @@ public class SetupApplication {
 		this.computeResultPaths = computeResultPaths;
 	}
 	
+	/**
+	 * Sets whether flows starting or ending in system packages such as Android's
+	 * support library shall be ignored.
+	 * @param ignoreFlowsInSystemPackages True if flows starting or ending in
+	 * system packages shall be ignored, otherwise false.
+	 */
+	public void setIgnoreFlowsInSystemPackages(boolean ignoreFlowsInSystemPackages) {
+		this.ignoreFlowsInSystemPackages = ignoreFlowsInSystemPackages;
+	}
+
 	/**
 	 * Sets whether a flow sensitive aliasing algorithm shall be used
 	 * @param flowSensitiveAliasing True if a flow sensitive aliasing algorithm

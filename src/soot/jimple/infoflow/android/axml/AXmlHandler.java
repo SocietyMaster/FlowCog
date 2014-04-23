@@ -1,20 +1,15 @@
 package soot.jimple.infoflow.android.axml;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import pxb.android.axml.AxmlReader;
-import pxb.android.axml.AxmlVisitor;
 import pxb.android.axml.AxmlWriter;
-import android.content.res.AXmlResourceParser;
+import soot.jimple.infoflow.android.axml.parsers.AXMLPrinter2Parser;
+import soot.jimple.infoflow.android.axml.parsers.IBinaryXMLFileParser;
 
 /**
  * {@link AXmlHandler} provides functionality to parse a byte compressed android xml file and access all nodes.
@@ -30,110 +25,57 @@ public class AXmlHandler {
 	protected byte[] xml;
 	
 	/**
-	 * The xml document's root node.
+	 * The parser used for actually reading out the binary XML file
 	 */
-	protected AXmlNode root;
-	
-	/**
-	 * Map containing lists of nodes sharing the same <code>tag</code>.
-	 * The <code>tag</code> is the key to access the list.
-	 */
-	protected HashMap<String, ArrayList<AXmlNode>> nodesWithTag = new HashMap<String, ArrayList<AXmlNode>>();
+	protected final IBinaryXMLFileParser parser;
 	
 	/**
 	 * Creates a new {@link AXmlHandler} which parses the {@link InputStream}.
 	 * 
 	 * @param	aXmlIs					InputStream reading a byte compressed android xml file
 	 * @throws	IOException				if an I/O error occurs.
-	 * @throws	XmlPullParserException	can occur due to a malformed Android XML.
 	 */
-	public AXmlHandler(InputStream aXmlIs) throws IOException, XmlPullParserException {
+	public AXmlHandler(InputStream aXmlIs) throws IOException {
+		this(aXmlIs, new AXMLPrinter2Parser());
+	}
+	
+	/**
+	 * Creates a new {@link AXmlHandler} which parses the {@link InputStream}.
+	 * 
+	 * @param	aXmlIs					InputStream reading a byte compressed android xml file
+	 * @param	parser					The parser implementation to be used
+	 * @throws	IOException				if an I/O error occurs.
+	 */
+	public AXmlHandler(InputStream aXmlIs, IBinaryXMLFileParser parser) throws IOException {
 		// wrap the InputStream within a BufferedInputStream
 		// to have mark() and reset() methods
 		BufferedInputStream buffer = new BufferedInputStream(aXmlIs);
 		
 		// read xml one time for writing the output later on
-		this.xml = new byte[aXmlIs.available()];
-		buffer.read(this.xml);
-		buffer = new BufferedInputStream(new ByteArrayInputStream(this.xml));
-		
-		// init
-		AXmlNode node = null;
-		AXmlNode parent = null;
-		
-		// create parser and parse the xml's contents
-		AXmlResourceParser parser = new AXmlResourceParser();
-		parser.open(buffer);
-		
-		int type = -1;
-		String tag;
-		while ((type = parser.next()) != AXmlResourceParser.END_DOCUMENT) {
-			switch (type) {
-				// Currently nothing to do at the document's start
-				case AXmlResourceParser.START_DOCUMENT:
+		{
+			List<byte[]> chunks = new ArrayList<byte[]>();
+			int bytesRead = 0;
+			while (aXmlIs.available() > 0) {
+				byte[] nextChunk = new byte[aXmlIs.available()];
+				int chunkSize = buffer.read(nextChunk);
+				if (chunkSize < 0)
 					break;
-
-				// To handle an opening tag we create a new node
-				// and fetch the namespace and all attributes
-				case AXmlResourceParser.START_TAG:
-					tag = parser.getName();
-					parent = node;
-					node = new AXmlNode(tag, parser.getNamespace(), parent, false);
-					this.addPointer(tag, node);
-					
-					// add attributes to node object
-					for(int i = 0; i < parser.getAttributeCount(); i++) {
-						String name = parser.getAttributeName(i);
-						String ns = parser.getAttributeNamespace(i);
-						AXmlAttribute<?> attr = null;
-						
-						// we only parse attribute of types string, boolean and integer
-						switch(parser.getAttributeValueType(i)) {
-							case AxmlVisitor.TYPE_STRING:
-								attr = new AXmlAttribute<String>(name, parser.getAttributeValue(i), ns, false);
-								break;
-							case AxmlVisitor.TYPE_INT_BOOLEAN:
-								attr = new AXmlAttribute<Boolean>(name, parser.getAttributeBooleanValue(i, false), ns, false);
-								break;
-							case AxmlVisitor.TYPE_FIRST_INT:
-							case AxmlVisitor.TYPE_INT_HEX:
-								attr = new AXmlAttribute<Integer>(name, parser.getAttributeIntValue(i, 0), ns, false);
-								break;
-						}
-						
-						// if we can't handle the attributes type we simply ignore it
-						if(attr != null) node.addAttribute(attr);
-					}
-					break;
-					
-				// A closing tag indicates we must move
-				// one level upwards in the xml tree
-				case AXmlResourceParser.END_TAG:
-					this.root = node;
-					node = parent;
-					parent = (parent == null ? null : parent.getParent());
-					break;
-					
-				// Android XML documents do not contain text
-				case AXmlResourceParser.TEXT:
-					break;
-				
-				// Currently nothing to do at the document's end, see loop condition
-				case AXmlResourceParser.END_DOCUMENT:
-					break;
+				chunks.add(nextChunk);
+				bytesRead += chunkSize;
+			}
+			
+			// Create the full array
+			this.xml = new byte[bytesRead];
+			int bytesCopied = 0;
+			for (byte[] chunk : chunks) {
+				int toCopy = Math.min(chunk.length, bytesRead - bytesCopied);
+				System.arraycopy(chunk, 0, this.xml, bytesCopied, toCopy);
+				bytesCopied += toCopy;
 			}
 		}
-	}
-	
-	/**
-	 * Adds a pointer to the given <code>node</code> with the key <code>tag</code>.  
-	 * 
-	 * @param	tag		the node's tag
-	 * @param	node	the node being pointed to
-	 */
-	protected void addPointer(String tag, AXmlNode node) {
-		if(!this.nodesWithTag.containsKey(tag)) this.nodesWithTag.put(tag, new ArrayList<AXmlNode>());
-		this.nodesWithTag.get(tag).add(node);
+		
+		parser.parseFile(this.xml);
+		this.parser = parser;
 	}
 	
 	/**
@@ -142,7 +84,7 @@ public class AXmlHandler {
 	 * @return	the root node of the xml document
 	 */
 	public AXmlNode getRoot() {
-		return this.root;
+		return parser.getRoot();
 	}
 	
 	/**
@@ -152,10 +94,7 @@ public class AXmlHandler {
 	 * @return	list pointing on all nodes which have the given tag.
 	 */
 	public List<AXmlNode> getNodesWithTag(String tag) {
-		if(this.nodesWithTag.containsKey(tag))
-			return new ArrayList<AXmlNode>(this.nodesWithTag.get(tag));
-		else
-			return Collections.emptyList();
+		return parser.getNodesWithTag(tag);
 	}
 	
 	/**
@@ -169,7 +108,7 @@ public class AXmlHandler {
 			AxmlReader ar = new AxmlReader(this.xml);
 			AxmlWriter aw = new AxmlWriter();
 			
-			ar.accept(new AXmlOutputVisitor(aw, this.root));
+			ar.accept(new OutputVisitor(aw, this.getRoot()));
 			
 			return aw.toByteArray();
 		} catch (IOException e) {
@@ -181,7 +120,7 @@ public class AXmlHandler {
 	
 	@Override
 	public String toString() {
-		return this.toString(this.root, 0);
+		return this.toString(this.getRoot(), 0);
 	}
 	
 	/**
