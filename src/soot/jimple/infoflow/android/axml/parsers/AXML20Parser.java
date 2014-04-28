@@ -57,8 +57,16 @@ public class AXML20Parser extends AbstractBinaryXMLFileParser {
     			else
     				throw new RuntimeException("Unsupported value type");
     		}
-    		else if (type == AxmlVisitor.TYPE_INT_BOOLEAN)
-    			this.node.addAttribute(new AXmlAttribute<Boolean>(tname, (Boolean) obj, ns));
+    		else if (type == AxmlVisitor.TYPE_INT_BOOLEAN) {
+    			if (obj instanceof Boolean)
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, (Boolean) obj, ns));
+    			else if (obj instanceof ValueWrapper) {
+    				ValueWrapper wrapper = (ValueWrapper) obj;
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, Boolean.valueOf(wrapper.raw), ns));
+    			}
+    			else
+    				throw new RuntimeException("Unsupported value type");
+    		}
     		
     		super.attr(ns, name, resourceId, type, obj);
 			
