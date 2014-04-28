@@ -42,7 +42,7 @@ public class AXML20Parser extends AbstractBinaryXMLFileParser {
     				this.node.addAttribute(new AXmlAttribute<Integer>(tname, (Integer) obj, ns));
     			else if (obj instanceof ValueWrapper) {
     				ValueWrapper wrapper = (ValueWrapper) obj;
-    				this.node.addAttribute(new AXmlAttribute<Integer>(tname, Integer.valueOf(wrapper.raw), ns));
+   					this.node.addAttribute(new AXmlAttribute<String>(tname, wrapper.raw, ns));
     			}
     			else
     				throw new RuntimeException("Unsupported value type");
