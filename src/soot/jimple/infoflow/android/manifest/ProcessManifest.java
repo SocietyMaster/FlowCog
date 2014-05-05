@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import pxb.android.axml.AxmlVisitor;
 import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlHandler;
 import soot.jimple.infoflow.android.axml.AXmlNode;
@@ -221,10 +223,44 @@ public class ProcessManifest {
 	
 	private void checkAndAddComponent(Set<String> entryPoints, AXmlNode node) {
 		AXmlAttribute<?> attrEnabled = node.getAttribute("enabled");
-		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE))
-			entryPoints.add(expandClassName((String) node.getAttribute("name").getValue()));
+		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE)) {
+			AXmlAttribute<?> attr = node.getAttribute("name");
+			if (attr != null)
+				entryPoints.add(expandClassName((String) attr.getValue()));
+			else {
+				// This component does not have a name, so this might be obfuscated
+				// malware. We apply a heuristic.
+				for (Entry<String, AXmlAttribute<?>> a : node.getAttributes().entrySet())
+					if (a.getValue().getType() == AxmlVisitor.TYPE_STRING) {
+						String name = (String) a.getValue().getValue();
+						if (isValidComponentName(name))
+							entryPoints.add(expandClassName(name));
+					}
+			}
+		}
 	}
 	
+	/**
+	 * Checks if the specified name is a valid Android component name
+	 * @param name The Android component name to check
+	 * @return True if the given name is a valid Android component name,
+	 * otherwise false
+	 */
+	private boolean isValidComponentName(String name) {
+		if (name.isEmpty())
+			return false;
+		if (name.equals("true") || name.equals("false"))
+			return false;
+		if (Character.isDigit(name.charAt(0)))
+			return false;
+		
+		if (name.startsWith("."))
+			return true;
+		
+		// Be conservative
+		return false;
+	}
+
 	/**
 	 * Gets the type of the component identified by the given class name
 	 * @param className The class name for which to get the component type
