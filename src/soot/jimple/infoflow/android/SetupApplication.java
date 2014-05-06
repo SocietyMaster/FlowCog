@@ -491,8 +491,7 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
-				sourceSinkManager);
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 		return info.getResults();
 	}
 
