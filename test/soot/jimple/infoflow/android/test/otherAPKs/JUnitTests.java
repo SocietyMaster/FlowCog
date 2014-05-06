@@ -83,7 +83,7 @@ public class JUnitTests {
 		InfoflowResults res = analyzeAPKFile
 				("testAPKs/enriched1.apk", false, false, false);
 		Assert.assertNotNull(res);
-		Assert.assertEquals(2, res.size());
+		Assert.assertEquals(1, res.size());
 	}
 
 }
