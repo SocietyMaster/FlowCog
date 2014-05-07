@@ -60,21 +60,6 @@ public class Test {
 		@Override
 		public void onResultsAvailable(
 				IInfoflowCFG cfg, InfoflowResults results) {
-			/*
-			System.out.println("==========================xxx====>");
-			
-			Chain<SootClass> scs = Scene.v().getClasses();
-			for (Iterator<SootClass> iter = scs.iterator(); iter.hasNext(); )
-			{
-				System.out.println("==============================>");
-				SootClass sc = iter.next();
-				if (sc.getName().contains("OutFlowActivity2"))
-				{
-					SootMethod sm = sc.getMethodByName("onCreate");
-					System.out.println(sm.retrieveActiveBody().toString());
-				}
-			}*/
-			
 			// Dump the results
 			if (results == null) {
 				print("No results found.");
