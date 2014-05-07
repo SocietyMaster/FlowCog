@@ -47,6 +47,7 @@ import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.options.Options;
 
@@ -88,6 +89,9 @@ public class SetupApplication {
 	
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
+
+	//IccTA
+	private IIPCManager ipcManager = null;
 	
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
@@ -102,6 +106,15 @@ public class SetupApplication {
 		
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
+		
+		//IccTA
+		this.ipcManager = null;
+	}
+	
+	//IccTA
+	public SetupApplication(String androidJar, String apkFileLocation, IIPCManager ipcManager) {
+		this(androidJar, apkFileLocation);
+		this.ipcManager = ipcManager;
 	}
 	
 	/**
@@ -491,6 +504,11 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
+		//IccTA
+		if (null != ipcManager) {
+			info.setIPCManager(ipcManager);
+		}
+
 		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
 				sourceSinkManager);
 		return info.getResults();

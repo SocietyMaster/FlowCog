@@ -31,6 +31,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
+import soot.jimple.infoflow.android.TestApps.Test;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -252,6 +253,13 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
 			return SourceType.UISource;
+		
+		//IccTA
+		if (Test.getIPCManager() != null)
+		{
+			return SourceType.NoSource;
+		}
+		
 		// This statement might access a sensitive parameter in a callback
 		// method
 		final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
