@@ -509,8 +509,8 @@ public class SetupApplication {
 			info.setIPCManager(ipcManager);
 		}
 
-		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
-				sourceSinkManager);
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
+
 		return info.getResults();
 	}
 

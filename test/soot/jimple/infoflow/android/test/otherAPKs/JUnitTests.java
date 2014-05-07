@@ -74,7 +74,16 @@ public class JUnitTests {
 	public void runTest1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile
 				("testAPKs/9458cfb51c90130938abcef7173c3f6d44a02720.apk", false, false, false);
+		Assert.assertNotNull(res);
 		Assert.assertTrue(res.size() > 0);
+	}
+
+	@Test
+	public void runTest2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile
+				("testAPKs/enriched1.apk", false, false, false);
+		Assert.assertNotNull(res);
+		Assert.assertEquals(1, res.size());
 	}
 
 }

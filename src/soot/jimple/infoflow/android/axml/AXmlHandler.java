@@ -47,6 +47,9 @@ public class AXmlHandler {
 	 * @throws	IOException				if an I/O error occurs.
 	 */
 	public AXmlHandler(InputStream aXmlIs, IBinaryXMLFileParser parser) throws IOException {
+		if (aXmlIs == null)
+			throw new RuntimeException("NULL input stream for AXmlHandler");
+
 		// wrap the InputStream within a BufferedInputStream
 		// to have mark() and reset() methods
 		BufferedInputStream buffer = new BufferedInputStream(aXmlIs);

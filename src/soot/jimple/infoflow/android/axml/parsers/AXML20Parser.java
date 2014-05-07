@@ -37,8 +37,16 @@ public class AXML20Parser extends AbstractBinaryXMLFileParser {
     		String tname = name.trim();
     		if (type == AxmlVisitor.TYPE_REFERENCE
     				|| type == AxmlVisitor.TYPE_INT_HEX
-    				|| type == AxmlVisitor.TYPE_FIRST_INT)
-    			this.node.addAttribute(new AXmlAttribute<Integer>(tname, (Integer) obj, ns));
+    				|| type == AxmlVisitor.TYPE_FIRST_INT) {
+    			if (obj instanceof Integer)
+    				this.node.addAttribute(new AXmlAttribute<Integer>(tname, (Integer) obj, ns));
+    			else if (obj instanceof ValueWrapper) {
+    				ValueWrapper wrapper = (ValueWrapper) obj;
+   					this.node.addAttribute(new AXmlAttribute<String>(tname, wrapper.raw, ns));
+    			}
+    			else
+    				throw new RuntimeException("Unsupported value type");
+    		}
     		else if (type == AxmlVisitor.TYPE_STRING) {
     			if (obj instanceof String)
     				this.node.addAttribute(new AXmlAttribute<String>(tname, (String) obj, ns));
@@ -49,8 +57,16 @@ public class AXML20Parser extends AbstractBinaryXMLFileParser {
     			else
     				throw new RuntimeException("Unsupported value type");
     		}
-    		else if (type == AxmlVisitor.TYPE_INT_BOOLEAN)
-    			this.node.addAttribute(new AXmlAttribute<Boolean>(tname, (Boolean) obj, ns));
+    		else if (type == AxmlVisitor.TYPE_INT_BOOLEAN) {
+    			if (obj instanceof Boolean)
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, (Boolean) obj, ns));
+    			else if (obj instanceof ValueWrapper) {
+    				ValueWrapper wrapper = (ValueWrapper) obj;
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, Boolean.valueOf(wrapper.raw), ns));
+    			}
+    			else
+    				throw new RuntimeException("Unsupported value type");
+    		}
     		
     		super.attr(ns, name, resourceId, type, obj);
 			
