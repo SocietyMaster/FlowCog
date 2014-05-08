@@ -231,7 +231,8 @@ public class ProcessManifest {
 				// This component does not have a name, so this might be obfuscated
 				// malware. We apply a heuristic.
 				for (Entry<String, AXmlAttribute<?>> a : node.getAttributes().entrySet())
-					if (a.getValue().getType() == AxmlVisitor.TYPE_STRING) {
+					if (a.getValue().getName().isEmpty()
+							&& a.getValue().getType() == AxmlVisitor.TYPE_STRING) {
 						String name = (String) a.getValue().getValue();
 						if (isValidComponentName(name))
 							entryPoints.add(expandClassName(name));
@@ -453,8 +454,18 @@ public class ProcessManifest {
 	public Set<String> getPermissions() {
 		List<AXmlNode> usesPerms = this.manifest.getChildrenWithTag("uses-permission");
 		Set<String> permissions = new HashSet<String>();
-		for (AXmlNode perm : usesPerms)
-			permissions.add((String) perm.getAttribute("name").getValue());
+		for (AXmlNode perm : usesPerms) {
+			AXmlAttribute<?> attr = perm.getAttribute("name");
+			if (attr != null)
+				permissions.add((String) attr.getValue());
+			else {
+				// The required "name" attribute is missing, so we collect all empty
+				// attributes as a best-effort solution for broken malware apps
+				for (AXmlAttribute<?> a : perm.getAttributes().values())
+					if (a.getType() == AxmlVisitor.TYPE_STRING && a.getName().isEmpty())
+						permissions.add((String) a.getValue());
+			}
+		}
 		return permissions;
 	}
 	
