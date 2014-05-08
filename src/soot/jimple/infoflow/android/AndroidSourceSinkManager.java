@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import soot.Local;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -31,7 +32,6 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
-import soot.jimple.infoflow.android.TestApps.Test;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -113,8 +113,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	private List<ARSCFileParser.ResPackage> resourcePackages;
 	
 	private String appPackageName = "";
+	private boolean enableCallbackSources = true;
 	
 	private final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
+	private SootClass[] iccBaseClasses = null; 
 	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
@@ -173,56 +175,44 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	}
 	
 	/**
-	 * For ICC methods (e.g., startService), the classes name of these methods may change through user's definition. 
-	 * We match all the ICC methods through their base class name.
+	 * Sets whether callback parameters shall be considered as sources
+	 * @param enableCallbackSources True if callback parameters shall be considered
+	 * as sources, otherwise false
 	 */
+	public void setEnableCallbackSources(boolean enableCallbackSources) {
+		this.enableCallbackSources = enableCallbackSources;
+	}
+	
 	@Override
 	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) 
 	{
-		if (! sCallSite.containsInvokeExpr())
-		{
+		if (!sCallSite.containsInvokeExpr())
 			return false;
-		}
-			
-		SootClass sc = sCallSite.getInvokeExpr().getMethod().getDeclaringClass();
-			
-		boolean isIccMethod = false;
-		String baseClassName = null;
 		
-		String[] iccBaseClassNames = new String[] {
-			"android.content.Context", 				//activity, service and broadcast
-			"android.content.ContentResolver", 		//provider
-			"android.app.Activity"					//some methods (e.g., onActivityResult) only defined in Activity class
-		};
+		// For ICC methods (e.g., startService), the classes name of these
+		// methods may change through user's definition. We match all the
+		// ICC methods through their base class name.
+		if (iccBaseClasses == null)
+			iccBaseClasses = new SootClass[] {
+					Scene.v().getSootClass("android.content.Context"), 				//activity, service and broadcast
+					Scene.v().getSootClass("android.content.ContentResolver"), 		//provider
+					Scene.v().getSootClass("android.app.Activity")					//some methods (e.g., onActivityResult) only defined in Activity class
+				};
 		
-		while (sc.hasSuperclass())
-		{
-			for (String clsName : iccBaseClassNames)
-			{
-				if (clsName.contains(sc.getName()))
-				{
-					isIccMethod = true;
-					baseClassName = clsName;
+		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
+		SootClass sc = callee.getDeclaringClass();
+		for (SootClass clazz : iccBaseClasses) {
+			if (Scene.v().getFastHierarchy().isSubclass(sc, clazz)) {
+				final String subSig = callee.getSubSignature();
+				if (clazz.declaresMethod(subSig)) {
+					if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
+						return true;
 					break;
 				}
 			}
-			
-			if (isIccMethod)
-			{
-				break;
-			}
-			
-			sc = sc.getSuperclass();
 		}
 		
-		String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
-		
-		if (isIccMethod)
-		{
-			String clsName = sCallSite.getInvokeExpr().getMethod().getDeclaringClass().getName();
-			signature = signature.replace(clsName, baseClassName);
-		}
-		
+		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
 		return this.sinkMethods.containsKey(signature);
 	}
 
@@ -254,20 +244,16 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if (isUISource(sCallSite, cfg))
 			return SourceType.UISource;
 		
-		//IccTA
-		if (Test.getIPCManager() != null)
-		{
-			return SourceType.NoSource;
-		}
-		
 		// This statement might access a sensitive parameter in a callback
 		// method
-		final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
-		if (sCallSite instanceof IdentityStmt) {
-			IdentityStmt is = (IdentityStmt) sCallSite;
-			if (is.getRightOp() instanceof ParameterRef)
-				if (this.callbackMethods.containsKey(callSiteSignature))
-					return SourceType.Callback;
+		if (enableCallbackSources) {
+			final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
+			if (sCallSite instanceof IdentityStmt) {
+				IdentityStmt is = (IdentityStmt) sCallSite;
+				if (is.getRightOp() instanceof ParameterRef)
+					if (this.callbackMethods.containsKey(callSiteSignature))
+						return SourceType.Callback;
+			}
 		}
 		return SourceType.NoSource;
 	}

@@ -111,7 +111,15 @@ public class SetupApplication {
 		this.ipcManager = null;
 	}
 	
-	//IccTA
+	/**
+	 * Creates a new instance of the {@link SetupApplication} class
+	 * @param androidJar The path to the Android SDK's "platforms" directory if
+	 * Soot shall automatically select the JAR file to be used or the path to
+	 * a single JAR file to force one.
+	 * @param apkFileLocation The path to the APK file to be analyzed
+	 * @param ipcManager The IPC manager to use for modelling inter-component
+	 * and inter-application data flows
+	 */
 	public SetupApplication(String androidJar, String apkFileLocation, IIPCManager ipcManager) {
 		this(androidJar, apkFileLocation);
 		this.ipcManager = ipcManager;
