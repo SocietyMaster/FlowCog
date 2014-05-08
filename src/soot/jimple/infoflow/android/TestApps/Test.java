@@ -37,6 +37,7 @@ import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.solver.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
@@ -111,6 +112,17 @@ public class Test {
 	
 	private static boolean DEBUG = false;
 
+	//IccTA
+	private static IIPCManager ipcManager = null;
+	public static void setIPCManager(IIPCManager ipcManager)
+	{
+		Test.ipcManager = ipcManager;
+	}
+	public static IIPCManager getIPCManager()
+	{
+		return Test.ipcManager;
+	}
+	
 	/**
 	 * @param args[0] = path to apk-file
 	 * @param args[1] = path to android-dir (path/android-platforms/)
@@ -120,7 +132,6 @@ public class Test {
 			printUsage();	
 			return;
 		}
-		
 		//start with cleanup:
 		File outputDir = new File("JimpleOutput");
 		if (outputDir.isDirectory()){
@@ -422,12 +433,21 @@ public class Test {
 				return "unknown";
 		}
 	}
-
+	
 	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
-				
-			final SetupApplication app = new SetupApplication(androidJar, fileName);
+			
+			//IccTA
+			final SetupApplication app;
+			if (null == ipcManager)
+			{
+				app = new SetupApplication(androidJar, fileName);
+			}
+			else
+			{
+				app = new SetupApplication(androidJar, fileName, ipcManager);
+			}
 
 			app.setStopAfterFirstFlow(stopAfterFirstFlow);
 			app.setEnableImplicitFlows(implicitFlows);
