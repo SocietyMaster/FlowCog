@@ -90,7 +90,6 @@ public class SetupApplication {
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
 
-	//IccTA
 	private IIPCManager ipcManager = null;
 	
 	/**
@@ -107,7 +106,6 @@ public class SetupApplication {
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
 		
-		//IccTA
 		this.ipcManager = null;
 	}
 	
@@ -283,6 +281,10 @@ public class SetupApplication {
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			if (ipcManager != null && (!ipcManager.enableCallbackSources()))
+			{
+				sourceSinkManager.setEnableCallbackSources(false);
+			}
 		}
 		
 		entryPointCreator = createEntryPointCreator();
