@@ -43,7 +43,7 @@ public class CallbackTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
-	public void runTestTestButton3() throws IOException, XmlPullParserException {
+	public void runTestButton3() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Callbacks_Button3.apk");
 		Assert.assertNotNull(res);
 		Assert.assertEquals(1, res.size());
