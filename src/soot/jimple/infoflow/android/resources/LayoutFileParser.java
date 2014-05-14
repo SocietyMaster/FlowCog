@@ -305,6 +305,10 @@ public class LayoutFileParser extends AbstractResourceParser {
 			String attrName = entry.getKey().trim();
 			AXmlAttribute<?> attr = entry.getValue();
 			
+			// On obfuscated Android malware, the attribute name may be empty
+			if (attrName.isEmpty())
+				continue;
+			
 			// Check that we're actually working on an android attribute
 			if (!isAndroidNamespace(attr.getNamespace()))
 				continue;
