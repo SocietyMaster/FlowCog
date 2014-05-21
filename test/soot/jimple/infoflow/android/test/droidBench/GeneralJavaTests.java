@@ -66,6 +66,13 @@ public class GeneralJavaTests extends JUnitTests {
 	}
 
 	@Test(timeout=300000)
+	public void runTestFactoryMethods1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("GeneralJava_FactoryMethods1.apk");
+		Assert.assertNotNull(res);
+		Assert.assertEquals(2, res.size());
+	}
+
+	@Test(timeout=300000)
 	public void runTestSourceCodeSpecific1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava_SourceCodeSpecific1.apk");
 		Assert.assertEquals(1, res.size());
