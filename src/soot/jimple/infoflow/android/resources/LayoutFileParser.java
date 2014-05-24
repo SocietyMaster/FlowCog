@@ -238,7 +238,8 @@ public class LayoutFileParser extends AbstractResourceParser {
 		// The "merge" tag merges the next hierarchy level into the current
 		// one for flattening hierarchies.
 		else if (tname.equals("merge"))  {
-			// TODO
+			// do not consider any attributes of this elements, just
+			// continue with the children
 		}
 		else {
 			final SootClass childClass = getLayoutClass(tname);
