@@ -90,4 +90,10 @@ public class AXmlAttribute<T> extends AXmlElement {
 		else if(this.value instanceof Boolean) return TYPE_INT_BOOLEAN;
 		else return TYPE_STRING;
 	}
+	
+	@Override
+	public String toString() {
+		return this.name + "=\"" + this.value + "\"";
+	}
+	
 }

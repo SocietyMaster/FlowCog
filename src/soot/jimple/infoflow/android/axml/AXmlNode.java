@@ -207,4 +207,13 @@ public class AXmlNode extends AXmlElement {
 	public void setParent(AXmlNode parent) {
 		this.parent = parent;
 	}
+	
+	@Override
+	public String toString() {
+		String attributes = "";
+		for (AXmlAttribute<?> attrNode : this.attributes.values())
+			attributes += " " + attrNode;
+		return "<" + tag + attributes + ">";
+	}
+	
 }

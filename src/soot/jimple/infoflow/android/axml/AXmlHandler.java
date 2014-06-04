@@ -111,7 +111,9 @@ public class AXmlHandler {
 			AxmlReader ar = new AxmlReader(this.xml);
 			AxmlWriter aw = new AxmlWriter();
 			
-			ar.accept(new OutputVisitor(aw, this.getRoot()));
+			AXmlNode rootNode = new AXmlNode("rootNode", "", null);
+			rootNode.addChild(this.getRoot());
+			ar.accept(new OutputVisitor(aw, rootNode));
 			
 			return aw.toByteArray();
 		} catch (IOException e) {
