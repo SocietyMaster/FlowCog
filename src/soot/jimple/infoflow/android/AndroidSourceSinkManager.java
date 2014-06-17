@@ -272,14 +272,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
-		}
-		
-		// Check whether we have any of the interfaces on the list
-		final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
-		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
-			if (i.declaresMethod(subSig))
-				if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
-					return SourceType.MethodCall;
+
+			// Check whether we have any of the interfaces on the list
+			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
+			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
+				if (i.declaresMethod(subSig))
+					if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
+						return SourceType.MethodCall;
+			}
 		}
 		
 		// This call might read out sensitive data from the UI
