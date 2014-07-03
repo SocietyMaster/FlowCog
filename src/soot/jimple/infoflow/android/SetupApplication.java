@@ -514,7 +514,6 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		//IccTA
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}

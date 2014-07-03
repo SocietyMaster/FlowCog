@@ -112,7 +112,6 @@ public class Test {
 	
 	private static boolean DEBUG = false;
 
-	//IccTA
 	private static IIPCManager ipcManager = null;
 	public static void setIPCManager(IIPCManager ipcManager)
 	{
@@ -437,8 +436,7 @@ public class Test {
 	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
-			
-			//IccTA
+
 			final SetupApplication app;
 			if (null == ipcManager)
 			{
