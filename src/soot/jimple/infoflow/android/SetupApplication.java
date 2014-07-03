@@ -67,6 +67,7 @@ public class SetupApplication {
 	private boolean flowSensitiveAliasing = true;
 	private boolean computeResultPaths = true;
 	private boolean ignoreFlowsInSystemPackages = true;
+	private boolean enableCallbackSources = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -281,10 +282,7 @@ public class SetupApplication {
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
-			if (ipcManager != null && (!ipcManager.enableCallbackSources()))
-			{
-				sourceSinkManager.setEnableCallbackSources(false);
-			}
+			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
 		}
 		
 		entryPointCreator = createEntryPointCreator();
@@ -625,6 +623,14 @@ public class SetupApplication {
 	}
 
 	/**
+	 * Sets whether the taint analysis shall consider callback as sources
+	 * @param enableCallbackSources True if setting callbacks as sources
+	 */
+	public void setEnableCallbackSources(boolean enableCallbackSources) {
+		this.enableCallbackSources = enableCallbackSources;
+	}
+	
+	/**
 	 * Sets the maximum access path length to be used in the solver
 	 * @param accessPathLength The maximum access path length to be used in the
 	 * solver
@@ -679,5 +685,4 @@ public class SetupApplication {
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
-
 }
