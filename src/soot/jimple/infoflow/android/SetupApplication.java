@@ -67,6 +67,7 @@ public class SetupApplication {
 	private boolean flowSensitiveAliasing = true;
 	private boolean computeResultPaths = true;
 	private boolean ignoreFlowsInSystemPackages = true;
+	private boolean enableCallbackSources = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -90,7 +91,6 @@ public class SetupApplication {
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
 
-	//IccTA
 	private IIPCManager ipcManager = null;
 	
 	/**
@@ -107,7 +107,6 @@ public class SetupApplication {
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
 		
-		//IccTA
 		this.ipcManager = null;
 	}
 	
@@ -283,6 +282,7 @@ public class SetupApplication {
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
 		}
 		
 		entryPointCreator = createEntryPointCreator();
@@ -512,7 +512,6 @@ public class SetupApplication {
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		//IccTA
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}
@@ -624,6 +623,14 @@ public class SetupApplication {
 	}
 
 	/**
+	 * Sets whether the taint analysis shall consider callback as sources
+	 * @param enableCallbackSources True if setting callbacks as sources
+	 */
+	public void setEnableCallbackSources(boolean enableCallbackSources) {
+		this.enableCallbackSources = enableCallbackSources;
+	}
+	
+	/**
 	 * Sets the maximum access path length to be used in the solver
 	 * @param accessPathLength The maximum access path length to be used in the
 	 * solver
@@ -678,5 +685,4 @@ public class SetupApplication {
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
-
 }
