@@ -12,36 +12,36 @@ package soot.jimple.infoflow.android.test.droidBench;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.InfoflowResults;
 
 @Ignore	// we do not support tainting of single array fields or map entries yet
 public class ArrayAndListTests extends JUnitTests {
 	
-	@Test
-	public void runTestArrayAccess1() throws IOException {
+	@Test(timeout=300000)
+	public void runTestArrayAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
-	public void runTestArrayAccess2() throws IOException {
+	@Test(timeout=300000)
+	public void runTestArrayAccess2() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess2.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
-	public void runTestHashMapAccess1() throws IOException {
+	@Test(timeout=300000)
+	public void runTestHashMapAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_HashMapAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
-	@Test
-	public void runTestListAccess1() throws IOException {
+	@Test(timeout=300000)
+	public void runTestListAccess1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ListAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}

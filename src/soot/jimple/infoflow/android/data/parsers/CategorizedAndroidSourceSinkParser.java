@@ -49,6 +49,8 @@ public class CategorizedAndroidSourceSinkParser{
 		Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
 		
 		BufferedReader rdr = readFile();
+		if (rdr == null)
+			throw new RuntimeException("Could not read source/sink file");
 		
 		String line = null;
 		Pattern p = Pattern.compile(regex);

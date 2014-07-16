@@ -1,176 +1,126 @@
-/*******************************************************************************
- * Copyright (c) 2012 Secure Software Engineering Group at EC SPRIDE.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Lesser Public License v2.1
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * 
- * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
- * Bodden, and others.
- ******************************************************************************/
 package soot.jimple.infoflow.android.manifest;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import org.xmlpull.v1.XmlPullParserException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.xmlpull.v1.XmlPullParser;
+import pxb.android.axml.AxmlVisitor;
+import soot.jimple.infoflow.android.axml.AXmlAttribute;
+import soot.jimple.infoflow.android.axml.AXmlHandler;
+import soot.jimple.infoflow.android.axml.AXmlNode;
+import soot.jimple.infoflow.android.axml.ApkHandler;
 
-import test.AXMLPrinter;
-import android.content.res.AXmlResourceParser;
-
+/**
+ * This class provides easy access to all data of an AppManifest.<br />
+ * Nodes and attributes of a parsed manifest can be changed. A new byte compressed
+ * manifest considering the changes can be generated.
+ * 
+ * @author Steven Arzt
+ * @author Stefan Haas, Mario Schlipf
+ * @see <a href="http://developer.android.com/guide/topics/manifest/manifest-intro.html">App Manifest</a>
+ */
 public class ProcessManifest {
 	
-	private final Set<String> entryPointsClasses = new HashSet<String>();
-	private String applicationName = "";
-	
-	private int versionCode = -1;
-	private String versionName = "";
-
-	private String packageName = "";
-	private int minSdkVersion = -1;
-	private int targetSdkVersion = -1;
-	
-	private final Set<String> permissions = new HashSet<String>();
+	/**
+	 * Enumeration containing the various component types supported in Android
+	 */
+	public enum ComponentType {
+		Activity,
+		Service,
+		ContentProvider,
+		BroadcastReceiver
+	}
+		
+	/**
+	 * Handler for zip-like apk files
+	 */
+	protected ApkHandler apk = null;
 	
 	/**
-	 * Opens the given apk file and provides the given handler with a stream for
-	 * accessing the contained android manifest file
-	 * @param apk The apk file to process
-	 * @param handler The handler for processing the apk file
-	 * 
-	 * @author Steven Arzt
+	 * Handler for android xml files
 	 */
-	private void handleAndroidManifestFile(String apk, IManifestHandler handler) {
-		File apkF = new File(apk);
-		if (!apkF.exists())
-			throw new RuntimeException("file '" + apk + "' does not exist!");
-
-		boolean found = false;
-		try {
-			ZipFile archive = null;
-			try {
-				archive = new ZipFile(apkF);
-				Enumeration<?> entries = archive.entries();
-				while (entries.hasMoreElements()) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
-					String entryName = entry.getName();
-					// We are dealing with the Android manifest
-					if (entryName.equals("AndroidManifest.xml")) {
-						found = true;
-						handler.handleManifest(archive.getInputStream(entry));
-						break;
-					}
-				}
-			}
-			finally {
-				if (archive != null)
-					archive.close();
-			}
-		}
-		catch (Exception e) {
-			throw new RuntimeException(
-					"Error when looking for manifest in apk: " + e);
-		}
-		if (!found)
-			throw new RuntimeException("No manifest file found in apk");
+	protected AXmlHandler axml;
+	
+	// android manifest data
+	protected AXmlNode manifest;
+	protected AXmlNode application;
+	
+	// Components in the manifest file
+	protected List<AXmlNode> providers = null;
+	protected List<AXmlNode> services = null;
+	protected List<AXmlNode> activities = null;
+	protected List<AXmlNode> receivers = null;
+	
+	/**
+	 * Processes an AppManifest which is within the file identified by the given path.
+	 * 
+	 * @param	apkPath					file path to an APK.
+	 * @throws	IOException				if an I/O error occurs.
+	 * @throws	XmlPullParserException	can occur due to a malformed manifest.
+	 */
+	public ProcessManifest(String apkPath) throws IOException, XmlPullParserException {
+		this(new File(apkPath));
 	}
 	
-	public void loadManifestFile(String apk) {
-		handleAndroidManifestFile(apk, new IManifestHandler() {
-			
-			@Override
-			public void handleManifest(InputStream stream) {
-				loadClassesFromBinaryManifest(stream);
-			}
-			
-		});
+	/**
+	 * Processes an AppManifest which is within the given {@link File}.
+	 * 
+	 * @param	apkFile					the AppManifest within the given APK will be parsed.
+	 * @throws	IOException				if an I/O error occurs.
+	 * @throws	XmlPullParserException	can occur due to a malformed manifest.
+	 * @see		{@link ProcessManifest#ProcessManifest(InputStream)}
+	 */
+	public ProcessManifest(File apkFile) throws IOException, XmlPullParserException {
+		this.apk = new ApkHandler(apkFile);
+		this.handle(this.apk.getInputStream("AndroidManifest.xml"));
+	}
+		
+	/**
+	 * Processes an AppManifest which is provided by the given {@link InputStream}.
+	 * 
+	 * @param	manifestIS				InputStream for an AppManifest.
+	 * @throws	IOException				if an I/O error occurs.
+	 * @throws	XmlPullParserException	can occur due to a malformed manifest.
+	 */
+	public ProcessManifest(InputStream manifestIS) throws IOException, XmlPullParserException {
+		this.handle(manifestIS);
 	}
 	
-	protected void loadClassesFromBinaryManifest(InputStream manifestIS) {
-		try {
-			AXmlResourceParser parser = new AXmlResourceParser();
-			parser.open(manifestIS);
-
-			int type = -1;
-			boolean applicationEnabled = true;
-			while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
-				switch (type) {
-					case XmlPullParser.START_DOCUMENT:
-						break;
-					case XmlPullParser.START_TAG:
-						String tagName = parser.getName();
-						if (tagName.equals("manifest")) {
-							this.packageName = getAttributeValue(parser, "package");
-							String versionCode = getAttributeValue(parser, "versionCode");
-							if (versionCode != null && versionCode.length() > 0)
-								this.versionCode = Integer.valueOf(versionCode);
-							this.versionName = getAttributeValue(parser, "versionName");
-						}
-						else if (tagName.equals("activity")
-								|| tagName.equals("receiver")
-								|| tagName.equals("service")
-								|| tagName.equals("provider")) {
-							// We ignore disabled activities
-							if (!applicationEnabled)
-								continue;
-							String attrValue = getAttributeValue(parser, "enabled");
-							if (attrValue != null && attrValue.equals("false"))
-								continue;
-							
-							// Get the class name
-							attrValue = getAttributeValue(parser, "name");
-							entryPointsClasses.add(expandClassName(attrValue));
-						}
-						else if (tagName.equals("uses-permission")) {
-							String permissionName = getAttributeValue(parser, "name");
-							// We probably don't want to do this in some cases, so leave it
-							// to the user
-							// permissionName = permissionName.substring(permissionName.lastIndexOf(".") + 1);
-							this.permissions.add(permissionName);
-						}
-						else if (tagName.equals("uses-sdk")) {
-							String minVersion = getAttributeValue(parser, "minSdkVersion");
-							if (minVersion != null && minVersion.length() > 0)
-								this.minSdkVersion = Integer.valueOf(minVersion);
-							String targetVersion = getAttributeValue(parser, "targetSdkVersion");
-							if (targetVersion != null && targetVersion.length() > 0)
-								this.targetSdkVersion = Integer.valueOf(targetVersion);
-						}
-						else if (tagName.equals("application")) {
-							// Check whether the application is disabled
-							String attrValue = getAttributeValue(parser, "enabled");
-							applicationEnabled = (attrValue == null || !attrValue.equals("false"));
-							
-							// Get the application name which is also the fully-qualified
-							// name of the custom application object
-							this.applicationName = getAttributeValue(parser, "name");
-							if (this.applicationName != null && !this.applicationName.isEmpty())
-								this.entryPointsClasses.add(expandClassName(this.applicationName));
-						}
-						break;
-					case XmlPullParser.END_TAG:
-						break;
-					case XmlPullParser.TEXT:
-						break;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	/**
+	 * Initialises the {@link ProcessManifest} by parsing the manifest provided by the given {@link InputStream}.
+	 * 
+	 * @param	manifestIS				InputStream for an AppManifest.
+	 * @throws	IOException				if an I/O error occurs.
+	 * @throws	XmlPullParserException	can occur due to a malformed manifest.
+	 */
+	protected void handle(InputStream manifestIS) throws IOException, XmlPullParserException {
+		this.axml = new AXmlHandler(manifestIS);
+		
+		// get manifest node
+		List<AXmlNode> manifests = this.axml.getNodesWithTag("manifest");
+		if(manifests.isEmpty()) throw new RuntimeException("Manifest contains no manifest node");
+		else if(manifests.size() > 1) throw new RuntimeException("Manifest contains more than one manifest node");
+		this.manifest = manifests.get(0);
+		
+		// get application node
+		List<AXmlNode> applications = this.manifest.getChildrenWithTag("application");
+		if(applications.isEmpty()) throw new RuntimeException("Manifest contains no application node");
+		else if(applications.size() > 1) throw new RuntimeException("Manifest contains more than one application node");
+		this.application = applications.get(0);
+				
+		// Get components
+		this.providers = this.axml.getNodesWithTag("provider");
+		this.services = this.axml.getNodesWithTag("service");
+		this.activities = this.axml.getNodesWithTag("activity");
+		this.receivers = this.axml.getNodesWithTag("receiver");
 	}
 	
 	/**
@@ -180,136 +130,343 @@ public class ProcessManifest {
 	 * @return The expanded class name for the given short name
 	 */
 	private String expandClassName(String className) {
+		String packageName = getPackageName();
 		if (className.startsWith("."))
-			return this.packageName + className;
+			return packageName + className;
 		else if (className.substring(0, 1).equals(className.substring(0, 1).toUpperCase()))
-			return this.packageName + "." + className;
+			return packageName + "." + className;
 		else
 			return className;
 	}
-
-	private String getAttributeValue(AXmlResourceParser parser, String attributeName) {
-		for (int i = 0; i < parser.getAttributeCount(); i++)
-			if (parser.getAttributeName(i).equals(attributeName))
-				return AXMLPrinter.getAttributeValue(parser, i);
-		return "";
-	}
-
-	protected void loadClassesFromTextManifest(InputStream manifestIS) {
-		try {
-			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document doc = db.parse(manifestIS);
-			
-			Element rootElement = doc.getDocumentElement();
-			this.packageName = rootElement.getAttribute("package");
-			String versionCode = rootElement.getAttribute("android:versionCode");
-			if (versionCode != null && versionCode.length() > 0)
-				this.versionCode = Integer.valueOf(versionCode);
-			this.versionName = rootElement.getAttribute("android:versionName");
-			
-			NodeList appsElement = rootElement.getElementsByTagName("application");
-			if (appsElement.getLength() > 1)
-				throw new RuntimeException("More than one application tag in manifest");
-			for (int appIdx = 0; appIdx < appsElement.getLength(); appIdx++) {
-				Element appElement = (Element) appsElement.item(appIdx);
-
-				this.applicationName = appElement.getAttribute("android:name");
-				if (this.applicationName != null && !this.applicationName.isEmpty())
-					this.entryPointsClasses.add(expandClassName(this.applicationName));
-
-				NodeList activities = appElement.getElementsByTagName("activity");
-				NodeList receivers = appElement.getElementsByTagName("receiver");
-				NodeList services  = appElement.getElementsByTagName("service");
-				
-				for (int i = 0; i < activities.getLength(); i++) {
-					Element activity = (Element) activities.item(i);
-					loadManifestEntry(activity, "android.app.Activity", this.packageName);
-				}
-				for (int i = 0; i < receivers.getLength(); i++) {
-					Element receiver = (Element) receivers.item(i);
-					loadManifestEntry(receiver, "android.content.BroadcastReceiver", this.packageName);
-				}
-				for (int i = 0; i < services.getLength(); i++) {
-					Element service = (Element) services.item(i);
-					loadManifestEntry(service, "android.app.Service", this.packageName);
-				}
-				
-				NodeList permissions = appElement.getElementsByTagName("uses-permission");
-				for (int i = 0; i < permissions.getLength(); i++) {
-					Element permission = (Element) permissions.item(i);
-					this.permissions.add(permission.getAttribute("android:name"));
-				}
-
-				NodeList usesSdkList = appElement.getElementsByTagName("uses-sdk");
-				for (int i = 0; i < usesSdkList.getLength(); i++) {
-					Element usesSdk = (Element) usesSdkList.item(i);
-					String minVersion = usesSdk.getAttribute("android:minSdkVersion");
-					if (minVersion != null && minVersion.length() > 0)
-						this.minSdkVersion = Integer.valueOf(minVersion);
-					String targetVersion = usesSdk.getAttribute("android:targetSdkVersion");
-					if (targetVersion != null && targetVersion.length() > 0)
-						this.targetSdkVersion = Integer.valueOf(targetVersion);
-				}
-			}			
-		}
-		catch (IOException ex) {
-			System.err.println("Could not parse manifest: " + ex.getMessage());
-			ex.printStackTrace();
-		} catch (ParserConfigurationException ex) {
-			System.err.println("Could not parse manifest: " + ex.getMessage());
-			ex.printStackTrace();
-		} catch (SAXException ex) {
-			System.err.println("Could not parse manifest: " + ex.getMessage());
-			ex.printStackTrace();
-		}
+	
+	/**
+	 * Returns the handler which parsed and holds the manifest's data.
+	 * 
+	 * @return Android XML handler
+	 */
+	public AXmlHandler getAXml() {
+		return this.axml;
 	}
 	
-	private void loadManifestEntry(Element activity, String baseClass, String packageName) {
-		if (activity.getAttribute("android:enabled").equals("false"))
-			return;
-		
-		String className = activity.getAttribute("android:name");		
-		entryPointsClasses.add(expandClassName(className));
+	/**
+	 * Returns the handler which opened the APK file. If {@link ProcessManifest} was
+	 * instanciated directly with an {@link InputStream} this will return <code>null</code>.
+	 * 
+	 * @return APK Handler
+	 */
+	public ApkHandler getApk() {
+		return this.apk;
 	}
-
-    public void setApplicationName(String name) {
-        this.applicationName = name;
-    }
-
-    public void setPackageName(String name) {
-        this.packageName = name;
-    }
-
+	
+	/**
+	 * The unique <code>manifest</code> node of the AppManifest.
+	 * 
+	 * @return manifest node
+	 */
+	public AXmlNode getManifest() {
+		return this.manifest;
+	}
+	
+	/**
+	 * The unique <code>application</code> node of the AppManifest.
+	 * 
+	 * @return application node
+	 */
+	public AXmlNode getApplication() {
+		return this.application;
+	}
+	
+	/**
+	 * Returns a list containing all nodes with tag <code>provider</code>.
+	 * 
+	 * @return list with all providers
+	 */
+	public ArrayList<AXmlNode> getProviders() {
+		return new ArrayList<AXmlNode>(this.providers);
+	}
+	
+	/**
+	 * Returns a list containing all nodes with tag <code>service</code>.
+	 * 
+	 * @return list with all services
+	 */
+	public ArrayList<AXmlNode> getServices() {
+		return new ArrayList<AXmlNode>(this.services);
+	}
+	
+	/**
+	 * Gets all classes the contain entry points in this applications
+	 * @return All classes the contain entry points in this applications
+	 */
 	public Set<String> getEntryPointClasses() {
-		return this.entryPointsClasses;
+		// If the application is not enabled, there are no entry points
+		if (!isApplicationEnabled())
+			return Collections.emptySet();
+		
+		// Collect the components
+		Set<String> entryPoints = new HashSet<String>();
+		for (AXmlNode node : this.activities)
+			checkAndAddComponent(entryPoints, node);
+		for (AXmlNode node : this.providers)
+			checkAndAddComponent(entryPoints, node);
+		for (AXmlNode node : this.services)
+			checkAndAddComponent(entryPoints, node);
+		for (AXmlNode node : this.receivers)
+			checkAndAddComponent(entryPoints, node);
+		
+		String appName = getApplicationName();
+		if (appName != null && !appName.isEmpty())
+			entryPoints.add(appName);
+		
+		return entryPoints;
 	}
 	
-	public String getApplicationName() {
-		return this.applicationName;
+	private void checkAndAddComponent(Set<String> entryPoints, AXmlNode node) {
+		AXmlAttribute<?> attrEnabled = node.getAttribute("enabled");
+		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE)) {
+			AXmlAttribute<?> attr = node.getAttribute("name");
+			if (attr != null)
+				entryPoints.add(expandClassName((String) attr.getValue()));
+			else {
+				// This component does not have a name, so this might be obfuscated
+				// malware. We apply a heuristic.
+				for (Entry<String, AXmlAttribute<?>> a : node.getAttributes().entrySet())
+					if (a.getValue().getName().isEmpty()
+							&& a.getValue().getType() == AxmlVisitor.TYPE_STRING) {
+						String name = (String) a.getValue().getValue();
+						if (isValidComponentName(name))
+							entryPoints.add(expandClassName(name));
+					}
+			}
+		}
 	}
 	
-	public Set<String> getPermissions() {
-		return this.permissions;
-	}
-	
-	public int getVersionCode() {
-		return this.versionCode;
-	}
-	
-	public String getVersionName() {
-		return this.versionName;
+	/**
+	 * Checks if the specified name is a valid Android component name
+	 * @param name The Android component name to check
+	 * @return True if the given name is a valid Android component name,
+	 * otherwise false
+	 */
+	private boolean isValidComponentName(String name) {
+		if (name.isEmpty())
+			return false;
+		if (name.equals("true") || name.equals("false"))
+			return false;
+		if (Character.isDigit(name.charAt(0)))
+			return false;
+		
+		if (name.startsWith("."))
+			return true;
+		
+		// Be conservative
+		return false;
 	}
 
+	/**
+	 * Gets the type of the component identified by the given class name
+	 * @param className The class name for which to get the component type
+	 * @return The component type of the given class if this class has been
+	 * registered as a component in the manifest file, otherwise null
+	 */
+	public ComponentType getComponentType(String className) {
+		for (AXmlNode node : this.activities)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.Activity;
+		for (AXmlNode node : this.services)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.Service;
+		for (AXmlNode node : this.receivers)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.BroadcastReceiver;
+		for (AXmlNode node : this.providers)
+			if (node.getAttribute("name").getValue().equals(className))
+				return ComponentType.ContentProvider;
+		return null;
+	}
+	
+	/**
+	 * Returns a list containing all nodes with tag <code>activity</code>.
+	 * 
+	 * @return list with all activities
+	 */
+	public ArrayList<AXmlNode> getActivities() {
+		return new ArrayList<AXmlNode>(this.activities);
+	}
+	
+	/**
+	 * Returns a list containing all nodes with tag <code>receiver</code>.
+	 * 
+	 * @return list with all receivers
+	 */
+	public ArrayList<AXmlNode> getReceivers() {
+		return new ArrayList<AXmlNode>(this.receivers);
+	}
+	
+	/**
+	 * Returns the <code>provider</code> which has the given <code>name</code>.
+	 * 
+	 * @param	name	the provider's name
+	 * @return	provider with <code>name</code>
+	 */
+	public AXmlNode getProvider(String name) {
+		return this.getNodeWithName(this.providers, name);
+	}
+	
+	/**
+	 * Returns the <code>service</code> which has the given <code>name</code>.
+	 * 
+	 * @param	name	the service's name
+	 * @return	service with <code>name</code>
+	 */
+	public AXmlNode getService(String name) {
+		return this.getNodeWithName(this.services, name);
+	}
+	
+	/**
+	 * Returns the <code>activity</code> which has the given <code>name</code>.
+	 * 
+	 * @param	name	the activitie's name
+	 * @return	activitiy with <code>name</code>
+	 */
+	public AXmlNode getActivity(String name) {
+		return this.getNodeWithName(this.activities, name);
+	}
+	
+	/**
+	 * Returns the <code>receiver</code> which has the given <code>name</code>.
+	 * 
+	 * @param	name	the receiver's name
+	 * @return	receiver with <code>name</code>
+	 */
+	public AXmlNode getReceiver(String name) {
+		return this.getNodeWithName(this.receivers, name);
+	}
+	
+	/**
+	 * Iterates over <code>list</code> and checks which node has the given <code>name</code>.
+	 * 
+	 * @param	list	contains nodes.
+	 * @param	name	the node's name.
+	 * @return	node with <code>name</code>.
+	 */
+	protected AXmlNode getNodeWithName(List<AXmlNode> list, String name) {
+		for (AXmlNode node : list) {
+			Object attr = node.getAttributes().get("name");
+			if(attr != null && attr.equals(name))
+				return node;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns the Manifest as a compressed android xml byte array.
+	 * This will consider all changes made to the manifest and
+	 * application nodes respectively to their child nodes.
+	 * 
+	 * @return	byte compressed AppManifest
+	 * @see		AXmlHandler#toByteArray()
+	 */
+	public byte[] getOutput() {
+		return this.axml.toByteArray();
+	}
+
+	/**
+	 * Gets the application's package name
+	 * @return The package name of the application
+	 */
+	private String cache_PackageName = null;
 	public String getPackageName() {
-		return this.packageName;
+		if (cache_PackageName == null) {
+			AXmlAttribute<?> attr = this.manifest.getAttribute("package");
+			if (attr != null)
+				cache_PackageName = (String) attr.getValue();
+		}
+		return cache_PackageName;
 	}
 
-	public int getMinSdkVersion() {
-		return this.minSdkVersion;
+	/**
+	 * Gets the version code of the application. This code is used to compare
+	 * versions for updates.
+	 * @return The version code of the application
+	 */
+	public int getVersionCode() {
+		AXmlAttribute<?> attr = this.manifest.getAttribute("versionCode");
+		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
 	}
 	
+	/**
+	 * Gets the application's version name as it is displayed to the user
+	 * @return The application#s version name as in pretty print
+	 */
+	public String getVersionName() {
+		AXmlAttribute<?> attr = this.manifest.getAttribute("versionName");
+		return attr == null ? null : (String) attr.getValue();
+	}
+	
+	/**
+	 * Gets the name of the Android application class
+	 * @return The name of the Android application class
+	 */
+	public String getApplicationName() {
+		AXmlAttribute<?> attr = this.application.getAttribute("name");
+		return attr == null ? null : expandClassName((String) attr.getValue());		
+	}
+	
+	/**
+	 * Gets whether this Android application is enabled
+	 * @return True if this application is enabled, otherwise false
+	 */
+	public boolean isApplicationEnabled() {
+		AXmlAttribute<?> attr = this.application.getAttribute("enabled");
+		return attr == null || !attr.getValue().equals(Boolean.FALSE);
+	}
+	
+	/**
+	 * Gets the minimum SDK version on which this application is supposed to run
+	 * @return The minimum SDK version on which this application is supposed to run
+	 */
+	public int getMinSdkVersion() {
+		List<AXmlNode> usesSdk = this.manifest.getChildrenWithTag("uses-sdk");
+		if (usesSdk == null || usesSdk.isEmpty())
+			return -1;
+		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("minSdkVersion");
+		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());		
+	}
+	
+	/**
+	 * Gets the target SDK version for which this application was developed
+	 * @return The target SDK version for which this application was developed
+	 */
 	public int targetSdkVersion() {
-		return this.targetSdkVersion;
+		List<AXmlNode> usesSdk = this.manifest.getChildrenWithTag("uses-sdk");
+		if (usesSdk == null || usesSdk.isEmpty())
+			return -1;
+		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("targetSdkVersion");
+		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
+	}
+	
+	/**
+	 * Gets the permissions this application requests
+	 * @return The permissions requested by this application
+	 * @return
+	 */
+	public Set<String> getPermissions() {
+		List<AXmlNode> usesPerms = this.manifest.getChildrenWithTag("uses-permission");
+		Set<String> permissions = new HashSet<String>();
+		for (AXmlNode perm : usesPerms) {
+			AXmlAttribute<?> attr = perm.getAttribute("name");
+			if (attr != null)
+				permissions.add((String) attr.getValue());
+			else {
+				// The required "name" attribute is missing, so we collect all empty
+				// attributes as a best-effort solution for broken malware apps
+				for (AXmlAttribute<?> a : perm.getAttributes().values())
+					if (a.getType() == AxmlVisitor.TYPE_STRING && a.getName().isEmpty())
+						permissions.add((String) a.getValue());
+			}
+		}
+		return permissions;
 	}
 	
 }

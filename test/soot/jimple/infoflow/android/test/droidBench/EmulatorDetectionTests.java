@@ -13,31 +13,17 @@ package soot.jimple.infoflow.android.test.droidBench;
 import java.io.IOException;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.InfoflowResults;
 
-@Ignore
-public class InterAppCommunicationTests extends JUnitTests {
+public class EmulatorDetectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	public void runTestActivityCommunication1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_ActivityCommunication1.apk");
-		Assert.assertEquals(1, res.size());
+	public void runTestContentProvider1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection_ContentProvider1.apk");
+		Assert.assertEquals(2, res.size());
 	}
-
-	@Test(timeout=300000)
-	public void runTestIntentSink1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_IntentSink1.apk");
-		Assert.assertEquals(1, res.size());
-	}
-
-	@Test(timeout=300000)
-	public void runTestIntentSink2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_IntentSink2.apk");
-		Assert.assertEquals(1, res.size());
-	}
-
+	
 }

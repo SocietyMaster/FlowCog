@@ -11,7 +11,9 @@
 package soot.jimple.infoflow.android;
 
 import heros.InterproceduralCFG;
+import heros.solver.IDESolver;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 import soot.Local;
+import soot.Scene;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
@@ -35,19 +39,22 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
-import soot.jimple.infoflow.source.MethodBasedSourceSinkManager;
+import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
 import soot.tagkit.IntegerConstantValueTag;
 import soot.tagkit.Tag;
 
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 /**
  * SourceManager implementation for AndroidSources
  * 
  * @author Steven Arzt
  */
-public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
+public class AndroidSourceSinkManager implements ISourceSinkManager {
 	
 	private static final SourceInfo sourceInfo = new SourceInfo(true);
 	
@@ -111,8 +118,25 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 	private List<ARSCFileParser.ResPackage> resourcePackages;
 	
 	private String appPackageName = "";
+	private boolean enableCallbackSources = true;
 	
 	private final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
+	private SootClass[] iccBaseClasses = null; 
+	
+	protected final LoadingCache<SootClass,Collection<SootClass>> interfacesOf =
+			IDESolver.DEFAULT_CACHE_BUILDER.build( new CacheLoader<SootClass,Collection<SootClass>>() {
+				@Override
+				public Collection<SootClass> load(SootClass sc) throws Exception {
+					Set<SootClass> set = new HashSet<SootClass>(sc.getInterfaceCount());
+					for (SootClass i : sc.getInterfaces()) {
+						set.add(i);
+						set.addAll(interfacesOf.getUnchecked(i));
+					}
+					if (sc.hasSuperclass())
+						set.addAll(interfacesOf.getUnchecked(sc.getSuperclass()));
+					return set;
+				}
+			});
 	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
@@ -170,16 +194,61 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 				+ this.callbackMethods.size() + " callback methods.");
 	}
 	
-	@Override
-	public SourceInfo getSourceMethodInfo(SootMethod sMethod) {
-		return this.sourceMethods.containsKey(sMethod.getSignature()) ? sourceInfo : null;
+	/**
+	 * Sets whether callback parameters shall be considered as sources
+	 * @param enableCallbackSources True if callback parameters shall be considered
+	 * as sources, otherwise false
+	 */
+	public void setEnableCallbackSources(boolean enableCallbackSources) {
+		this.enableCallbackSources = enableCallbackSources;
 	}
-
+	
 	@Override
-	public boolean isSinkMethod(SootMethod sMethod) {
-		return this.sinkMethods.containsKey(sMethod.getSignature());
+	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) 
+	{
+		if (!sCallSite.containsInvokeExpr())
+			return false;
+		
+		// For ICC methods (e.g., startService), the classes name of these
+		// methods may change through user's definition. We match all the
+		// ICC methods through their base class name.
+		if (iccBaseClasses == null)
+			iccBaseClasses = new SootClass[] {
+					Scene.v().getSootClass("android.content.Context"), 				//activity, service and broadcast
+					Scene.v().getSootClass("android.content.ContentResolver"), 		//provider
+					Scene.v().getSootClass("android.app.Activity")					//some methods (e.g., onActivityResult) only defined in Activity class
+				};
+		
+		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
+		SootClass sc = callee.getDeclaringClass();
+		if (!sc.isInterface()) {
+			for (SootClass clazz : iccBaseClasses) {
+				if (Scene.v().getFastHierarchy().isSubclass(sc, clazz)) {
+					final String subSig = callee.getSubSignature();
+					if (clazz.declaresMethod(subSig)) {
+						if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
+							return true;
+						break;
+					}
+				}
+			}
+		}
+		
+		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+		if (this.sinkMethods.containsKey(signature))
+			return true;
+		
+		// Check whether we have any of the interfaces on the list
+		final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
+		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
+			if (i.declaresMethod(subSig))
+				if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
+					return true;				
+		}
+		
+		return false;
 	}
-
+	
 	@Override
 	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		return getSourceType(sCallSite, cfg) != SourceType.NoSource ? sourceInfo : null;
@@ -199,20 +268,36 @@ public class AndroidSourceSinkManager extends MethodBasedSourceSinkManager {
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
 		// This might be a normal source method
-		if (super.getSourceInfo(sCallSite, cfg) != null)
-			return SourceType.MethodCall;
+		if (sCallSite.containsInvokeExpr()) {
+			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+			if (this.sourceMethods.containsKey(signature))
+				return SourceType.MethodCall;
+
+			// Check whether we have any of the interfaces on the list
+			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
+			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
+				if (i.declaresMethod(subSig))
+					if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
+						return SourceType.MethodCall;
+			}
+		}
+		
 		// This call might read out sensitive data from the UI
 		if (isUISource(sCallSite, cfg))
 			return SourceType.UISource;
+		
 		// This statement might access a sensitive parameter in a callback
 		// method
-		final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
-		if (sCallSite instanceof IdentityStmt) {
-			IdentityStmt is = (IdentityStmt) sCallSite;
-			if (is.getRightOp() instanceof ParameterRef)
-				if (this.callbackMethods.containsKey(callSiteSignature))
-					return SourceType.Callback;
+		if (enableCallbackSources) {
+			final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
+			if (sCallSite instanceof IdentityStmt) {
+				IdentityStmt is = (IdentityStmt) sCallSite;
+				if (is.getRightOp() instanceof ParameterRef)
+					if (this.callbackMethods.containsKey(callSiteSignature))
+						return SourceType.Callback;
+			}
 		}
+				
 		return SourceType.NoSource;
 	}
 

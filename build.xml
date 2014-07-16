@@ -15,11 +15,12 @@
 
 	<target name="compile" depends="settings">
 		<mkdir dir="build/classes" />
-		<javac srcdir="src" includeantruntime="true" source="1.6" target="1.6" destdir="build/classes">
+		<javac srcdir="src" includeantruntime="true" source="1.7" target="1.7" destdir="build/classes">
 			<classpath>
 				<pathelement location="${soot.jar}" />
 				<pathelement location="${heros.jar}" />
 				<pathelement location="${infoflow.jar}" />
+				<pathelement location="${infoflow-summaries.jar}" />
 				<fileset dir="lib">
 					<include name="*.jar" />
 				</fileset>
@@ -39,7 +40,7 @@
 
 	<target name="compiletests" depends="settings,compile">
 		<mkdir dir="build/classes" />
-		<javac srcdir="src:test" includeantruntime="true" source="1.6" target="1.6" destdir="build/classes" debug="true">
+		<javac srcdir="src:test" includeantruntime="true" source="1.7" target="1.7" destdir="build/classes" debug="true">
 			<classpath>
 				<pathelement location="${soot.jar}" />
 				<pathelement location="${heros.jar}" />

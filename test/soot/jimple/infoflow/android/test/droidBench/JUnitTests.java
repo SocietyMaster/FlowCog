@@ -13,6 +13,8 @@ package soot.jimple.infoflow.android.test.droidBench;
 import java.io.File;
 import java.io.IOException;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
@@ -25,8 +27,11 @@ public class JUnitTests {
 	 * @return The data leaks found in the given APK file
 	 * @throws IOException Thrown if the given APK file or any other required
 	 * file could not be found
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
-	public InfoflowResults analyzeAPKFile(String fileName) throws IOException {
+	public InfoflowResults analyzeAPKFile(String fileName)
+			throws IOException, XmlPullParserException {
 		return analyzeAPKFile(fileName, false);
 	}
 	
@@ -38,9 +43,14 @@ public class JUnitTests {
 	 * @return The data leaks found in the given APK file
 	 * @throws IOException Thrown if the given APK file or any other required
 	 * file could not be found
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
-	public InfoflowResults analyzeAPKFile(String fileName, boolean enableImplicitFlows) throws IOException {
+	public InfoflowResults analyzeAPKFile(String fileName, boolean enableImplicitFlows)
+			throws IOException, XmlPullParserException {
 		String androidJars = System.getenv("ANDROID_JARS");
+		if (androidJars == null)
+			androidJars = System.getProperty("ANDROID_JARS");
 		if (androidJars == null)
 			throw new RuntimeException("Android JAR dir not set");
 		System.out.println("Loading Android.jar files from " + androidJars);

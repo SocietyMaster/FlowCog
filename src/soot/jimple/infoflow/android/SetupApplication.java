@@ -10,6 +10,7 @@
  ******************************************************************************/
 package soot.jimple.infoflow.android;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 import soot.Main;
 import soot.PackManager;
@@ -42,10 +44,11 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.config.IInfoflowConfig;
+import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
+import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
-import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.options.Options;
 
 public class SetupApplication {
@@ -63,6 +66,8 @@ public class SetupApplication {
 	private boolean enableCallbacks = true;
 	private boolean flowSensitiveAliasing = true;
 	private boolean computeResultPaths = true;
+	private boolean ignoreFlowsInSystemPackages = true;
+	private boolean enableCallbackSources = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -76,6 +81,7 @@ public class SetupApplication {
 	private String appPackageName = "";
 	
 	private final String androidJar;
+	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
 	private ITaintPropagationWrapper taintWrapper;
 	
@@ -84,10 +90,38 @@ public class SetupApplication {
 	
 	private IInfoflowConfig sootConfig = null;
 	private BiDirICFGFactory cfgFactory = null;
+
+	private IIPCManager ipcManager = null;
 	
+	/**
+	 * Creates a new instance of the {@link SetupApplication} class
+	 * @param androidJar The path to the Android SDK's "platforms" directory if
+	 * Soot shall automatically select the JAR file to be used or the path to
+	 * a single JAR file to force one.
+	 * @param apkFileLocation The path to the APK file to be analyzed
+	 */
 	public SetupApplication(String androidJar, String apkFileLocation) {
+		File f = new File(androidJar);
+		this.forceAndroidJar = f.isFile();
+		
 		this.androidJar = androidJar;
 		this.apkFileLocation = apkFileLocation;
+		
+		this.ipcManager = null;
+	}
+	
+	/**
+	 * Creates a new instance of the {@link SetupApplication} class
+	 * @param androidJar The path to the Android SDK's "platforms" directory if
+	 * Soot shall automatically select the JAR file to be used or the path to
+	 * a single JAR file to force one.
+	 * @param apkFileLocation The path to the APK file to be analyzed
+	 * @param ipcManager The IPC manager to use for modelling inter-component
+	 * and inter-application data flows
+	 */
+	public SetupApplication(String androidJar, String apkFileLocation, IIPCManager ipcManager) {
+		this(androidJar, apkFileLocation);
+		this.ipcManager = ipcManager;
 	}
 	
 	/**
@@ -183,9 +217,11 @@ public class SetupApplication {
 	 * @param sourceSinkFile The full path and file name of the file containing
 	 * the sources and sinks
 	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
 	public void calculateSourcesSinksEntrypoints
-			(String sourceSinkFile) throws IOException {
+			(String sourceSinkFile) throws IOException, XmlPullParserException {
 		PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 		Set<AndroidMethod> sources = new HashSet<AndroidMethod>();
 		Set<AndroidMethod> sinks = new HashSet<AndroidMethod>();
@@ -204,18 +240,18 @@ public class SetupApplication {
 	 * @param sourceMethods The set of methods to be considered as sources
 	 * @param sinkMethods The set of methods to be considered as sinks
 	 * @throws IOException Thrown if the given source/sink file could not be read.
+	 * @throws XmlPullParserException Thrown if the Android manifest file could
+	 * not be read.
 	 */
 	public void calculateSourcesSinksEntrypoints
 			(Set<AndroidMethod> sourceMethods,
-			Set<AndroidMethod> sinkMethods) throws IOException {
-		ProcessManifest processMan = new ProcessManifest();
-
+			Set<AndroidMethod> sinkMethods) throws IOException, XmlPullParserException {
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
-		processMan.loadManifestFile(apkFileLocation);
+		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
 		this.appPackageName = processMan.getPackageName();
 		this.entrypoints = processMan.getEntryPointClasses();
-
+		
 		// Parse the resource file
 		long beforeARSC = System.nanoTime();
 		ARSCFileParser resParser = new ARSCFileParser();
@@ -226,17 +262,9 @@ public class SetupApplication {
 		// Add the callback methods
 		if (enableCallbacks)
 			calculateCallbackMethods(resParser);
-
+		
 		sources = new HashSet<AndroidMethod>(sourceMethods);
 		sinks = new HashSet<AndroidMethod>(sinkMethods);
-		
-		//add sink for Intents:
-		{
-			AndroidMethod setResult = new AndroidMethod(SootMethodRepresentationParser.v().parseSootMethodString
-					("<android.app.Activity: void startActivity(android.content.Intent)>"));
-			setResult.setSink(true);
-			sinks.add(setResult);
-		}
 		
 		System.out.println("Entry point calculation done.");
 		
@@ -254,6 +282,7 @@ public class SetupApplication {
 					layoutMatchingMode, layoutControls);
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
 		}
 		
 		entryPointCreator = createEntryPointCreator();
@@ -398,8 +427,12 @@ public class SetupApplication {
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
-		Options.v().set_soot_classpath(Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
-		Options.v().set_android_jars(androidJar);
+		Options.v().set_soot_classpath(forceAndroidJar ? androidJar
+				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
+		if (forceAndroidJar)
+			Options.v().set_force_android_jar(androidJar);
+		else
+			Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk);
 		Main.v().autoSetOptions();
 		
@@ -447,10 +480,15 @@ public class SetupApplication {
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(androidJar, false);
+			info = new Infoflow(androidJar, forceAndroidJar);
 		else
-			info = new Infoflow(androidJar, false, cfgFactory);
-		String path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory());
+		
+		final String path;
+		if (forceAndroidJar)
+			path = androidJar;
+		else
+			path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
 		info.setSootConfig(new SootConfigForAndroid());
@@ -464,17 +502,22 @@ public class SetupApplication {
 		info.setEnableImplicitFlows(enableImplicitFlows);
 		info.setEnableStaticFieldTracking(enableStaticFields);
 		info.setEnableExceptionTracking(enableExceptions);
-		info.setAccessPathLength(accessPathLength);
+		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
 		info.setComputeResultPaths(computeResultPaths);
+		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
 		
 		info.setCallgraphAlgorithm(callgraphAlgorithm);
 		
-		info.computeInfoflow(apkFileLocation, path, entryPointCreator, new ArrayList<String>(),
-				sourceSinkManager);
+		if (null != ipcManager) {
+			info.setIPCManager(ipcManager);
+		}
+
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
+
 		return info.getResults();
 	}
 
@@ -552,6 +595,16 @@ public class SetupApplication {
 	}
 	
 	/**
+	 * Sets whether flows starting or ending in system packages such as Android's
+	 * support library shall be ignored.
+	 * @param ignoreFlowsInSystemPackages True if flows starting or ending in
+	 * system packages shall be ignored, otherwise false.
+	 */
+	public void setIgnoreFlowsInSystemPackages(boolean ignoreFlowsInSystemPackages) {
+		this.ignoreFlowsInSystemPackages = ignoreFlowsInSystemPackages;
+	}
+
+	/**
 	 * Sets whether a flow sensitive aliasing algorithm shall be used
 	 * @param flowSensitiveAliasing True if a flow sensitive aliasing algorithm
 	 * shall be used, otherwise false
@@ -569,6 +622,14 @@ public class SetupApplication {
 		this.enableCallbacks = enableCallbacks;
 	}
 
+	/**
+	 * Sets whether the taint analysis shall consider callback as sources
+	 * @param enableCallbackSources True if setting callbacks as sources
+	 */
+	public void setEnableCallbackSources(boolean enableCallbackSources) {
+		this.enableCallbackSources = enableCallbackSources;
+	}
+	
 	/**
 	 * Sets the maximum access path length to be used in the solver
 	 * @param accessPathLength The maximum access path length to be used in the
@@ -624,5 +685,4 @@ public class SetupApplication {
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
-
 }
