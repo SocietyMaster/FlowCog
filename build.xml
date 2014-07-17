@@ -58,6 +58,7 @@
 		<junit printsummary="yes">
 			<jvmarg value="-Xmx10G" />
 			<sysproperty key="DROIDBENCH" value="${droidBenchDir}" />
+			<sysproperty key="ANDROID_JARS" value="${androidJarDir}" />
 			<classpath>
 				<pathelement location="${soot.jar}" />
 				<pathelement location="${heros.jar}" />
