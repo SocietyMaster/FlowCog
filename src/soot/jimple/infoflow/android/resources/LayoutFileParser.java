@@ -338,6 +338,10 @@ public class LayoutFileParser extends AbstractResourceParser {
 				String strData = ((String) attr.getValue()).trim();
 				addCallbackMethod(layoutFile, strData);
 			}
+			else if (attr.getType() == AxmlVisitor.TYPE_STRING && attrName.equals("text")) {
+				// To avoid unrecognized attribute for "text" field
+			}			
+
 			else {
 				if (DEBUG && attr.getType() == AxmlVisitor.TYPE_STRING)
 					System.out.println("Found unrecognized XML attribute:  " + attrName);
