@@ -241,6 +241,13 @@ public class LayoutFileParser extends AbstractResourceParser {
 			// do not consider any attributes of this elements, just
 			// continue with the children
 		}
+		else if (tname.equals("fragment"))  {
+			AXmlAttribute<?> attr = rootNode.getAttribute("class");
+			if (attr.getType() != AxmlVisitor.TYPE_STRING){
+				System.err.println("Invalid targer resource "+attr.getValue()+"for fragment class value");
+			}
+			getLayoutClass(attr.getValue().toString());
+		}
 		else {
 			final SootClass childClass = getLayoutClass(tname);
 			if (childClass != null && (isLayoutClass(childClass) || isViewClass(childClass)))
