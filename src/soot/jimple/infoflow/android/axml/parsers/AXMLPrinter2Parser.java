@@ -18,7 +18,7 @@ import android.content.res.AXmlResourceParser;
  * @author Steven Arzt
  */
 public class AXMLPrinter2Parser extends AbstractBinaryXMLFileParser {
-
+	
 	@Override
 	public void parseFile(byte[] inputBuffer) throws IOException {
 		InputStream buffer = new BufferedInputStream(new ByteArrayInputStream(inputBuffer));
@@ -52,20 +52,26 @@ public class AXMLPrinter2Parser extends AbstractBinaryXMLFileParser {
 						for(int i = 0; i < parser.getAttributeCount(); i++) {
 							String name = parser.getAttributeName(i);
 							String ns = parser.getAttributeNamespace(i);
+							int atype = parser.getAttributeValueType(i);
 							AXmlAttribute<?> attr = null;
 							
 							// we only parse attribute of types string, boolean and integer
-							switch(parser.getAttributeValueType(i)) {
+							switch(atype) {
 								case AxmlVisitor.TYPE_STRING:
-									attr = new AXmlAttribute<String>(name, parser.getAttributeValue(i), ns, false);
+									attr = new AXmlAttribute<String>(name, atype, parser.getAttributeValue(i), ns, false);
 									break;
 								case AxmlVisitor.TYPE_INT_BOOLEAN:
-									attr = new AXmlAttribute<Boolean>(name, parser.getAttributeBooleanValue(i, false), ns, false);
+									attr = new AXmlAttribute<Boolean>(name, atype, parser.getAttributeBooleanValue(i, false), ns, false);
 									break;
 								case AxmlVisitor.TYPE_FIRST_INT:
 								case AxmlVisitor.TYPE_INT_HEX:
-									attr = new AXmlAttribute<Integer>(name, parser.getAttributeIntValue(i, 0), ns, false);
+									attr = new AXmlAttribute<Integer>(name, atype, parser.getAttributeIntValue(i, 0), ns, false);
 									break;
+								case AxmlVisitor.TYPE_REFERENCE:
+									attr = new AXmlAttribute<Integer>(name, atype, parser.getAttributeResourceValue(i, 0), ns, false);
+									break;
+								default:
+									System.err.println("Unsupported attribute type: " + atype);
 							}
 							
 							// if we can't handle the attributes type we simply ignore it

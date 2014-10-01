@@ -9,12 +9,18 @@ import static pxb.android.axml.AxmlVisitor.TYPE_STRING;
  * 
  * @param	<T> determines the attribute's type. Currently {@link Integer}, {@link Boolean} and {@link String} are supported.
  * @author	Stefan Haas, Mario Schlipf
+ * @author	Steven Arzt
  */
 public class AXmlAttribute<T> extends AXmlElement {
 	/**
 	 * The attribute's name.
 	 */
 	protected String name;
+	
+	/**
+	 * The attribute's type
+	 */
+	protected int type;
 	
 	/**
 	 * The attribute's value.
@@ -42,8 +48,23 @@ public class AXmlAttribute<T> extends AXmlElement {
 	 * @param	added	wheter this attribute was part of a parsed xml file or added afterwards.
 	 */
 	public AXmlAttribute(String name, T value, String ns, boolean added) {
+		this(name, -1, value, ns, added);
+	}
+	
+	/**
+	 * Creates a new {@link AXmlAttribute} object with the given <code>name</code>,
+	 * <code>type</code>, <code>value</code> and <code>namespace</code>.
+	 * 
+	 * @param	name	the attribute's name.
+	 * @param	type	the attribute's type
+	 * @param	value	the attribute's value.
+	 * @param	ns		the attribute's namespace.
+	 * @param	added	wheter this attribute was part of a parsed xml file or added afterwards.
+	 */
+	public AXmlAttribute(String name, int type, T value, String ns, boolean added) {
 		super(ns, added);
 		this.name = name;
+		this.type = type;
 		this.value = value;
 	}
 	
@@ -89,6 +110,19 @@ public class AXmlAttribute<T> extends AXmlElement {
 		if(this.value instanceof Integer) return TYPE_INT_HEX;
 		else if(this.value instanceof Boolean) return TYPE_INT_BOOLEAN;
 		else return TYPE_STRING;
+	}
+	
+	/**
+	 * Returns an integer which identifies this attribute's type. This is the
+	 * type originally passed to the constructor. 
+	 * 
+	 * @return	integer representing the attribute's type
+	 * @see		AxmlVisitor#TYPE_INT_HEX
+	 * @see		AxmlVisitor#TYPE_INT_BOOLEAN
+	 * @see		AxmlVisitor#TYPE_STRING
+	 */
+	public int getAttributeType() {
+		return this.type;
 	}
 	
 	@Override

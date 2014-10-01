@@ -53,13 +53,18 @@ public class OutputVisitor extends AxmlVisitor {
 				this.attr(attr.getNamespace(),
 						attr.getName(),
 						resourceId,
-						attr.getType(),
+						attr.getAttributeType(),
 						attr.getValue());
 			}
 		}
 		
 		// if this node is added manually call end method
 		if(this.node.isAdded()) this.end();
+	}
+	
+	@Override
+	public void ns(String prefix, String uri, int ln) {
+		super.ns(prefix, uri, ln);
 	}
 	
 	@Override
@@ -71,8 +76,19 @@ public class OutputVisitor extends AxmlVisitor {
 			super.attr(ns, name, resourceId, type, obj);
 		// only add the attribute if it is included
 		else
-			if(attr.isIncluded())
-				super.attr(attr.getNamespace(), attr.getName(), resourceId, attr.getType(), attr.getValue());
+			if(attr.isIncluded()) {
+				// Make sure to pass null for the namespace if we don't have one
+				// or else AXML will create a fake one for us.
+				String namespace = attr.getNamespace();
+				if (namespace != null && namespace.isEmpty())
+					namespace = null;
+				
+				super.attr(namespace,
+						attr.getName(),
+						resourceId < 0 ? 0 : resourceId,
+						attr.getAttributeType(),
+						attr.getValue());
+			}
 	}
 	
 	@Override
