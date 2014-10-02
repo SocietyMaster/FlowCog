@@ -93,7 +93,8 @@ public class ApkHandler {
 		InputStream is = null;
 		
 		// check if zip file is already opened
-		if(this.zip == null) this.zip = new ZipFile(this.apk);
+		if(this.zip == null)
+			this.zip = new ZipFile(this.apk);
 		
 		// search for file with given filename
 		Enumeration<?> entries = this.zip.entries();
@@ -134,7 +135,8 @@ public class ApkHandler {
 		
 		// add missing paths to directories parameter
 		for(File file : files) {
-			if(!paths.containsKey(file.getPath())) paths.put(file.getPath(), file.getName());
+			if(!paths.containsKey(file.getPath()))
+				paths.put(file.getPath(), file.getName());
 		}
 		
 		// get a temp file
@@ -159,17 +161,25 @@ public class ApkHandler {
 		nextEntry:
 		while ((entry = zin.getNextEntry()) != null) {
 			// skip replaced entries
-			for(String path : paths.values()) if(entry.getName().equals(path)) continue nextEntry;
+			for(String path : paths.values())
+				if(entry.getName().equals(path))
+					continue nextEntry;
+			
+			// Since we are modifying an APK file, the old signature becomes
+			// invalid and we thus need to remove it.
+			if (entry.getName().startsWith("META-INF/")
+					&& (entry.getName().endsWith(".RSA") || entry.getName().endsWith(".SF")))
+				continue;
 			
 			// if not replaced add the zip entry to the output stream
-			out.putNextEntry(entry);
+			out.putNextEntry(new ZipEntry(entry.getName()));
 			
 			// transfer bytes from the zip file to the output file
 			int len;
 			while ((len = zin.read(buf)) > 0) {
 				out.write(buf, 0, len);
 			}
-			
+						
 			// close entries
 			zin.closeEntry();
 			out.closeEntry();
