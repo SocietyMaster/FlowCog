@@ -223,7 +223,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		SootClass sc = callee.getDeclaringClass();
 		if (!sc.isInterface()) {
 			for (SootClass clazz : iccBaseClasses) {
-				if (Scene.v().getFastHierarchy().isSubclass(sc, clazz)) {
+				if (Scene.v().getOrMakeFastHierarchy().isSubclass(sc, clazz)) {
 					final String subSig = callee.getSubSignature();
 					if (clazz.declaresMethod(subSig)) {
 						if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
