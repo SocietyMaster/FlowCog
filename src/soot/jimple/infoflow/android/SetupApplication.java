@@ -45,6 +45,7 @@ import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
+import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
@@ -84,6 +85,7 @@ public class SetupApplication {
 	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
 	private ITaintPropagationWrapper taintWrapper;
+	private PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	
 	private AndroidSourceSinkManager sourceSinkManager = null;
 	private AndroidEntryPointCreator entryPointCreator = null;
@@ -480,9 +482,11 @@ public class SetupApplication {
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(androidJar, forceAndroidJar);
+			info = new Infoflow(androidJar, forceAndroidJar, null,
+					new DefaultPathBuilderFactory(pathBuilder));
 		else
-			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory());
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
+					new DefaultPathBuilderFactory(pathBuilder));
 		
 		final String path;
 		if (forceAndroidJar)
@@ -685,4 +689,14 @@ public class SetupApplication {
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
+	
+	/**
+	 * Sets the algorithm to be used for reconstructing the paths between
+	 * sources and sinks
+	 * @param builder The path reconstruction algorithm to be used
+	 */
+	public void setPathBuilder(PathBuilder builder) {
+		this.pathBuilder = builder;
+	}
+	
 }

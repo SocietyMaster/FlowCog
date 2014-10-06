@@ -36,6 +36,7 @@ import soot.jimple.infoflow.InfoflowResults.SinkInfo;
 import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.solver.IInfoflowCFG;
@@ -107,6 +108,7 @@ public class Test {
 	private static boolean aggressiveTaintWrapper = false;
 	private static boolean librarySummaryTaintWrapper = false;
 	private static String summaryPath = "";
+	private static PathBuilder pathBuilder;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -289,6 +291,20 @@ public class Test {
 				aggressiveTaintWrapper = false;
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--pathalgo")) {
+				String algo = args[i+1];
+				if (algo.equalsIgnoreCase("CONTEXTSENSITIVE"))
+					pathBuilder = PathBuilder.ContextSensitive;
+				else if (algo.equalsIgnoreCase("CONTEXTINSENSITIVE"))
+					pathBuilder = PathBuilder.ContextInsensitive;
+				else if (algo.equalsIgnoreCase("SOURCESONLY"))
+					pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
+				else {
+					System.err.println("Invalid path reconstruction algorithm");
+					return false;
+				}
+				i += 2;
+			}
 			else if (args[i].equalsIgnoreCase("--libsumtw")) {
 				librarySummaryTaintWrapper = true;
 				i++;
@@ -386,7 +402,8 @@ public class Test {
 				"--layoutmode", layoutMatchingModeToString(layoutMatchingMode),
 				flowSensitiveAliasing ? "--aliasflowsens" : "--aliasflowins",
 				computeResultPaths ? "--paths" : "--nopaths",
-				aggressiveTaintWrapper ? "--aggressivetw" : "--nonaggressivetw" };
+				aggressiveTaintWrapper ? "--aggressivetw" : "--nonaggressivetw",
+				"--pathalgo", pathAlgorithmToString(pathBuilder) };
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -430,6 +447,19 @@ public class Test {
 				return "ALL";
 			default:
 				return "unknown";
+		}
+	}
+	
+	private static String pathAlgorithmToString(PathBuilder pathBuilder) {
+		switch (pathBuilder) {
+			case ContextSensitive:
+				return "CONTEXTSENSITIVE";
+			case ContextInsensitive :
+				return "CONTEXTINSENSITIVE";
+			case ContextInsensitiveSourceFinder :
+				return "SOURCESONLY";
+			default :
+				return "UNKNOWN";
 		}
 	}
 	
@@ -551,11 +581,13 @@ public class Test {
 		System.out.println("\t--ALIASFLOWINS Use a flow insensitive alias search");
 		System.out.println("\t--NOPATHS Do not compute result paths");
 		System.out.println("\t--AGGRESSIVETW Use taint wrapper in aggressive mode");
+		System.out.println("\t--PATHALGO Use path reconstruction algorithm x");
 		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
+		System.out.println("Supported path algorithms: CONTEXTSENSITIVE, CONTEXTINSENSITIVE, SOURCESONLY");
 	}
 
 }
