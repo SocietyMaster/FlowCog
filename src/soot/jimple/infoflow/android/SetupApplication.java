@@ -66,7 +66,6 @@ public class SetupApplication {
 	private boolean enableExceptions = true;
 	private boolean enableCallbacks = true;
 	private boolean flowSensitiveAliasing = true;
-	private boolean computeResultPaths = true;
 	private boolean ignoreFlowsInSystemPackages = true;
 	private boolean enableCallbackSources = true;
 	
@@ -508,7 +507,7 @@ public class SetupApplication {
 		info.setEnableExceptionTracking(enableExceptions);
 		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
-		info.setComputeResultPaths(computeResultPaths);
+		info.setComputeResultPaths(pathBuilder != PathBuilder.ContextInsensitiveSourceFinder);
 		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
 		
 		info.setInspectSources(false);
@@ -587,15 +586,6 @@ public class SetupApplication {
 	 */
 	public void setEnableExceptionTracking(boolean enableExceptions) {
 		this.enableExceptions = enableExceptions;
-	}
-
-	/**
-	 * Sets whether the solver shall compute the paths between the sources and
-	 * sinks instead of just reporting if there is a path or not.
-	 * @param computeResultPaths True if paths shall be computed, otherwise false
-	 */
-	public void setComputeResultPaths(boolean computeResultPaths) {
-		this.computeResultPaths = computeResultPaths;
 	}
 	
 	/**

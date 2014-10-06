@@ -485,7 +485,6 @@ public class Test {
 			app.setAccessPathLength(accessPathLength);
 			app.setLayoutMatchingMode(layoutMatchingMode);
 			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
-			app.setComputeResultPaths(computeResultPaths);
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (librarySummaryTaintWrapper) {
