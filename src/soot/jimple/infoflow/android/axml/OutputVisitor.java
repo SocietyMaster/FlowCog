@@ -53,7 +53,7 @@ public class OutputVisitor extends AxmlVisitor {
 				this.attr(attr.getNamespace(),
 						attr.getName(),
 						resourceId,
-						attr.getAttributeType(),
+						getAttributeType(attr),
 						attr.getValue());
 			}
 		}
@@ -86,7 +86,7 @@ public class OutputVisitor extends AxmlVisitor {
 				super.attr(namespace,
 						attr.getName(),
 						resourceId < 0 ? 0 : resourceId,
-						attr.getAttributeType(),
+						getAttributeType(attr),
 						attr.getValue());
 			}
 	}
@@ -175,4 +175,18 @@ public class OutputVisitor extends AxmlVisitor {
 			}
 		return -1;
 	}
+	
+	/**
+	 * Gets the type of the given Xml Attribute. If the attribute has an
+	 * explicit type, it is used. Otherwise, a type is inferred.
+	 * @param attr The attribute for which to get the type
+	 * @return The type of the attribute
+	 */
+	private int getAttributeType(AXmlAttribute<?> attr) {
+		int type = attr.getAttributeType();
+		if (type < 0)
+			type = attr.getType();
+		return type;
+	}
+	
 }
