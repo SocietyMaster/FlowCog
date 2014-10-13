@@ -242,11 +242,14 @@ public class LayoutFileParser extends AbstractResourceParser {
 			// continue with the children
 		}
 		else if (tname.equals("fragment"))  {
-			AXmlAttribute<?> attr = rootNode.getAttribute("class");
-			if (attr.getType() != AxmlVisitor.TYPE_STRING){
-				System.err.println("Invalid targer resource "+attr.getValue()+"for fragment class value");
+			final AXmlAttribute<?> attr = rootNode.getAttribute("name");
+			if (attr == null)
+				System.err.println("Fragment without class name detected");
+			else {
+				if (attr.getType() != AxmlVisitor.TYPE_STRING)
+					System.err.println("Invalid targer resource "+attr.getValue()+"for fragment class value");
+				getLayoutClass(attr.getValue().toString());
 			}
-			getLayoutClass(attr.getValue().toString());
 		}
 		else {
 			final SootClass childClass = getLayoutClass(tname);
