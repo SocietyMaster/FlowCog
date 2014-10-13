@@ -97,17 +97,23 @@ public class OutputVisitor extends AxmlVisitor {
 			AXmlNode child = this.node.getChildren().get(this.childCounter++);
 			
 			// only add the child if it is included
-			if(child.isIncluded() && child.isAdded())
+			if(child.isIncluded()
+					&& child.isAdded()
+					&& visitedNodes.add(child)) {
+				// Call the constructor to write out the child
 				new OutputVisitor(super.child(child.getNamespace(),
 						child.getTag()), child);
+			}
 		}
 		
 		// Find the correct child in which to continue
-		for (AXmlNode child : this.node.getChildren())
+		for (AXmlNode child : this.node.getChildren()) {
 			if (child.getTag().equals(name)
 					&& safeEquals(child.getNamespace(), ns)
-					&& visitedNodes.add(child))
+					&& visitedNodes.add(child)
+					&& !child.isAdded())
 				return new OutputVisitor(super.child(ns, name), child);
+		}
 		
 		// We did not find any further included nodes
 		return null;
