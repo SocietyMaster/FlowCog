@@ -482,10 +482,10 @@ public class SetupApplication {
 		Infoflow info;
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, forceAndroidJar, null,
-					new DefaultPathBuilderFactory(pathBuilder));
+					new DefaultPathBuilderFactory(pathBuilder, true));
 		else
 			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
-					new DefaultPathBuilderFactory(pathBuilder));
+					new DefaultPathBuilderFactory(pathBuilder, true));
 		
 		final String path;
 		if (forceAndroidJar)
@@ -507,7 +507,6 @@ public class SetupApplication {
 		info.setEnableExceptionTracking(enableExceptions);
 		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
-		info.setComputeResultPaths(pathBuilder != PathBuilder.ContextInsensitiveSourceFinder);
 		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
 		
 		info.setInspectSources(false);
