@@ -108,7 +108,7 @@ public class Test {
 	private static boolean aggressiveTaintWrapper = false;
 	private static boolean librarySummaryTaintWrapper = false;
 	private static String summaryPath = "";
-	private static PathBuilder pathBuilder;
+	private static PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -485,6 +485,7 @@ public class Test {
 			app.setAccessPathLength(accessPathLength);
 			app.setLayoutMatchingMode(layoutMatchingMode);
 			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
+			app.setPathBuilder(pathBuilder);
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (librarySummaryTaintWrapper) {
