@@ -86,4 +86,11 @@ public class JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 
+	@Test
+	public void runReturnParameterTest() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile
+				("testAPKs/ReturnParameterTest.apk", false, false, false);
+		Assert.assertTrue(res == null || res.isEmpty());
+	}
+
 }
