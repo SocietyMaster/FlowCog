@@ -70,7 +70,7 @@ public class Test {
 					print("Found a flow to sink " + sink + ", from the following sources:");
 					for (SourceInfo source : results.getResults().get(sink)) {
 						print("\t- " + source.getSource() + " (in "
-								+ cfg.getMethodOf(source.getContext()).getSignature()  + ")");
+								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
 						if (source.getPath() != null && !source.getPath().isEmpty())
 							print("\t\ton Path " + source.getPath());
 					}
