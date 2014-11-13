@@ -68,6 +68,7 @@ public class SetupApplication {
 	private boolean flowSensitiveAliasing = true;
 	private boolean ignoreFlowsInSystemPackages = true;
 	private boolean enableCallbackSources = true;
+	private boolean computeResultPaths = true;
 	
 	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
@@ -482,10 +483,10 @@ public class SetupApplication {
 		Infoflow info;
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, forceAndroidJar, null,
-					new DefaultPathBuilderFactory(pathBuilder, true));
+					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 		else
 			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
-					new DefaultPathBuilderFactory(pathBuilder, true));
+					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 		
 		final String path;
 		if (forceAndroidJar)
@@ -686,6 +687,18 @@ public class SetupApplication {
 	 */
 	public void setPathBuilder(PathBuilder builder) {
 		this.pathBuilder = builder;
+	}
+	
+	/**
+	 * Sets whether the exact paths between source and sink shall be computed.
+	 * If this feature is disabled, only the source-and-sink pairs are reported.
+	 * This option only applies if the selected path reconstruction algorithm
+	 * supports path computations.
+	 * @param computeResultPaths True if the exact propagation paths shall be
+	 * computed, otherwise false
+	 */
+	public void setComputeResultPaths(boolean computeResultPaths) {
+		this.computeResultPaths = computeResultPaths;
 	}
 	
 }
