@@ -200,7 +200,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 						
 						try {
 							AXmlHandler handler = new AXmlHandler(stream, new AXML20Parser());
-							parseLayoutNode(fileName, handler.getRoot());
+							parseLayoutNode(fileName, handler.getDocument().getRootNode());
 							System.out.println("Found " + userControls.size() + " layout controls in file "
 									+ fileName);
 						}

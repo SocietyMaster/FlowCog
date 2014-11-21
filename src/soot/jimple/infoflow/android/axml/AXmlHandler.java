@@ -6,10 +6,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import pxb.android.axml.AxmlReader;
 import pxb.android.axml.AxmlWriter;
-import soot.jimple.infoflow.android.axml.parsers.AXMLPrinter2Parser;
+import pxb.android.axml.NodeVisitor;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootField;
+import soot.jimple.infoflow.android.axml.parsers.AXML20Parser;
 import soot.jimple.infoflow.android.axml.parsers.IBinaryXMLFileParser;
+import soot.tagkit.IntegerConstantValueTag;
+import soot.tagkit.Tag;
 
 /**
  * {@link AXmlHandler} provides functionality to parse a byte compressed android xml file and access all nodes.
@@ -36,7 +41,7 @@ public class AXmlHandler {
 	 * @throws	IOException				if an I/O error occurs.
 	 */
 	public AXmlHandler(InputStream aXmlIs) throws IOException {
-		this(aXmlIs, new AXMLPrinter2Parser());
+		this(aXmlIs, new AXML20Parser());
 	}
 	
 	/**
@@ -82,12 +87,12 @@ public class AXmlHandler {
 	}
 	
 	/**
-	 * Returns the root node.
+	 * Returns the Android xml document.
 	 * 
-	 * @return	the root node of the xml document
+	 * @return	the Android xml document
 	 */
-	public AXmlNode getRoot() {
-		return parser.getRoot();
+	public AXmlDocument getDocument() {
+		return parser.getDocument();
 	}
 	
 	/**
@@ -108,12 +113,13 @@ public class AXmlHandler {
 	 */
 	public byte[] toByteArray() {
 		try {
-			AxmlReader ar = new AxmlReader(this.xml);
 			AxmlWriter aw = new AxmlWriter();
 			
-			AXmlNode rootNode = new AXmlNode("rootNode", "", null);
-			rootNode.addChild(this.getRoot());
-			ar.accept(new OutputVisitor(aw, rootNode));
+			// Write out all namespaces
+			for (AXmlNamespace ns : this.getDocument().getNamespaces())
+				aw.ns(ns.getPrefix(), ns.getUri(), ns.getLine());
+			
+			writeNode(aw, this.getDocument().getRootNode());
 			
 			return aw.toByteArray();
 		} catch (IOException e) {
@@ -123,9 +129,81 @@ public class AXmlHandler {
 		return null;
 	}
 	
+	private static final int resId_maxSdkVersion = 16843377;
+	private static final int resId_minSdkVersion = 16843276;
+	private static final int resId_name = 16842755;
+	private static final int resId_onClick = 16843375;
+	
+	/**
+	 * Returns the Android resource Id of the attribute which has the given name.
+	 * 
+	 * @param	name	the attribute's name.
+	 * @return	the resource Id defined by Android or -1 if the attribute does not exist.
+	 * @see		android.R.attr
+	 */
+	public static int getAttributeResourceId(String name) {
+		// try to get attribute's resource Id from Androids R class. Since we
+		// don't want a hard-coded reference to the Android classes, we maintain
+		// our own list.
+		if (name.equals("name"))
+			return resId_name;
+		else if (name.equals("maxSdkVersion"))
+			return resId_maxSdkVersion;
+		else if (name.equals("minSdkVersion"))
+			return resId_minSdkVersion;
+		else if (name.equals("onClick"))
+			return resId_onClick;
+		
+		// If we couldn't find the value, try to find Android's R class in Soot
+		SootClass rClass = Scene.v().forceResolve("android.R$attr", SootClass.BODIES);
+		if (!rClass.declaresFieldByName(name))
+			return -1;
+		SootField idField = rClass.getFieldByName(name);
+		for (Tag t : idField.getTags())
+			if (t instanceof IntegerConstantValueTag) {
+				IntegerConstantValueTag cvt = (IntegerConstantValueTag) t;
+				return cvt.getIntValue();
+			}
+		return -1;
+	}
+	
+	/**
+	 * Writes out the given node
+	 * @param parentNodeVisitor The visitor associated with the parent node
+	 * under which the given node shall be registered as a child
+	 * @param node The child node to write out under the given parent node
+	 */
+	private void writeNode(NodeVisitor parentNodeVisitor, AXmlNode node) {
+		NodeVisitor childNodeVisitor = parentNodeVisitor.child(node.getNamespace(), node.getTag());
+		
+		// Write the attributes
+		for (AXmlAttribute<?> attr : node.getAttributes().values()) {
+			String namespace = attr.getNamespace();
+			if (namespace != null && namespace.isEmpty())
+				namespace = null;
+						
+			int resourceId = attr.getResourceId();
+			if (resourceId < 0 && !node.getTag().equals("manifest"))
+				resourceId = getAttributeResourceId(attr.getName());
+			
+			int attrType = attr.getAttributeType();
+			if (attrType < 0)
+				attrType = attr.getType();
+			
+			childNodeVisitor.attr(namespace, attr.getName(), resourceId,
+					attrType, attr.getValue());
+		}
+		
+		// Write the child nodes
+		for (AXmlNode child : node.getChildren())
+			writeNode(childNodeVisitor, child);
+		
+		childNodeVisitor.end();
+	}
+
 	@Override
 	public String toString() {
-		return this.toString(this.getRoot(), 0);
+		return this.toString(this.getDocument().getRootNode(), 0);
 	}
 	
 	/**

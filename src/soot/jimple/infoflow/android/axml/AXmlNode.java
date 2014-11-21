@@ -1,7 +1,10 @@
 package soot.jimple.infoflow.android.axml;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a node of an Android XML document.
@@ -22,12 +25,12 @@ public class AXmlNode extends AXmlElement {
 	/**
 	 * List containing all children.
 	 */
-	ArrayList<AXmlNode> children = new ArrayList<AXmlNode>();
+	ArrayList<AXmlNode> children = null;
 	
 	/**
 	 * Map containing all attributes. The key matches the attribute's name.
 	 */
-	HashMap<String, AXmlAttribute<?>> attributes = new HashMap<String, AXmlAttribute<?>>();
+	Map<String, AXmlAttribute<?>> attributes = null;
 	
 	/**
 	 * Creates a new {@link AXmlNode} object with the given <code>tag</code>, <code>namespace</code> and <code>parent</code>.<br />
@@ -107,6 +110,8 @@ public class AXmlNode extends AXmlElement {
 	 * @return	this node itself for method chaining
 	 */
 	public AXmlNode addChild(AXmlNode child) {
+		if (this.children == null)
+			this.children = new ArrayList<AXmlNode>();
 		this.children.add(child);
 		return this;
 	}
@@ -120,6 +125,8 @@ public class AXmlNode extends AXmlElement {
 	 * @throws	IndexOutOfBoundsException if the index is out of range (index < 0 || index > children.size())
 	 */
 	public AXmlNode addChild(AXmlNode child, int index) {
+		if (this.children == null)
+			this.children = new ArrayList<AXmlNode>();
 		this.children.add(index, child);
 		return this;
 	}
@@ -129,7 +136,9 @@ public class AXmlNode extends AXmlElement {
 	 * 
 	 * @return list with all children
 	 */
-	public ArrayList<AXmlNode> getChildren() {
+	public List<AXmlNode> getChildren() {
+		if (this.children == null)
+			return Collections.emptyList();
 		return new ArrayList<AXmlNode>(this.children);
 	}
 	
@@ -139,10 +148,14 @@ public class AXmlNode extends AXmlElement {
 	 * @param	tag		the children's tag
 	 * @return	list with all children with <code>tag</code>
 	 */
-	public ArrayList<AXmlNode> getChildrenWithTag(String tag) {
+	public List<AXmlNode> getChildrenWithTag(String tag) {
+		if (this.children == null)
+			return Collections.emptyList();
+		
 		ArrayList<AXmlNode> children = new ArrayList<AXmlNode>();
 		for(AXmlNode child : this.children) {
-			if(child.getTag().equals(tag)) children.add(child);
+			if(child.getTag().equals(tag))
+				children.add(child);
 		}
 		
 		return children;
@@ -153,7 +166,9 @@ public class AXmlNode extends AXmlElement {
 	 * 
 	 * @return	map with all attributes belonging to this node
 	 */
-	public HashMap<String, AXmlAttribute<?>> getAttributes() { 
+	public Map<String, AXmlAttribute<?>> getAttributes() {
+		if (this.attributes == null)
+			return Collections.emptyMap();
 		return new HashMap<String, AXmlAttribute<?>>(this.attributes);
 	}
 	
@@ -164,6 +179,8 @@ public class AXmlNode extends AXmlElement {
 	 * @return	if this node has an attribute with <code>name</code>
 	 */
 	public boolean hasAttribute(String name) {
+		if (this.attributes == null)
+			return false;
 		return this.attributes.containsKey(name);
 	}
 	
@@ -174,6 +191,8 @@ public class AXmlNode extends AXmlElement {
 	 * @return	attribute with <code>name</code>.
 	 */
 	public AXmlAttribute<?> getAttribute(String name) {
+		if (this.attributes == null)
+			return null;
 		return this.attributes.get(name);
 	}
 	
@@ -184,10 +203,14 @@ public class AXmlNode extends AXmlElement {
 	 * @param	attr	the attribute to be added.
 	 */
 	public void addAttribute(AXmlAttribute<?> attr) {
-		if(attr == null) throw new NullPointerException("AXmlAttribute is null");
+		if(attr == null)
+			throw new NullPointerException("AXmlAttribute is null");
+		
+		if (this.attributes == null)
+			this.attributes = new HashMap<String, AXmlAttribute<?>>();
 		this.attributes.put(attr.getName(), attr);
 	}
-	
+		
 	/**
 	 * Returns the parent node.<br />
 	 * If this node is part of a valid XML document, consider
@@ -211,8 +234,9 @@ public class AXmlNode extends AXmlElement {
 	@Override
 	public String toString() {
 		String attributes = "";
-		for (AXmlAttribute<?> attrNode : this.attributes.values())
-			attributes += " " + attrNode;
+		if (this.attributes != null)
+			for (AXmlAttribute<?> attrNode : this.attributes.values())
+				attributes += " " + attrNode;
 		return "<" + tag + attributes + ">";
 	}
 	

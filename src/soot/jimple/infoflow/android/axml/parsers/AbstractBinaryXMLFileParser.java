@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import soot.jimple.infoflow.android.axml.AXmlDocument;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 
 /**
@@ -21,9 +22,9 @@ public abstract class AbstractBinaryXMLFileParser implements IBinaryXMLFileParse
 	protected HashMap<String, ArrayList<AXmlNode>> nodesWithTag = new HashMap<String, ArrayList<AXmlNode>>();
 
 	/**
-	 * The xml document's root node.
+	 * The xml document.
 	 */
-	protected AXmlNode root;
+	protected AXmlDocument document = new AXmlDocument();
 	
 	/**
 	 * Adds a pointer to the given <code>node</code> with the key <code>tag</code>.  
@@ -37,8 +38,8 @@ public abstract class AbstractBinaryXMLFileParser implements IBinaryXMLFileParse
 	}
 	
 	@Override
-	public AXmlNode getRoot() {
-		return this.root;
+	public AXmlDocument getDocument() {
+		return this.document;
 	}
 	
 	@Override

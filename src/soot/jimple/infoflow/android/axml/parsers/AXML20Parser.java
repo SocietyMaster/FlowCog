@@ -12,6 +12,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.jimple.infoflow.android.axml.AXmlAttribute;
+import soot.jimple.infoflow.android.axml.AXmlNamespace;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.tagkit.IntegerConstantValueTag;
 import soot.tagkit.Tag;
@@ -73,49 +74,61 @@ public class AXML20Parser extends AbstractBinaryXMLFileParser {
     				|| type == AxmlVisitor.TYPE_INT_HEX
     				|| type == AxmlVisitor.TYPE_FIRST_INT) {
     			if (obj instanceof Integer)
-    				this.node.addAttribute(new AXmlAttribute<Integer>(tname, (Integer) obj, ns));
+    				this.node.addAttribute(new AXmlAttribute<Integer>(tname, resourceId,
+    						type, (Integer) obj, ns, false));
     			else if (obj instanceof ValueWrapper) {
     				ValueWrapper wrapper = (ValueWrapper) obj;
-   					this.node.addAttribute(new AXmlAttribute<String>(tname, wrapper.raw, ns));
+   					this.node.addAttribute(new AXmlAttribute<String>(tname, resourceId,
+   							type, wrapper.raw, ns, false));
     			}
     			else
     				throw new RuntimeException("Unsupported value type");
     		}
     		else if (type == AxmlVisitor.TYPE_STRING) {
     			if (obj instanceof String)
-    				this.node.addAttribute(new AXmlAttribute<String>(tname, (String) obj, ns));
+    				this.node.addAttribute(new AXmlAttribute<String>(tname, resourceId,
+    						type, (String) obj, ns, false));
     			else if (obj instanceof ValueWrapper) {
     				ValueWrapper wrapper = (ValueWrapper) obj;
-    				this.node.addAttribute(new AXmlAttribute<String>(tname, wrapper.raw, ns));
+    				this.node.addAttribute(new AXmlAttribute<String>(tname, resourceId,
+    						type, wrapper.raw, ns, false));
     			}
     			else
     				throw new RuntimeException("Unsupported value type");
     		}
     		else if (type == AxmlVisitor.TYPE_INT_BOOLEAN) {
     			if (obj instanceof Boolean)
-    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, (Boolean) obj, ns));
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, resourceId,
+    						type, (Boolean) obj, ns, false));
     			else if (obj instanceof ValueWrapper) {
     				ValueWrapper wrapper = (ValueWrapper) obj;
-    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, Boolean.valueOf(wrapper.raw), ns));
+    				this.node.addAttribute(new AXmlAttribute<Boolean>(tname, resourceId,
+    						type, Boolean.valueOf(wrapper.raw), ns, false));
     			}
     			else
     				throw new RuntimeException("Unsupported value type");
     		}
     		
-    		super.attr(ns, name, resourceId, type, obj);
-			
+    		super.attr(ns, name, resourceId, type, obj);	
 		}
 		
     	@Override
        	public NodeVisitor child(String ns, String name) {
     		AXmlNode childNode = new AXmlNode(name == null ? null : name.trim(),
     				ns == null ? null : ns.trim(), node);
+    		if (name != null)
+    			addPointer(name, childNode);
     		return new MyNodeVisitor(childNode);
     	}
     	
     	@Override
     	public void end() {
-    		root = node;
+    		document.setRootNode(node);
+    	}
+    	
+    	@Override
+    	public void ns(String prefix, String uri, int line) {
+    		document.addNamespace(new AXmlNamespace(prefix, uri, line));
     	}
 
 	}
