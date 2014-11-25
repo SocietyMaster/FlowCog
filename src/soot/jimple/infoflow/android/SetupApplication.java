@@ -33,7 +33,6 @@ import soot.SootMethod;
 import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.Infoflow;
-import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -49,6 +48,7 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuil
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.options.Options;
 

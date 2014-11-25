@@ -16,7 +16,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.results.InfoflowResults;
 
 public class ThreadingTests extends JUnitTests {
 	

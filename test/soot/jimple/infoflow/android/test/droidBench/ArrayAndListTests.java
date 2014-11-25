@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.results.InfoflowResults;
 
 @Ignore	// we do not support tainting of single array fields or map entries yet
 public class ArrayAndListTests extends JUnitTests {

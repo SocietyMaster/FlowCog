@@ -31,14 +31,14 @@ import java.util.concurrent.TimeoutException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
-import soot.jimple.infoflow.InfoflowResults;
-import soot.jimple.infoflow.InfoflowResults.SinkInfo;
-import soot.jimple.infoflow.InfoflowResults.SourceInfo;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.results.InfoflowResults;
+import soot.jimple.infoflow.results.ResultSinkInfo;
+import soot.jimple.infoflow.results.ResultSourceInfo;
 import soot.jimple.infoflow.solver.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
@@ -66,9 +66,9 @@ public class Test {
 				print("No results found.");
 			}
 			else {
-				for (SinkInfo sink : results.getResults().keySet()) {
+				for (ResultSinkInfo sink : results.getResults().keySet()) {
 					print("Found a flow to sink " + sink + ", from the following sources:");
-					for (SourceInfo source : results.getResults().get(sink)) {
+					for (ResultSourceInfo source : results.getResults().get(sink)) {
 						print("\t- " + source.getSource() + " (in "
 								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
 						if (source.getPath() != null && !source.getPath().isEmpty())
