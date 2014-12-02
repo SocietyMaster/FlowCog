@@ -38,4 +38,10 @@ public class ThreadingTests extends JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 	
+	@Test(timeout=300000)
+	public void runTestJavaThread2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Threading_JavaThread2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
 }
