@@ -125,8 +125,8 @@ public class Test {
 	}
 	
 	/**
-	 * @param args[0] = path to apk-file
-	 * @param args[1] = path to android-dir (path/android-platforms/)
+	 * @param args Program arguments. args[0] = path to apk-file,
+	 * args[1] = path to android-dir (path/android-platforms/)
 	 */
 	public static void main(final String[] args) throws IOException, InterruptedException {
 		if (args.length < 2) {
