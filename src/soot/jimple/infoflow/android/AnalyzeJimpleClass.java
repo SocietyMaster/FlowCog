@@ -244,13 +244,13 @@ public class AnalyzeJimpleClass {
 			SootMethod sm = rmIterator.next().method();
 			if (!sm.isConcrete())
 				continue;
+			
 			for (Unit u : sm.retrieveActiveBody().getUnits())
 				if (u instanceof Stmt) {
 					Stmt stmt = (Stmt) u;
 					if (stmt.containsInvokeExpr()) {
 						InvokeExpr inv = stmt.getInvokeExpr();
-						if (inv.getMethod().getName().equals("setContentView")
-								&& inv.getMethod().getDeclaringClass().getName().equals("android.app.Activity")) {
+						if (invokesSetContentView(inv)) {
 							for (Value val : inv.getArgs())
 								if (val instanceof IntConstant) {
 									IntConstant constVal = (IntConstant) val;
@@ -268,6 +268,31 @@ public class AnalyzeJimpleClass {
 		}
 	}
 	
+	/**
+	 * Checks whether this invocation calls Android's Activity.setContentView
+	 * method
+	 * @param inv The invocaton to check
+	 * @return True if this invocation calls setContentView, otherwise false
+	 */
+	private boolean invokesSetContentView(InvokeExpr inv) {
+		if (!inv.getMethod().getName().equals("setContentView"))
+			return false;
+		
+		// In some cases, the bytecode points the invocation to the current
+		// class even though it does not implement setContentView, instead
+		// of using the superclass signature
+		SootClass curClass = inv.getMethod().getDeclaringClass();
+		while (curClass != null) {
+			if (curClass.getName().equals("android.app.Activity")
+					|| curClass.getName().equals("android.support.v7.app.ActionBarActivity"))
+				return true;
+			if (curClass.declaresMethod("void setContentView(int)"))
+				return false;
+			curClass = curClass.hasSuperclass() ? curClass.getSuperclass() : null;
+		}
+		return false;
+	}
+
 	/**
 	 * Analyzes the given class to find callback methods
 	 * @param sootClass The class to analyze
