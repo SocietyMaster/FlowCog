@@ -23,28 +23,28 @@ public class ReflectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestReflection1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Reflection_Reflection1.apk");
+		InfoflowResults res = analyzeAPKFile("Reflection/Reflection1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
 	public void runTestReflection2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Reflection_Reflection2.apk");
+		InfoflowResults res = analyzeAPKFile("Reflection/Reflection2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
 	public void runTestReflection3() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Reflection_Reflection3.apk");
+		InfoflowResults res = analyzeAPKFile("Reflection/Reflection3.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	@Ignore
 	public void runTestReflection4() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Reflection_Reflection4.apk");
+		InfoflowResults res = analyzeAPKFile("Reflection/Reflection4.apk");
 		Assert.assertEquals(1, res.size());
 	}
 

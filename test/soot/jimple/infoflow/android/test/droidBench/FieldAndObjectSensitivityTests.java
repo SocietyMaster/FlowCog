@@ -22,47 +22,47 @@ public class FieldAndObjectSensitivityTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestFieldSensitivity1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_FieldSensitivity1.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/FieldSensitivity1.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestFieldSensitivity2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_FieldSensitivity2.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/FieldSensitivity2.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestFieldSensitivity3() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_FieldSensitivity3.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/FieldSensitivity3.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestFieldSensitivity4() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_FieldSensitivity4.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/FieldSensitivity4.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestInheritedObjects1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_InheritedObjects1.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/InheritedObjects1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestObjectSensitivity1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_ObjectSensitivity1.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/ObjectSensitivity1.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestObjectSensitivity2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity_ObjectSensitivity2.apk");
+		InfoflowResults res = analyzeAPKFile("FieldAndObjectSensitivity/ObjectSensitivity2.apk");
 		if (res != null)
 			Assert.assertEquals(0, res.size());
 	}

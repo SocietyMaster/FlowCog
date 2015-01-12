@@ -19,25 +19,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.results.InfoflowResults;
 
-@Ignore
-public class InterAppCommunicationTests extends JUnitTests {
+public class AliasingTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	public void runTestActivityCommunication1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_ActivityCommunication1.apk");
-		Assert.assertEquals(1, res.size());
+	@Ignore // not yet supported
+	public void runTestMerge1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Aliasing/Merge1.apk");
+		if (res != null)
+			Assert.assertEquals(0, res.size());
 	}
-
-	@Test(timeout=300000)
-	public void runTestIntentSink1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_IntentSink1.apk");
-		Assert.assertEquals(1, res.size());
-	}
-
-	@Test(timeout=300000)
-	public void runTestIntentSink2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("InterAppCommunication_IntentSink2.apk");
-		Assert.assertEquals(1, res.size());
-	}
-
+	
 }

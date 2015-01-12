@@ -22,7 +22,19 @@ public class EmulatorDetectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestContentProvider1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("EmulatorDetection_ContentProvider1.apk");
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/ContentProvider1.apk");
+		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestIMEI1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/IMEI1.apk");
+		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestPlayStore1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/PlayStore1.apk");
 		Assert.assertEquals(2, res.size());
 	}
 	
