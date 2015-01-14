@@ -111,6 +111,7 @@ public class GeneralJavaTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
+	@Ignore		// needs complex library summaries
 	public void runTestStringFormatter1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("GeneralJava/StringFormatter1.apk");
 		Assert.assertEquals(1, res.size());
