@@ -57,6 +57,13 @@ public class CallbackTests extends JUnitTests {
 	}
 
 	@Test(timeout=300000)
+	public void runTestButton5() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Callbacks/Button5.apk");
+		Assert.assertNotNull(res);
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
 	public void runTestLocationLeak1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Callbacks/LocationLeak1.apk");
 		Assert.assertNotNull(res);

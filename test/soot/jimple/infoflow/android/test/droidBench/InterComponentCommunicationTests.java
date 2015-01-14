@@ -39,5 +39,18 @@ public class InterComponentCommunicationTests extends JUnitTests {
 		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/IntentSink2.apk");
 		Assert.assertEquals(1, res.size());
 	}
+	
+	@Test(timeout=300000)
+	public void runTestSharedPreferences1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/SharedPreferences1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
+	@Ignore		// we do not support interleaved component executions yet
+	public void runTestSingletons1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/Singletons1.apk");
+		Assert.assertEquals(1, res.size());
+	}
 
 }
