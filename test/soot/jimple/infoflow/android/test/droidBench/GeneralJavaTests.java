@@ -154,5 +154,20 @@ public class GeneralJavaTests extends JUnitTests {
 		InfoflowResults res = analyzeAPKFile("GeneralJava/VirtualDispatch2.apk");
 		Assert.assertEquals(2, res.size());  // normally 1, +1 for context-insensitive CFG
 	}
+	
+	@Test(timeout=300000)
+	@Ignore		// TODO: SPARK issue, maybe context-insensitive CFG
+	public void runTestVirtualDispatch3() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("GeneralJava/VirtualDispatch3.apk");
+		if (res != null)
+			Assert.assertEquals(0, res.size());
+	}
+
+	@Test(timeout=300000)
+	public void runTestVirtualDispatch4() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("GeneralJava/VirtualDispatch4.apk");
+		if (res != null)
+			Assert.assertEquals(0, res.size());
+	}
 
 }
