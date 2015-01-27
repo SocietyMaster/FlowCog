@@ -7,10 +7,10 @@ import java.io.InputStream;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import pxb.android.axml.AxmlVisitor;
 import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlNamespace;
 import soot.jimple.infoflow.android.axml.AXmlNode;
+import soot.jimple.infoflow.android.axml.AXmlTypes;
 import android.content.res.AXmlResourceParser;
 
 /**
@@ -19,7 +19,7 @@ import android.content.res.AXmlResourceParser;
  * @author Steven Arzt
  */
 public class AXMLPrinter2Parser extends AbstractBinaryXMLFileParser {
-	
+		
 	@Override
 	public void parseFile(byte[] inputBuffer) throws IOException {
 		InputStream buffer = new BufferedInputStream(new ByteArrayInputStream(inputBuffer));
@@ -66,20 +66,20 @@ public class AXMLPrinter2Parser extends AbstractBinaryXMLFileParser {
 							// we only parse attribute of types string, boolean and integer
 							int resourceId = parser.getAttributeNameResource(i);
 							switch(atype) {
-								case AxmlVisitor.TYPE_STRING:
+								case AXmlTypes.TYPE_STRING:
 									attr = new AXmlAttribute<String>(name, resourceId, atype,
 											parser.getAttributeValue(i), ns, false);
 									break;
-								case AxmlVisitor.TYPE_INT_BOOLEAN:
+								case AXmlTypes.TYPE_INT_BOOLEAN:
 									attr = new AXmlAttribute<Boolean>(name, resourceId, atype,
 											parser.getAttributeBooleanValue(i, false), ns, false);
 									break;
-								case AxmlVisitor.TYPE_FIRST_INT:
-								case AxmlVisitor.TYPE_INT_HEX:
+								case AXmlTypes.TYPE_FIRST_INT:
+								case AXmlTypes.TYPE_INT_HEX:
 									attr = new AXmlAttribute<Integer>(name, resourceId, atype,
 											parser.getAttributeIntValue(i, 0), ns, false);
 									break;
-								case AxmlVisitor.TYPE_REFERENCE:
+								case AXmlTypes.TYPE_REFERENCE:
 									attr = new AXmlAttribute<Integer>(name, resourceId, atype,
 											parser.getAttributeResourceValue(i, 0), ns, false);
 									break;

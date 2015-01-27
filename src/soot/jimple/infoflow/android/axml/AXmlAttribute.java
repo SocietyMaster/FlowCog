@@ -1,9 +1,5 @@
 package soot.jimple.infoflow.android.axml;
 
-import static pxb.android.axml.NodeVisitor.TYPE_INT_BOOLEAN;
-import static pxb.android.axml.NodeVisitor.TYPE_INT_HEX;
-import static pxb.android.axml.NodeVisitor.TYPE_STRING;
-import pxb.android.axml.AxmlVisitor;
 
 /**
  * Represents an attribute of an Android XML node.
@@ -141,9 +137,9 @@ public class AXmlAttribute<T> extends AXmlElement {
 	 * @see		AxmlVisitor#TYPE_STRING
 	 */
 	public int getType() {
-		if(this.value instanceof Integer) return TYPE_INT_HEX;
-		else if(this.value instanceof Boolean) return TYPE_INT_BOOLEAN;
-		else return TYPE_STRING;
+		if(this.value instanceof Integer) return AXmlTypes.TYPE_INT_HEX;
+		else if(this.value instanceof Boolean) return AXmlTypes.TYPE_INT_BOOLEAN;
+		else return AXmlTypes.TYPE_STRING;
 	}
 	
 	/**
