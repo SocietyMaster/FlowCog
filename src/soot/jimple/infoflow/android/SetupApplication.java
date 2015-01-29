@@ -32,6 +32,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
+import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
@@ -94,6 +95,9 @@ public class SetupApplication {
 	private BiDirICFGFactory cfgFactory = null;
 
 	private IIPCManager ipcManager = null;
+	
+	private long maxMemoryConsumption = -1;
+	private CodeEliminationMode codeEliminationMode = CodeEliminationMode.RemoveSideEffectFreeCode;
 	
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
@@ -509,6 +513,7 @@ public class SetupApplication {
 		Infoflow.setAccessPathLength(accessPathLength);
 		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
 		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
+		info.setCodeEliminationMode(codeEliminationMode);
 		
 		info.setInspectSources(false);
 		info.setInspectSinks(false);
@@ -520,7 +525,8 @@ public class SetupApplication {
 		}
 
 		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
-
+		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
+		
 		return info.getResults();
 	}
 
@@ -701,4 +707,23 @@ public class SetupApplication {
 		this.computeResultPaths = computeResultPaths;
 	}
 	
+	/**
+	 * Gets the maximum memory consumption during the last analysis run
+	 * @return The maximum memory consumption during the last analysis run if
+	 * available, otherwise -1
+	 */
+	public long getMaxMemoryConsumption() {
+		return this.maxMemoryConsumption;
+	}
+	
+	/**
+	 * Sets whether and how FlowDroid shall eliminate irrelevant code before
+	 * running the taint propagation
+	 * @param Mode the mode of dead and irrelevant code eliminiation to be
+	 * used
+	 */
+	public void setCodeEliminationMode(CodeEliminationMode mode) {
+		this.codeEliminationMode = mode;
+	}
+
 }
