@@ -949,7 +949,12 @@ public class ARSCFileParser extends AbstractResourceParser {
 	
 	public ARSCFileParser() {
 	}
-
+	
+	/**
+	 * Parses the resource definition file in the given APK 
+	 * @param apkFile The APK file in which to parse the resource definition file
+	 * @throws IOException Thrown if the given APK file cannot be opened
+	 */
 	public void parse(String apkFile) throws IOException {
 		this.handleAndroidResourceFiles(apkFile, null, new IResourceHandler() {
 			

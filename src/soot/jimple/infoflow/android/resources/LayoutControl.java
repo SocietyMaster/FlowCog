@@ -49,5 +49,41 @@ public class LayoutControl {
 	public boolean isSensitive() {
 		return this.isSensitive;
 	}
+	
+	@Override
+	public String toString() {
+		return id + " - " + viewClass;
+	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		result = prime * result + (isSensitive ? 1231 : 1237);
+		result = prime * result + ((viewClass == null) ? 0 : viewClass.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LayoutControl other = (LayoutControl) obj;
+		if (id != other.id)
+			return false;
+		if (isSensitive != other.isSensitive)
+			return false;
+		if (viewClass == null) {
+			if (other.viewClass != null)
+				return false;
+		} else if (!viewClass.equals(other.viewClass))
+			return false;
+		return true;
+	}
+	
 }

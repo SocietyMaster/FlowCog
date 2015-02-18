@@ -40,7 +40,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 	
 	private static final boolean DEBUG = true;
 	
-	private final Map<Integer, LayoutControl> userControls = new HashMap<Integer, LayoutControl>();
+	private final Map<String, Set<LayoutControl>> userControls = new HashMap<String, Set<LayoutControl>>();
 	private final Map<String, Set<String>> callbackMethods = new HashMap<String, Set<String>>();
 	private final Map<String, Set<String>> includeDependencies = new HashMap<String, Set<String>>();
 	private final String packageName;
@@ -343,24 +343,23 @@ public class LayoutFileParser extends AbstractResourceParser {
 						|| ((tp & TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
 						|| ((tp & TYPE_TEXT_VARIATION_WEB_PASSWORD) == TYPE_TEXT_VARIATION_WEB_PASSWORD);
 			}
-			else if (isActionListener(attrName) && attr.getType() == AxmlVisitor.TYPE_STRING
+			else if (isActionListener(attrName)
+					&& attr.getType() == AxmlVisitor.TYPE_STRING
 					&& attr.getValue() instanceof String) {
 				String strData = ((String) attr.getValue()).trim();
 				addCallbackMethod(layoutFile, strData);
 			}
 			else if (attr.getType() == AxmlVisitor.TYPE_STRING && attrName.equals("text")) {
 				// To avoid unrecognized attribute for "text" field
-			}			
-
-			else {
-				if (DEBUG && attr.getType() == AxmlVisitor.TYPE_STRING)
-					System.out.println("Found unrecognized XML attribute:  " + attrName);
+			}
+			else if (DEBUG && attr.getType() == AxmlVisitor.TYPE_STRING) {
+				System.out.println("Found unrecognized XML attribute:  " + attrName);
 			}
 		}
 		
-		// Register the new user control
+		// Register the ne,w user control
 		if (id > 0)
-			userControls.put(id, new LayoutControl(id, layoutClass, isSensitive));
+			addToMapSet(this.userControls, layoutFile, new LayoutControl(id, layoutClass, isSensitive));
 	}
 
 	/**
@@ -380,7 +379,21 @@ public class LayoutFileParser extends AbstractResourceParser {
 	 * mapping from the id to the respective layout control.
 	 * @return The layout controls found in the XML file.
 	 */
-	public Map<Integer, LayoutControl> getUserControls() {
+	public Map<Integer, LayoutControl> getUserControlsByID() {
+		Map<Integer, LayoutControl> res = new HashMap<Integer, LayoutControl>();
+		for (Set<LayoutControl> controls : this.userControls.values())
+			for (LayoutControl lc : controls)
+				res.put(lc.getID(), lc);
+		return res;
+	}
+
+	/**
+	 * Gets the user controls found in the layout XML file. The result is a
+	 * mapping from the file name in which the control was found to the
+	 * respective layout control.
+	 * @return The layout controls found in the XML file.
+	 */
+	public Map<String, Set<LayoutControl>> getUserControls() {
 		return this.userControls;
 	}
 

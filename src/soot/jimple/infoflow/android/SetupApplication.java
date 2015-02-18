@@ -78,7 +78,6 @@ public class SetupApplication {
 
 	private Set<String> entrypoints = null;
 	
-	private Map<Integer, LayoutControl> layoutControls;
 	private List<ARSCFileParser.ResPackage> resourcePackages = null;
 	private String appPackageName = "";
 	
@@ -266,8 +265,14 @@ public class SetupApplication {
 		this.resourcePackages = resParser.getPackages();
 
 		// Add the callback methods
-		if (enableCallbacks)
-			calculateCallbackMethods(resParser);
+		LayoutFileParser lfp = null;
+		if (enableCallbacks) {
+			lfp = new LayoutFileParser(this.appPackageName, resParser);
+			calculateCallbackMethods(resParser, lfp);
+			
+			// Some informational output
+			System.out.println("Found " + lfp.getUserControls() + " layout controls");
+		}
 		
 		sources = new HashSet<AndroidMethod>(sourceMethods);
 		sinks = new HashSet<AndroidMethod>(sinkMethods);
@@ -285,7 +290,8 @@ public class SetupApplication {
 			
 			sourceSinkManager = new AndroidSourceSinkManager
 					(sources, sinks, callbacks,
-					layoutMatchingMode, layoutControls);
+					layoutMatchingMode,
+					lfp.getUserControlsByID());
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
@@ -293,17 +299,32 @@ public class SetupApplication {
 		
 		entryPointCreator = createEntryPointCreator();
 	}
+	
+	/**
+	 * Adds a method to the set of callback method
+	 * @param layoutClass The layout class for which to register the callback
+	 * @param callbackMethod The callback method to register
+	 */
+	private void addCallbackMethod(String layoutClass, AndroidMethod callbackMethod) {
+		Set<AndroidMethod> methods = this.callbackMethods.get(layoutClass);
+		if (methods == null) {
+			methods = new HashSet<AndroidMethod>();
+			this.callbackMethods.put(layoutClass, methods);
+		}
+		methods.add(new AndroidMethod(callbackMethod));
+	}
 
 	/**
 	 * Calculates the set of callback methods declared in the XML resource
 	 * files or the app's source code
 	 * @param resParser The binary resource parser containing the app resources
+	 * @param lfp The layout file parser to be used for analyzing UI controls
 	 * @throws IOException Thrown if a required configuration cannot be read
 	 */
-	private void calculateCallbackMethods(ARSCFileParser resParser) throws IOException {
+	private void calculateCallbackMethods(ARSCFileParser resParser,
+			LayoutFileParser lfp) throws IOException {
 		AnalyzeJimpleClass jimpleClass = null;
-		LayoutFileParser lfp = new LayoutFileParser(this.appPackageName, resParser);
-
+		
 		boolean hasChanged = true;
 		while (hasChanged) {
 			hasChanged = false;
@@ -317,7 +338,7 @@ public class SetupApplication {
 				// Collect the callback interfaces implemented in the app's source code
 				jimpleClass = new AnalyzeJimpleClass(entrypoints);
 				jimpleClass.collectCallbackMethods();
-
+				
 				// Find the user-defined sources in the layout XML files. This
 				// only needs to be done once, but is a Soot phase.
 				lfp.parseLayoutFile(apkFileLocation, entrypoints);
@@ -330,9 +351,6 @@ public class SetupApplication {
 	        PackManager.v().getPack("cg").apply();
 	        PackManager.v().getPack("wjtp").apply();
 	        
-			this.layoutControls = lfp.getUserControls();
-			System.out.println("Found " + this.layoutControls.size() + " layout controls");
-
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
 				if (this.callbackMethods.containsKey(entry.getKey())) {
@@ -347,48 +365,50 @@ public class SetupApplication {
 		}
 		
 		// Collect the XML-based callback methods
-		for (Entry<SootClass, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet())
+		for (Entry<SootClass, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet()) {
+			final SootClass callbackClass = lcentry.getKey();
+		
 			for (Integer classId : lcentry.getValue()) {
 				AbstractResource resource = resParser.findResource(classId);
 				if (resource instanceof StringResource) {
-					StringResource strRes = (StringResource) resource;
-					if (lfp.getCallbackMethods().containsKey(strRes.getValue()))
-						for (String methodName : lfp.getCallbackMethods().get(strRes.getValue())) {
-							Set<AndroidMethod> methods = this.callbackMethods.get(lcentry.getKey().getName());
-							if (methods == null) {
-								methods = new HashSet<AndroidMethod>();
-								this.callbackMethods.put(lcentry.getKey().getName(), methods);
-							}
+					final String layoutFileName = ((StringResource) resource).getValue();
+					
+					// Add the callback methods for the given class
+					Set<String> callbackMethods = lfp.getCallbackMethods().get(layoutFileName);
+					if (callbackMethods != null) {
+						for (String methodName : callbackMethods) {
+							final String subSig = "void " + methodName + "(android.view.View)";
 							
 							// The callback may be declared directly in the class
 							// or in one of the superclasses
-							SootMethod callbackMethod = null;
-							SootClass callbackClass = lcentry.getKey();
-							while (callbackMethod == null) {
-								if (callbackClass.declaresMethodByName(methodName)) {
-									String subSig = "void " + methodName + "(android.view.View)";
-									for (SootMethod sm : callbackClass.getMethods())
-										if (sm.getSubSignature().equals(subSig)) {
-											callbackMethod = sm;
-											break;
-										}
-								}
-								if (callbackClass.hasSuperclass())
-									callbackClass = callbackClass.getSuperclass();
-								else
+							SootClass currentClass = callbackClass;
+							while (true) {
+								SootMethod callbackMethod = currentClass.getMethodUnsafe(subSig);
+								if (callbackMethod != null) {
+									addCallbackMethod(lcentry.getKey().getName(),
+											new AndroidMethod(callbackMethod));
 									break;
+								}
+								if (!currentClass.hasSuperclass()) {
+									System.err.println("Callback method " + methodName + " not found in class "
+											+ lcentry.getKey().getName());
+									break;
+								}
+								currentClass = currentClass.getSuperclass();
 							}
-							if (callbackMethod == null) {
-								System.err.println("Callback method " + methodName + " not found in class "
-										+ lcentry.getKey().getName());
-								continue;
-							}
-							methods.add(new AndroidMethod(callbackMethod));
 						}
+					}
+					
+					// For user-defined views, we need to emulate their callbacks
+					Set<LayoutControl> controls = lfp.getUserControls().get(layoutFileName);
+					if (controls != null)
+						for (LayoutControl lc : controls)
+							registerCallbackMethodsForView(callbackClass, lc);
 				}
 				else
 					System.err.println("Unexpected resource type for layout class");
 			}
+		}
 		
 		// Add the callback methods as sources and sinks
 		{
@@ -398,6 +418,46 @@ public class SetupApplication {
 			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
 					+ this.callbackMethods.size() + " components");
 		}
+	}
+
+	private void registerCallbackMethodsForView(SootClass callbackClass, LayoutControl lc) {
+		// Ignore system classes
+		if (callbackClass.getName().startsWith("android."))
+			return;
+		
+		// Check whether the current class is actually a view
+		{
+		SootClass sc = lc.getViewClass();
+		boolean isView = false;
+		while (sc.hasSuperclass()) {
+			if (sc.getName().equals("android.view.View")) {
+				isView = true;
+				break;
+			}
+			sc = sc.getSuperclass();
+		}
+		if (!isView)
+			return;
+		}
+		
+		// There are also some classes that implement interesting callback methods.
+		// We model this as follows: Whenever the user overwrites a method in an
+		// Android OS class, we treat it as a potential callback.
+		SootClass sc = lc.getViewClass();
+		Set<String> systemMethods = new HashSet<String>(10000);
+		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sc)) {
+			if (parentClass.getName().startsWith("android."))
+				for (SootMethod sm : parentClass.getMethods())
+					if (!sm.isConstructor())
+						systemMethods.add(sm.getSubSignature());
+		}
+		
+		// Scan for methods that overwrite parent class methods
+		for (SootMethod sm : sc.getMethods())
+			if (!sm.isConstructor())
+				if (systemMethods.contains(sm.getSubSignature()))
+					// This is a real callback method
+					addCallbackMethod(callbackClass.getName(), new AndroidMethod(sm));
 	}
 
 	/**
