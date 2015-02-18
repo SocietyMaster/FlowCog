@@ -291,7 +291,7 @@ public class SetupApplication {
 			sourceSinkManager = new AndroidSourceSinkManager
 					(sources, sinks, callbacks,
 					layoutMatchingMode,
-					lfp.getUserControlsByID());
+					lfp == null ? null : lfp.getUserControlsByID());
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
