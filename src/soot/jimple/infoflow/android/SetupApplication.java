@@ -352,7 +352,7 @@ public class SetupApplication {
 	        PackManager.v().getPack("wjpp").apply();
 	        PackManager.v().getPack("cg").apply();
 	        PackManager.v().getPack("wjtp").apply();
-	        
+			
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
 				if (this.callbackMethods.containsKey(entry.getKey())) {
@@ -367,8 +367,8 @@ public class SetupApplication {
 		}
 		
 		// Collect the XML-based callback methods
-		for (Entry<SootClass, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet()) {
-			final SootClass callbackClass = lcentry.getKey();
+		for (Entry<String, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet()) {
+			final SootClass callbackClass = Scene.v().getSootClass(lcentry.getKey());
 		
 			for (Integer classId : lcentry.getValue()) {
 				AbstractResource resource = resParser.findResource(classId);
@@ -387,13 +387,13 @@ public class SetupApplication {
 							while (true) {
 								SootMethod callbackMethod = currentClass.getMethodUnsafe(subSig);
 								if (callbackMethod != null) {
-									addCallbackMethod(lcentry.getKey().getName(),
+									addCallbackMethod(callbackClass.getName(),
 											new AndroidMethod(callbackMethod));
 									break;
 								}
 								if (!currentClass.hasSuperclass()) {
 									System.err.println("Callback method " + methodName + " not found in class "
-											+ lcentry.getKey().getName());
+											+ callbackClass.getName());
 									break;
 								}
 								currentClass = currentClass.getSuperclass();

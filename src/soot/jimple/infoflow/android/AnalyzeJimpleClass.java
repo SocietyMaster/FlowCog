@@ -63,7 +63,7 @@ public class AnalyzeJimpleClass {
 	private final Set<String> androidCallbacks;
 	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>();
 	private final Map<String, Set<AndroidMethod>> callbackWorklist = new HashMap<String, Set<AndroidMethod>>();
-	private final Map<SootClass, Set<Integer>> layoutClasses = new HashMap<SootClass, Set<Integer>>();
+	private final Map<String, Set<Integer>> layoutClasses = new HashMap<String, Set<Integer>>();
 
 	public AnalyzeJimpleClass(Set<String> entryPointClasses) throws IOException {
 		this.entryPointClasses = entryPointClasses;
@@ -254,13 +254,12 @@ public class AnalyzeJimpleClass {
 							for (Value val : inv.getArgs())
 								if (val instanceof IntConstant) {
 									IntConstant constVal = (IntConstant) val;
-									if (this.layoutClasses.containsKey(sm.getDeclaringClass()))
-										this.layoutClasses.get(sm.getDeclaringClass()).add(constVal.value);
-									else {
-										Set<Integer> layoutIDs = new HashSet<Integer>();
-										layoutIDs.add(constVal.value);
-										this.layoutClasses.put(sm.getDeclaringClass(), layoutIDs);
+									Set<Integer> layoutIDs = this.layoutClasses.get(sm.getDeclaringClass().getName());
+									if (layoutIDs == null) {
+										layoutIDs = new HashSet<Integer>();
+										this.layoutClasses.put(sm.getDeclaringClass().getName(), layoutIDs);
 									}
+									layoutIDs.add(constVal.value);
 								}
 						}
 					}
@@ -430,7 +429,7 @@ public class AnalyzeJimpleClass {
 		return this.callbackMethods;
 	}
 	
-	public Map<SootClass, Set<Integer>> getLayoutClasses() {
+	public Map<String, Set<Integer>> getLayoutClasses() {
 		return this.layoutClasses;
 	}
 		
