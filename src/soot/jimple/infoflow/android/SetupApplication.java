@@ -25,16 +25,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
+import soot.Body;
+import soot.Local;
 import soot.Main;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Unit;
+import soot.jimple.IntConstant;
+import soot.jimple.Jimple;
 import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
 import soot.jimple.infoflow.Infoflow;
-import soot.jimple.infoflow.android.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -44,12 +48,15 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.config.IInfoflowConfig;
+import soot.jimple.infoflow.config.SootConfigForAndroid;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.results.InfoflowResults;
+import soot.jimple.infoflow.source.AndroidSourceSinkManager;
+import soot.jimple.infoflow.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.options.Options;
 
@@ -541,7 +548,7 @@ public class SetupApplication {
 	public InfoflowResults runInfoflow(ResultsAvailableHandler onResultsAvailable){
 		if (sources == null || sinks == null)
 			throw new RuntimeException("Sources and/or sinks not calculated yet");
-
+				
 		System.out.println("Running data flow analysis on " + apkFileLocation + " with "
 				+ sources.size() + " sources and " + sinks.size() + " sinks...");
 		Infoflow info;
@@ -583,13 +590,13 @@ public class SetupApplication {
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}
-
+		
 		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 		
 		return info.getResults();
 	}
-
+	
 	private AndroidEntryPointCreator createEntryPointCreator() {
 		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator
 			(new ArrayList<String>(this.entrypoints));
