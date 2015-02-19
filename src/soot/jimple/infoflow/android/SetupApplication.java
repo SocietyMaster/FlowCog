@@ -25,16 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.Body;
-import soot.Local;
 import soot.Main;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.Unit;
-import soot.jimple.IntConstant;
-import soot.jimple.Jimple;
 import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
