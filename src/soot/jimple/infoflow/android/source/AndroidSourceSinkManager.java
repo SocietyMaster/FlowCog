@@ -8,7 +8,7 @@
  * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
  * Bodden, and others.
  ******************************************************************************/
-package soot.jimple.infoflow.source;
+package soot.jimple.infoflow.android.source;
 
 import heros.InterproceduralCFG;
 import heros.solver.IDESolver;
