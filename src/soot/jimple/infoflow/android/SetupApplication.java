@@ -34,7 +34,6 @@ import soot.jimple.infoflow.BiDirICFGFactory;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
 import soot.jimple.infoflow.Infoflow;
-import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -561,7 +560,6 @@ public class SetupApplication {
 			path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		
 		info.setTaintWrapper(taintWrapper);
-		info.setSootConfig(new SootConfigForAndroid());
 		if (onResultsAvailable != null)
 			info.addResultsAvailableHandler(onResultsAvailable);
 						
