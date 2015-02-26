@@ -176,6 +176,11 @@ public class AXmlHandler {
 	private void writeNode(NodeVisitor parentNodeVisitor, AXmlNode node) {
 		NodeVisitor childNodeVisitor = parentNodeVisitor.child(node.getNamespace(), node.getTag());
 		
+		// do not add excluded nodes
+		if (!node.isIncluded()) {
+			return;
+		}
+
 		// Write the attributes
 		for (AXmlAttribute<?> attr : node.getAttributes().values()) {
 			String namespace = attr.getNamespace();
