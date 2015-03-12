@@ -469,4 +469,43 @@ public class ProcessManifest {
 		return permissions;
 	}
 	
+	/**
+	 * Adds a new provider to the manifest
+	 * @param node provider represented as an AXmlNode
+	 */
+	public void addProvider(AXmlNode node) {
+		if (providers.isEmpty()) 
+			providers = new ArrayList<AXmlNode>();		
+		providers.add(node);
+	}
+	
+	/**
+	 * Adds a new receiver to the manifest
+	 * @param node receiver represented as an AXmlNode
+	 */
+	public void addReceiver(AXmlNode node) {
+		if (receivers.isEmpty()) 
+			receivers = new ArrayList<AXmlNode>();
+		receivers.add(node);
+	}
+	
+	/**
+	 * Adds a new activity to the manifest
+	 * @param node activity represented as an AXmlNode
+	 */
+	public void addActivity(AXmlNode node) {
+		if (activities.isEmpty()) 
+			activities = new ArrayList<AXmlNode>();
+		activities.add(node);
+	}
+	
+	/**
+	 * Adds a new service to the manifest
+	 * @param node service represented as an AXmlNode
+	 */
+	public void addService(AXmlNode node) {
+		if (services.isEmpty())
+			services = new ArrayList<AXmlNode>();
+		services.add(node);
+	}
 }
