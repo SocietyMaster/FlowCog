@@ -17,57 +17,113 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.results.InfoflowResults;
 
 @Ignore
 public class LifecycleTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestActivityLifecycle1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ActivityLifecycle1.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityLifecycle1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestActivityLifecycle2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ActivityLifecycle2.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityLifecycle2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 	
 	@Test(timeout=300000)
 	public void runTestActivityLifecycle3() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ActivityLifecycle3.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityLifecycle3.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestActivityLifecycle4() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ActivityLifecycle4.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityLifecycle4.apk");
 		Assert.assertEquals(1, res.size());
 	}
-
+	
+	@Test(timeout=300000)
+	public void runTestActivitySavedState1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivitySavedState1.apk");
+		Assert.assertEquals(2, res.size());		// We consider the saved state plus the actual leak as sinks
+	}
+	
 	@Test(timeout=300000)
 	public void runTestApplicationLifecycle1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ApplicationLifecycle1.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ApplicationLifecycle1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestApplicationLifecycle2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ApplicationLifecycle2.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ApplicationLifecycle2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestApplicationLifecycle3() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ApplicationLifecycle3.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ApplicationLifecycle3.apk");
 		Assert.assertEquals(1, res.size());
 	}
-
+	
+	@Test(timeout=300000)
+	public void runTestAsynchronousEventOrdering1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/AsynchronousEventOrdering1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestBroadcastReceiverLifecycle1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/BroadcastReceiverLifecycle1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestBroadcastReceiverLifecycle2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/BroadcastReceiverLifecycle2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestEventOrdering1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/EventOrdering1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	@Ignore		// not supported yet
+	public void runTestFragmentLifecycle1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/FragmentLifecycle1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	@Ignore		// not supported yet
+	public void runTestFragmentLifecycle2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/FragmentLifecycle2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
 	@Test(timeout=300000)
 	public void runTestServiceLifecycle1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Lifecycle_ServiceLifecycle1.apk");
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ServiceLifecycle1.apk");
 		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestServiceLifecycle2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ServiceLifecycle2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestSharedPreferenceChanged1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/SharedPreferenceChanged1.apk");
+		Assert.assertEquals(2, res.size());		// write to shared preference + leak from there as individual leaks
 	}
 
 }

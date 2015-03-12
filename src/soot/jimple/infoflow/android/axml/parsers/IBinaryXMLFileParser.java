@@ -3,6 +3,7 @@ package soot.jimple.infoflow.android.axml.parsers;
 import java.io.IOException;
 import java.util.List;
 
+import soot.jimple.infoflow.android.axml.AXmlDocument;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 
 /**
@@ -20,11 +21,11 @@ public interface IBinaryXMLFileParser {
 	public void parseFile(byte[] buffer) throws IOException;
 
 	/**
-	 * Returns the root node.
+	 * Returns the Android XML document.
 	 * 
-	 * @return	the root node of the xml document
+	 * @return	the Android XML document
 	 */
-	public AXmlNode getRoot();
+	public AXmlDocument getDocument();
 
 	/**
 	 * Returns a list containing all nodes of the xml document which have the given tag.

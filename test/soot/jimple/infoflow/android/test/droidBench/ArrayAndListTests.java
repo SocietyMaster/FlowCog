@@ -17,32 +17,51 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.results.InfoflowResults;
 
 @Ignore	// we do not support tainting of single array fields or map entries yet
 public class ArrayAndListTests extends JUnitTests {
-	
+		
 	@Test(timeout=300000)
 	public void runTestArrayAccess1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess1.apk");
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestArrayAccess2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ArrayAccess2.apk");
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayAccess2.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
+	public void runTestArrayCopy1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayCopy1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	@Ignore		// not supported yet
+	public void runTestArrayToString1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayToString1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
 	public void runTestHashMapAccess1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("ArraysAndLists_HashMapAccess1.apk");
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/HashMapAccess1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestListAccess1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("ArraysAndLists_ListAccess1.apk");
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ListAccess1.apk");
+		Assert.assertEquals(0, res.size());
+	}
+
+	@Test(timeout=300000)
+	public void runTestMultidimensionalArray1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/MultidimensionalArray1.apk");
 		Assert.assertEquals(0, res.size());
 	}
 

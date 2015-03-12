@@ -13,16 +13,30 @@ package soot.jimple.infoflow.android.test.droidBench;
 import java.io.IOException;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
+import soot.jimple.infoflow.results.InfoflowResults;
 
 public class EmulatorDetectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestContentProvider1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("EmulatorDetection_ContentProvider1.apk");
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/ContentProvider1.apk");
+		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	@Ignore		// does not work, need to check
+	public void runTestIMEI1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/IMEI1.apk");
+		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestPlayStore1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/PlayStore1.apk");
 		Assert.assertEquals(2, res.size());
 	}
 	

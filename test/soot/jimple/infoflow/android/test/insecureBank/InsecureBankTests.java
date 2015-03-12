@@ -17,8 +17,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.InfoflowResults;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
 public class InsecureBankTests {

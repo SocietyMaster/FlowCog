@@ -3,8 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot"/>
-	<classpathentry kind="lib" path="lib/polyglot.jar"/>
-	<classpathentry kind="lib" path="lib/AXMLPrinter2.jar" sourcepath="lib/AXMLPrinter2-src"/>
+	<classpathentry kind="lib" path="lib/AXMLPrinter2.jar" sourcepath="D:/Tools/AXMLPrinter2.source"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

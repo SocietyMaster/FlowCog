@@ -19,37 +19,38 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.results.InfoflowResults;
 
-public class ThreadingTests extends JUnitTests {
+@Ignore
+public class InterComponentCommunicationTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	public void runTestAsyncTask1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Threading/AsyncTask1.apk");
+	public void runTestActivityCommunication1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/ActivityCommunication1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
-	public void runTestExecutor1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Threading/Executor1.apk");
+	public void runTestIntentSink1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/IntentSink1.apk");
 		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
-	public void runTestJavaThread1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Threading/JavaThread1.apk");
+	public void runTestIntentSink2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/IntentSink2.apk");
 		Assert.assertEquals(1, res.size());
 	}
 	
 	@Test(timeout=300000)
-	public void runTestJavaThread2() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Threading/JavaThread2.apk");
+	public void runTestSharedPreferences1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/SharedPreferences1.apk");
 		Assert.assertEquals(1, res.size());
 	}
-	
+
 	@Test(timeout=300000)
-	@Ignore		// not yet supported
-	public void runTestLooper1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("Threading/Looper1.apk");
+	@Ignore		// we do not support interleaved component executions yet
+	public void runTestSingletons1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/Singletons1.apk");
 		Assert.assertEquals(1, res.size());
 	}
-	
+
 }

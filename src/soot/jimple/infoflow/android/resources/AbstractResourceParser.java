@@ -30,8 +30,6 @@ public abstract class AbstractResourceParser {
 	 * @param fileNameFilter If this parameter is non-null, only files with a
 	 * name (excluding extension) in this set will be analyzed.
 	 * @param handler The handler for processing the apk file
-	 * 
-	 * @author Steven Arzt
 	 */
 	protected void handleAndroidResourceFiles(String apk, Set<String> fileNameFilter,
 			IResourceHandler handler) {

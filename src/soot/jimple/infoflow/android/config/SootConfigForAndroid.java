@@ -8,7 +8,7 @@
  * Contributors: Christian Fritz, Steven Arzt, Siegfried Rasthofer, Eric
  * Bodden, and others.
  ******************************************************************************/
-package soot.jimple.infoflow.android;
+package soot.jimple.infoflow.android.config;
 
 import java.util.LinkedList;
 import java.util.List;
