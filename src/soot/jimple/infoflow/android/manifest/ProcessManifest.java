@@ -431,7 +431,14 @@ public class ProcessManifest {
 		if (usesSdk == null || usesSdk.isEmpty())
 			return -1;
 		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("minSdkVersion");
-		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());		
+		
+		if (attr == null)
+			return -1;
+		
+		if (attr.getValue() instanceof Integer)
+			return (Integer) attr.getValue();
+		
+		return Integer.getInteger((String) attr.getValue());		
 	}
 	
 	/**
@@ -443,7 +450,14 @@ public class ProcessManifest {
 		if (usesSdk == null || usesSdk.isEmpty())
 			return -1;
 		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("targetSdkVersion");
-		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
+
+		if (attr == null)
+			return -1;
+		
+		if (attr.getValue() instanceof Integer)
+			return (Integer) attr.getValue();
+		
+		return Integer.getInteger((String) attr.getValue());		
 	}
 	
 	/**
