@@ -431,7 +431,14 @@ public class ProcessManifest {
 		if (usesSdk == null || usesSdk.isEmpty())
 			return -1;
 		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("minSdkVersion");
-		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());		
+		
+		if (attr == null)
+			return -1;
+		
+		if (attr.getValue() instanceof Integer)
+			return (Integer) attr.getValue();
+		
+		return Integer.getInteger((String) attr.getValue());		
 	}
 	
 	/**
@@ -443,7 +450,14 @@ public class ProcessManifest {
 		if (usesSdk == null || usesSdk.isEmpty())
 			return -1;
 		AXmlAttribute<?> attr = usesSdk.get(0).getAttribute("targetSdkVersion");
-		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
+
+		if (attr == null)
+			return -1;
+		
+		if (attr.getValue() instanceof Integer)
+			return (Integer) attr.getValue();
+		
+		return Integer.getInteger((String) attr.getValue());		
 	}
 	
 	/**
@@ -469,4 +483,43 @@ public class ProcessManifest {
 		return permissions;
 	}
 	
+	/**
+	 * Adds a new provider to the manifest
+	 * @param node provider represented as an AXmlNode
+	 */
+	public void addProvider(AXmlNode node) {
+		if (providers.isEmpty()) 
+			providers = new ArrayList<AXmlNode>();		
+		providers.add(node);
+	}
+	
+	/**
+	 * Adds a new receiver to the manifest
+	 * @param node receiver represented as an AXmlNode
+	 */
+	public void addReceiver(AXmlNode node) {
+		if (receivers.isEmpty()) 
+			receivers = new ArrayList<AXmlNode>();
+		receivers.add(node);
+	}
+	
+	/**
+	 * Adds a new activity to the manifest
+	 * @param node activity represented as an AXmlNode
+	 */
+	public void addActivity(AXmlNode node) {
+		if (activities.isEmpty()) 
+			activities = new ArrayList<AXmlNode>();
+		activities.add(node);
+	}
+	
+	/**
+	 * Adds a new service to the manifest
+	 * @param node service represented as an AXmlNode
+	 */
+	public void addService(AXmlNode node) {
+		if (services.isEmpty())
+			services = new ArrayList<AXmlNode>();
+		services.add(node);
+	}
 }
