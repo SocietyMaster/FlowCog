@@ -1,0 +1,18 @@
+<de.androidtest.sourcetosink1.MainActivity: String source()> -> _SOURCE_
+<de.androidtest.sourcetosink1.MainActivity: void sink(java.lang.String)> -> _SINK_ 
+	
+<de.androidtest.sourcetosink2.MainActivity: String source()> -> _SOURCE_
+<de.androidtest.sourcetosink2.MainActivity: void sink1(java.lang.String,java.lang.String)> -> _SINK_ 
+<de.androidtest.sourcetosink2.MainActivity: void sink2(java.lang.String,java.lang.String)> -> _SINK_ 
+
+		
+<de.androidtest.sourcetosink3.MainActivity: void source1(de.androidtest.sourcetosink3.MainActivity.A)> -> _SOURCE_
+<de.androidtest.sourcetosink3.MainActivity: void sink1(dooble,boolean)> -> _SINK_
+<de.androidtest.sourcetosink3.MainActivity: void sink2(java.lang.Object,boolean)> -> _SINK_
+	
+<de.androidtest.sourcetosink4.MainActivity: String source()> -> _SOURCE_
+<de.androidtest.sourcetosink4.MainActivity: void sink()> -> _SINK_
+	
+<de.androidtest.sourcetosink5.MainActivity: void source1()> -> _SOURCE_
+<de.androidtest.sourcetosink5.MainActivity: void sink1(dooble,boolean)> -> _SINK_
+<de.androidtest.sourcetosink5.MainActivity: void sink2(java.lang.Object,boolean)> -> _SINK_

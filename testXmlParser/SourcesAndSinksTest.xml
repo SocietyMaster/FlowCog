@@ -1,0 +1,17 @@
+<sinkSources>
+	<method signature="com.example.androidtest.Sources: void SourceTestFalsePositive(com.example.androidtest.MyTestObject)" category="NO_CATEGORY">
+		<param index="0" type="com.example.androidtest.MyTestObject">
+			<accessPath isSource="true" isSink="false" length="2"> 
+				<pathElement index="1" type="SomeClass"> c </pathElement>
+				<pathElement index="2" type="java.lang.String"> s </pathElement>
+			</accessPath>
+		</param>
+	</method>
+	<method signature="com.example.androidtest.Sinks: void sinkTestFalsePositive(double)" category="NO_CATEGORY">
+		<param index="0" type="double">
+			<accessPath isSource="false" isSink="true" length="0">  
+				<!-- Wenn leer, dann primitiver Datentyp (int, double, String,...)-->
+			</accessPath>
+		</param>
+	</method>
+</sinkSources>

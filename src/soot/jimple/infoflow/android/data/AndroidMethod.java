@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import soot.SootMethod;
 import soot.jimple.infoflow.data.SootMethodAndClass;
@@ -21,88 +23,59 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
 /**
  * Class representing a single method in the Android SDK
  *
- * @author Steven Arzt, Siegfried Rasthofer
+ * @author Steven Arzt, Siegfried Rasthofer, Daniel Magin
  *
  */
-public class AndroidMethod extends SootMethodAndClass{
+public class AndroidMethod extends SootMethodAndClass {
 
 	public enum CATEGORY {
 		// all categories
 		ALL,
-		
-		// SOURCES		
-		NO_CATEGORY,
-		HARDWARE_INFO,
-		UNIQUE_IDENTIFIER, 
-		LOCATION_INFORMATION,
-		NETWORK_INFORMATION,
-		ACCOUNT_INFORMATION,
-		EMAIL_INFORMATION,
-		FILE_INFORMATION,
-		BLUETOOTH_INFORMATION,
-		VOIP_INFORMATION,
-		DATABASE_INFORMATION,
-		PHONE_INFORMATION,
+
+		// SOURCES
+		NO_CATEGORY, HARDWARE_INFO, UNIQUE_IDENTIFIER, LOCATION_INFORMATION, NETWORK_INFORMATION, ACCOUNT_INFORMATION, EMAIL_INFORMATION, FILE_INFORMATION, BLUETOOTH_INFORMATION, VOIP_INFORMATION, DATABASE_INFORMATION, PHONE_INFORMATION,
 
 		// SINKS
-		PHONE_CONNECTION,
-		INTER_APP_COMMUNICATION,
-		VOIP,
-		PHONE_STATE, 
-		EMAIL,
-		BLUETOOTH,
-		ACCOUNT_SETTINGS,
-		VIDEO,
-		SYNCHRONIZATION_DATA,
-		NETWORK,
-		EMAIL_SETTINGS,
-		FILE,
-		LOG,
-		
+		PHONE_CONNECTION, INTER_APP_COMMUNICATION, VOIP, PHONE_STATE, EMAIL, BLUETOOTH, ACCOUNT_SETTINGS, VIDEO, SYNCHRONIZATION_DATA, NETWORK, EMAIL_SETTINGS, FILE, LOG,
+
 		// SHARED
-		AUDIO,
-		SMS_MMS,
-		CONTACT_INFORMATION,
-		CALENDAR_INFORMATION,
-		SYSTEM_SETTINGS,
-		IMAGE,
-		BROWSER_INFORMATION,
-		NFC
+		AUDIO, SMS_MMS, CONTACT_INFORMATION, CALENDAR_INFORMATION, SYSTEM_SETTINGS, IMAGE, BROWSER_INFORMATION, NFC
 	}
 
 	private final Set<String> permissions;
-	
+
 	private boolean isSource = false;
 	private boolean isSink = false;
 	private boolean isNeitherNor = false;
-	
-    private CATEGORY category = null;
-		
+
+	private CATEGORY category = null;
+
 	public AndroidMethod(String methodName, String returnType, String className) {
 		super(methodName, className, returnType, new ArrayList<String>());
 		this.permissions = Collections.emptySet();
 	}
-	
+
 	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className) {
 		super(methodName, className, returnType, parameters);
 		this.permissions = Collections.emptySet();
 	}
 
-	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className, Set<String> permissions) {
+	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className,
+			Set<String> permissions) {
 		super(methodName, className, returnType, parameters);
 		this.permissions = permissions;
 	}
-	
+
 	public AndroidMethod(SootMethod sm) {
 		super(sm);
 		this.permissions = Collections.emptySet();
 	}
-	
+
 	public AndroidMethod(SootMethodAndClass methodAndClass) {
-		super (methodAndClass);
+		super(methodAndClass);
 		this.permissions = Collections.emptySet();
 	}
-	
+
 	public Set<String> getPermissions() {
 		return this.permissions;
 	}
@@ -114,8 +87,8 @@ public class AndroidMethod extends SootMethodAndClass{
 	public void setSource(boolean isSource) {
 		this.isSource = isSource;
 	}
-	
-	public void addPermission(String permission){
+
+	public void addPermission(String permission) {
 		this.permissions.add(permission);
 	}
 
@@ -134,21 +107,21 @@ public class AndroidMethod extends SootMethodAndClass{
 	public void setNeitherNor(boolean isNeitherNor) {
 		this.isNeitherNor = isNeitherNor;
 	}
-	
-	public void setCategory(CATEGORY category){
+
+	public void setCategory(CATEGORY category) {
 		this.category = category;
 	}
-	
+
 	public CATEGORY getCategory() {
 		return this.category;
 	}
-	
+
 	@Override
 	public String toString() {
 		String s = getSignature();
 		for (String perm : permissions)
 			s += " " + perm;
-		
+
 		if (this.isSource || this.isSink || this.isNeitherNor)
 			s += " ->";
 		if (this.isSource)
@@ -157,27 +130,85 @@ public class AndroidMethod extends SootMethodAndClass{
 			s += " _SINK_ ";
 		if (this.isNeitherNor)
 			s += " _NONE_";
-		
+
 		if (this.category != null)
 			s += "|" + category;
-		
+
 		return s;
 	}
-	
-	public String getSignatureAndPermissions(){
+
+	public String getSignatureAndPermissions() {
 		String s = getSignature();
 		for (String perm : permissions)
 			s += " " + perm;
 		return s;
 	}
-	
+
 	/**
-	 * Gets whether this method has been annotated as a source, sink or
-	 * neither nor.
-	 * @return True if there is an annotations for this method, otherwise
-	 * false.
+	 * Gets whether this method has been annotated as a source, sink or neither
+	 * nor.
+	 * 
+	 * @return True if there is an annotations for this method, otherwise false.
 	 */
 	public boolean isAnnotated() {
 		return isSource || isSink || isNeitherNor;
+	}
+
+	/***
+	 * Static Method to create AndroidMethode from Signature
+	 * 
+	 * @param signature
+	 * @return AndroidMethode or Null
+	 * @author Joern Tillmanns
+	 */
+	public static AndroidMethod createfromSignature(String signature) {
+		final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>";
+		// if the signature is without surrounding < and >
+		final String regex_2 = "^(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)";
+		Pattern p = Pattern.compile(regex);
+		Pattern p2 = Pattern.compile(regex_2);
+
+		Matcher m = p.matcher(signature);
+		Matcher m2 = p2.matcher(signature);
+
+		if (m.find()) {
+			int groupIdx = 1;
+			// class name
+			String className = m.group(groupIdx++).trim();
+
+			// return type
+			String returnType = m.group(groupIdx++).trim();
+
+			// method name
+			String methodName = m.group(groupIdx++).trim();
+
+			// method parameter
+			List<String> methodParameters = new ArrayList<String>();
+			String params = m.group(groupIdx++).trim();
+			if (!params.isEmpty())
+				for (String parameter : params.split(","))
+					methodParameters.add(parameter.trim());
+
+			return new AndroidMethod(methodName, methodParameters, returnType, className);
+		} else if (m2.find()) {
+			int groupIdx = 1;
+			String className = m2.group(groupIdx++).trim();
+
+			// return type
+			String returnType = m2.group(groupIdx++).trim();
+
+			// method name
+			String methodName = m2.group(groupIdx++).trim();
+
+			// method parameter
+			List<String> methodParameters = new ArrayList<String>();
+			String params = m2.group(groupIdx++).trim();
+			if (!params.isEmpty())
+				for (String parameter : params.split(","))
+					methodParameters.add(parameter.trim());
+
+			return new AndroidMethod(methodName, methodParameters, returnType, className);
+		}
+		return null;
 	}
 }
