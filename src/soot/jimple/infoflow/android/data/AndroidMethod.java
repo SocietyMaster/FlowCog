@@ -12,18 +12,21 @@ package soot.jimple.infoflow.android.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import soot.SootMethod;
+import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 
 /**
  * Class representing a single method in the Android SDK
  *
- * @author Steven Arzt, Siegfried Rasthofer, Daniel Magin
+ * @author Steven Arzt, Siegfried Rasthofer, Daniel Magin, Joern Tillmanns
  *
  */
 public class AndroidMethod extends SootMethodAndClass {
@@ -49,6 +52,15 @@ public class AndroidMethod extends SootMethodAndClass {
 	private boolean isNeitherNor = false;
 
 	private CATEGORY category = null;
+
+	private HashSet<AccessPath> sourceReturnSet = new HashSet<AccessPath>();
+	private HashSet<AccessPath> sourceBaseSet = new HashSet<AccessPath>();
+	private HashSet<AccessPath> sinkBaseSet = new HashSet<AccessPath>();
+	private HashMap<Integer, HashSet<AccessPath>> sourceParamSet = new HashMap<Integer, HashSet<AccessPath>>();
+	private HashMap<Integer, HashSet<AccessPath>> sinkParamSet = new HashMap<Integer, HashSet<AccessPath>>();
+
+	// for the xml-Writer
+	public boolean hasAccessPaths = false;
 
 	public AndroidMethod(String methodName, String returnType, String className) {
 		super(methodName, className, returnType, new ArrayList<String>());
@@ -152,6 +164,46 @@ public class AndroidMethod extends SootMethodAndClass {
 	 */
 	public boolean isAnnotated() {
 		return isSource || isSink || isNeitherNor;
+	}
+
+	public HashSet<AccessPath> getSourceReturnSet() {
+		return sourceReturnSet;
+	}
+
+	public void setSourceReturnSet(HashSet<AccessPath> sourceReturnSet) {
+		this.sourceReturnSet = sourceReturnSet;
+	}
+
+	public HashSet<AccessPath> getSourceBaseSet() {
+		return sourceBaseSet;
+	}
+
+	public void setSourceBaseSet(HashSet<AccessPath> sourceBaseSet) {
+		this.sourceBaseSet = sourceBaseSet;
+	}
+
+	public HashSet<AccessPath> getSinkBaseSet() {
+		return sinkBaseSet;
+	}
+
+	public void setSinkBaseSet(HashSet<AccessPath> sinkBaseSet) {
+		this.sinkBaseSet = sinkBaseSet;
+	}
+
+	public HashMap<Integer, HashSet<AccessPath>> getSourceParamSet() {
+		return sourceParamSet;
+	}
+
+	public void setSourceParamSet(HashMap<Integer, HashSet<AccessPath>> sourceParamSet) {
+		this.sourceParamSet = sourceParamSet;
+	}
+
+	public HashMap<Integer, HashSet<AccessPath>> getSinkParamSet() {
+		return sinkParamSet;
+	}
+
+	public void setSinkParamSet(HashMap<Integer, HashSet<AccessPath>> sinkParamSet) {
+		this.sinkParamSet = sinkParamSet;
 	}
 
 	/***

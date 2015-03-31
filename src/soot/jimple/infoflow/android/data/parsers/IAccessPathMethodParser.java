@@ -1,8 +1,6 @@
 package soot.jimple.infoflow.android.data.parsers;
 
-import java.io.IOException;
-
-import soot.jimple.infoflow.android.data.AndroidMethodAccessPathBundle;
+import soot.jimple.infoflow.source.AccessPathBundle;
 
 /**
  * Only Source/Sink Parsers implementing this interface can be used by the SourceSinkManager for access paths.
@@ -16,5 +14,5 @@ public interface IAccessPathMethodParser {
 	 * @param signature of the method as returned by SootMethod.getSignature().
 	 * @return all access paths (either sources or sinks) of the given method.
 	 */
-	AndroidMethodAccessPathBundle getAccessPaths(String signature) throws IOException;
+	AccessPathBundle getAccessPaths(String signature);
 }

@@ -39,6 +39,7 @@ import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.IAccessPathMethodParser;
 import soot.jimple.infoflow.android.data.parsers.IPermissionMethodParser;
+import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.data.parsers.XMLPermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
@@ -47,7 +48,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager;
-import soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.LayoutMatchingMode;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
@@ -64,8 +65,7 @@ public class SetupApplication {
 
 	private Set<AndroidMethod> sinks = null;
 	private Set<AndroidMethod> sources = null;
-	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(
-			10000);
+	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>(10000);
 
 	private boolean stopAfterFirstFlow = false;
 	private boolean enableImplicitFlows = false;
@@ -110,9 +110,8 @@ public class SetupApplication {
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
 	 * @param androidJar
-	 *            The path to the Android SDK's "platforms" directory if Soot
-	 *            shall automatically select the JAR file to be used or the path
-	 *            to a single JAR file to force one.
+	 *            The path to the Android SDK's "platforms" directory if Soot shall automatically select the JAR file to
+	 *            be used or the path to a single JAR file to force one.
 	 * @param apkFileLocation
 	 *            The path to the APK file to be analyzed
 	 */
@@ -130,17 +129,14 @@ public class SetupApplication {
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
 	 * @param androidJar
-	 *            The path to the Android SDK's "platforms" directory if Soot
-	 *            shall automatically select the JAR file to be used or the path
-	 *            to a single JAR file to force one.
+	 *            The path to the Android SDK's "platforms" directory if Soot shall automatically select the JAR file to
+	 *            be used or the path to a single JAR file to force one.
 	 * @param apkFileLocation
 	 *            The path to the APK file to be analyzed
 	 * @param ipcManager
-	 *            The IPC manager to use for modelling inter-component and
-	 *            inter-application data flows
+	 *            The IPC manager to use for modelling inter-component and inter-application data flows
 	 */
-	public SetupApplication(String androidJar, String apkFileLocation,
-			IIPCManager ipcManager) {
+	public SetupApplication(String androidJar, String apkFileLocation, IIPCManager ipcManager) {
 		this(androidJar, apkFileLocation);
 		this.ipcManager = ipcManager;
 	}
@@ -196,8 +192,7 @@ public class SetupApplication {
 	/**
 	 * Gets the set of classes containing entry point methods for the lifecycle
 	 * 
-	 * @return The set of classes containing entry point methods for the
-	 *         lifecycle
+	 * @return The set of classes containing entry point methods for the lifecycle
 	 */
 	public Set<String> getEntrypointClasses() {
 		return entrypoints;
@@ -218,8 +213,8 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets the taint wrapper to be used for propagating taints over unknown
-	 * (library) callees. If this value is null, no taint wrapping is used.
+	 * Sets the taint wrapper to be used for propagating taints over unknown (library) callees. If this value is null,
+	 * no taint wrapping is used.
 	 * 
 	 * @param taintWrapper
 	 *            The taint wrapper to use or null to disable taint wrapping
@@ -229,8 +224,8 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Gets the taint wrapper to be used for propagating taints over unknown
-	 * (library) callees. If this value is null, no taint wrapping is used.
+	 * Gets the taint wrapper to be used for propagating taints over unknown (library) callees. If this value is null,
+	 * no taint wrapping is used.
 	 * 
 	 * @return The taint wrapper to use or null if taint wrapping is disabled
 	 */
@@ -239,36 +234,33 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Calculates the sets of sources, sinks, entry points, and callbacks
-	 * methods for the given APK file.
+	 * Calculates the sets of sources, sinks, entry points, and callbacks methods for the given APK file.
 	 * 
 	 * @param sourceSinkFile
-	 *            The full path and file name of the file containing the sources
-	 *            and sinks
+	 *            The full path and file name of the file containing the sources and sinks
 	 * @throws IOException
 	 *             Thrown if the given source/sink file could not be read.
 	 * @throws XmlPullParserException
 	 *             Thrown if the Android manifest file could not be read.
 	 */
-	public void calculateSourcesSinksEntrypoints(String sourceSinkFile)
-			throws IOException, XmlPullParserException {
+	public void calculateSourcesSinksEntrypoints(String sourceSinkFile) throws IOException, XmlPullParserException {
 		/**
-		 * Changes for handling between the old data format (.txt) and the new
-		 * extensions(.xml).
+		 * Changes for handling between the old data format (.txt) and the new extensions(.xml).
 		 * 
 		 * @author Anna-Katharina Wickert
 		 */
 		IPermissionMethodParser parser = null;
 
-		String fileExtension = sourceSinkFile.substring(sourceSinkFile
-				.lastIndexOf("."));
+		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
 		fileExtension = fileExtension.toLowerCase();
 
+		//TODO: check if csv/pscout works also, if so implement switch case here		
 		if (fileExtension.equals(".xml")) {
 			parser = XMLPermissionMethodParser.fromFile(sourceSinkFile);
-		} else {
-			new UnsupportedDataTypeException(
-					"The Inputfile isn't a .txt or .xml file.");
+		} else if(fileExtension.equals(".txt")){
+			parser = PermissionMethodParser.fromFile(sourceSinkFile);
+		}else{
+			new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
 		}
 
 		// end of Changes
@@ -287,8 +279,7 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Calculates the sets of sources, sinks, entry points, and callbacks
-	 * methods for the given APK file.
+	 * Calculates the sets of sources, sinks, entry points, and callbacks methods for the given APK file.
 	 * 
 	 * @param sourceMethods
 	 *            The set of methods to be considered as sources
@@ -299,8 +290,7 @@ public class SetupApplication {
 	 * @throws XmlPullParserException
 	 *             Thrown if the Android manifest file could not be read.
 	 */
-	public void calculateSourcesSinksEntrypoints(
-			Set<AndroidMethod> sourceMethods, Set<AndroidMethod> sinkMethods)
+	public void calculateSourcesSinksEntrypoints(Set<AndroidMethod> sourceMethods, Set<AndroidMethod> sinkMethods)
 			throws IOException, XmlPullParserException {
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
@@ -312,8 +302,7 @@ public class SetupApplication {
 		long beforeARSC = System.nanoTime();
 		ARSCFileParser resParser = new ARSCFileParser();
 		resParser.parse(apkFileLocation);
-		logger.info("ARSC file parsing took "
-				+ (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
+		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
 		this.resourcePackages = resParser.getPackages();
 
 		// Add the callback methods
@@ -323,8 +312,7 @@ public class SetupApplication {
 			calculateCallbackMethods(resParser, lfp);
 
 			// Some informational output
-			System.out.println("Found " + lfp.getUserControls()
-					+ " layout controls");
+			System.out.println("Found " + lfp.getUserControls() + " layout controls");
 		}
 
 		sources = new HashSet<AndroidMethod>(sourceMethods);
@@ -341,14 +329,12 @@ public class SetupApplication {
 			for (Set<AndroidMethod> methods : this.callbackMethods.values())
 				callbacks.addAll(methods);
 
-			sourceSinkManager = new AccessPathBasedSourceSinkManager(sources,
-					sinks, callbacks, layoutMatchingMode, lfp == null ? null
-							: lfp.getUserControlsByID(), accessPathParser);
+			sourceSinkManager = new AccessPathBasedSourceSinkManager(sources, sinks, callbacks, layoutMatchingMode,
+					lfp == null ? null : lfp.getUserControlsByID(), accessPathParser);
 
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
-			sourceSinkManager
-					.setEnableCallbackSources(this.enableCallbackSources);
+			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
 		}
 
 		entryPointCreator = createEntryPointCreator();
@@ -362,8 +348,7 @@ public class SetupApplication {
 	 * @param callbackMethod
 	 *            The callback method to register
 	 */
-	private void addCallbackMethod(String layoutClass,
-			AndroidMethod callbackMethod) {
+	private void addCallbackMethod(String layoutClass, AndroidMethod callbackMethod) {
 		Set<AndroidMethod> methods = this.callbackMethods.get(layoutClass);
 		if (methods == null) {
 			methods = new HashSet<AndroidMethod>();
@@ -373,8 +358,7 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Calculates the set of callback methods declared in the XML resource files
-	 * or the app's source code
+	 * Calculates the set of callback methods declared in the XML resource files or the app's source code
 	 * 
 	 * @param resParser
 	 *            The binary resource parser containing the app resources
@@ -383,8 +367,7 @@ public class SetupApplication {
 	 * @throws IOException
 	 *             Thrown if a required configuration cannot be read
 	 */
-	private void calculateCallbackMethods(ARSCFileParser resParser,
-			LayoutFileParser lfp) throws IOException {
+	private void calculateCallbackMethods(ARSCFileParser resParser, LayoutFileParser lfp) throws IOException {
 		AnalyzeJimpleClass jimpleClass = null;
 
 		boolean hasChanged = true;
@@ -414,56 +397,44 @@ public class SetupApplication {
 			PackManager.v().getPack("wjtp").apply();
 
 			// Collect the results of the soot-based phases
-			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass
-					.getCallbackMethods().entrySet()) {
+			for (Entry<String, Set<AndroidMethod>> entry : jimpleClass.getCallbackMethods().entrySet()) {
 				if (this.callbackMethods.containsKey(entry.getKey())) {
-					if (this.callbackMethods.get(entry.getKey()).addAll(
-							entry.getValue()))
+					if (this.callbackMethods.get(entry.getKey()).addAll(entry.getValue()))
 						hasChanged = true;
 				} else {
-					this.callbackMethods.put(entry.getKey(),
-							new HashSet<AndroidMethod>(entry.getValue()));
+					this.callbackMethods.put(entry.getKey(), new HashSet<AndroidMethod>(entry.getValue()));
 					hasChanged = true;
 				}
 			}
 		}
 
 		// Collect the XML-based callback methods
-		for (Entry<String, Set<Integer>> lcentry : jimpleClass
-				.getLayoutClasses().entrySet()) {
-			final SootClass callbackClass = Scene.v().getSootClass(
-					lcentry.getKey());
+		for (Entry<String, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet()) {
+			final SootClass callbackClass = Scene.v().getSootClass(lcentry.getKey());
 
 			for (Integer classId : lcentry.getValue()) {
 				AbstractResource resource = resParser.findResource(classId);
 				if (resource instanceof StringResource) {
-					final String layoutFileName = ((StringResource) resource)
-							.getValue();
+					final String layoutFileName = ((StringResource) resource).getValue();
 
 					// Add the callback methods for the given class
-					Set<String> callbackMethods = lfp.getCallbackMethods().get(
-							layoutFileName);
+					Set<String> callbackMethods = lfp.getCallbackMethods().get(layoutFileName);
 					if (callbackMethods != null) {
 						for (String methodName : callbackMethods) {
-							final String subSig = "void " + methodName
-									+ "(android.view.View)";
+							final String subSig = "void " + methodName + "(android.view.View)";
 
 							// The callback may be declared directly in the
 							// class
 							// or in one of the superclasses
 							SootClass currentClass = callbackClass;
 							while (true) {
-								SootMethod callbackMethod = currentClass
-										.getMethodUnsafe(subSig);
+								SootMethod callbackMethod = currentClass.getMethodUnsafe(subSig);
 								if (callbackMethod != null) {
-									addCallbackMethod(callbackClass.getName(),
-											new AndroidMethod(callbackMethod));
+									addCallbackMethod(callbackClass.getName(), new AndroidMethod(callbackMethod));
 									break;
 								}
 								if (!currentClass.hasSuperclass()) {
-									System.err.println("Callback method "
-											+ methodName
-											+ " not found in class "
+									System.err.println("Callback method " + methodName + " not found in class "
 											+ callbackClass.getName());
 									break;
 								}
@@ -474,14 +445,12 @@ public class SetupApplication {
 
 					// For user-defined views, we need to emulate their
 					// callbacks
-					Set<LayoutControl> controls = lfp.getUserControls().get(
-							layoutFileName);
+					Set<LayoutControl> controls = lfp.getUserControls().get(layoutFileName);
 					if (controls != null)
 						for (LayoutControl lc : controls)
 							registerCallbackMethodsForView(callbackClass, lc);
 				} else
-					System.err
-							.println("Unexpected resource type for layout class");
+					System.err.println("Unexpected resource type for layout class");
 			}
 		}
 
@@ -490,14 +459,12 @@ public class SetupApplication {
 			Set<AndroidMethod> callbacksPlain = new HashSet<AndroidMethod>();
 			for (Set<AndroidMethod> set : this.callbackMethods.values())
 				callbacksPlain.addAll(set);
-			System.out.println("Found " + callbacksPlain.size()
-					+ " callback methods for " + this.callbackMethods.size()
-					+ " components");
+			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
+					+ this.callbackMethods.size() + " components");
 		}
 	}
 
-	private void registerCallbackMethodsForView(SootClass callbackClass,
-			LayoutControl lc) {
+	private void registerCallbackMethodsForView(SootClass callbackClass, LayoutControl lc) {
 		// Ignore system classes
 		if (callbackClass.getName().startsWith("android."))
 			return;
@@ -523,8 +490,7 @@ public class SetupApplication {
 		// Android OS class, we treat it as a potential callback.
 		SootClass sc = lc.getViewClass();
 		Set<String> systemMethods = new HashSet<String>(10000);
-		for (SootClass parentClass : Scene.v().getActiveHierarchy()
-				.getSuperclassesOf(sc)) {
+		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sc)) {
 			if (parentClass.getName().startsWith("android."))
 				for (SootMethod sm : parentClass.getMethods())
 					if (!sm.isConstructor())
@@ -536,13 +502,11 @@ public class SetupApplication {
 			if (!sm.isConstructor())
 				if (systemMethods.contains(sm.getSubSignature()))
 					// This is a real callback method
-					addCallbackMethod(callbackClass.getName(),
-							new AndroidMethod(sm));
+					addCallbackMethod(callbackClass.getName(), new AndroidMethod(sm));
 	}
 
 	/**
-	 * Creates the main method based on the current callback information,
-	 * injects it into the Soot scene.
+	 * Creates the main method based on the current callback information, injects it into the Soot scene.
 	 */
 	private void createMainMethod() {
 		// Always update the entry point creator to reflect the newest set
@@ -555,8 +519,8 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Gets the source/sink manager constructed for FlowDroid. Make sure to call
-	 * calculateSourcesSinksEntryPoints() first, or you will get a null result.
+	 * Gets the source/sink manager constructed for FlowDroid. Make sure to call calculateSourcesSinksEntryPoints()
+	 * first, or you will get a null result.
 	 * 
 	 * @return FlowDroid's source/sink manager
 	 */
@@ -565,8 +529,7 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Initializes soot for running the soot-based phases of the application
-	 * metadata analysis
+	 * Initializes soot for running the soot-based phases of the application metadata analysis
 	 */
 	private void initializeSoot() {
 		Options.v().set_no_bodies_for_excluded(true);
@@ -575,8 +538,7 @@ public class SetupApplication {
 		Options.v().set_whole_program(true);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
 		Options.v().set_soot_classpath(
-				forceAndroidJar ? androidJar : Scene.v().getAndroidJarPath(
-						androidJar, apkFileLocation));
+				forceAndroidJar ? androidJar : Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
 		if (forceAndroidJar)
 			Options.v().set_force_android_jar(androidJar);
 		else
@@ -615,32 +577,25 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Runs the data flow analysis. Make sure to populate the sets of sources,
-	 * sinks, and entry points first.
+	 * Runs the data flow analysis. Make sure to populate the sets of sources, sinks, and entry points first.
 	 * 
 	 * @param onResultsAvailable
-	 *            The callback to be invoked when data flow results are
-	 *            available
+	 *            The callback to be invoked when data flow results are available
 	 * @return The results of the data flow analysis
 	 */
-	public InfoflowResults runInfoflow(
-			ResultsAvailableHandler onResultsAvailable) {
+	public InfoflowResults runInfoflow(ResultsAvailableHandler onResultsAvailable) {
 		if (sources == null || sinks == null)
-			throw new RuntimeException(
-					"Sources and/or sinks not calculated yet");
+			throw new RuntimeException("Sources and/or sinks not calculated yet");
 
-		System.out.println("Running data flow analysis on " + apkFileLocation
-				+ " with " + sources.size() + " sources and " + sinks.size()
-				+ " sinks...");
+		System.out.println("Running data flow analysis on " + apkFileLocation + " with " + sources.size()
+				+ " sources and " + sinks.size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(androidJar, forceAndroidJar, null,
-					new DefaultPathBuilderFactory(pathBuilder,
-							computeResultPaths));
+			info = new Infoflow(androidJar, forceAndroidJar, null, new DefaultPathBuilderFactory(pathBuilder,
+					computeResultPaths));
 		else
-			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
-					new DefaultPathBuilderFactory(pathBuilder,
-							computeResultPaths));
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory(pathBuilder,
+					computeResultPaths));
 
 		final String path;
 		if (forceAndroidJar)
@@ -673,16 +628,15 @@ public class SetupApplication {
 			info.setIPCManager(ipcManager);
 		}
 
-		info.computeInfoflow(apkFileLocation, path, entryPointCreator,
-				sourceSinkManager);
+		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 
 		return info.getResults();
 	}
 
 	private AndroidEntryPointCreator createEntryPointCreator() {
-		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator(
-				new ArrayList<String>(this.entrypoints));
+		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator(new ArrayList<String>(
+				this.entrypoints));
 		Map<String, List<String>> callbackMethodSigs = new HashMap<String, List<String>>();
 		for (String className : this.callbackMethods.keySet()) {
 			List<String> methodSigs = new ArrayList<String>();
@@ -695,9 +649,8 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Gets the entry point creator used for generating the dummy main method
-	 * emulating the Android lifecycle and the callbacks. Make sure to call
-	 * calculateSourcesSinksEntryPoints() first, or you will get a null result.
+	 * Gets the entry point creator used for generating the dummy main method emulating the Android lifecycle and the
+	 * callbacks. Make sure to call calculateSourcesSinksEntryPoints() first, or you will get a null result.
 	 * 
 	 * @return The entry point creator
 	 */
@@ -706,25 +659,21 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets whether the data flow tracker shall stop after the first leak has
-	 * been found
+	 * Sets whether the data flow tracker shall stop after the first leak has been found
 	 * 
 	 * @param stopAfterFirstFlow
-	 *            True if the data flow tracker shall stop after the first flow
-	 *            has been found, otherwise false
+	 *            True if the data flow tracker shall stop after the first flow has been found, otherwise false
 	 */
 	public void setStopAfterFirstFlow(boolean stopAfterFirstFlow) {
 		this.stopAfterFirstFlow = stopAfterFirstFlow;
 	}
 
 	/**
-	 * Sets whether implicit flow tracking shall be enabled. While this allows
-	 * control flow-based leaks to be found, it can severly affect performance
-	 * and lead to an increased number of false positives.
+	 * Sets whether implicit flow tracking shall be enabled. While this allows control flow-based leaks to be found, it
+	 * can severly affect performance and lead to an increased number of false positives.
 	 * 
 	 * @param enableImplicitFlows
-	 *            True if implicit flow tracking shall be enabled, otherwise
-	 *            false
+	 *            True if implicit flow tracking shall be enabled, otherwise false
 	 */
 	public void setEnableImplicitFlows(boolean enableImplicitFlows) {
 		this.enableImplicitFlows = enableImplicitFlows;
@@ -741,27 +690,22 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets whether taints associated with thrown exception objects shall be
-	 * tracked
+	 * Sets whether taints associated with thrown exception objects shall be tracked
 	 * 
 	 * @param enableExceptions
-	 *            True if exceptions containing tainted data shall be tracked,
-	 *            otherwise false
+	 *            True if exceptions containing tainted data shall be tracked, otherwise false
 	 */
 	public void setEnableExceptionTracking(boolean enableExceptions) {
 		this.enableExceptions = enableExceptions;
 	}
 
 	/**
-	 * Sets whether flows starting or ending in system packages such as
-	 * Android's support library shall be ignored.
+	 * Sets whether flows starting or ending in system packages such as Android's support library shall be ignored.
 	 * 
 	 * @param ignoreFlowsInSystemPackages
-	 *            True if flows starting or ending in system packages shall be
-	 *            ignored, otherwise false.
+	 *            True if flows starting or ending in system packages shall be ignored, otherwise false.
 	 */
-	public void setIgnoreFlowsInSystemPackages(
-			boolean ignoreFlowsInSystemPackages) {
+	public void setIgnoreFlowsInSystemPackages(boolean ignoreFlowsInSystemPackages) {
 		this.ignoreFlowsInSystemPackages = ignoreFlowsInSystemPackages;
 	}
 
@@ -769,8 +713,7 @@ public class SetupApplication {
 	 * Sets whether a flow sensitive aliasing algorithm shall be used
 	 * 
 	 * @param flowSensitiveAliasing
-	 *            True if a flow sensitive aliasing algorithm shall be used,
-	 *            otherwise false
+	 *            True if a flow sensitive aliasing algorithm shall be used, otherwise false
 	 */
 	public void setFlowSensitiveAliasing(boolean flowSensitiveAliasing) {
 		this.flowSensitiveAliasing = flowSensitiveAliasing;
@@ -780,8 +723,7 @@ public class SetupApplication {
 	 * Sets whether the taint analysis shall consider callbacks
 	 * 
 	 * @param enableCallbacks
-	 *            True if taints shall be tracked through callbacks, otherwise
-	 *            false
+	 *            True if taints shall be tracked through callbacks, otherwise false
 	 */
 	public void setEnableCallbacks(boolean enableCallbacks) {
 		this.enableCallbacks = enableCallbacks;
@@ -818,8 +760,7 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets the mode to be used when deciding whether a UI control is a source
-	 * or not
+	 * Sets the mode to be used when deciding whether a UI control is a source or not
 	 * 
 	 * @param mode
 	 *            The mode to be used for classifying UI controls as sources
@@ -829,43 +770,38 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Gets the extra Soot configuration options to be used when running the
-	 * analysis
+	 * Gets the extra Soot configuration options to be used when running the analysis
 	 * 
-	 * @return The extra Soot configuration options to be used when running the
-	 *         analysis, null if the defaults shall be used
+	 * @return The extra Soot configuration options to be used when running the analysis, null if the defaults shall be
+	 *         used
 	 */
 	public IInfoflowConfig getSootConfig() {
 		return this.sootConfig;
 	}
 
 	/**
-	 * Sets the extra Soot configuration options to be used when running the
-	 * analysis
+	 * Sets the extra Soot configuration options to be used when running the analysis
 	 * 
 	 * @param config
-	 *            The extra Soot configuration options to be used when running
-	 *            the analysis, null if the defaults shall be used
+	 *            The extra Soot configuration options to be used when running the analysis, null if the defaults shall
+	 *            be used
 	 */
 	public void setSootConfig(IInfoflowConfig config) {
 		this.sootConfig = config;
 	}
 
 	/**
-	 * Sets the factory class to be used for constructing interprocedural
-	 * control flow graphs
+	 * Sets the factory class to be used for constructing interprocedural control flow graphs
 	 * 
 	 * @param factory
-	 *            The factory to be used. If null is passed, the default factory
-	 *            is used.
+	 *            The factory to be used. If null is passed, the default factory is used.
 	 */
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
 
 	/**
-	 * Sets the algorithm to be used for reconstructing the paths between
-	 * sources and sinks
+	 * Sets the algorithm to be used for reconstructing the paths between sources and sinks
 	 * 
 	 * @param builder
 	 *            The path reconstruction algorithm to be used
@@ -875,14 +811,12 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Sets whether the exact paths between source and sink shall be computed.
-	 * If this feature is disabled, only the source-and-sink pairs are reported.
-	 * This option only applies if the selected path reconstruction algorithm
+	 * Sets whether the exact paths between source and sink shall be computed. If this feature is disabled, only the
+	 * source-and-sink pairs are reported. This option only applies if the selected path reconstruction algorithm
 	 * supports path computations.
 	 * 
 	 * @param computeResultPaths
-	 *            True if the exact propagation paths shall be computed,
-	 *            otherwise false
+	 *            True if the exact propagation paths shall be computed, otherwise false
 	 */
 	public void setComputeResultPaths(boolean computeResultPaths) {
 		this.computeResultPaths = computeResultPaths;
@@ -891,16 +825,14 @@ public class SetupApplication {
 	/**
 	 * Gets the maximum memory consumption during the last analysis run
 	 * 
-	 * @return The maximum memory consumption during the last analysis run if
-	 *         available, otherwise -1
+	 * @return The maximum memory consumption during the last analysis run if available, otherwise -1
 	 */
 	public long getMaxMemoryConsumption() {
 		return this.maxMemoryConsumption;
 	}
 
 	/**
-	 * Sets whether and how FlowDroid shall eliminate irrelevant code before
-	 * running the taint propagation
+	 * Sets whether and how FlowDroid shall eliminate irrelevant code before running the taint propagation
 	 * 
 	 * @param Mode
 	 *            the mode of dead and irrelevant code eliminiation to be used

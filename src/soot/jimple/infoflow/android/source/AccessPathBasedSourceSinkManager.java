@@ -3,122 +3,49 @@ package soot.jimple.infoflow.android.source;
 import heros.InterproceduralCFG;
 import heros.solver.IDESolver;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import soot.Local;
-import soot.Scene;
 import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
-import soot.jimple.FieldRef;
+import soot.jimple.Constant;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
-import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
-import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.data.AndroidMethod;
-import soot.jimple.infoflow.android.data.AndroidMethodAccessPathBundle;
 import soot.jimple.infoflow.android.data.parsers.IAccessPathMethodParser;
-import soot.jimple.infoflow.android.resources.ARSCFileParser;
-import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
-import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
-import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.source.AccessPathBundle;
-import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
-import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
-import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
-import soot.tagkit.IntegerConstantValueTag;
-import soot.tagkit.Tag;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.sun.corba.se.spi.ior.Identifiable;
 
-public class AccessPathBasedSourceSinkManager implements ISourceSinkManager {
-
-	private static final SourceInfo sourceInfo = new SourceInfo(false);
+public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 
 	private final IAccessPathMethodParser sourceSinkParser;
-	private HashMap<String, AndroidMethodAccessPathBundle> accessPathCache = new HashMap<String, AndroidMethodAccessPathBundle>();
-
-	/**
-	 * Possible modes for matching layout components as data flow sources
-	 * 
-	 * @author Steven Arzt
-	 */
-	public enum LayoutMatchingMode {
-		/**
-		 * Do not use Android layout components as sources
-		 */
-		NoMatch,
-
-		/**
-		 * Use all layout components as sources
-		 */
-		MatchAll,
-
-		/**
-		 * Only use sensitive layout components (e.g. password fields) as
-		 * sources
-		 */
-		MatchSensitiveOnly
-	}
-
-	/**
-	 * Types of sources supported by this SourceSinkManager
-	 * 
-	 * @author Steven Arzt
-	 */
-	public enum SourceType {
-		/**
-		 * Not a source
-		 */
-		NoSource,
-		/**
-		 * The data is obtained via a method call
-		 */
-		MethodCall,
-		/**
-		 * The data is retrieved through a callback parameter
-		 */
-		Callback,
-		/**
-		 * The data is read from a UI element
-		 */
-		UISource
-	}
-
-	private final static String Activity_FindViewById = "<android.app.Activity: android.view.View findViewById(int)>";
-	private final static String View_FindViewById = "<android.app.View: android.view.View findViewById(int)>";
+	private HashMap<String, AccessPathBundle> accessPathCache = new HashMap<String, AccessPathBundle>();
 
 	private final Map<String, AndroidMethod> sourceMethods;
 	private final Map<String, AndroidMethod> sinkMethods;
 	private final Map<String, AndroidMethod> callbackMethods;
 
-	private final LayoutMatchingMode layoutMatching;
-	private final Map<Integer, LayoutControl> layoutControls;
-	private List<ARSCFileParser.ResPackage> resourcePackages;
+	private static final SourceInfo sourceInfo = new SourceInfo(true);
 
-	private String appPackageName = "";
-	private boolean enableCallbackSources = true;
-
-	private final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
-	private SootClass[] iccBaseClasses = null;
-
-	protected final LoadingCache<SootClass, Collection<SootClass>> interfacesOf = IDESolver.DEFAULT_CACHE_BUILDER.build(new CacheLoader<SootClass, Collection<SootClass>>() {
+	protected final LoadingCache<SootClass, Collection<SootClass>> interfacesOf = IDESolver.DEFAULT_CACHE_BUILDER
+			.build(new CacheLoader<SootClass, Collection<SootClass>>() {
 		@Override
 		public Collection<SootClass> load(SootClass sc) throws Exception {
 			Set<SootClass> set = new HashSet<SootClass>(sc.getInterfaceCount());
@@ -133,8 +60,7 @@ public class AccessPathBasedSourceSinkManager implements ISourceSinkManager {
 	});
 
 	/**
-	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
-	 * either strong or weak matching.
+	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with either strong or weak matching.
 	 * 
 	 * @param sources
 	 *            The list of source methods
@@ -142,40 +68,34 @@ public class AccessPathBasedSourceSinkManager implements ISourceSinkManager {
 	 *            The list of sink methods
 	 */
 	public AccessPathBasedSourceSinkManager(Set<AndroidMethod> sources, Set<AndroidMethod> sinks) {
-		// this(sources, sinks, new HashSet<AndroidMethod>(),
-		// LayoutMatchingMode.NoMatch, null, null);
 		this(sources, sinks, new HashSet<AndroidMethod>(), LayoutMatchingMode.NoMatch, null, null);
-
 	}
 
 	/**
-	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
-	 * strong matching, i.e. the methods in the code must exactly match those in
-	 * the list.
+	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with strong matching, i.e. the methods in
+	 * the code must exactly match those in the list.
 	 * 
 	 * @param sources
 	 *            The list of source methods
 	 * @param sinks
 	 *            The list of sink methods
 	 * @param callbackMethods
-	 *            The list of callback methods whose parameters are sources
-	 *            through which the application receives data from the operating
-	 *            system
+	 *            The list of callback methods whose parameters are sources through which the application receives data
+	 *            from the operating system
 	 * @param weakMatching
-	 *            True for weak matching: If an entry in the list has no return
-	 *            type, it matches arbitrary return types if the rest of the
-	 *            method signature is compatible. False for strong matching: The
-	 *            method signature in the code exactly match the one in the
-	 *            list.
+	 *            True for weak matching: If an entry in the list has no return type, it matches arbitrary return types
+	 *            if the rest of the method signature is compatible. False for strong matching: The method signature in
+	 *            the code exactly match the one in the list.
 	 * @param layoutMatching
-	 *            Specifies whether and how to use Android layout components as
-	 *            sources for the information flow analysis
+	 *            Specifies whether and how to use Android layout components as sources for the information flow
+	 *            analysis
 	 * @param layoutControls
-	 *            A map from reference identifiers to the respective Android
-	 *            layout controls
+	 *            A map from reference identifiers to the respective Android layout controls
 	 */
-	public AccessPathBasedSourceSinkManager(Set<AndroidMethod> sources, Set<AndroidMethod> sinks, Set<AndroidMethod> callbackMethods, LayoutMatchingMode layoutMatching, Map<Integer, LayoutControl> layoutControls, IAccessPathMethodParser sourceSinkParser) {
-
+	public AccessPathBasedSourceSinkManager(Set<AndroidMethod> sources, Set<AndroidMethod> sinks,
+			Set<AndroidMethod> callbackMethods, LayoutMatchingMode layoutMatching,
+			Map<Integer, LayoutControl> layoutControls, IAccessPathMethodParser sourceSinkParser) {
+		super(sources, sinks, callbackMethods, layoutMatching, layoutControls);
 		this.sourceMethods = new HashMap<String, AndroidMethod>();
 		for (AndroidMethod am : sources)
 			this.sourceMethods.put(am.getSignature(), am);
@@ -188,408 +108,89 @@ public class AccessPathBasedSourceSinkManager implements ISourceSinkManager {
 		for (AndroidMethod am : callbackMethods)
 			this.callbackMethods.put(am.getSignature(), am);
 
-		this.layoutMatching = layoutMatching;
-		this.layoutControls = layoutControls;
-
 		this.sourceSinkParser = sourceSinkParser;
 
-		System.out.println("Created a SourceSinkManager with " + this.sourceMethods.size() + " sources, " + this.sinkMethods.size() + " sinks, and " + this.callbackMethods.size() + " callback methods.");
+		System.out.println("Created a SourceSinkManager with " + this.sourceMethods.size() + " sources, "
+				+ this.sinkMethods.size() + " sinks, and " + this.callbackMethods.size() + " callback methods.");
 	}
 
 	/**
-	 * Sets whether callback parameters shall be considered as sources
-	 * 
-	 * @param enableCallbackSources
-	 *            True if callback parameters shall be considered as sources,
-	 *            otherwise false
+	 * @author Daniel Magin, Wittmann Andreas
+	 * @return a source info which contains information about access path which will be tainted by this source
 	 */
-	public void setEnableCallbackSources(boolean enableCallbackSources) {
-		this.enableCallbackSources = enableCallbackSources;
-	}
-
-	@Override
-	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		if (!sCallSite.containsInvokeExpr())
-			return false;
-
-		// For ICC methods (e.g., startService), the classes name of these
-		// methods may change through user's definition. We match all the
-		// ICC methods through their base class name.
-		if (iccBaseClasses == null)
-			iccBaseClasses = new SootClass[] { Scene.v().getSootClass("android.content.Context"), // activity,
-																									// service
-																									// and
-																									// broadcast
-					Scene.v().getSootClass("android.content.ContentResolver"), // provider
-					Scene.v().getSootClass("android.app.Activity") // some
-																	// methods
-																	// (e.g.,
-																	// onActivityResult)
-																	// only
-																	// defined
-																	// in
-																	// Activity
-																	// class
-			};
-
-		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
-		SootClass sc = callee.getDeclaringClass();
-		if (!sc.isInterface()) {
-			for (SootClass clazz : iccBaseClasses) {
-				if (Scene.v().getOrMakeFastHierarchy().isSubclass(sc, clazz)) {
-					final String subSig = callee.getSubSignature();
-					if (clazz.declaresMethod(subSig)) {
-						if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
-							return true;
-						break;
-					}
-				}
-			}
-		}
-
-		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
-		if (this.sinkMethods.containsKey(signature))
-			return true;
-
-		// Check whether we have any of the interfaces on the list
-		final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
-		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
-			if (i.declaresMethod(subSig))
-				if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
-					return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @return a source info which contains information about access path which
-	 *         will be tainted by this source
-	 * @author Daniel Magin
-	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		String methodSignature;
+		SourceType type = getSourceType(sCallSite, cfg);
 
-		if (((sCallSite instanceof InvokeExpr) || sCallSite.containsInvokeExpr()) && getSourceType(sCallSite, cfg) != SourceType.NoSource) {
+		switch (type) {
+		case Callback:
+			Value leftOp = ((IdentityStmt) sCallSite).getLeftOp();
+			// taint return value
+			AccessPath[] returnAP = { new AccessPath(leftOp, true) };
+			AccessPathBundle bundle = new AccessPathBundle(returnAP);
+			return new SourceInfo(sourceInfo.getTaintSubFields(), sourceInfo.getUserData(), bundle);
+		case UISource:
+		case MethodCall:
 			methodSignature = sCallSite.getInvokeExpr().getMethod().getSignature();
-		} else {
-			return null;
-		}
 
-		if (!this.sourceMethods.containsKey(methodSignature)) {
-			// this is no source Method
-			return null;
-		}
+			AccessPathBundle contextIndependentSourceAccessPathBundle = getAccessPathBundle(methodSignature);
 
-		AndroidMethodAccessPathBundle methodAPs;
-		if (!accessPathCache.containsKey(methodSignature) || accessPathCache.get(methodSignature) == null)
-			try {
-				{
-					// add method to cache
-					methodAPs = sourceSinkParser.getAccessPaths(methodSignature);
-					accessPathCache.put(methodSignature, methodAPs);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
+			if (contextIndependentSourceAccessPathBundle == null) {
+				return new SourceInfo(sourceInfo.getTaintSubFields());
 			}
-		else {
-			// retrieve from cache
-			methodAPs = accessPathCache.get(methodSignature);
-		}
-		// map base object
-		AccessPath[] actualBaseAPs = null;
-		if (sCallSite instanceof InstanceInvokeExpr) {
-			Value baseVal = ((InstanceInvokeExpr) sCallSite.getInvokeExpr()).getBase();
-			actualBaseAPs = mapAPtoActualValue(baseVal, methodAPs.getSourceBaseAPs());
-		}
 
-		// map return object
-		AccessPath[] actualReturnAPs = null;
-		if (sCallSite instanceof AssignStmt) {
-			Value returnVal = ((AssignStmt) sCallSite).getLeftOp();
-			actualReturnAPs = mapAPtoActualValue(returnVal, methodAPs.getSourceReturnAPs());
-		}
+			// map base object
+			AccessPath[] actualBaseAPs = null;
+			if (sCallSite.containsInvokeExpr() && !(sCallSite.getInvokeExpr() instanceof StaticInvokeExpr)) {
 
-		// map parameter objects
-		AccessPath[][] actualParamAPs = new AccessPath[methodAPs.getSourceParameterCount()][];
-		for (int i = 0; i < methodAPs.getSourceParameterCount(); i++) {
-			Value paramVal = sCallSite.getInvokeExpr().getArg(i);
-			actualParamAPs[i] = mapAPtoActualValue(paramVal, methodAPs.getSourceParameterAPs(i));
-		}
-		AccessPathBundle actualMethodAPs = new AccessPathBundle(actualBaseAPs, null, actualParamAPs, null, actualReturnAPs);
+				Value baseVal = ((InstanceInvokeExpr) sCallSite.getInvokeExpr()).getBase();
+				actualBaseAPs = mapAPtoActualValue(baseVal, contextIndependentSourceAccessPathBundle.getSourceBaseAPs());
+			}
 
-		AndroidMethod source = this.sourceMethods.get(methodSignature);
-		return new SourceInfo(sourceInfo.getTaintSubFields(), source, actualMethodAPs);
+			// map return object
+			AccessPath[] actualReturnAPs = null;
+			if (sCallSite instanceof AssignStmt) {
+				Value returnVal = ((AssignStmt) sCallSite).getLeftOp();
+				actualReturnAPs = mapAPtoActualValue(returnVal,
+						contextIndependentSourceAccessPathBundle.getSourceReturnAPs());
+			}
+
+			// map parameter objects
+			AccessPath[][] actualParamAPs = new AccessPath[contextIndependentSourceAccessPathBundle
+					.getSourceParameterCount()][];
+			for (int i = 0; i < contextIndependentSourceAccessPathBundle.getSourceParameterCount(); i++) {
+				Value paramVal = sCallSite.getInvokeExpr().getArg(i);
+				// We only consider non constant params
+				if (!(paramVal instanceof Constant))
+					actualParamAPs[i] = mapAPtoActualValue(paramVal,
+							contextIndependentSourceAccessPathBundle.getSourceParameterAPs(i));
+				else
+					actualParamAPs[i] = null;
+
+			}
+			AccessPathBundle actualMethodAPs = new AccessPathBundle(actualBaseAPs, null, actualParamAPs, null,
+					actualReturnAPs);
+
+			AndroidMethod source = this.sourceMethods.get(methodSignature);
+			return new SourceInfo(sourceInfo.getTaintSubFields(), source, actualMethodAPs);
+		case NoSource:
+		default:
+			return null;
+		}
 	}
 
-	private AccessPath[] mapAPtoActualValue(Value target, AccessPath[] APs) {
+	protected AccessPath[] mapAPtoActualValue(Value target, AccessPath[] APs) {
 		if (APs != null) {
 			AccessPath[] actualAPs = new AccessPath[APs.length];
 			for (int i = 0; i < actualAPs.length; i++) {
-				actualAPs[i] = APs[i].copyWithNewValue(target);
+				actualAPs[i] = APs[i].clone().copyWithNewValue(target);
 			}
 			return actualAPs;
 		} else {
 			return null;
 		}
-	}
-
-	/**
-	 * Checks whether the given statement is a source, i.e. introduces new
-	 * information into the application. If so, the type of source is returned,
-	 * otherwise the return value is SourceType.NoSource.
-	 * 
-	 * @param sCallSite
-	 *            The statement to check for a source
-	 * @param cfg
-	 *            An interprocedural CFG containing the statement
-	 * @return The type of source that was detected in the statement of NoSource
-	 *         if the statement does not contain a source
-	 */
-	public SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		assert cfg != null;
-		assert cfg instanceof BiDiInterproceduralCFG;
-
-		// This might be a normal source method
-		if (sCallSite.containsInvokeExpr()) {
-			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
-			if (this.sourceMethods.containsKey(signature))
-				return SourceType.MethodCall;
-
-			// Check whether we have any of the interfaces on the list
-			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
-			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
-				if (i.declaresMethod(subSig))
-					if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
-						return SourceType.MethodCall;
-			}
-		}
-
-		// This call might read out sensitive data from the UI
-		if (isUISource(sCallSite, cfg))
-			return SourceType.UISource;
-
-		// This statement might access a sensitive parameter in a callback
-		// method
-		if (enableCallbackSources) {
-			final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
-			if (sCallSite instanceof IdentityStmt) {
-				IdentityStmt is = (IdentityStmt) sCallSite;
-				if (is.getRightOp() instanceof ParameterRef)
-					if (this.callbackMethods.containsKey(callSiteSignature))
-						return SourceType.Callback;
-			}
-		}
-
-		return SourceType.NoSource;
-	}
-
-	/**
-	 * Checks whether the given call site indicates a UI source, e.g. a password
-	 * input
-	 * 
-	 * @param sCallSite
-	 *            The call site that may potentially read data from a sensitive
-	 *            UI control
-	 * @param cfg
-	 *            The bidirectional control flow graph
-	 * @return True if the given call site reads data from a UI source, false
-	 *         otherwise
-	 */
-	private boolean isUISource(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		// If we match input controls, we need to check whether this is a call
-		// to one of the well-known resource handling functions in Android
-		if (this.layoutMatching != LayoutMatchingMode.NoMatch && sCallSite.containsInvokeExpr()) {
-			InvokeExpr ie = sCallSite.getInvokeExpr();
-			if (ie.getMethod().getSignature().equals(Activity_FindViewById) || ie.getMethod().getSignature().equals(View_FindViewById)) {
-				// Perform a constant propagation inside this method exactly
-				// once
-				SootMethod uiMethod = cfg.getMethodOf(sCallSite);
-				if (analyzedLayoutMethods.add(uiMethod))
-					ConstantPropagatorAndFolder.v().transform(uiMethod.getActiveBody());
-
-				// If we match all controls, we don't care about the specific
-				// control we're dealing with
-				if (this.layoutMatching == LayoutMatchingMode.MatchAll)
-					return true;
-				// If we don't have a layout control list, we cannot perform any
-				// more specific checks
-				if (this.layoutControls == null)
-					return false;
-
-				// If we match specific controls, we need to get the ID of
-				// control and look up the respective data object
-				if (ie.getArgCount() != 1) {
-					System.err.println("Framework method call with unexpected " + "number of arguments");
-					return false;
-				}
-				int id = 0;
-				if (ie.getArg(0) instanceof IntConstant)
-					id = ((IntConstant) ie.getArg(0)).value;
-				else if (ie.getArg(0) instanceof Local) {
-					Integer idVal = findLastResIDAssignment(sCallSite, (Local) ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg, new HashSet<Stmt>(cfg.getMethodOf(sCallSite).getActiveBody().getUnits().size()));
-					if (idVal == null) {
-						System.err.println("Could not find assignment to local " + ((Local) ie.getArg(0)).getName() + " in method " + cfg.getMethodOf(sCallSite).getSignature());
-						return false;
-					} else
-						id = idVal.intValue();
-				} else {
-					System.err.println("Framework method call with unexpected " + "parameter type: " + ie.toString() + ", " + "first parameter is of type " + ie.getArg(0).getClass());
-					return false;
-				}
-
-				LayoutControl control = this.layoutControls.get(id);
-				if (control == null) {
-					System.err.println("Layout control with ID " + id + " not found");
-					return false;
-				}
-				if (this.layoutMatching == LayoutMatchingMode.MatchSensitiveOnly && control.isSensitive())
-					return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Finds the last assignment to the given local representing a resource ID
-	 * by searching upwards from the given statement
-	 * 
-	 * @param stmt
-	 *            The statement from which to look backwards
-	 * @param local
-	 *            The variable for which to look for assignments
-	 * @return The last value assigned to the given variable
-	 */
-	private Integer findLastResIDAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> doneSet) {
-		if (!doneSet.add(stmt))
-			return null;
-
-		// If this is an assign statement, we need to check whether it changes
-		// the variable we're looking for
-		if (stmt instanceof AssignStmt) {
-			AssignStmt assign = (AssignStmt) stmt;
-			if (assign.getLeftOp() == local) {
-				// ok, now find the new value from the right side
-				if (assign.getRightOp() instanceof IntConstant)
-					return ((IntConstant) assign.getRightOp()).value;
-				else if (assign.getRightOp() instanceof FieldRef) {
-					SootField field = ((FieldRef) assign.getRightOp()).getField();
-					for (Tag tag : field.getTags())
-						if (tag instanceof IntegerConstantValueTag)
-							return ((IntegerConstantValueTag) tag).getIntValue();
-						else
-							System.err.println("Constant " + field + " was of unexpected type");
-				} else if (assign.getRightOp() instanceof InvokeExpr) {
-					InvokeExpr inv = (InvokeExpr) assign.getRightOp();
-					if (inv.getMethod().getName().equals("getIdentifier") && inv.getMethod().getDeclaringClass().getName().equals("android.content.res.Resources") && this.resourcePackages != null) {
-						// The right side of the assignment is a call into the
-						// well-known
-						// Android API method for resource handling
-						if (inv.getArgCount() != 3) {
-							System.err.println("Invalid parameter count for call to getIdentifier");
-							return null;
-						}
-
-						// Find the parameter values
-						String resName = "";
-						String resID = "";
-						String packageName = "";
-
-						// In the trivial case, these values are constants
-						if (inv.getArg(0) instanceof StringConstant)
-							resName = ((StringConstant) inv.getArg(0)).value;
-						if (inv.getArg(1) instanceof StringConstant)
-							resID = ((StringConstant) inv.getArg(1)).value;
-						if (inv.getArg(2) instanceof StringConstant)
-							packageName = ((StringConstant) inv.getArg(2)).value;
-						else if (inv.getArg(2) instanceof Local)
-							packageName = findLastStringAssignment(stmt, (Local) inv.getArg(2), cfg);
-						else {
-							System.err.println("Unknown parameter type in call to getIdentifier");
-							return null;
-						}
-
-						// Find the resource
-						ARSCFileParser.AbstractResource res = findResource(resName, resID, packageName);
-						if (res != null)
-							return res.getResourceID();
-					}
-				}
-			}
-		}
-
-		// Continue the search upwards
-		for (Unit pred : cfg.getPredsOf(stmt)) {
-			if (!(pred instanceof Stmt))
-				continue;
-			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, local, cfg, doneSet);
-			if (lastAssignment != null)
-				return lastAssignment;
-		}
-		return null;
-	}
-
-	/**
-	 * Finds the given resource in the given package
-	 * 
-	 * @param resName
-	 *            The name of the resource to retrieve
-	 * @param resID
-	 * @param packageName
-	 *            The name of the package in which to look for the resource
-	 * @return The specified resource if available, otherwise null
-	 */
-	private AbstractResource findResource(String resName, String resID, String packageName) {
-		// Find the correct package
-		for (ARSCFileParser.ResPackage pkg : this.resourcePackages) {
-			// If we don't have any package specification, we pick the app's
-			// default package
-			boolean matches = (packageName == null || packageName.isEmpty()) && pkg.getPackageName().equals(this.appPackageName);
-			matches |= pkg.getPackageName().equals(packageName);
-			if (!matches)
-				continue;
-
-			// We have found a suitable package, now look for the resource
-			for (ARSCFileParser.ResType type : pkg.getDeclaredTypes())
-				if (type.getTypeName().equals(resID)) {
-					AbstractResource res = type.getFirstResource(resName);
-					return res;
-				}
-		}
-		return null;
-	}
-
-	/**
-	 * Finds the last assignment to the given String local by searching upwards
-	 * from the given statement
-	 * 
-	 * @param stmt
-	 *            The statement from which to look backwards
-	 * @param local
-	 *            The variable for which to look for assignments
-	 * @return The last value assigned to the given variable
-	 */
-	private String findLastStringAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
-		if (stmt instanceof AssignStmt) {
-			AssignStmt assign = (AssignStmt) stmt;
-			if (assign.getLeftOp() == local) {
-				// ok, now find the new value from the right side
-				if (assign.getRightOp() instanceof StringConstant)
-					return ((StringConstant) assign.getRightOp()).value;
-			}
-		}
-
-		// Continue the search upwards
-		for (Unit pred : cfg.getPredsOf(stmt)) {
-			if (!(pred instanceof Stmt))
-				continue;
-			String lastAssignment = findLastStringAssignment((Stmt) pred, local, cfg);
-			if (lastAssignment != null)
-				return lastAssignment;
-		}
-		return null;
 	}
 
 	/**
@@ -604,72 +205,60 @@ public class AccessPathBasedSourceSinkManager implements ISourceSinkManager {
 	}
 
 	/**
-	 * Sets the resource packages to be used for finding sensitive layout
-	 * controls as sources
-	 * 
-	 * @param resourcePackages
-	 *            The resource packages to be used for looking up layout
-	 *            controls
-	 */
-	public void setResourcePackages(List<ResPackage> resourcePackages) {
-		this.resourcePackages = resourcePackages;
-	}
-
-	/**
-	 * Sets the name of the app's base package
-	 * 
-	 * @param appPackageName
-	 *            The name of the app's base package
-	 */
-	public void setAppPackageName(String appPackageName) {
-		this.appPackageName = appPackageName;
-	}
-
-	/**
-	 * @author Daniel Magin
+	 * @author Daniel Magin, Wittmann Andreas
 	 */
 	@Override
-	public boolean leaks(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg, int index, AccessPath ap) {
+	public boolean leaks(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg, int index,
+			AccessPath sourceAccessPath) {
 		String methodSignature = sCallSite.getInvokeExpr().getMethod().getSignature();
-		if (!isSink(sCallSite, cfg)) {
-			// this is no sink call
+
+		AccessPathBundle contextIndependentMethodAccessPathsBundle = getAccessPathBundle(methodSignature);
+
+		// index < 0 => base, else Params
+		AccessPath[] leakAccessPaths = (index < 0 ? contextIndependentMethodAccessPathsBundle.getSinkBaseAPs()
+				: contextIndependentMethodAccessPathsBundle.getSinkParamterAPs(index));
+
+		if (leakAccessPaths == null) {
+			// no leaking access paths for the base value or the given parameter
+			// => no leak
 			return false;
 		}
-		AndroidMethodAccessPathBundle methodAPs;
-		if (!accessPathCache.containsKey(methodSignature))
-			try {
-				{
-					// add method to cache
-					methodAPs = sourceSinkParser.getAccessPaths(methodSignature);
-					accessPathCache.put(methodSignature, methodAPs);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		else {
-			// retrieve from cache
-			methodAPs = accessPathCache.get(methodSignature);
-		}
-		AccessPath[] APs;
-		if (index < 0) {
-			// check base
-			APs = methodAPs.getSinkBaseAPs();
+
+		// map abstract access path values to the concrete runtime values:
+		Value actualVal = null;
+		if (index < 0 && sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr) {
+			actualVal = ((InstanceInvokeExpr) sCallSite.getInvokeExpr()).getBase();
 		} else {
-			// check parameter
-			APs = methodAPs.getSinkParamterAPs(index);
+			actualVal = sCallSite.getInvokeExpr().getArg(index);
 		}
-		AccessPath[] actualAPs = new AccessPath[APs.length];
-		Value val = ap.getPlainValue();
-		for (int i = 0; i < actualAPs.length; i++) {
-			// update abstract access path to such with a concrete base object.
-			actualAPs[i] = APs[i].copyWithNewValue(val);
-		}
-		for (AccessPath ap1 : actualAPs) {
-			if (ap1.entails(ap)) {
-				return true;
+		leakAccessPaths = mapAPtoActualValue(actualVal, leakAccessPaths);
+
+		for (AccessPath ap : leakAccessPaths) {
+			// check if one of the leaking access paths entails the given access
+			// path or vise versa
+			if (ap.getFieldCount() <= sourceAccessPath.getFieldCount()) {
+				return ap.entails(sourceAccessPath);
+			} else {
+				return sourceAccessPath.entails(ap);
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @author Wittmann Andreas, Daniel Magin
+	 * 
+	 *         The method only asks the parser for the AccessPaths if the AccessPaths are not in the cache yet
+	 * @param methodSignature
+	 *            is the method Signature from which we want to get the AccessPaths
+	 * @return the MethodAccessPathBundle
+	 */
+	protected AccessPathBundle getAccessPathBundle(String methodSignature) {
+		if (!accessPathCache.containsKey(methodSignature)) {
+			AccessPathBundle methodAccessPaths = sourceSinkParser.getAccessPaths(methodSignature);
+			accessPathCache.put(methodSignature, methodAccessPaths);
+			return methodAccessPaths;
+		} else
+			return accessPathCache.get(methodSignature);
 	}
 }

@@ -3,7 +3,6 @@ package soot.jimple.infoflow.android.data.parsers;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,25 +20,51 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
-import soot.jimple.infoflow.android.data.AndroidMethodAccessPathBundle;
+import soot.jimple.infoflow.source.AccessPathBundle;
 
 /**
- * Parses informations from the new Dataformat (XML) with the help of SAX.
- * Returns only a Set of Android Method when calling the function parse. For the
- * AccessPath use class SaxHandler.
- * 
- * TODO think about refactoring so that it isn't any longer needed to call
- * SaxHandler
- * 
+ * Parses informations from the new Dataformat (XML) with the help of SAX. Returns only a Set of Android Method when
+ * calling the function parse. For the AccessPath the class SaxHandler is used. 
  * 
  * @author Anna-Katharina Wickert, Joern Tillmans
  */
 
-public class XMLPermissionMethodParser extends DefaultHandler implements
-		IPermissionMethodParser, IAccessPathMethodParser {
+public class XMLPermissionMethodParser extends DefaultHandler implements IPermissionMethodParser,
+		IAccessPathMethodParser {
 
-	public static XMLPermissionMethodParser fromFile(String fileName)
-			throws IOException {
+	public static final String METHOD_TAG = "method";
+	public static final String BASE_TAG = "base";
+	public static final String RETURN_TAG = "return";
+	public static final String PARAM_TAG = "param";
+	public static final String ACCESSPATH_TAG = "accesspath";
+	public static final String PATHELEMENT_TAG = "pathelement";
+
+	public static final String SIGNATURE_ATTRIBUTE = "signature";
+	public static final String CATEGORY_ATTRIBUTE = "category";
+	public static final String TYPE_ATTRIBUTE = "type";
+	public static final String INDEX_ATTRIBUTE = "index";
+	public static final String IS_SOURCE_ATTRIBUTE = "isSource";
+	public static final String IS_SINK_ATTRIBUTE = "isSink";
+	public static final String LENGTH_ATTRIBUTE = "length";
+	
+	public static final String TRUE = "true";
+	
+	// Sett for collecting the return AndroidMethods.
+	private Set<AndroidMethod> methodList;
+
+	// Holding temporary values for handling with SAX
+	private AndroidMethod tempMeth;
+	private String methodSignature;
+	private String methodCategory;
+	private boolean isSource, isSink;
+
+	// XML stuff incl. Verification against XSD
+	private String fileName;
+
+	private static final String XSD_FILE_PATH = "../../exchangeFormat.xsd";
+	private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+
+	public static XMLPermissionMethodParser fromFile(String fileName) throws IOException {
 		if (!verifyXML(fileName)) {
 			throw new RuntimeException("The XML-File isn't valid");
 		}
@@ -64,52 +89,51 @@ public class XMLPermissionMethodParser extends DefaultHandler implements
 
 			parser.parse(fileName, this);
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		printData();
 		return methodList;
 	}
 
 	/**
 	 * Event Handler for the starting element for SAX. Possible start elements
 	 * for filling AndroidMethod objects with the new data format: - method:
-	 * Setting booleans to false and get the signature and category, -
-	 * accessPath: To get the information whether the AndroidMethod is a sink or
-	 * source, - and the other elements doesn't care for creating the
-	 * AndroidMethod object.
+	 * Setting parsingvalues to false or null and get and set the signature and
+	 * category, - accessPath: To get the information whether the AndroidMethod
+	 * is a sink or source, - and the other elements doesn't care for creating
+	 * the AndroidMethod object. At these element we will look, if calling the
+	 * method getAccessPath (using an new SAX Handler)
 	 */
-	public void startElement(String uri, String localName, String qName,
-			Attributes attributes) throws SAXException {
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
 		String qNameLower = qName.toLowerCase();
 		switch (qNameLower) {
-		case "method":
+		case METHOD_TAG:
 			isSource = false;
 			isSink = false;
 			methodSignature = null;
 			methodCategory = null;
 
 			if (attributes != null) {
-				methodSignature = attributes.getValue("signature");
-				methodCategory = attributes.getValue("category");
+				methodSignature = attributes.getValue(SIGNATURE_ATTRIBUTE).trim();
+				methodCategory = attributes.getValue(CATEGORY_ATTRIBUTE).trim();
 			}
 			break;
 
-		case "accesspath":
+		case ACCESSPATH_TAG:
 			if (attributes != null) {
-				if (attributes.getValue("isSource") != null) {
-					isSource = (attributes.getValue("isSource")
-							.equalsIgnoreCase("true")) ? true
-							: isSource || false;
+				if (attributes.getValue(IS_SOURCE_ATTRIBUTE) != null) {
+					String sIsSource = attributes.getValue(IS_SOURCE_ATTRIBUTE);
+					sIsSource = sIsSource.trim().toUpperCase();
+					isSource = sIsSource.equalsIgnoreCase(TRUE) ? true : isSource || false;
 				}
-				if (attributes.getValue("isSink") != null) {
-					isSink = (attributes.getValue("isSink")
-							.equalsIgnoreCase("true")) ? true : isSink || false;
+				
+				if (attributes.getValue(IS_SINK_ATTRIBUTE) != null) {
+					String sIsSink = attributes.getValue(IS_SINK_ATTRIBUTE);
+					sIsSink = sIsSink.trim().toLowerCase();
+					isSink = sIsSink.equals(TRUE) ? true : isSink || false;
 				}
 			}
 			break;
@@ -118,30 +142,28 @@ public class XMLPermissionMethodParser extends DefaultHandler implements
 	}
 
 	/**
-	 * PathElement is the only element having values inside -> for this SAX
-	 * Parser nothing to do.
-	 */
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
+	 * PathElement is the only element having values inside -> nothing to do
+	 * here. Doesn't care at the current state of parsing.
+	**/
+	public void characters(char[] ch, int start, int length) throws SAXException {
 	}
 
 	/**
-	 * EventHandler for the End of an element. -> Putting the values into the
-	 * objects. For additional information: startElement description. Starting
-	 * with the innerst elements and switching up to the outer elements
+	 * EventHandler for the End of an element. -> Putting the values into the objects. For additional information:
+	 * startElement description. Starting with the innerst elements and switching up to the outer elements
 	 * 
 	 * - pathElement -> means field sensitive, adding SootFields
 	 */
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
+	public void endElement(String uri, String localName, String qName) throws SAXException {
 		String qNameLower = qName.toLowerCase();
 		switch (qNameLower) {
 
-		case "method":
+		case METHOD_TAG:
 			if (methodSignature != null) {
 				tempMeth = AndroidMethod.createfromSignature(methodSignature);
 				if (methodCategory != null) {
-					tempMeth.setCategory(CATEGORY.valueOf(methodCategory));
+					String methodCategoryUpper = methodCategory.toUpperCase().trim();
+					tempMeth.setCategory(CATEGORY.valueOf(methodCategoryUpper));
 				}
 				tempMeth.setSink(isSink);
 				tempMeth.setSource(isSource);
@@ -155,20 +177,18 @@ public class XMLPermissionMethodParser extends DefaultHandler implements
 	/**
 	 * Return the a AndroidMethodAccessPathBundle object to a given signature.
 	 * 
-	 * @return a AndroidMethodAccesPathBundle with the AccessPaths belonging to
-	 *         the signature
+	 * @return a AndroidMethodAccesPathBundle with the AccessPaths belonging to the signature
 	 * @param signature
 	 *            The signature to which the AccessPaths should be retourned.
-	 * @throws InvalidXML will be thrown if the signature is null or empty
+	 * @throws InvalidXML
+	 *             will be thrown if the signature is null or empty
 	 */
-	public AndroidMethodAccessPathBundle getAccessPaths(String signature) throws IOException{
+	public AccessPathBundle getAccessPaths(String signature) {
 		SaxHandler saxHandler = new SaxHandler(fileName);
-		if (signature.isEmpty() || signature==null){
-			throw new IOException("Signature is null or empty.");
-		}
-		AndroidMethodAccessPathBundle amapb = saxHandler
-				.getAccessPaths(signature);
-		assert (amapb != null);
+		if (signature.isEmpty() || signature == null)
+			throw new RuntimeException("Signature is null or empty.");
+
+		AccessPathBundle amapb = saxHandler.getAccessPaths(signature);
 		return amapb;
 	}
 
@@ -177,8 +197,7 @@ public class XMLPermissionMethodParser extends DefaultHandler implements
 	}
 
 	/**
-	 * Checks whether the given XML is valid against the XSD for the new data
-	 * format.
+	 * Checks whether the given XML is valid against the XSD for the new data format.
 	 * 
 	 * @param fileName
 	 *            of the XML
@@ -197,40 +216,14 @@ public class XMLPermissionMethodParser extends DefaultHandler implements
 				validator.validate(xmlFile);
 				validXML = true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if (!validXML) {
 				new IOException("File isn't  valid against the xsd");
 			}
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return validXML;
 	}
-
-	private void printData() {
-		System.out.println("No of AndroidMethods: " + methodList.size() + ".");
-
-		for (Iterator<AndroidMethod> it = methodList.iterator(); it.hasNext();) {
-			System.out.println(it.next().toString());
-		}
-	}
-
-	// Sett for collecting the return AndroidMethods.
-	private Set<AndroidMethod> methodList;
-	// Holding temporary values for handling with SAX
-	private AndroidMethod tempMeth;
-	private String methodSignature;
-	private String methodCategory;
-	private boolean isSource, isSink;
-
-	// XML stuff incl. Verification against XSD
-	private String fileName;
-
-	private File XMLFile;
-	private static final String XSD_FILE_PATH = "../../exchangeFormat.xsd";
-	private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
-	private static final int INITIAL_SET_SIZE = 10000;
 }

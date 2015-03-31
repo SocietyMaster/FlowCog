@@ -99,6 +99,6 @@ public class SourceToSinksTest extends JUnitTests{
 		res = analyzeAPKFile
 					("testSourceToSink/SourceToSink6.apk","testSourceToSink/sourcesAndSinks.xml");
 		Assert.assertNotNull(res);
-		Assert.assertEquals(5, res.size());
+		Assert.assertEquals(6, res.size());
 	}
 }

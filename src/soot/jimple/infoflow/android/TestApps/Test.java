@@ -31,8 +31,8 @@ import java.util.concurrent.TimeoutException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.SetupApplication;
-import soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
@@ -502,7 +502,9 @@ public class Test {
 				taintWrapper = easyTaintWrapper;
 			}
 			app.setTaintWrapper(taintWrapper);
-			app.calculateSourcesSinksEntrypoints("SourcesAndSinksTest.xml");
+			//app.calculateSourcesSinksEntrypoints("SourcesAndSinksTest5.xml");
+			app.calculateSourcesSinksEntrypoints("SuSiExport.xml");
+			
 			
 			if (DEBUG) {
 				app.printEntrypoints();

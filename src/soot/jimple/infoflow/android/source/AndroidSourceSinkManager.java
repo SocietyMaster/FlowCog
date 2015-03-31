@@ -29,6 +29,7 @@ import soot.Unit;
 import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
@@ -40,6 +41,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.data.AccessPath;
+import soot.jimple.infoflow.source.AccessPathBundle;
 import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
@@ -57,7 +59,7 @@ import com.google.common.cache.LoadingCache;
  */
 public class AndroidSourceSinkManager implements ISourceSinkManager {
 
-	private static final SourceInfo sourceInfo = new SourceInfo(true);
+	protected static final SourceInfo sourceInfo = new SourceInfo(true);
 
 	/**
 	 * Possible modes for matching layout components as data flow sources
@@ -106,22 +108,22 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		UISource
 	}
 
-	private final static String Activity_FindViewById = "<android.app.Activity: android.view.View findViewById(int)>";
-	private final static String View_FindViewById = "<android.app.View: android.view.View findViewById(int)>";
+	protected final static String Activity_FindViewById = "<android.app.Activity: android.view.View findViewById(int)>";
+	protected final static String View_FindViewById = "<android.app.View: android.view.View findViewById(int)>";
 
-	private final Map<String, AndroidMethod> sourceMethods;
-	private final Map<String, AndroidMethod> sinkMethods;
-	private final Map<String, AndroidMethod> callbackMethods;
+	protected final Map<String, AndroidMethod> sourceMethods;
+	protected final Map<String, AndroidMethod> sinkMethods;
+	protected final Map<String, AndroidMethod> callbackMethods;
 
-	private final LayoutMatchingMode layoutMatching;
-	private final Map<Integer, LayoutControl> layoutControls;
-	private List<ARSCFileParser.ResPackage> resourcePackages;
+	protected final LayoutMatchingMode layoutMatching;
+	protected final Map<Integer, LayoutControl> layoutControls;
+	protected List<ARSCFileParser.ResPackage> resourcePackages;
 
-	private String appPackageName = "";
-	private boolean enableCallbackSources = true;
+	protected String appPackageName = "";
+	protected boolean enableCallbackSources = true;
 
-	private final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
-	private SootClass[] iccBaseClasses = null;
+	protected final Set<SootMethod> analyzedLayoutMethods = new HashSet<SootMethod>();
+	protected SootClass[] iccBaseClasses = null;
 
 	protected final LoadingCache<SootClass, Collection<SootClass>> interfacesOf = IDESolver.DEFAULT_CACHE_BUILDER.build(new CacheLoader<SootClass, Collection<SootClass>>() {
 		@Override
@@ -262,20 +264,35 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	}
 
 	@Override
-	/**
-	 * Returns the SourceInfo with the according android method in its userData field.
-	 * The userData is null if the source is not a method.
-	 * Returns null if there is no source at all at this statement.
-	 * @param sCallSite the according call statement
-	 * @param cfg the according control flow graph
-	 * @return the source info as described above
-	 */
 	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		AndroidMethod source = null;
-		if (sCallSite instanceof InvokeExpr) {
-			source = this.sourceMethods.get(sCallSite.getInvokeExpr().getMethod().getSignature());
+		SourceType type = getSourceType(sCallSite, cfg);
+		if (type == SourceType.NoSource) {
+			//this is no source
+			return null;
 		}
-		return (getSourceType(sCallSite, cfg) != SourceType.NoSource) ? new SourceInfo(sourceInfo.getTaintSubFields(), source) : null;
+		if (type != SourceType.MethodCall){
+			//this is not a method source (e.g. UI)
+			return sourceInfo;
+		}
+		if(!sCallSite.containsInvokeExpr()){
+			//something wired happened
+			return null;
+		}
+		AccessPath ap = null;
+		AccessPath sourceAP[] = new AccessPath[1];
+		AccessPathBundle bundle;
+		SourceInfo info;
+		if (sCallSite instanceof AssignStmt && sCallSite.getInvokeExpr().getMethod().getReturnType() != null) {
+			// taint the return value
+			ap = new AccessPath(((AssignStmt) sCallSite).getLeftOp(), true);
+		} else if (sCallSite instanceof InstanceInvokeExpr) {
+			// taint the base object
+			ap = new AccessPath(((InstanceInvokeExpr) sCallSite).getBase(), true);
+		}
+		sourceAP[0] = ap;
+		bundle = new AccessPathBundle(sourceAP);
+		info = new SourceInfo(sourceInfo.getTaintSubFields(), sourceInfo.getUserData(), bundle);
+		return info;
 	}
 
 	/**
@@ -569,8 +586,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 
 	@Override
 	public boolean leaks(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg, int index, AccessPath ap) {
-		// TODO implement
-		return false;
+		//same behaviour as before
+		return isSink(sCallSite, cfg);
 	}
 
 }

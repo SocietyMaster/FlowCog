@@ -13,7 +13,6 @@ import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
 /**
  * provides methods for the test cases to run the analyze 
- * @author Jannik Juergens
  *
  */
 public class JUnitTests {
@@ -30,7 +29,7 @@ public class JUnitTests {
 	 */
 	public InfoflowResults analyzeAPKFile(String apkFileName, String xmlFileName)
 			throws IOException, XmlPullParserException {
-		return analyzeAPKFile(apkFileName, xmlFileName, false);
+		return analyzeAPKFile(apkFileName, xmlFileName, false, false, false);
 	}
 	
 	/**
@@ -45,7 +44,7 @@ public class JUnitTests {
 	 * @throws XmlPullParserException Thrown if the Android manifest file could
 	 * not be read.
 	 */
-	public InfoflowResults analyzeAPKFile(String apkFileName, String xmlFileName, boolean enableImplicitFlows)
+	public InfoflowResults analyzeAPKFile(String apkFileName, String xmlFileName, boolean enableImplicitFlows, boolean enableStaticFields, boolean flowSensitiveAliasing)
 					throws IOException, XmlPullParserException {
 		String androidJars = System.getenv("ANDROID_JARS");
 		if (androidJars == null)
@@ -58,6 +57,8 @@ public class JUnitTests {
 		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 		setupApplication.calculateSourcesSinksEntrypoints(xmlFileName);
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
+		setupApplication.setEnableStaticFieldTracking(enableStaticFields);
+		setupApplication.setFlowSensitiveAliasing(flowSensitiveAliasing);
 		return setupApplication.runInfoflow();
 	}
 }
