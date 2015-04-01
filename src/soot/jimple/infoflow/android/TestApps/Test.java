@@ -31,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
-import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
@@ -98,7 +97,7 @@ public class Test {
 	private static int sysTimeout = -1;
 	
 	private static boolean stopAfterFirstFlow = false;
-	private static boolean implicitFlows = true;
+	private static boolean implicitFlows = false;
 	private static boolean staticTracking = true;
 	private static boolean enableCallbacks = true;
 	private static boolean enableExceptions = true;
@@ -109,8 +108,7 @@ public class Test {
 	private static boolean aggressiveTaintWrapper = false;
 	private static boolean librarySummaryTaintWrapper = false;
 	private static String summaryPath = "";
-	private static PathBuilder pathBuilder = PathBuilder.ContextSensitive;
-	//private static PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
+	private static PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -489,10 +487,6 @@ public class Test {
 			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
 			app.setPathBuilder(pathBuilder);
 			app.setComputeResultPaths(computeResultPaths);
-			
-			app.setCodeEliminationMode(CodeEliminationMode.NoCodeElimination);
-			
-			//app.setEnableCallbackSources(false);
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (librarySummaryTaintWrapper) {
