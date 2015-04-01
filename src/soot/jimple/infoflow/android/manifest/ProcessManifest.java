@@ -80,7 +80,15 @@ public class ProcessManifest {
 	 */
 	public ProcessManifest(File apkFile) throws IOException, XmlPullParserException {
 		this.apk = new ApkHandler(apkFile);
-		this.handle(this.apk.getInputStream("AndroidManifest.xml"));
+		InputStream is = null;
+		try {
+			is = this.apk.getInputStream("AndroidManifest.xml");
+			this.handle(is);
+		}
+		finally {
+			if (is != null)
+				is.close();
+		}
 	}
 		
 	/**
@@ -522,4 +530,13 @@ public class ProcessManifest {
 			services = new ArrayList<AXmlNode>();
 		services.add(node);
 	}
+	
+	/**
+	 * Closes this apk file and all resources associated with it
+	 */
+	public void close() {
+		if (this.apk != null)
+			this.apk.close();
+	}
+	
 }
