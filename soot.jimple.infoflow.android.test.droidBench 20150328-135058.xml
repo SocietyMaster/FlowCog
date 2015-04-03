@@ -1,0 +1,1353 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="soot.jimple.infoflow.android.test.droidBench" project="soot-infoflow-android" tests="77" started="77" failures="5" errors="35" ignored="20">
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.AliasingTests" time="0.001">
+    <testcase name="runTestMerge1" classname="soot.jimple.infoflow.android.test.droidBench.AliasingTests" time="0.001" ignored="true"/>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="48.419">
+    <testcase name="runTestLocationLeak1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="11.535"/>
+    <testcase name="runTestLocationLeak2" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="4.004"/>
+    <testcase name="runTestLocationLeak3" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="3.829"/>
+    <testcase name="runTestMultiHandlers1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="3.78">
+      <failure>java.lang.AssertionError: expected:&lt;0&gt; but was:&lt;3&gt;
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:542)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestMultiHandlers1(CallbackTests.java:98)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</failure>
+    </testcase>
+    <testcase name="runTestAnonymousClass1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="3.361"/>
+    <testcase name="runTestOrdering1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="0.0" ignored="true"/>
+    <testcase name="runTestUnregister1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="0.0" ignored="true"/>
+    <testcase name="runTestButton1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="2.258">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestButton1(CallbackTests.java:33)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestButton2" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="2.285">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestButton2(CallbackTests.java:40)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestButton3" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="4.484">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestButton3(CallbackTests.java:47)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestButton4" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="2.361">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestButton4(CallbackTests.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestButton5" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="3.11"/>
+    <testcase name="runTestMethodOverride1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="2.969"/>
+    <testcase name="runTestRegisterGlobal1" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="1.911">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestRegisterGlobal1(CallbackTests.java:111)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.leaks(AccessPathBasedSourceSinkManager.java:196)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1388)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestRegisterGlobal2" classname="soot.jimple.infoflow.android.test.droidBench.CallbackTests" time="2.531">
+      <failure>java.lang.AssertionError: expected:&lt;1&gt; but was:&lt;0&gt;
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:542)
+	at soot.jimple.infoflow.android.test.droidBench.CallbackTests.runTestRegisterGlobal2(CallbackTests.java:120)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="14.12">
+    <testcase name="runTestExecutor1" classname="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="3.659"/>
+    <testcase name="runTestAsyncTask1" classname="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="3.178">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.ThreadingTests.runTestAsyncTask1(ThreadingTests.java:26)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.RefType cannot be cast to soot.ArrayType
+	at soot.jimple.infoflow.problems.BackwardsInfoflowProblem$1.computeAliases(BackwardsInfoflowProblem.java:278)
+	at soot.jimple.infoflow.problems.BackwardsInfoflowProblem$1.access$4(BackwardsInfoflowProblem.java:98)
+	at soot.jimple.infoflow.problems.BackwardsInfoflowProblem$1$1.computeTargets(BackwardsInfoflowProblem.java:343)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeNormalFlowFunction(InfoflowSolver.java:76)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeNormalFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processNormalFlow(IFDSSolver.java:467)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$1(IFDSSolver.java:460)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:623)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestJavaThread1" classname="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="3.593"/>
+    <testcase name="runTestJavaThread2" classname="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="3.689"/>
+    <testcase name="runTestLooper1" classname="soot.jimple.infoflow.android.test.droidBench.ThreadingTests" time="0.001" ignored="true"/>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="46.654">
+    <testcase name="runTestStringToCharArray1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.677"/>
+    <testcase name="runTestStartProcessWithSecret1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="1.793">
+      <failure>java.lang.AssertionError: expected:&lt;1&gt; but was:&lt;0&gt;
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:542)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestStartProcessWithSecret1(GeneralJavaTests.java:90)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</failure>
+    </testcase>
+    <testcase name="runTestLoop1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.98">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestLoop1(GeneralJavaTests.java:32)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestLoop2" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.646">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestLoop2(GeneralJavaTests.java:38)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestStringToOutputStream1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="3.164"/>
+    <testcase name="runTestVirtualDispatch1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestVirtualDispatch2" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="1.766">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestVirtualDispatch2(GeneralJavaTests.java:154)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestVirtualDispatch3" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestVirtualDispatch4" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="10.327">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestVirtualDispatch4(GeneralJavaTests.java:168)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestFactoryMethods1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="3.542"/>
+    <testcase name="runTestStringFormatter1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestSourceCodeSpecific1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.06">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestSourceCodeSpecific1(GeneralJavaTests.java:83)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestUnreachableCode" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="1.653"/>
+    <testcase name="runTestStringPatternMatching1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.404">
+      <failure>java.lang.AssertionError: expected:&lt;1&gt; but was:&lt;0&gt;
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:542)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestStringPatternMatching1(GeneralJavaTests.java:123)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</failure>
+    </testcase>
+    <testcase name="runTestStaticInitialization1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestStaticInitialization2" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="1.879">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestStaticInitialization2(GeneralJavaTests.java:102)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestStaticInitialization3" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestObfuscation1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestExceptions1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.342">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestExceptions1(GeneralJavaTests.java:51)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestExceptions2" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.321">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestExceptions2(GeneralJavaTests.java:57)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestExceptions3" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="0.0" ignored="true"/>
+    <testcase name="runTestExceptions4" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.39">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests.runTestExceptions4(GeneralJavaTests.java:70)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestClone1" classname="soot.jimple.infoflow.android.test.droidBench.GeneralJavaTests" time="2.706"/>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="15.242">
+    <testcase name="runTestFieldSensitivity1" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.168">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestFieldSensitivity1(FieldAndObjectSensitivityTests.java:25)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestFieldSensitivity2" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.041">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestFieldSensitivity2(FieldAndObjectSensitivityTests.java:32)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestFieldSensitivity3" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.341">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestFieldSensitivity3(FieldAndObjectSensitivityTests.java:39)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestFieldSensitivity4" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.078">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestFieldSensitivity4(FieldAndObjectSensitivityTests.java:45)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestInheritedObjects1" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.184">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestInheritedObjects1(FieldAndObjectSensitivityTests.java:52)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestObjectSensitivity1" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="2.524">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestObjectSensitivity1(FieldAndObjectSensitivityTests.java:58)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestObjectSensitivity2" classname="soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests" time="1.906">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.FieldAndObjectSensitivityTests.runTestObjectSensitivity2(FieldAndObjectSensitivityTests.java:65)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests" time="15.117">
+    <testcase name="runTestPlayStore1" classname="soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests" time="7.362">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests.runTestPlayStore1(EmulatorDetectionTests.java:39)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestIMEI1" classname="soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests" time="0.0" ignored="true"/>
+    <testcase name="runTestContentProvider1" classname="soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests" time="7.755">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.EmulatorDetectionTests.runTestContentProvider1(EmulatorDetectionTests.java:26)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+  </testsuite>
+  <testcase name="soot.jimple.infoflow.android.test.droidBench.LifecycleTests" classname="soot.jimple.infoflow.android.test.droidBench.LifecycleTests" time="0.0" ignored="true"/>
+  <testcase name="soot.jimple.infoflow.android.test.droidBench.ArrayAndListTests" classname="soot.jimple.infoflow.android.test.droidBench.ArrayAndListTests" time="0.0" ignored="true"/>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests" time="10.239">
+    <testcase name="runTestImplicitFlow1" classname="soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests" time="2.436">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests.runTestImplicitFlow1(ImplicitFlowTests.java:25)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.RefType cannot be cast to soot.ArrayType
+	at soot.jimple.infoflow.problems.InfoflowProblem$1.addTaintViaStmt(InfoflowProblem.java:339)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1.access$5(InfoflowProblem.java:325)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$2.createNewTaintOnAssignment(InfoflowProblem.java:716)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$2.computeTargetsInternal(InfoflowProblem.java:502)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$NotifyingNormalFlowFunction.computeTargets(InfoflowProblem.java:281)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeNormalFlowFunction(InfoflowSolver.java:76)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeNormalFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processNormalFlow(IFDSSolver.java:467)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$1(IFDSSolver.java:460)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:623)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestImplicitFlow2" classname="soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests" time="2.103">
+      <error>java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.getSourceInfo(AccessPathBasedSourceSinkManager.java:134)
+	at soot.jimple.infoflow.Infoflow.scanMethodForSourcesSinks(Infoflow.java:947)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:650)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests.runTestImplicitFlow2(ImplicitFlowTests.java:31)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</error>
+    </testcase>
+    <testcase name="runTestImplicitFlow3" classname="soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests" time="3.679">
+      <error>java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.getSourceInfo(AccessPathBasedSourceSinkManager.java:134)
+	at soot.jimple.infoflow.Infoflow.scanMethodForSourcesSinks(Infoflow.java:947)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:650)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests.runTestImplicitFlow3(ImplicitFlowTests.java:37)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</error>
+    </testcase>
+    <testcase name="runTestImplicitFlow4" classname="soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests" time="2.021">
+      <error>java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.getSourceInfo(AccessPathBasedSourceSinkManager.java:134)
+	at soot.jimple.infoflow.Infoflow.scanMethodForSourcesSinks(Infoflow.java:947)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:650)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.ImplicitFlowTests.runTestImplicitFlow4(ImplicitFlowTests.java:43)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</error>
+    </testcase>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="21.709">
+    <testcase name="runTestDirectLeak1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="1.846">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestDirectLeak1(AndroidSpecificTests.java:33)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestApplicationModeling1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="0.0" ignored="true"/>
+    <testcase name="runTestInactiveActivity" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="1.345"/>
+    <testcase name="runTestParcel1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.369">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestParcel1(AndroidSpecificTests.java:65)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestLibrary2" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.096">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestLibrary2(AndroidSpecificTests.java:46)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestPrivateDataLeak1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.897">
+      <error>java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.getSourceInfo(AccessPathBasedSourceSinkManager.java:134)
+	at soot.jimple.infoflow.Infoflow.scanMethodForSourcesSinks(Infoflow.java:947)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:650)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestPrivateDataLeak1(AndroidSpecificTests.java:71)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</error>
+    </testcase>
+    <testcase name="runTestPrivateDataLeak2" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="1.954">
+      <error>java.lang.NullPointerException
+	at soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager.getSourceInfo(AccessPathBasedSourceSinkManager.java:134)
+	at soot.jimple.infoflow.Infoflow.scanMethodForSourcesSinks(Infoflow.java:947)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:650)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestPrivateDataLeak2(AndroidSpecificTests.java:77)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</error>
+    </testcase>
+    <testcase name="runTestPrivateDataLeak3" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="0.0" ignored="true"/>
+    <testcase name="runTestLogNoLeak" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="1.655"/>
+    <testcase name="runTestObfuscation1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.29">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runTestObfuscation1(AndroidSpecificTests.java:59)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runPublicAPIField1" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.594"/>
+    <testcase name="runPublicAPIField2" classname="soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests" time="2.661">
+      <failure>java.lang.AssertionError: expected:&lt;1&gt; but was:&lt;2&gt;
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:542)
+	at soot.jimple.infoflow.android.test.droidBench.AndroidSpecificTests.runPublicAPIField2(AndroidSpecificTests.java:97)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+
+</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="soot.jimple.infoflow.android.test.droidBench.ReflectionTests" time="2.327">
+    <testcase name="runTestReflection1" classname="soot.jimple.infoflow.android.test.droidBench.ReflectionTests" time="2.327">
+      <error>java.lang.RuntimeException: There were exceptions during IFDS analysis. Exiting.
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.runExecutorAndAwaitCompletion(IFDSSolver.java:215)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.awaitCompletionComputeValuesAndShutdown(IFDSSolver.java:184)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.solve(IFDSSolver.java:160)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.solve(InfoflowSolver.java:108)
+	at soot.jimple.infoflow.Infoflow.runAnalysis(Infoflow.java:676)
+	at soot.jimple.infoflow.Infoflow.computeInfoflow(Infoflow.java:322)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:631)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:576)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:70)
+	at soot.jimple.infoflow.android.test.droidBench.JUnitTests.analyzeAPKFile(JUnitTests.java:35)
+	at soot.jimple.infoflow.android.test.droidBench.ReflectionTests.runTestReflection1(ReflectionTests.java:26)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$StatementThread.run(FailOnTimeout.java:74)
+Caused by: java.lang.ClassCastException: soot.jimple.internal.JStaticInvokeExpr cannot be cast to soot.jimple.InstanceInvokeExpr
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargetsInternal(InfoflowProblem.java:1311)
+	at soot.jimple.infoflow.problems.InfoflowProblem$1$9.computeTargets(InfoflowProblem.java:1254)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:85)
+	at soot.jimple.infoflow.solver.fastSolver.InfoflowSolver.computeCallToReturnFlowFunction(InfoflowSolver.java:1)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.processCall(IFDSSolver.java:308)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver.access$0(IFDSSolver.java:240)
+	at soot.jimple.infoflow.solver.fastSolver.IFDSSolver$PathEdgeProcessingTask.run(IFDSSolver.java:616)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+</error>
+    </testcase>
+    <testcase name="runTestReflection2" classname="soot.jimple.infoflow.android.test.droidBench.ReflectionTests" time="0.0" ignored="true"/>
+    <testcase name="runTestReflection3" classname="soot.jimple.infoflow.android.test.droidBench.ReflectionTests" time="0.0" ignored="true"/>
+    <testcase name="runTestReflection4" classname="soot.jimple.infoflow.android.test.droidBench.ReflectionTests" time="0.0" ignored="true"/>
+  </testsuite>
+  <testcase name="soot.jimple.infoflow.android.test.droidBench.InterComponentCommunicationTests" classname="soot.jimple.infoflow.android.test.droidBench.InterComponentCommunicationTests" time="0.0" ignored="true"/>
+</testrun>
