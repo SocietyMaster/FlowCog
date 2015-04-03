@@ -61,7 +61,7 @@ public class XMLPermissionMethodParser extends DefaultHandler implements IPermis
 	// XML stuff incl. Verification against XSD
 	private String fileName;
 
-	private static final String XSD_FILE_PATH = "../../exchangeFormat.xsd";
+	private static final String XSD_FILE_PATH = "exchangeFormat.xsd";
 	private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
 
 	public static XMLPermissionMethodParser fromFile(String fileName) throws IOException {
