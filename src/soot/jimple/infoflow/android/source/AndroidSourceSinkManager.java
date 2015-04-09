@@ -25,7 +25,6 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.SootMethodRef;
 import soot.Unit;
 import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
@@ -220,13 +219,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 					Scene.v().getSootClass("android.app.Activity")					//some methods (e.g., onActivityResult) only defined in Activity class
 				};
 		
-		final String calleeSubSig = sCallSite.getInvokeExpr().getMethodRef().getSubSignature().getString();
-		final SootClass sc = sCallSite.getInvokeExpr().getMethodRef().declaringClass();
+		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
+		SootClass sc = callee.getDeclaringClass();
 		if (!sc.isInterface()) {
 			for (SootClass clazz : iccBaseClasses) {
 				if (Scene.v().getOrMakeFastHierarchy().isSubclass(sc, clazz)) {
-					if (clazz.declaresMethod(calleeSubSig)) {
-						if (this.sinkMethods.containsKey(clazz.getMethod(calleeSubSig).getSignature()))
+					final String subSig = callee.getSubSignature();
+					if (clazz.declaresMethod(subSig)) {
+						if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
 							return true;
 						break;
 					}
@@ -234,13 +234,13 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			}
 		}
 		
-		final String signature = sCallSite.getInvokeExpr().getMethodRef().getSignature();
+		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
 		if (this.sinkMethods.containsKey(signature))
 			return true;
 		
 		// Check whether we have any of the interfaces on the list
-		final String subSig = sCallSite.getInvokeExpr().getMethodRef().getSubSignature().getString();
-		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethodRef().declaringClass())) {
+		final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
+		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
 			if (i.declaresMethod(subSig))
 				if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
 					return true;				
@@ -269,15 +269,13 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		
 		// This might be a normal source method
 		if (sCallSite.containsInvokeExpr()) {
-			String signature = sCallSite.getInvokeExpr().getMethodRef().getSignature();
+			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
 
-			// Check whether we have any of the interfaces on the list. Do not
-			// resolve the method to save time.
-			final SootMethodRef methodRef = sCallSite.getInvokeExpr().getMethodRef();
-			final String subSig = methodRef.getSubSignature().getString();
-			for (SootClass i : interfacesOf.getUnchecked(methodRef.declaringClass())) {
+			// Check whether we have any of the interfaces on the list
+			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
+			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
 				if (i.declaresMethod(subSig))
 					if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
 						return SourceType.MethodCall;
@@ -318,8 +316,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if (this.layoutMatching != LayoutMatchingMode.NoMatch
 				&& sCallSite.containsInvokeExpr()) {
 			InvokeExpr ie = sCallSite.getInvokeExpr();
-			if (ie.getMethodRef().getSignature().equals(Activity_FindViewById)
-					|| ie.getMethodRef().getSignature().equals(View_FindViewById)) {
+			if (ie.getMethod().getSignature().equals(Activity_FindViewById)
+					|| ie.getMethod().getSignature().equals(View_FindViewById)) {
 				// Perform a constant propagation inside this method exactly once
 				SootMethod uiMethod = cfg.getMethodOf(sCallSite);
 				if (analyzedLayoutMethods.add(uiMethod))
