@@ -357,9 +357,8 @@ public class LayoutFileParser extends AbstractResourceParser {
 			}
 		}
 		
-		// Register the ne,w user control
-		if (id > 0)
-			addToMapSet(this.userControls, layoutFile, new LayoutControl(id, layoutClass, isSensitive));
+		// Register the new user control
+		addToMapSet(this.userControls, layoutFile, new LayoutControl(id, layoutClass, isSensitive));
 	}
 
 	/**

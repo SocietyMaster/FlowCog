@@ -97,4 +97,10 @@ public class AndroidSpecificTests extends JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 	
+	@Test(timeout=300000)
+	public void runView1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("AndroidSpecific/View1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
 }
