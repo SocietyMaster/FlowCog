@@ -338,7 +338,7 @@
 
 
 
-<android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
+% <android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
 <android.database.Cursor: java.lang.String getString(int)> -> _SOURCE_
 <android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)> -> _SOURCE_
 <android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,android.os.CancellationSignal)> -> _SOURCE_
