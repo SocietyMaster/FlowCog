@@ -420,10 +420,20 @@ public class SetupApplication {
 					+ this.callbackMethods.size() + " components");
 		}
 	}
-
+	
+	/**
+	 * Registers the callback methods in the given layout control so that they
+	 * are included in the dummy main method
+	 * @param callbackClass The class with which to associate the layout
+	 * callbacks
+	 * @param lc The layout control whose callbacks are to be associated with
+	 * the given class
+	 */
 	private void registerCallbackMethodsForView(SootClass callbackClass, LayoutControl lc) {
 		// Ignore system classes
 		if (callbackClass.getName().startsWith("android."))
+			return;
+		if (lc.getViewClass().getName().startsWith("android."))
 			return;
 		
 		// Check whether the current class is actually a view

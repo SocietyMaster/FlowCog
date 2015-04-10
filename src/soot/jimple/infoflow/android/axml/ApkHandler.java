@@ -204,4 +204,20 @@ public class ApkHandler {
 		out.flush();
 		out.close();
 	}
+	
+	/**
+	 * Closes this apk file
+	 */
+	public void close() {
+		if (this.zip != null) {
+			try {
+				this.zip.close();
+			} catch (IOException e) {
+				System.err.println("Could not close apk file: " + e.getMessage());
+				e.printStackTrace();
+			}
+			this.zip = null;
+		}
+	}
+	
 }
