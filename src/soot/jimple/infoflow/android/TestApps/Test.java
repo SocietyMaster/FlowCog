@@ -33,7 +33,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
-import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
@@ -100,8 +99,8 @@ public class Test {
 	private static boolean stopAfterFirstFlow = false;
 	private static boolean implicitFlows = false;
 	private static boolean staticTracking = true;
-	private static boolean enableCallbacks = false;
-	private static boolean enableExceptions = false;
+	private static boolean enableCallbacks = true;
+	private static boolean enableExceptions = true;
 	private static int accessPathLength = 5;
 	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.NoMatch;
 	private static boolean flowSensitiveAliasing = true;
@@ -113,7 +112,7 @@ public class Test {
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	private static IIPCManager ipcManager = null;
 	public static void setIPCManager(IIPCManager ipcManager)
@@ -503,8 +502,8 @@ public class Test {
 				taintWrapper = easyTaintWrapper;
 			}
 			app.setTaintWrapper(taintWrapper);
-			//app.calculateSourcesSinksEntrypoints("SourcesAndSinksTest5.xml");
-			app.calculateSourcesSinksEntrypoints("SuSiExport.xml");
+			app.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+			//app.calculateSourcesSinksEntrypoints("SuSiExport.xml");
 			
 			
 			if (DEBUG) {

@@ -224,7 +224,7 @@ public class LayoutFileParser extends AbstractResourceParser {
 		if (rootNode.getTag() == null || rootNode.getTag().isEmpty()) {
 			System.err.println("Encountered a null or empty node name "
 					+ "in file " + layoutFile + ", skipping node...");
-			return;			
+			return;
 		}
 		
 		String tname = rootNode.getTag().trim();
