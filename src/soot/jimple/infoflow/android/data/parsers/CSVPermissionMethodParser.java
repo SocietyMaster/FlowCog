@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.android.source.data.ISourceSinkDefinitionProvider;
+import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 
 /**
  * Parser for Android method / permission maps in the format defined by Port Felt
@@ -26,7 +28,10 @@ import soot.jimple.infoflow.android.data.AndroidMethod;
  * @author Steven Arzt
  *
  */
-public class CSVPermissionMethodParser implements IPermissionMethodParser {
+public class CSVPermissionMethodParser implements ISourceSinkDefinitionProvider {
+
+	private Set<SourceSinkDefinition> sourceList = null;
+	private Set<SourceSinkDefinition> sinkList = null;
 
 	private static final int INITIAL_SET_SIZE = 10000;
 
@@ -36,10 +41,11 @@ public class CSVPermissionMethodParser implements IPermissionMethodParser {
 		this.fileName = fileName;
 	}
 	
-	@Override
-	public Set<AndroidMethod> parse() throws IOException {
+	public void parse() {
+		sourceList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
+		sinkList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
+		
 		BufferedReader rdr = null;
-		Set<AndroidMethod> resList = new HashSet<AndroidMethod>(INITIAL_SET_SIZE);
 		try {
 			rdr = new BufferedReader(new FileReader(this.fileName));
 			String line = null;
@@ -94,16 +100,40 @@ public class CSVPermissionMethodParser implements IPermissionMethodParser {
 					continue;
 				}
 				
-				AndroidMethod method = new AndroidMethod(methodName, methodParams, "", className, permissions);
-				resList.add(method);
+				AndroidMethod method = new AndroidMethod(methodName,
+						methodParams, "", className, permissions);
+				if (method.isSource())
+					sourceList.add(new SourceSinkDefinition(method));
+				if (method.isSink())
+					sinkList.add(new SourceSinkDefinition(method));
 			}
 			
 		}
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}
 		finally {
 			if (rdr != null)
-				rdr.close();
+				try {
+					rdr.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		}
-		return resList;
+	}
+
+	@Override
+	public Set<SourceSinkDefinition> getSources() {
+		if (sourceList == null || sinkList == null)
+			parse();
+		return this.sourceList;
+	}
+
+	@Override
+	public Set<SourceSinkDefinition> getSinks() {
+		if (sourceList == null || sinkList == null)
+			parse();
+		return this.sinkList;
 	}
 
 }

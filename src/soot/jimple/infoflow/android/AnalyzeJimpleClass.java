@@ -45,6 +45,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
+import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.SimpleLiveLocals;
@@ -61,8 +62,8 @@ public class AnalyzeJimpleClass {
 
 	private final Set<String> entryPointClasses;
 	private final Set<String> androidCallbacks;
-	private final Map<String, Set<AndroidMethod>> callbackMethods = new HashMap<String, Set<AndroidMethod>>();
-	private final Map<String, Set<AndroidMethod>> callbackWorklist = new HashMap<String, Set<AndroidMethod>>();
+	private final Map<String, Set<SootMethodAndClass>> callbackMethods = new HashMap<String, Set<SootMethodAndClass>>();
+	private final Map<String, Set<SootMethodAndClass>> callbackWorklist = new HashMap<String, Set<SootMethodAndClass>>();
 	private final Map<String, Set<Integer>> layoutClasses = new HashMap<String, Set<Integer>>();
 
 	public AnalyzeJimpleClass(Set<String> entryPointClasses) throws IOException {
@@ -149,11 +150,11 @@ public class AnalyzeJimpleClass {
 				// Process the worklist from last time
 				System.out.println("Running incremental callback analysis for " + callbackWorklist.size()
 						+ " components...");
-				Map<String, Set<AndroidMethod>> workListCopy = new HashMap<String, Set<AndroidMethod>>
+				Map<String, Set<SootMethodAndClass>> workListCopy = new HashMap<String, Set<SootMethodAndClass>>
 					(callbackWorklist);
-				for (Entry<String, Set<AndroidMethod>> entry : workListCopy.entrySet()) {
+				for (Entry<String, Set<SootMethodAndClass>> entry : workListCopy.entrySet()) {
 					List<MethodOrMethodContext> entryClasses = new LinkedList<MethodOrMethodContext>();
-					for (AndroidMethod am : entry.getValue())
+					for (SootMethodAndClass am : entry.getValue())
 						entryClasses.add(Scene.v().getMethod(am.getSignature()));
 					analyzeRechableMethods(Scene.v().getSootClass(entry.getKey()), entryClasses);
 					callbackWorklist.remove(entry.getKey());
@@ -396,7 +397,7 @@ public class AnalyzeJimpleClass {
 		if (this.callbackMethods.containsKey(baseClass.getName()))
 			isNew = this.callbackMethods.get(baseClass.getName()).add(am);
 		else {
-			Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+			Set<SootMethodAndClass> methods = new HashSet<SootMethodAndClass>();
 			isNew = methods.add(am);
 			this.callbackMethods.put(baseClass.getName(), methods);
 		}
@@ -405,7 +406,7 @@ public class AnalyzeJimpleClass {
 			if (this.callbackWorklist.containsKey(baseClass.getName()))
 					this.callbackWorklist.get(baseClass.getName()).add(am);
 			else {
-				Set<AndroidMethod> methods = new HashSet<AndroidMethod>();
+				Set<SootMethodAndClass> methods = new HashSet<SootMethodAndClass>();
 				isNew = methods.add(am);
 				this.callbackWorklist.put(baseClass.getName(), methods);
 			}
@@ -425,7 +426,7 @@ public class AnalyzeJimpleClass {
 		return interfaces;
 	}
 	
-	public Map<String, Set<AndroidMethod>> getCallbackMethods() {
+	public Map<String, Set<SootMethodAndClass>> getCallbackMethods() {
 		return this.callbackMethods;
 	}
 	

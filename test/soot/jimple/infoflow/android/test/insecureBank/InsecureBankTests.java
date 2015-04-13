@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
@@ -72,8 +73,9 @@ public class InsecureBankTests {
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				"insecureBank" + File.separator + "InsecureBank.apk");
 		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
-		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
+		setupApplication.calculateSourcesSinksEntrypoints("SuSiExport.xml");
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
+		setupApplication.setLayoutMatchingMode(LayoutMatchingMode.MatchAll);
 		return setupApplication.runInfoflow();
 	}
 
