@@ -88,10 +88,7 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		// access path
 		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
 		SourceSinkDefinition def = sourceMethods.get(signature);
-		
-		if (sCallSite.toString().contains("sendTextMessage"))
-			System.out.println("x");
-		
+				
 		// If we don't have any more precise source information, we take the
 		// default behavior of our parent implementation. We do the same of we
 		// tried using access paths and failed, but this is a shortcut in case

@@ -71,7 +71,7 @@
 
 			<formatter type="xml" usefile="true" />
 			<batchtest todir="reports">
-				<fileset dir="build/classes" includes="soot/jimple/infoflow/android/test/**/*Tests.class" excludes="soot/jimple/infoflow/android/test/droidBench/JUnitTests.class" />
+				<fileset dir="build/classes" includes="soot/jimple/infoflow/android/test/**/*Tests.class" excludes="soot/jimple/infoflow/android/test/**/JUnitTests.class" />
 			</batchtest>
 		</junit>
 	</target>

@@ -73,9 +73,9 @@ public class InsecureBankTests {
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				"insecureBank" + File.separator + "InsecureBank.apk");
 		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
-		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		setupApplication.setEnableImplicitFlows(enableImplicitFlows);
 		setupApplication.setLayoutMatchingMode(LayoutMatchingMode.MatchAll);
+		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		return setupApplication.runInfoflow();
 	}
 
@@ -94,7 +94,6 @@ public class InsecureBankTests {
 
 		Assert.assertTrue(res.isPathBetweenMethods(log_d, cursor_getString));
 		
-
 		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, activity_findViewById));
 		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, activity_findViewById));
 

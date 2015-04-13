@@ -102,7 +102,7 @@ public class Test {
 	private static boolean enableCallbacks = true;
 	private static boolean enableExceptions = true;
 	private static int accessPathLength = 5;
-	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.NoMatch;
+	private static LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	private static boolean flowSensitiveAliasing = true;
 	private static boolean computeResultPaths = true;
 	private static boolean aggressiveTaintWrapper = false;

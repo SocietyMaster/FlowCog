@@ -321,10 +321,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	 * @return The type of source that was detected in the statement of NoSource
 	 *         if the statement does not contain a source
 	 */
-	public SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+	protected SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		assert cfg != null;
 		assert cfg instanceof BiDiInterproceduralCFG;
-
+		
 		// This might be a normal source method
 		if (sCallSite.containsInvokeExpr()) {
 			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
