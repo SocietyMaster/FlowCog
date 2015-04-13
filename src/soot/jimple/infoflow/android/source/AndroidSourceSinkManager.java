@@ -281,6 +281,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if (type == SourceType.NoSource)
 			return null;
 		
+		return getSourceInfo(sCallSite, type);
+	}
+
+	protected SourceInfo getSourceInfo(Stmt sCallSite, SourceType type) {
 		if (type == SourceType.UISource || type == SourceType.Callback) {
 			if (sCallSite instanceof DefinitionStmt) {
 				DefinitionStmt defStmt = (DefinitionStmt) sCallSite;

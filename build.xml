@@ -39,7 +39,7 @@
 	</target>
 
 	<target name="compiletests" depends="settings,compile">
-		<mkdir dir="build/classes" />
+		<mkdir dir="build/testclasses" />
 		<javac srcdir="src:test" includeantruntime="true" source="1.7" target="1.7" destdir="build/classes" debug="true">
 			<classpath>
 				<pathelement location="${soot.jar}" />
@@ -71,7 +71,9 @@
 
 			<formatter type="xml" usefile="true" />
 			<batchtest todir="reports">
-				<fileset dir="build/classes" includes="soot/jimple/infoflow/android/test/**/*Tests.class" excludes="soot/jimple/infoflow/android/test/**/JUnitTests.class" />
+				<fileset dir="build/testclasses"
+				    includes="soot/jimple/infoflow/android/test/**/*Tests.class"
+				    excludes="soot/jimple/infoflow/android/test/**/JUnitTests.class" />
 			</batchtest>
 		</junit>
 	</target>
