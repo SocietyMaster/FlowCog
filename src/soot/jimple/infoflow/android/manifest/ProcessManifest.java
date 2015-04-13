@@ -492,6 +492,16 @@ public class ProcessManifest {
 	}
 	
 	/**
+	 * Adds a new permission to the manifest.
+	 * @param complete permission name e.g. "android.permission.INTERNET"
+	 */
+	public void addPermission(String permissionName) {				
+		AXmlNode permission = new AXmlNode("uses-permission", null, manifest);
+		AXmlAttribute<String> permissionNameAttr = new AXmlAttribute<String>("name", permissionName,  AXmlHandler.ANDROID_NAMESPACE);		
+		permission.addAttribute(permissionNameAttr);
+	}
+	
+	/**
 	 * Adds a new provider to the manifest
 	 * @param node provider represented as an AXmlNode
 	 */
