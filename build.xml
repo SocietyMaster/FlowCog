@@ -64,7 +64,7 @@
 				<pathelement location="${soot.jar}" />
 				<pathelement location="${heros.jar}" />
 				<pathelement location="${infoflow.jar}" />
-				<pathelement location="build/classes" />
+				<pathelement location="build/testclasses" />
 				<fileset dir="lib">
 					<include name="*.jar" />
 				</fileset>
