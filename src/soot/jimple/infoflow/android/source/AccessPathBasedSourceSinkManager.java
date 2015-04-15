@@ -93,7 +93,7 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		// default behavior of our parent implementation. We do the same of we
 		// tried using access paths and failed, but this is a shortcut in case
 		// we know that we don't have any access paths anyway.
-		if (def.isEmpty())
+		if (null == def || def.isEmpty())
 			return super.getSourceInfo(sCallSite, cfg);
 		
 		// We have real access path definitions, so we can construct precise
