@@ -141,7 +141,17 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		}
 		
 	});
-
+	
+	protected final LoadingCache<SootMethod, String> methodToSignature =
+			IDESolver.DEFAULT_CACHE_BUILDER.build(new CacheLoader<SootMethod, String>() {
+				
+		@Override
+		public String load(SootMethod sm) throws Exception {
+			return sm.getSignature();
+		}
+		
+	});
+	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with
 	 * either strong or weak matching.
@@ -244,15 +254,16 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 																	// Activity
 																	// class
 			};
-
-		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
-		SootClass sc = callee.getDeclaringClass();
+		
+		final SootMethod callee = sCallSite.getInvokeExpr().getMethod();
+		final SootClass sc = callee.getDeclaringClass();
+		final String subSig = callee.getSubSignature();
 		if (!sc.isInterface()) {
 			for (SootClass clazz : iccBaseClasses) {
 				if (Scene.v().getOrMakeFastHierarchy().isSubclass(sc, clazz)) {
-					final String subSig = callee.getSubSignature();
 					if (clazz.declaresMethod(subSig)) {
-						if (this.sinkMethods.containsKey(clazz.getMethod(subSig).getSignature()))
+						if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(
+								clazz.getMethod(subSig))))
 							return true;
 						break;
 					}
@@ -260,15 +271,15 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			}
 		}
 
-		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+		final String signature = methodToSignature.getUnchecked(
+				sCallSite.getInvokeExpr().getMethod());
 		if (this.sinkMethods.containsKey(signature))
 			return true;
 
 		// Check whether we have any of the interfaces on the list
-		final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
 		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
 			if (i.declaresMethod(subSig))
-				if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
+				if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(i.getMethod(subSig))))
 					return true;
 		}
 
@@ -331,15 +342,18 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		
 		// This might be a normal source method
 		if (sCallSite.containsInvokeExpr()) {
-			String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+			String signature = methodToSignature.getUnchecked(
+					sCallSite.getInvokeExpr().getMethod());
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
 
 			// Check whether we have any of the interfaces on the list
 			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
-			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
+			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr()
+					.getMethod().getDeclaringClass())) {
 				if (i.declaresMethod(subSig))
-					if (this.sinkMethods.containsKey(i.getMethod(subSig).getSignature()))
+					if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(
+							i.getMethod(subSig))))
 						return SourceType.MethodCall;
 			}
 		}
@@ -351,7 +365,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// This statement might access a sensitive parameter in a callback
 		// method
 		if (enableCallbackSources) {
-			final String callSiteSignature = cfg.getMethodOf(sCallSite).getSignature();
+			final String callSiteSignature = methodToSignature.getUnchecked(cfg.getMethodOf(sCallSite));
 			if (sCallSite instanceof IdentityStmt) {
 				IdentityStmt is = (IdentityStmt) sCallSite;
 				if (is.getRightOp() instanceof ParameterRef)
@@ -380,7 +394,9 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// to one of the well-known resource handling functions in Android
 		if (this.layoutMatching != LayoutMatchingMode.NoMatch && sCallSite.containsInvokeExpr()) {
 			InvokeExpr ie = sCallSite.getInvokeExpr();
-			if (ie.getMethod().getSignature().equals(Activity_FindViewById) || ie.getMethod().getSignature().equals(View_FindViewById)) {
+			final String signature = methodToSignature.getUnchecked(ie.getMethod());
+			if (signature.equals(Activity_FindViewById)
+					|| signature.equals(View_FindViewById)) {
 				// Perform a constant propagation inside this method exactly
 				// once
 				SootMethod uiMethod = cfg.getMethodOf(sCallSite);
@@ -408,7 +424,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 				else if (ie.getArg(0) instanceof Local) {
 					Integer idVal = findLastResIDAssignment(sCallSite, (Local) ie.getArg(0), (BiDiInterproceduralCFG<Unit, SootMethod>) cfg, new HashSet<Stmt>(cfg.getMethodOf(sCallSite).getActiveBody().getUnits().size()));
 					if (idVal == null) {
-						System.err.println("Could not find assignment to local " + ((Local) ie.getArg(0)).getName() + " in method " + cfg.getMethodOf(sCallSite).getSignature());
+						System.err.println("Could not find assignment to local "
+									+ ((Local) ie.getArg(0)).getName()
+									+ " in method "
+									+ cfg.getMethodOf(sCallSite).getSignature());
 						return false;
 					} else
 						id = idVal.intValue();

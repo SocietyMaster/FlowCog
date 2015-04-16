@@ -86,7 +86,8 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		
 		// This is a method-based source, so we need to obtain the correct
 		// access path
-		final String signature = sCallSite.getInvokeExpr().getMethod().getSignature();
+		final String signature = methodToSignature.getUnchecked(
+				sCallSite.getInvokeExpr().getMethod());
 		SourceSinkDefinition def = sourceMethods.get(signature);
 				
 		// If we don't have any more precise source information, we take the
@@ -163,11 +164,12 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 			return false;
 				
 		// Get the sink definition
-		final String methodSignature = sCallSite.getInvokeExpr().getMethod().getSignature();
+		final String methodSignature = methodToSignature.getUnchecked(
+				sCallSite.getInvokeExpr().getMethod());
 		SourceSinkDefinition def = sinkMethods.get(methodSignature);
 		if (def == null)
 			return false;
-				
+		
 		// If we have no precise information, we conservatively assume that
 		// everything is tainted without looking at the access path
 		if (def.isEmpty())
