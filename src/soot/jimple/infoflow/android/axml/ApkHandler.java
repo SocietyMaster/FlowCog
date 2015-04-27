@@ -15,6 +15,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import com.google.common.io.Files;
+
 /**
  * Provides access to the files within an APK and can add and replace files.
  * 
@@ -147,62 +149,83 @@ public class ApkHandler {
 
 		boolean renameOk = this.apk.renameTo(tempFile);
 		if (!renameOk) {
-			throw new RuntimeException("could not rename the file "
-					+ this.apk.getAbsolutePath() + " to "
-					+ tempFile.getAbsolutePath());
+			try {
+				Files.move(this.apk, tempFile);
+			}
+			catch (IOException ex) {
+				throw new IOException("could not rename the file "
+						+ this.apk.getAbsolutePath() + " to "
+						+ tempFile.getAbsolutePath(), ex);
+			}
 		}
 		
+		ZipInputStream zin = null;
+		ZipOutputStream out = null;
 		byte[] buf = new byte[1024];
-		ZipInputStream zin = new ZipInputStream(new FileInputStream(tempFile));
 		
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(this.apk));
-		ZipEntry entry;
-		
-		nextEntry:
-		while ((entry = zin.getNextEntry()) != null) {
-			// skip replaced entries
-			for(String path : paths.values())
-				if(entry.getName().equals(path))
-					continue nextEntry;
+		try {
+			zin = new ZipInputStream(new FileInputStream(tempFile));
+			out = new ZipOutputStream(new FileOutputStream(this.apk));
+			ZipEntry entry;
 			
-			// Since we are modifying an APK file, the old signature becomes
-			// invalid and we thus need to remove it.
-			if (entry.getName().startsWith("META-INF/")
-					&& (entry.getName().endsWith(".RSA") || entry.getName().endsWith(".SF")))
-				continue;
-			
-			// if not replaced add the zip entry to the output stream
-			out.putNextEntry(new ZipEntry(entry.getName()));
-			
-			// transfer bytes from the zip file to the output file
-			int len;
-			while ((len = zin.read(buf)) > 0) {
-				out.write(buf, 0, len);
+			nextEntry:
+			while ((entry = zin.getNextEntry()) != null) {
+				// skip replaced entries
+				for(String path : paths.values())
+					if(entry.getName().equals(path))
+						continue nextEntry;
+				
+				// Since we are modifying an APK file, the old signature becomes
+				// invalid and we thus need to remove it.
+				if (entry.getName().startsWith("META-INF/")
+						&& (entry.getName().endsWith(".RSA") || entry.getName().endsWith(".SF")))
+					continue;
+				
+				// if not replaced add the zip entry to the output stream
+				out.putNextEntry(new ZipEntry(entry.getName()));
+				
+				// transfer bytes from the zip file to the output file
+				int len;
+				while ((len = zin.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+							
+				// close entries
+				zin.closeEntry();
+				out.closeEntry();
 			}
 						
-			// close entries
-			zin.closeEntry();
-			out.closeEntry();
-		}
-		
-		// close stream
-		zin.close();
-		
-		// add files
-		for(File file : files) {
-			InputStream in = new FileInputStream(file);
-			out.putNextEntry(new ZipEntry(paths.get(file.getPath())));
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
+			// add files
+			for(File file : files) {
+				InputStream in = null;
+				try {
+					in = new FileInputStream(file);
+					out.putNextEntry(new ZipEntry(paths.get(file.getPath())));
+					int len;
+					while ((len = in.read(buf)) > 0) {
+						out.write(buf, 0, len);
+					}
+					out.closeEntry();
+				}
+				finally {
+					if (in != null)
+						in.close();
+				}
 			}
-			out.closeEntry();
-			in.close();			
 		}
-
-		// flush and close the zip file
-		out.flush();
-		out.close();
+		finally {
+			// Close the streams
+			if (zin != null)
+				zin.close();
+			if (out != null) {
+				out.flush();
+				out.close();
+			}
+			
+			// Delete the tmeporary file
+			if (tempFile != null && tempFile.exists())
+				tempFile.delete();
+		}
 	}
 	
 	/**
