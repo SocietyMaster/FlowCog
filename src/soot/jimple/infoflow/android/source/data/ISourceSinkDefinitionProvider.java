@@ -23,4 +23,11 @@ public interface ISourceSinkDefinitionProvider {
 	 */
 	public Set<SourceSinkDefinition> getSinks();
 	
+	/**
+	 * Gets all methods for which there are source/sink definitions
+	 * @return A set containing all methods for which there is a source/sink
+	 * definition. This also includes methods explicitly labeled as "neither".
+	 */
+	public Set<SourceSinkDefinition> getAllMethods();
+	
 }

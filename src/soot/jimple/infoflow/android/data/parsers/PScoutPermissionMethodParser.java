@@ -36,6 +36,7 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 
 	private Set<SourceSinkDefinition> sourceList = null;
 	private Set<SourceSinkDefinition> sinkList = null;
+	private Set<SourceSinkDefinition> neitherList = null;
 
 	private final String fileName;
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>.+?(->.+)?$";
@@ -49,6 +50,7 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 	private void parse() {
 		sourceList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		sinkList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
+		neitherList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		
 		BufferedReader rdr = readFile();
 		
@@ -67,8 +69,10 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 						if (singleMethod != null) {
 							if (singleMethod.isSource())
 								addToList(sourceList, singleMethod, currentPermission);
-							if (singleMethod.isSink())
+							else if (singleMethod.isSink())
 								addToList(sinkList, singleMethod, currentPermission);
+							else if (singleMethod.isNeitherNor())
+								addToList(neitherList, singleMethod, currentPermission);
 						}
 					}
 				}
@@ -275,5 +279,15 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 			return CATEGORY.LOG;
 		else
 			throw new RuntimeException("The category -" + category + "- is not supported!");
+	}
+
+	@Override
+	public Set<SourceSinkDefinition> getAllMethods() {
+		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceList.size()
+				+ sinkList.size() + neitherList.size());
+		sourcesSinks.addAll(sourceList);
+		sourcesSinks.addAll(sinkList);
+		sourcesSinks.addAll(neitherList);
+		return sourcesSinks;
 	}
 }

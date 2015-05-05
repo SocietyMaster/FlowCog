@@ -33,6 +33,7 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 	
 	private Set<SourceSinkDefinition> sourceList = null;
 	private Set<SourceSinkDefinition> sinkList = null;
+	private Set<SourceSinkDefinition> neitherList = null;
 	
 	private static final int INITIAL_SET_SIZE = 10000;
 	
@@ -95,6 +96,7 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 	private void parse() {
 		sourceList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		sinkList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
+		neitherList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		
 		Pattern p = Pattern.compile(regex);
 		Pattern pNoRet = Pattern.compile(regexNoRet);
@@ -109,8 +111,10 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 				
 				if (am.isSource())
 					sourceList.add(singleMethod);
-				else
+				else if (am.isSink())
 					sinkList.add(singleMethod);
+				else if (am.isNeitherNor())
+					neitherList.add(singleMethod);
 			}
 			else {
 				Matcher mNoRet = pNoRet.matcher(line);
@@ -120,8 +124,10 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 					
 					if (am.isSource())
 						sourceList.add(singleMethod);
-					else
+					else if (am.isSink())
 						sinkList.add(singleMethod);
+					else if (am.isNeitherNor())
+						neitherList.add(singleMethod);
 				}
 				else
 					System.err.println("Line does not match: " + line);
@@ -198,5 +204,15 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 				}
 			}
 		return singleMethod;
+	}
+
+	@Override
+	public Set<SourceSinkDefinition> getAllMethods() {
+		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceList.size()
+				+ sinkList.size() + neitherList.size());
+		sourcesSinks.addAll(sourceList);
+		sourcesSinks.addAll(sinkList);
+		sourcesSinks.addAll(neitherList);
+		return sourcesSinks;
 	}
 }

@@ -267,6 +267,15 @@ public class SetupApplication {
 			public Set<SourceSinkDefinition> getSinks() {
 				return sinkDefs;
 			}
+
+			@Override
+			public Set<SourceSinkDefinition> getAllMethods() {
+				Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceDefs.size()
+						+ sinkDefs.size());
+				sourcesSinks.addAll(sourceDefs);
+				sourcesSinks.addAll(sinkDefs);
+				return sourcesSinks;
+			}
 			
 		};
 		

@@ -32,6 +32,7 @@ public class CSVPermissionMethodParser implements ISourceSinkDefinitionProvider 
 
 	private Set<SourceSinkDefinition> sourceList = null;
 	private Set<SourceSinkDefinition> sinkList = null;
+	private Set<SourceSinkDefinition> neitherList = null;
 
 	private static final int INITIAL_SET_SIZE = 10000;
 
@@ -44,6 +45,7 @@ public class CSVPermissionMethodParser implements ISourceSinkDefinitionProvider 
 	public void parse() {
 		sourceList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		sinkList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
+		neitherList = new HashSet<SourceSinkDefinition>(INITIAL_SET_SIZE);
 		
 		BufferedReader rdr = null;
 		try {
@@ -104,8 +106,10 @@ public class CSVPermissionMethodParser implements ISourceSinkDefinitionProvider 
 						methodParams, "", className, permissions);
 				if (method.isSource())
 					sourceList.add(new SourceSinkDefinition(method));
-				if (method.isSink())
+				else if (method.isSink())
 					sinkList.add(new SourceSinkDefinition(method));
+				else if (method.isNeitherNor())
+					neitherList.add(new SourceSinkDefinition(method));
 			}
 			
 		}
@@ -134,6 +138,16 @@ public class CSVPermissionMethodParser implements ISourceSinkDefinitionProvider 
 		if (sourceList == null || sinkList == null)
 			parse();
 		return this.sinkList;
+	}
+
+	@Override
+	public Set<SourceSinkDefinition> getAllMethods() {
+		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceList.size()
+				+ sinkList.size() + neitherList.size());
+		sourcesSinks.addAll(sourceList);
+		sourcesSinks.addAll(sinkList);
+		sourcesSinks.addAll(neitherList);
+		return sourcesSinks;
 	}
 
 }
