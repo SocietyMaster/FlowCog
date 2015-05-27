@@ -549,4 +549,34 @@ public class ProcessManifest {
 			this.apk.close();
 	}
 	
+	/**
+	 * Returns all activity nodes that are "launchable", i.e. that are called when the user 
+	 * clicks on the button in the launcher.
+	 * @return
+	 */
+	public Set<AXmlNode> getLaunchableActivities() {
+		Set<AXmlNode> allLaunchableActivities = new HashSet<AXmlNode>();
+		
+		for(AXmlNode activity : activities) {
+			for(AXmlNode activityChildren : activity.getChildren()) {
+				if(activityChildren.getTag().equals("intent-filter")) {
+					boolean actionFilter = false;
+					boolean categoryFilter = false;
+					for(AXmlNode intentFilter : activityChildren.getChildren()) {
+						if(intentFilter.toString().equals("<action name=\"android.intent.action.MAIN\">"))
+							actionFilter = true;
+						else if(intentFilter.toString().equals("<category name=\"android.intent.category.LAUNCHER\">"))
+							categoryFilter = true;
+					}
+					
+					if(actionFilter && categoryFilter)
+						allLaunchableActivities.add(activity);
+				}
+			}
+			
+		}
+		
+		return allLaunchableActivities;
+	}
+	
 }

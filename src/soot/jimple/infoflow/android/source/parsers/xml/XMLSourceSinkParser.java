@@ -332,4 +332,13 @@ public class XMLSourceSinkParser extends DefaultHandler implements ISourceSinkDe
 		}
 		return validXML;
 	}
+
+	@Override
+	public Set<SourceSinkDefinition> getAllMethods() {
+		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sources.size()
+				+ sinks.size());
+		sourcesSinks.addAll(sources);
+		sourcesSinks.addAll(sinks);
+		return sourcesSinks;
+	}
 }

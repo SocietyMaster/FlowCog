@@ -39,7 +39,7 @@ import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
-import soot.jimple.infoflow.solver.IInfoflowCFG;
+import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
@@ -154,7 +154,6 @@ public class Test {
 		
 		List<String> apkFiles = new ArrayList<String>();
 		File apkFile = new File(args[0]);
-		String extension = apkFile.getName().substring(apkFile.getName().lastIndexOf("."));
 		if (apkFile.isDirectory()) {
 			String[] dirFiles = apkFile.list(new FilenameFilter() {
 			
@@ -166,19 +165,22 @@ public class Test {
 			});
 			for (String s : dirFiles)
 				apkFiles.add(s);
-		}
-		else if (extension.equalsIgnoreCase(".txt")) {
-			BufferedReader rdr = new BufferedReader(new FileReader(apkFile));
-			String line = null;
-			while ((line = rdr.readLine()) != null)
-				apkFiles.add(line);
-			rdr.close();
-		}
-		else if (extension.equalsIgnoreCase(".apk"))
-			apkFiles.add(args[0]);
-		else {
-			System.err.println("Invalid input file format: " + extension);
-			return;
+		} else {
+			//apk is a file so grab the extension
+			String extension = apkFile.getName().substring(apkFile.getName().lastIndexOf("."));
+			if (extension.equalsIgnoreCase(".txt")) {
+				BufferedReader rdr = new BufferedReader(new FileReader(apkFile));
+				String line = null;
+				while ((line = rdr.readLine()) != null)
+					apkFiles.add(line);
+				rdr.close();
+			}
+			else if (extension.equalsIgnoreCase(".apk"))
+				apkFiles.add(args[0]);
+			else {
+				System.err.println("Invalid input file format: " + extension);
+				return;
+			}
 		}
 
 		for (final String fileName : apkFiles) {
