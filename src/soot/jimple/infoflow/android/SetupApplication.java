@@ -84,6 +84,7 @@ public class SetupApplication {
 	private CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 
 	private Set<String> entrypoints = null;
+	private Set<String> callbackClasses = null;
 
 	private List<ARSCFileParser.ResPackage> resourcePackages = null;
 	private String appPackageName = "";
@@ -211,6 +212,20 @@ public class SetupApplication {
 				System.out.println("\t" + className);
 			System.out.println("End of Entrypoints");
 		}
+	}
+
+	/**
+	 * Sets the class names of callbacks.
+	 *  If this value is null, it automatically loads the names from AndroidCallbacks.txt as the default behavior.
+	 * @param callbackClasses
+	 * 	        The class names of callbacks or null to use the default file.
+	 */
+	public void setCallbackClasses(Set<String> callbackClasses) {
+		this.callbackClasses = callbackClasses;
+	}
+
+	public Set<String> getCallbackClasses() {
+		return callbackClasses;
 	}
 
 	/**
@@ -413,7 +428,11 @@ public class SetupApplication {
 			if (jimpleClass == null) {
 				// Collect the callback interfaces implemented in the app's
 				// source code
-				jimpleClass = new AnalyzeJimpleClass(entrypoints);
+				if (callbackClasses == null) {
+					jimpleClass = new AnalyzeJimpleClass(entrypoints);
+				} else {
+					jimpleClass = new AnalyzeJimpleClass(entrypoints, callbackClasses);
+				}
 				jimpleClass.collectCallbackMethods();
 
 				// Find the user-defined sources in the layout XML files. This
