@@ -46,6 +46,7 @@ import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.SimpleLiveLocals;
@@ -64,9 +65,15 @@ public class AnalyzeJimpleClass {
 
 	private final Set<String> entryPointClasses;
 	private final Set<String> androidCallbacks;
-	private final Map<String, Set<SootMethodAndClass>> callbackMethods = new HashMap<String, Set<SootMethodAndClass>>();
-	private final Map<String, Set<SootMethodAndClass>> callbackWorklist = new HashMap<String, Set<SootMethodAndClass>>();
-	private final Map<String, Set<Integer>> layoutClasses = new HashMap<String, Set<Integer>>();
+	
+	private final Map<String, Set<SootMethodAndClass>> callbackMethods =
+			new HashMap<String, Set<SootMethodAndClass>>();
+	private final Map<String, Set<SootMethodAndClass>> callbackWorklist =
+			new HashMap<String, Set<SootMethodAndClass>>();
+	private final Map<String, Set<Integer>> layoutClasses =
+			new HashMap<String, Set<Integer>>();
+	private final Set<String> dynamicManifestComponents =
+			new HashSet<>();
 
 	public AnalyzeJimpleClass(Set<String> entryPointClasses) throws IOException {
 		this.entryPointClasses = entryPointClasses;
@@ -176,6 +183,7 @@ public class AnalyzeJimpleClass {
 		while (reachableMethods.hasNext()) {
 			SootMethod method = reachableMethods.next().method();
 			analyzeMethodForCallbackRegistrations(lifecycleElement, method);
+			analyzeMethodForDynamicBroadcastReceiver(method);
 		}
 	}
 
@@ -237,6 +245,45 @@ public class AnalyzeJimpleClass {
 		// Analyze all found callback classes
 		for (SootClass callbackClass : callbackClasses)
 			analyzeClass(callbackClass, lifecycleElement);
+	}
+	
+	/**
+	 * Checks whether the given method dynamically registers a new broadcast
+	 * receiver
+	 * @param method The method to check
+	 */
+	private void analyzeMethodForDynamicBroadcastReceiver(SootMethod method) {
+		if (!method.isConcrete() || !method.hasActiveBody())
+			return;
+		// stmt.getInvokeExpr().getMethod().getDeclaringClass().getName().equals("android.content.Context")
+		
+		for (Unit u : method.getActiveBody().getUnits()) {
+			Stmt stmt = (Stmt) u;
+			if (stmt.containsInvokeExpr()) {
+				if (stmt.getInvokeExpr().getMethod().getName().equals("registerReceiver")
+						&& stmt.getInvokeExpr().getArgCount() > 0
+						&& isInheritedMethod(stmt, "android.content.ContextWrapper",
+								"android.content.Context")) {
+					Value br = stmt.getInvokeExpr().getArg(0);
+					if (br.getType() instanceof RefType) {
+						RefType rt = (RefType) br.getType();
+						dynamicManifestComponents.add(rt.getClassName());
+					}
+				}
+			}
+		}
+	}
+
+	private boolean isInheritedMethod(Stmt stmt, String... classNames) {
+		Iterator<Edge> edgeIt = Scene.v().getCallGraph().edgesOutOf(stmt);
+		while (edgeIt.hasNext()) {
+			Edge edge = edgeIt.next();
+			String targetClass = edge.getTgt().method().getDeclaringClass().getName();
+			for (String className : classNames)
+				if (className.equals(targetClass))
+					return true;
+		}
+		return false;
 	}
 
 	/**
@@ -379,7 +426,8 @@ public class AnalyzeJimpleClass {
 		for (SootClass i : collectAllInterfaces(sootClass)) {
 			if (androidCallbacks.contains(i.getName()))
 				for (SootMethod sm : i.getMethods())
-					checkAndAddMethod(getMethodFromHierarchyEx(baseClass, sm.getSubSignature()), lifecycleElement);
+					checkAndAddMethod(getMethodFromHierarchyEx(baseClass,
+							sm.getSubSignature()), lifecycleElement);
 		}
 	}
 
@@ -441,6 +489,10 @@ public class AnalyzeJimpleClass {
 	
 	public Map<String, Set<Integer>> getLayoutClasses() {
 		return this.layoutClasses;
+	}
+	
+	public Set<String> getDynamicManifestComponents() {
+		return this.dynamicManifestComponents;
 	}
 		
 }

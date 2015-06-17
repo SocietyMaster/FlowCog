@@ -437,6 +437,9 @@ public class SetupApplication {
 					hasChanged = true;
 				}
 			}
+			
+			if (entrypoints.addAll(jimpleClass.getDynamicManifestComponents()))
+				hasChanged = true;
 		}
 
 		// Collect the XML-based callback methods
