@@ -186,9 +186,12 @@ public class ApkHandler {
 				// Only compress those files that were compressed in the original APK
 				ze.setMethod(entry.getMethod());
 				// We need to copy over those flags for the STORE method
-				ze.setTime(entry.getTime());
-				ze.setSize(entry.getSize());
-				ze.setCrc(entry.getCrc());
+				if (entry.getTime() != -1)
+					ze.setTime(entry.getTime());
+				if (entry.getSize() != -1)
+					ze.setSize(entry.getSize());
+				if (entry.getCrc() != -1)
+					ze.setCrc(entry.getCrc());
 				// Add the entry header to the ZIP file
 				out.putNextEntry(ze);
 				
