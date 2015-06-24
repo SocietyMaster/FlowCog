@@ -182,7 +182,15 @@ public class ApkHandler {
 					continue;
 				
 				// if not replaced add the zip entry to the output stream
-				out.putNextEntry(new ZipEntry(entry.getName()));
+				ZipEntry ze = new ZipEntry(entry.getName());
+				// Only compress those files that were compressed in the original APK
+				ze.setMethod(entry.getMethod());
+				// We need to copy over those flags for the STORE method
+				ze.setTime(entry.getTime());
+				ze.setSize(entry.getSize());
+				ze.setCrc(entry.getCrc());
+				// Add the entry header to the ZIP file
+				out.putNextEntry(ze);
 				
 				// transfer bytes from the zip file to the output file
 				int len;
