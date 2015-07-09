@@ -92,6 +92,7 @@ public class SetupApplication {
 	private final String androidJar;
 	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
+	private final String additionalClasspath;
 	private ITaintPropagationWrapper taintWrapper;
 	private PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 
@@ -116,13 +117,7 @@ public class SetupApplication {
 	 *            The path to the APK file to be analyzed
 	 */
 	public SetupApplication(String androidJar, String apkFileLocation) {
-		File f = new File(androidJar);
-		this.forceAndroidJar = f.isFile();
-
-		this.androidJar = androidJar;
-		this.apkFileLocation = apkFileLocation;
-
-		this.ipcManager = null;
+		this(androidJar, apkFileLocation, "", null);
 	}
 
 	/**
@@ -139,10 +134,34 @@ public class SetupApplication {
 	 */
 	public SetupApplication(String androidJar, String apkFileLocation,
 			IIPCManager ipcManager) {
-		this(androidJar, apkFileLocation);
-		this.ipcManager = ipcManager;
+		this(androidJar, apkFileLocation, "", ipcManager);
 	}
+	
+	/**
+	 * Creates a new instance of the {@link SetupApplication} class
+	 * 
+	 * @param androidJar
+	 *            The path to the Android SDK's "platforms" directory if
+	 *            Soot shall automatically select the JAR file to
+	 *            be used or the path to a single JAR file to force one.
+	 * @param apkFileLocation
+	 *            The path to the APK file to be analyzed
+	 * @param ipcManager
+	 *            The IPC manager to use for modelling inter-component and inter-application data flows
+	 */
+	public SetupApplication(String androidJar, String apkFileLocation,
+			String additionalClasspath,
+			IIPCManager ipcManager) {
+		File f = new File(androidJar);
+		this.forceAndroidJar = f.isFile();
 
+		this.androidJar = androidJar;
+		this.apkFileLocation = apkFileLocation;
+
+		this.ipcManager = ipcManager;
+		this.additionalClasspath = additionalClasspath;
+	}
+	
 	/**
 	 * Gets the set of sinks loaded into FlowDroid
 	 * 
@@ -592,6 +611,18 @@ public class SetupApplication {
 	public AccessPathBasedSourceSinkManager getSourceSinkManager() {
 		return sourceSinkManager;
 	}
+	
+	/**
+	 * Builds the classpath for this analysis
+	 * @return The classpath to be used for the taint analysis
+	 */
+	private String getClasspath() {
+		String classpath = forceAndroidJar ? androidJar
+				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+		if (this.additionalClasspath != null && !this.additionalClasspath.isEmpty())
+			classpath += File.pathSeparator + this.additionalClasspath;
+		return classpath;
+	}
 
 	/**
 	 * Initializes soot for running the soot-based phases of the application metadata analysis
@@ -602,8 +633,7 @@ public class SetupApplication {
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
-		Options.v().set_soot_classpath(
-				forceAndroidJar ? androidJar : Scene.v().getAndroidJarPath(androidJar, apkFileLocation));
+		Options.v().set_soot_classpath(getClasspath());
 		if (forceAndroidJar)
 			Options.v().set_force_android_jar(androidJar);
 		else
@@ -656,11 +686,11 @@ public class SetupApplication {
 				+ " sources and " + getSinks().size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(androidJar, forceAndroidJar, null, new DefaultPathBuilderFactory(pathBuilder,
-					computeResultPaths));
+			info = new Infoflow(getClasspath(), forceAndroidJar, null,
+					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 		else
-			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory, new DefaultPathBuilderFactory(pathBuilder,
-					computeResultPaths));
+			info = new Infoflow(getClasspath(), forceAndroidJar, cfgFactory,
+					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 
 		final String path;
 		if (forceAndroidJar)
