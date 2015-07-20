@@ -208,6 +208,9 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 
 	@Override
 	public Set<SourceSinkDefinition> getAllMethods() {
+		if (sourceList == null || sinkList == null)
+			parse();
+		
 		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceList.size()
 				+ sinkList.size() + neitherList.size());
 		sourcesSinks.addAll(sourceList);

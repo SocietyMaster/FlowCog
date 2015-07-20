@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -147,12 +148,9 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 			for (String parameter : params.split(","))
 				methodParameters.add(parameter.trim());
 		
-		//permissions
-		Set<String> permissions = new HashSet<String>();
-		permissions.add(currentPermission);
-		
 		//create method signature
-		singleMethod = new AndroidMethod(methodName, methodParameters, returnType, className, permissions);
+		singleMethod = new AndroidMethod(methodName, methodParameters, returnType, className,
+				currentPermission != null ? Collections.singleton(currentPermission) : Collections.<String>emptySet());
 		
 		if(m.group(5) != null){
 			String targets = m.group(5).substring(3);
@@ -283,6 +281,9 @@ public class PScoutPermissionMethodParser implements ISourceSinkDefinitionProvid
 
 	@Override
 	public Set<SourceSinkDefinition> getAllMethods() {
+		if (sourceList == null || sinkList == null)
+			parse();
+		
 		Set<SourceSinkDefinition> sourcesSinks = new HashSet<>(sourceList.size()
 				+ sinkList.size() + neitherList.size());
 		sourcesSinks.addAll(sourceList);
