@@ -686,10 +686,10 @@ public class SetupApplication {
 				+ " sources and " + getSinks().size() + " sinks...");
 		Infoflow info;
 		if (cfgFactory == null)
-			info = new Infoflow(getClasspath(), forceAndroidJar, null,
+			info = new Infoflow(androidJar, forceAndroidJar, null,
 					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 		else
-			info = new Infoflow(getClasspath(), forceAndroidJar, cfgFactory,
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
 					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
 
 		final String path;
