@@ -19,6 +19,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -71,8 +72,8 @@ public class Test {
 					for (ResultSourceInfo source : results.getResults().get(sink)) {
 						print("\t- " + source.getSource() + " (in "
 								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
-						if (source.getPath() != null && !source.getPath().isEmpty())
-							print("\t\ton Path " + source.getPath());
+						if (source.getPath() != null)
+							print("\t\ton Path " + Arrays.toString(source.getPath()));
 					}
 				}
 			}
