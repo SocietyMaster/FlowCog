@@ -29,6 +29,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
@@ -40,6 +42,7 @@ import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
+import soot.jimple.infoflow.results.xml.InfoflowResultsSerializer;
 import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
@@ -110,6 +113,7 @@ public class Test {
 	private static boolean librarySummaryTaintWrapper = false;
 	private static String summaryPath = "";
 	private static PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
+	private static String resultFilePath = "";
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -214,7 +218,12 @@ public class Test {
 		}
 	}
 
-
+	/**
+	 * Parses the optional command-line arguments
+	 * @param args The array of arguments to parse
+	 * @return True if all arguments are valid and could be parsed, otherwise
+	 * false
+	 */
 	private static boolean parseAdditionalOptions(String[] args) {
 		int i = 2;
 		while (i < args.length) {
@@ -314,6 +323,10 @@ public class Test {
 			}
 			else if (args[i].equalsIgnoreCase("--summarypath")) {
 				summaryPath = args[i + 1];
+				i += 2;
+			}
+			else if (args[i].equalsIgnoreCase("--saveresults")) {
+				resultFilePath = args[i + 1];
 				i += 2;
 			}
 			else
@@ -518,6 +531,13 @@ public class Test {
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+			
+			// Write the results into a file if requested
+			if (resultFilePath != null && !resultFilePath.isEmpty()) {
+				InfoflowResultsSerializer serializer = new InfoflowResultsSerializer();
+				serializer.serialize(res, resultFilePath);
+			}
+			
 			return res;
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
@@ -525,6 +545,10 @@ public class Test {
 			throw new RuntimeException(ex);
 		} catch (XmlPullParserException ex) {
 			System.err.println("Could not read Android manifest file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		} catch (XMLStreamException ex) {
+			System.err.println("Could not write data flow results to file: " + ex.getMessage());
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		}
