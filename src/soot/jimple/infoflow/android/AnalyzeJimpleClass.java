@@ -368,7 +368,9 @@ public class AnalyzeJimpleClass {
 			return;
 		
 		// Do not start the search in system classes
-		if (sootClass.getName().startsWith("android."))
+		if (sootClass.getName().startsWith("android.")
+				|| sootClass.getName().startsWith("java.")
+				|| sootClass.getName().startsWith("com.google."))
 			return;
 		
 		// There are also some classes that implement interesting callback methods.
@@ -376,7 +378,7 @@ public class AnalyzeJimpleClass {
 		// Android OS class, we treat it as a potential callback.
 		Set<String> systemMethods = new HashSet<String>(10000);
 		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sootClass)) {
-			if (parentClass.getName().startsWith("android."))
+			if (parentClass.getName().startsWith("android.") || parentClass.getName().startsWith("com.google."))
 				for (SootMethod sm : parentClass.getMethods())
 					if (!sm.isConstructor())
 						systemMethods.add(sm.getSubSignature());
