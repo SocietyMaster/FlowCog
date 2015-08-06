@@ -33,7 +33,6 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.infoflow.Infoflow;
-import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -43,7 +42,6 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager;
-import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.android.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.android.source.parsers.xml.XMLSourceSinkParser;
@@ -51,7 +49,6 @@ import soot.jimple.infoflow.cfg.BiDirICFGFactory;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
-import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
@@ -67,11 +64,7 @@ public class SetupApplication {
 	private final Map<String, Set<SootMethodAndClass>> callbackMethods =
 			new HashMap<String, Set<SootMethodAndClass>>(10000);
 
-	private InfoflowConfiguration config = new InfoflowConfiguration();
-	private boolean enableCallbacks = true;
-	private boolean enableCallbackSources = true;
-	private boolean computeResultPaths = true;
-	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
+	private InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
 	
 	private Set<String> entrypoints = null;
 	private Set<String> callbackClasses = null;
@@ -84,8 +77,7 @@ public class SetupApplication {
 	private final String apkFileLocation;
 	private final String additionalClasspath;
 	private ITaintPropagationWrapper taintWrapper;
-	private PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
-
+	
 	private AccessPathBasedSourceSinkManager sourceSinkManager = null;
 	private AndroidEntryPointCreator entryPointCreator = null;
 
@@ -362,7 +354,7 @@ public class SetupApplication {
 
 		// Add the callback methods
 		LayoutFileParser lfp = null;
-		if (enableCallbacks) {
+		if (config.getEnableCallbacks()) {
 			lfp = new LayoutFileParser(this.appPackageName, resParser);
 			calculateCallbackMethods(resParser, lfp);
 
@@ -385,12 +377,12 @@ public class SetupApplication {
 					this.sourceSinkProvider.getSources(),
 					this.sourceSinkProvider.getSinks(),
 					callbacks,
-					layoutMatchingMode,
+					config.getLayoutMatchingMode(),
 					lfp == null ? null : lfp.getUserControlsByID());
 
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
-			sourceSinkManager.setEnableCallbackSources(this.enableCallbackSources);
+			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
 		}
 
 		entryPointCreator = createEntryPointCreator();
@@ -676,10 +668,12 @@ public class SetupApplication {
 		Infoflow info;
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, forceAndroidJar, null,
-					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
 		else
 			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
-					new DefaultPathBuilderFactory(pathBuilder, computeResultPaths));
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
 
 		final String path;
 		if (forceAndroidJar)
@@ -734,37 +728,6 @@ public class SetupApplication {
 	}
 	
 	/**
-	/**
-	 * Sets whether the taint analysis shall consider callbacks
-	 * 
-	 * @param enableCallbacks
-	 *            True if taints shall be tracked through callbacks, otherwise false
-	 */
-	public void setEnableCallbacks(boolean enableCallbacks) {
-		this.enableCallbacks = enableCallbacks;
-	}
-	
-	/**
-	 * Sets whether the taint analysis shall consider callback as sources
-	 * 
-	 * @param enableCallbackSources
-	 *            True if setting callbacks as sources
-	 */
-	public void setEnableCallbackSources(boolean enableCallbackSources) {
-		this.enableCallbackSources = enableCallbackSources;
-	}
-	
-	/**
-	 * Sets the mode to be used when deciding whether a UI control is a source or not
-	 * 
-	 * @param mode
-	 *            The mode to be used for classifying UI controls as sources
-	 */
-	public void setLayoutMatchingMode(LayoutMatchingMode mode) {
-		this.layoutMatchingMode = mode;
-	}
-
-	/**
 	 * Gets the extra Soot configuration options to be used when running the analysis
 	 * 
 	 * @return The extra Soot configuration options to be used when running the analysis, null if the defaults shall be
@@ -794,29 +757,7 @@ public class SetupApplication {
 	public void setIcfgFactory(BiDirICFGFactory factory) {
 		this.cfgFactory = factory;
 	}
-
-	/**
-	 * Sets the algorithm to be used for reconstructing the paths between sources and sinks
-	 * 
-	 * @param builder
-	 *            The path reconstruction algorithm to be used
-	 */
-	public void setPathBuilder(PathBuilder builder) {
-		this.pathBuilder = builder;
-	}
-
-	/**
-	 * Sets whether the exact paths between source and sink shall be computed. If this feature is disabled, only the
-	 * source-and-sink pairs are reported. This option only applies if the selected path reconstruction algorithm
-	 * supports path computations.
-	 * 
-	 * @param computeResultPaths
-	 *            True if the exact propagation paths shall be computed, otherwise false
-	 */
-	public void setComputeResultPaths(boolean computeResultPaths) {
-		this.computeResultPaths = computeResultPaths;
-	}
-
+	
 	/**
 	 * Gets the maximum memory consumption during the last analysis run
 	 * 
@@ -830,7 +771,7 @@ public class SetupApplication {
 	 * Gets the data flow configuration
 	 * @return The current data flow configuration
 	 */
-	public InfoflowConfiguration getDataFlowConfig() {
+	public InfoflowAndroidConfiguration getConfig() {
 		return this.config;
 	}
 	
@@ -838,7 +779,7 @@ public class SetupApplication {
 	 * Sets the data flow configuration
 	 * @param config The new data flow configuration
 	 */
-	public void setDataFlowConfig(InfoflowConfiguration config) {
+	public void setConfig(InfoflowAndroidConfiguration config) {
 		this.config = config;
 	}
 	

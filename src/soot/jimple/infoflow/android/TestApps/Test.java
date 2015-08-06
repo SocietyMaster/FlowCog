@@ -495,18 +495,18 @@ public class Test {
 			}
 			
 			// Generic data flow configuration
-			app.getDataFlowConfig().setStopAfterFirstFlow(stopAfterFirstFlow);
-			app.getDataFlowConfig().setEnableImplicitFlows(implicitFlows);
-			app.getDataFlowConfig().setEnableStaticFieldTracking(staticTracking);
-			app.getDataFlowConfig().setEnableExceptionTracking(enableExceptions);
-			app.getDataFlowConfig().setFlowSensitiveAliasing(flowSensitiveAliasing);
+			app.getConfig().setStopAfterFirstFlow(stopAfterFirstFlow);
+			app.getConfig().setEnableImplicitFlows(implicitFlows);
+			app.getConfig().setEnableStaticFieldTracking(staticTracking);
+			app.getConfig().setEnableExceptionTracking(enableExceptions);
+			app.getConfig().setFlowSensitiveAliasing(flowSensitiveAliasing);
 			InfoflowConfiguration.setAccessPathLength(accessPathLength);
 			
 			// Android-specific configuration
-			app.setEnableCallbacks(enableCallbacks);
-			app.setLayoutMatchingMode(layoutMatchingMode);
-			app.setPathBuilder(pathBuilder);
-			app.setComputeResultPaths(computeResultPaths);
+			app.getConfig().setEnableCallbacks(enableCallbacks);
+			app.getConfig().setLayoutMatchingMode(layoutMatchingMode);
+			app.getConfig().setPathBuilder(pathBuilder);
+			app.getConfig().setComputeResultPaths(computeResultPaths);
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (librarySummaryTaintWrapper) {
