@@ -33,7 +33,8 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
+import soot.jimple.infoflow.InfoflowConfiguration;
+import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
@@ -492,15 +493,18 @@ public class Test {
 			{
 				app = new SetupApplication(androidJar, fileName, ipcManager);
 			}
-
-			app.setStopAfterFirstFlow(stopAfterFirstFlow);
-			app.setEnableImplicitFlows(implicitFlows);
-			app.setEnableStaticFieldTracking(staticTracking);
+			
+			// Generic data flow configuration
+			app.getDataFlowConfig().setStopAfterFirstFlow(stopAfterFirstFlow);
+			app.getDataFlowConfig().setEnableImplicitFlows(implicitFlows);
+			app.getDataFlowConfig().setEnableStaticFieldTracking(staticTracking);
+			app.getDataFlowConfig().setEnableExceptionTracking(enableExceptions);
+			app.getDataFlowConfig().setFlowSensitiveAliasing(flowSensitiveAliasing);
+			InfoflowConfiguration.setAccessPathLength(accessPathLength);
+			
+			// Android-specific configuration
 			app.setEnableCallbacks(enableCallbacks);
-			app.setEnableExceptionTracking(enableExceptions);
-			app.setAccessPathLength(accessPathLength);
 			app.setLayoutMatchingMode(layoutMatchingMode);
-			app.setFlowSensitiveAliasing(flowSensitiveAliasing);
 			app.setPathBuilder(pathBuilder);
 			app.setComputeResultPaths(computeResultPaths);
 			

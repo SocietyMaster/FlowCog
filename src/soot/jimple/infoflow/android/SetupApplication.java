@@ -32,9 +32,8 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.jimple.infoflow.IInfoflow.CallgraphAlgorithm;
-import soot.jimple.infoflow.IInfoflow.CodeEliminationMode;
 import soot.jimple.infoflow.Infoflow;
+import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -68,21 +67,12 @@ public class SetupApplication {
 	private final Map<String, Set<SootMethodAndClass>> callbackMethods =
 			new HashMap<String, Set<SootMethodAndClass>>(10000);
 
-	private boolean stopAfterFirstFlow = false;
-	private boolean enableImplicitFlows = false;
-	private boolean enableStaticFields = true;
-	private boolean enableExceptions = true;
+	private InfoflowConfiguration config = new InfoflowConfiguration();
 	private boolean enableCallbacks = true;
-	private boolean flowSensitiveAliasing = true;
-	private boolean ignoreFlowsInSystemPackages = true;
 	private boolean enableCallbackSources = true;
 	private boolean computeResultPaths = true;
-
-	private int accessPathLength = 5;
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
-
-	private CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
-
+	
 	private Set<String> entrypoints = null;
 	private Set<String> callbackClasses = null;
 
@@ -105,8 +95,7 @@ public class SetupApplication {
 	private IIPCManager ipcManager = null;
 	
 	private long maxMemoryConsumption = -1;
-	private CodeEliminationMode codeEliminationMode = CodeEliminationMode.RemoveSideEffectFreeCode;
-
+	
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
@@ -642,7 +631,7 @@ public class SetupApplication {
 		Main.v().autoSetOptions();
 
 		// Configure the callgraph algorithm
-		switch (callgraphAlgorithm) {
+		switch (config.getCallgraphAlgorithm()) {
 		case AutomaticSelection:
 			Options.v().setPhaseOption("cg.spark", "on");
 			break;
@@ -703,22 +692,13 @@ public class SetupApplication {
 			info.addResultsAvailableHandler(onResultsAvailable);
 
 		System.out.println("Starting infoflow computation...");
+		info.setConfig(config);
 		info.setSootConfig(sootConfig);
-
-		info.setStopAfterFirstFlow(stopAfterFirstFlow);
-		info.setEnableImplicitFlows(enableImplicitFlows);
-		info.setEnableStaticFieldTracking(enableStaticFields);
-		info.setEnableExceptionTracking(enableExceptions);
-		Infoflow.setAccessPathLength(accessPathLength);
-		info.setFlowSensitiveAliasing(flowSensitiveAliasing);
-		info.setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
-		info.setCodeEliminationMode(codeEliminationMode);
-
-		info.setInspectSources(false);
-		info.setInspectSinks(false);
-
-		info.setCallgraphAlgorithm(callgraphAlgorithm);
-
+		
+		// We need to force some properties
+		info.getConfig().setInspectSources(false);
+		info.getConfig().setInspectSinks(false);
+		
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}
@@ -752,68 +732,8 @@ public class SetupApplication {
 	public AndroidEntryPointCreator getEntryPointCreator() {
 		return entryPointCreator;
 	}
-
+	
 	/**
-	 * Sets whether the data flow tracker shall stop after the first leak has been found
-	 * 
-	 * @param stopAfterFirstFlow
-	 *            True if the data flow tracker shall stop after the first flow has been found, otherwise false
-	 */
-	public void setStopAfterFirstFlow(boolean stopAfterFirstFlow) {
-		this.stopAfterFirstFlow = stopAfterFirstFlow;
-	}
-
-	/**
-	 * Sets whether implicit flow tracking shall be enabled. While this allows control flow-based leaks to be found, it
-	 * can severly affect performance and lead to an increased number of false positives.
-	 * 
-	 * @param enableImplicitFlows
-	 *            True if implicit flow tracking shall be enabled, otherwise false
-	 */
-	public void setEnableImplicitFlows(boolean enableImplicitFlows) {
-		this.enableImplicitFlows = enableImplicitFlows;
-	}
-
-	/**
-	 * Sets whether static fields shall be tracked in the data flow tracker
-	 * 
-	 * @param enableStaticFields
-	 *            True if static fields shall be tracked, otherwise false
-	 */
-	public void setEnableStaticFieldTracking(boolean enableStaticFields) {
-		this.enableStaticFields = enableStaticFields;
-	}
-
-	/**
-	 * Sets whether taints associated with thrown exception objects shall be tracked
-	 * 
-	 * @param enableExceptions
-	 *            True if exceptions containing tainted data shall be tracked, otherwise false
-	 */
-	public void setEnableExceptionTracking(boolean enableExceptions) {
-		this.enableExceptions = enableExceptions;
-	}
-
-	/**
-	 * Sets whether flows starting or ending in system packages such as Android's support library shall be ignored.
-	 * 
-	 * @param ignoreFlowsInSystemPackages
-	 *            True if flows starting or ending in system packages shall be ignored, otherwise false.
-	 */
-	public void setIgnoreFlowsInSystemPackages(boolean ignoreFlowsInSystemPackages) {
-		this.ignoreFlowsInSystemPackages = ignoreFlowsInSystemPackages;
-	}
-
-	/**
-	 * Sets whether a flow sensitive aliasing algorithm shall be used
-	 * 
-	 * @param flowSensitiveAliasing
-	 *            True if a flow sensitive aliasing algorithm shall be used, otherwise false
-	 */
-	public void setFlowSensitiveAliasing(boolean flowSensitiveAliasing) {
-		this.flowSensitiveAliasing = flowSensitiveAliasing;
-	}
-
 	/**
 	 * Sets whether the taint analysis shall consider callbacks
 	 * 
@@ -823,7 +743,7 @@ public class SetupApplication {
 	public void setEnableCallbacks(boolean enableCallbacks) {
 		this.enableCallbacks = enableCallbacks;
 	}
-
+	
 	/**
 	 * Sets whether the taint analysis shall consider callback as sources
 	 * 
@@ -833,27 +753,7 @@ public class SetupApplication {
 	public void setEnableCallbackSources(boolean enableCallbackSources) {
 		this.enableCallbackSources = enableCallbackSources;
 	}
-
-	/**
-	 * Sets the maximum access path length to be used in the solver
-	 * 
-	 * @param accessPathLength
-	 *            The maximum access path length to be used in the solver
-	 */
-	public void setAccessPathLength(int accessPathLength) {
-		this.accessPathLength = accessPathLength;
-	}
-
-	/**
-	 * Sets the callgraph algorithm to be used by the data flow tracker
-	 * 
-	 * @param algorithm
-	 *            The callgraph algorithm to be used by the data flow tracker
-	 */
-	public void setCallgraphAlgorithm(CallgraphAlgorithm algorithm) {
-		this.callgraphAlgorithm = algorithm;
-	}
-
+	
 	/**
 	 * Sets the mode to be used when deciding whether a UI control is a source or not
 	 * 
@@ -925,15 +825,21 @@ public class SetupApplication {
 	public long getMaxMemoryConsumption() {
 		return this.maxMemoryConsumption;
 	}
-
+	
 	/**
-	 * Sets whether and how FlowDroid shall eliminate irrelevant code before running the taint propagation
-	 * 
-	 * @param Mode
-	 *            the mode of dead and irrelevant code eliminiation to be used
+	 * Gets the data flow configuration
+	 * @return The current data flow configuration
 	 */
-	public void setCodeEliminationMode(CodeEliminationMode mode) {
-		this.codeEliminationMode = mode;
+	public InfoflowConfiguration getDataFlowConfig() {
+		return this.config;
 	}
-
+	
+	/**
+	 * Sets the data flow configuration
+	 * @param config The new data flow configuration
+	 */
+	public void setDataFlowConfig(InfoflowConfiguration config) {
+		this.config = config;
+	}
+	
 }
