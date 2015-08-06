@@ -73,8 +73,8 @@ public class InsecureBankTests {
 		SetupApplication setupApplication = new SetupApplication(androidJars,
 				"insecureBank" + File.separator + "InsecureBank.apk");
 		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
-		setupApplication.getDataFlowConfig().setEnableImplicitFlows(enableImplicitFlows);
-		setupApplication.setLayoutMatchingMode(LayoutMatchingMode.MatchAll);
+		setupApplication.getConfig().setEnableImplicitFlows(enableImplicitFlows);
+		setupApplication.getConfig().setLayoutMatchingMode(LayoutMatchingMode.MatchAll);
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		return setupApplication.runInfoflow();
 	}
