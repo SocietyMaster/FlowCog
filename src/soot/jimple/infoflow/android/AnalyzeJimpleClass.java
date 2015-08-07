@@ -383,7 +383,7 @@ public class AnalyzeJimpleClass {
 		// Android OS class, we treat it as a potential callback.
 		Set<String> systemMethods = new HashSet<String>(10000);
 		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sootClass)) {
-			if (SystemClassHandler.isClassInSystemPackage(sootClass.getName()))
+			if (SystemClassHandler.isClassInSystemPackage(parentClass.getName()))
 				for (SootMethod sm : parentClass.getMethods())
 					if (!sm.isConstructor())
 						systemMethods.add(sm.getSubSignature());
