@@ -431,9 +431,9 @@ public class SetupApplication {
 				// Collect the callback interfaces implemented in the app's
 				// source code
 				if (callbackClasses == null) {
-					jimpleClass = new AnalyzeJimpleClass(entrypoints);
+					jimpleClass = new AnalyzeJimpleClass(config, entrypoints);
 				} else {
-					jimpleClass = new AnalyzeJimpleClass(entrypoints, callbackClasses);
+					jimpleClass = new AnalyzeJimpleClass(config, entrypoints, callbackClasses);
 				}
 				jimpleClass.collectCallbackMethods();
 

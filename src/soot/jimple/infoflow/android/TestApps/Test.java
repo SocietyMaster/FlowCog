@@ -115,6 +115,7 @@ public class Test {
 	private static String summaryPath = "";
 	private static PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	private static String resultFilePath = "";
+	private static boolean ignoreFlowsInSystemPackages = true;
 	
 	private static CallgraphAlgorithm callgraphAlgorithm = CallgraphAlgorithm.AutomaticSelection;
 	
@@ -330,6 +331,10 @@ public class Test {
 				resultFilePath = args[i + 1];
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--sysflows")) {
+				ignoreFlowsInSystemPackages = false;
+				i++;
+			}
 			else
 				i++;
 		}
@@ -500,6 +505,7 @@ public class Test {
 			app.getConfig().setEnableStaticFieldTracking(staticTracking);
 			app.getConfig().setEnableExceptionTracking(enableExceptions);
 			app.getConfig().setFlowSensitiveAliasing(flowSensitiveAliasing);
+			app.getConfig().setIgnoreFlowsInSystemPackages(ignoreFlowsInSystemPackages);
 			InfoflowConfiguration.setAccessPathLength(accessPathLength);
 			
 			// Android-specific configuration
@@ -618,6 +624,7 @@ public class Test {
 		System.out.println("\t--PATHALGO Use path reconstruction algorithm x");
 		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
+		System.out.println("\t--SYSFLOWS Also analyze classes in system packages");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");

@@ -46,6 +46,7 @@ import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
+import soot.jimple.infoflow.util.SystemClassHandler;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -63,6 +64,7 @@ import soot.util.MultiMap;
  */
 public class AnalyzeJimpleClass {
 
+	private final InfoflowAndroidConfiguration config;
 	private final Set<String> entryPointClasses;
 	private final Set<String> androidCallbacks;
 	
@@ -75,13 +77,17 @@ public class AnalyzeJimpleClass {
 	private final Set<String> dynamicManifestComponents =
 			new HashSet<>();
 
-	public AnalyzeJimpleClass(Set<String> entryPointClasses) throws IOException {
+	public AnalyzeJimpleClass(InfoflowAndroidConfiguration config,
+			Set<String> entryPointClasses) throws IOException {
+		this.config = config;
 		this.entryPointClasses = entryPointClasses;
 		this.androidCallbacks = loadAndroidCallbacks();
 	}
 
-	public AnalyzeJimpleClass(Set<String> entryPointClasses,
+	public AnalyzeJimpleClass(InfoflowAndroidConfiguration config,
+			Set<String> entryPointClasses,
 			Set<String> androidCallbacks) {
+		this.config = config;
 		this.entryPointClasses = entryPointClasses;
 		this.androidCallbacks = new HashSet<String>();
 	}
@@ -368,9 +374,8 @@ public class AnalyzeJimpleClass {
 			return;
 		
 		// Do not start the search in system classes
-		if (sootClass.getName().startsWith("android.")
-				|| sootClass.getName().startsWith("java.")
-				|| sootClass.getName().startsWith("com.google."))
+		if (config.getIgnoreFlowsInSystemPackages()
+				&& SystemClassHandler.isClassInSystemPackage(sootClass.getName()))
 			return;
 		
 		// There are also some classes that implement interesting callback methods.
@@ -378,7 +383,7 @@ public class AnalyzeJimpleClass {
 		// Android OS class, we treat it as a potential callback.
 		Set<String> systemMethods = new HashSet<String>(10000);
 		for (SootClass parentClass : Scene.v().getActiveHierarchy().getSuperclassesOf(sootClass)) {
-			if (parentClass.getName().startsWith("android.") || parentClass.getName().startsWith("com.google."))
+			if (SystemClassHandler.isClassInSystemPackage(sootClass.getName()))
 				for (SootMethod sm : parentClass.getMethods())
 					if (!sm.isConstructor())
 						systemMethods.add(sm.getSubSignature());
