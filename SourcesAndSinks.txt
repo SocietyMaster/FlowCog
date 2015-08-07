@@ -353,5 +353,3 @@
 
 <com.example.testflowdroid.SourceAndSink: java.lang.String source(com.example.testflowdroid.MyObject)> -> _SOURCE_
 <com.example.testflowdroid.SourceAndSink: void sink(com.example.testflowdroid.MyObject)> -> _SINK_
-
-<android.content.Context: android.content.ComponentName startService(android.content.Intent)> -> _SINK_
