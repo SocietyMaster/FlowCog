@@ -97,10 +97,12 @@ public class Test {
 	
 	private static InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
 	
+	private static int repeatCount = 1;
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
 	
 	private static boolean aggressiveTaintWrapper = false;
+	private static boolean noTaintWrapper = false;
 	private static String summaryPath = "";
 	private static String resultFilePath = "";
 	
@@ -142,6 +144,8 @@ public class Test {
 		if (!parseAdditionalOptions(args))
 			return;
 		if (!validateAdditionalOptions())
+			return;
+		if (repeatCount <= 0)
 			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
@@ -316,6 +320,14 @@ public class Test {
 				config.setIgnoreFlowsInSystemPackages(false);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--notaintwrapper")) {
+				noTaintWrapper = true;
+				i++;
+			}
+			else if (args[i].equalsIgnoreCase("--repeatcount")) {
+				repeatCount = Integer.parseInt(args[i + 1]);
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -406,7 +418,9 @@ public class Test {
 				"--pathalgo", pathAlgorithmToString(config.getPathBuilder()),
 				(summaryPath != null && !summaryPath.isEmpty()) ? "--libsumtw" : "--nolibsumtw",
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
-				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : ""
+				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
+				noTaintWrapper ? "--notaintwrapper" : "",
+				"--repeatCount", Integer.toString(repeatCount - 1)
 				};
 		System.out.println("Running command: " + executable + " " + command);
 		try {
@@ -485,7 +499,9 @@ public class Test {
 			app.setConfig(config);
 			
 			final ITaintPropagationWrapper taintWrapper;
-			if (summaryPath != null && !summaryPath.isEmpty()) {
+			if (noTaintWrapper)
+				taintWrapper = null;
+			else if (summaryPath != null && !summaryPath.isEmpty()) {
 				taintWrapper = createLibrarySummaryTW();
 			}
 			else {
@@ -505,7 +521,7 @@ public class Test {
 				app.printSinks();
 				app.printSources();
 			}
-				
+			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
@@ -593,6 +609,7 @@ public class Test {
 		System.out.println("\t--LIBSUMTW Use library summary taint wrapper");
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println("\t--SYSFLOWS Also analyze classes in system packages");
+		System.out.println("\t--NOTAINTWRAPPER Disables the use of taint wrappers");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
