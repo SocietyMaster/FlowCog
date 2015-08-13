@@ -420,15 +420,13 @@ public class Test {
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
 				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
 				noTaintWrapper ? "--notaintwrapper" : "",
-				"--repeatCount", Integer.toString(repeatCount - 1),
-				"> out" + repeatCount + ".log",
-				"2> err" + repeatCount + ".log",
+				"--repeatCount", Integer.toString(repeatCount - 1)
 				};
 		System.out.println("Running command: " + executable + " " + command);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
-			pb.redirectOutput(new File("_out_" + new File(fileName).getName() + ".txt"));
-			pb.redirectError(new File("err_" + new File(fileName).getName() + ".txt"));
+			pb.redirectOutput(new File("out_" + new File(fileName).getName() + "_" + repeatCount + ".txt"));
+			pb.redirectError(new File("err_" + new File(fileName).getName() + "_" + repeatCount + ".txt"));
 			Process proc = pb.start();
 			proc.waitFor();
 		} catch (IOException ex) {
