@@ -503,6 +503,10 @@ public class Test {
 				taintWrapper = null;
 			else if (summaryPath != null && !summaryPath.isEmpty()) {
 				taintWrapper = createLibrarySummaryTW();
+				if (taintWrapper == null) {
+					System.err.println("Could not initialize StubDroid");
+					return null;
+				}
 			}
 			else {
 				final EasyTaintWrapper easyTaintWrapper;
@@ -557,7 +561,7 @@ public class Test {
 	private static ITaintPropagationWrapper createLibrarySummaryTW()
 			throws IOException {
 		try {
-			Class clzLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.impl.LazySummary");
+			Class clzLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.summary.LazySummary");
 			
 			Object lazySummary = clzLazySummary.getConstructor(File.class).newInstance(new File(summaryPath));
 			
@@ -567,7 +571,7 @@ public class Test {
 			
 			final TaintWrapperSet taintWrapperSet = new TaintWrapperSet();
 			taintWrapperSet.addWrapper(summaryWrapper);
-			taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
+//			taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
 			return taintWrapperSet;
 		}
 		catch (ClassNotFoundException | NoSuchMethodException ex) {
