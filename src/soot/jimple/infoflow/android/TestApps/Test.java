@@ -328,6 +328,10 @@ public class Test {
 				repeatCount = Integer.parseInt(args[i + 1]);
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--noarraysize")) {
+				config.setEnableArraySizeTainting(false);
+				i++;
+			}
 			else
 				i++;
 		}
