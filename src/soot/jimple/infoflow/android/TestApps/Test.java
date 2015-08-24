@@ -427,7 +427,7 @@ public class Test {
 				noTaintWrapper ? "--notaintwrapper" : "",
 				"--repeatCount", Integer.toString(repeatCount - 1)
 				};
-		System.out.println("Running command: " + executable + " " + command);
+		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
 			pb.redirectOutput(new File("out_" + new File(fileName).getName() + "_" + repeatCount + ".txt"));
