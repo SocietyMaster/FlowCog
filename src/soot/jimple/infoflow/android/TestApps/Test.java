@@ -181,6 +181,7 @@ public class Test {
 
 		for (final String fileName : apkFiles) {
 			final String fullFilePath;
+			System.gc();
 			
 			// Directory handling
 			if (apkFiles.size() > 1) {
