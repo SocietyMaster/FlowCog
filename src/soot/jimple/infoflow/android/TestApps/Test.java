@@ -425,7 +425,7 @@ public class Test {
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
 				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
 				noTaintWrapper ? "--notaintwrapper" : "",
-				"--repeatCount", Integer.toString(repeatCount - 1)
+				"--repeatCount", Integer.toString(repeatCount)
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
