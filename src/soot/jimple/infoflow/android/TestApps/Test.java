@@ -333,6 +333,10 @@ public class Test {
 				config.setEnableArraySizeTainting(false);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--notypetightening")) {
+				InfoflowAndroidConfiguration.setUseTypeTightening(false);
+				i++;
+			}
 			else
 				i++;
 		}
@@ -425,7 +429,9 @@ public class Test {
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
 				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
 				noTaintWrapper ? "--notaintwrapper" : "",
-				"--repeatCount", Integer.toString(repeatCount)
+				"--repeatCount", Integer.toString(repeatCount),
+				config.getEnableArraySizeTainting() ? "" : "--noarraysize",
+				InfoflowAndroidConfiguration.getUseTypeTightening() ? "" : "--notypetightening"
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
@@ -619,6 +625,7 @@ public class Test {
 		System.out.println("\t--SUMMARYPATH Path to library summaries");
 		System.out.println("\t--SYSFLOWS Also analyze classes in system packages");
 		System.out.println("\t--NOTAINTWRAPPER Disables the use of taint wrappers");
+		System.out.println("\t--NOTYPETIGHTENING Disables the use of taint wrappers");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
