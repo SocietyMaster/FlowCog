@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +48,6 @@ import soot.jimple.infoflow.results.xml.InfoflowResultsSerializer;
 import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
-import soot.jimple.infoflow.taintWrappers.TaintWrapperSet;
 
 public class Test {
 	
@@ -579,11 +579,13 @@ public class Test {
 			ITaintPropagationWrapper summaryWrapper = (ITaintPropagationWrapper) Class.forName
 					("soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper").getConstructor
 					(clzLazySummary).newInstance(lazySummary);
+						
+			Method setFallbackMethod = summaryWrapper.getClass().getMethod("setFallbackTaintWrapper",
+					ITaintPropagationWrapper.class);
+			setFallbackMethod.invoke(summaryWrapper,
+					new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 			
-			final TaintWrapperSet taintWrapperSet = new TaintWrapperSet();
-			taintWrapperSet.addWrapper(summaryWrapper);
-//			taintWrapperSet.addWrapper(new EasyTaintWrapper("EasyTaintWrapperConversion.txt"));
-			return taintWrapperSet;
+			return summaryWrapper;
 		}
 		catch (ClassNotFoundException | NoSuchMethodException ex) {
 			System.err.println("Could not find library summary classes: " + ex.getMessage());
