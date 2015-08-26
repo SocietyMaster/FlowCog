@@ -199,13 +199,16 @@ public class Test {
 				fullFilePath = fileName;
 
 			// Run the analysis
-			if (timeout > 0)
-				runAnalysisTimeout(fullFilePath, args[1]);
-			else if (sysTimeout > 0)
-				runAnalysisSysTimeout(fullFilePath, args[1]);
-			else
-				runAnalysis(fullFilePath, args[1]);
-
+			while (repeatCount > 0) {
+				if (timeout > 0)
+					runAnalysisTimeout(fullFilePath, args[1]);
+				else if (sysTimeout > 0)
+					runAnalysisSysTimeout(fullFilePath, args[1]);
+				else
+					runAnalysis(fullFilePath, args[1]);
+				repeatCount--;
+			}
+			
 			System.gc();
 		}
 	}
