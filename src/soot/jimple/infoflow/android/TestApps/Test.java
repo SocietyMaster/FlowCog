@@ -200,6 +200,7 @@ public class Test {
 
 			// Run the analysis
 			while (repeatCount > 0) {
+				System.gc();
 				if (timeout > 0)
 					runAnalysisTimeout(fullFilePath, args[1]);
 				else if (sysTimeout > 0)
