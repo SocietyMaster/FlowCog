@@ -525,6 +525,7 @@ public class Test {
 			if (noTaintWrapper)
 				taintWrapper = null;
 			else if (summaryPath != null && !summaryPath.isEmpty()) {
+				System.out.println("Using the StubDroid taint wrapper");
 				taintWrapper = createLibrarySummaryTW();
 				if (taintWrapper == null) {
 					System.err.println("Could not initialize StubDroid");
