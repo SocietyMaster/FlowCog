@@ -184,8 +184,10 @@ public class Test {
 				return;
 			}
 		}
-
+		
+		int oldRepeatCount = repeatCount;
 		for (final String fileName : apkFiles) {
+			repeatCount = oldRepeatCount;
 			final String fullFilePath;
 			System.gc();
 			
@@ -439,7 +441,7 @@ public class Test {
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
 				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
 				noTaintWrapper ? "--notaintwrapper" : "",
-				"--repeatCount", Integer.toString(repeatCount),
+//				"--repeatCount", Integer.toString(repeatCount),
 				config.getEnableArraySizeTainting() ? "" : "--noarraysize",
 				InfoflowAndroidConfiguration.getUseTypeTightening() ? "" : "--notypetightening"
 				};
