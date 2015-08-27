@@ -437,7 +437,7 @@ public class Test {
 				config.getComputeResultPaths() ? "--paths" : "--nopaths",
 				aggressiveTaintWrapper ? "--aggressivetw" : "--nonaggressivetw",
 				"--pathalgo", pathAlgorithmToString(config.getPathBuilder()),
-				(summaryPath != null && !summaryPath.isEmpty()) ? "--libsumtw" : "--nolibsumtw",
+				(summaryPath != null && !summaryPath.isEmpty()) ? "--summarypath" : "",
 				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
 				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
 				noTaintWrapper ? "--notaintwrapper" : "",
