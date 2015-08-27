@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -34,10 +35,14 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import soot.SootMethod;
+import soot.jimple.Stmt;
+import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
+import soot.jimple.infoflow.data.Abstraction;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
@@ -48,6 +53,7 @@ import soot.jimple.infoflow.results.xml.InfoflowResultsSerializer;
 import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.infoflow.util.SystemClassHandler;
 
 public class Test {
 	
@@ -583,11 +589,70 @@ public class Test {
 			ITaintPropagationWrapper summaryWrapper = (ITaintPropagationWrapper) Class.forName
 					("soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper").getConstructor
 					(clzLazySummary).newInstance(lazySummary);
-						
+			
+			ITaintPropagationWrapper systemClassWrapper = new ITaintPropagationWrapper() {
+				
+				private ITaintPropagationWrapper wrapper = new EasyTaintWrapper("EasyTaintWrapperSource.txt");
+				
+				private boolean isSystemClass(Stmt stmt) {
+					if (stmt.containsInvokeExpr())
+						return SystemClassHandler.isClassInSystemPackage(
+								stmt.getInvokeExpr().getMethod().getDeclaringClass().getName());
+					return false;
+				}
+				
+				@Override
+				public boolean supportsCallee(Stmt callSite) {
+					return isSystemClass(callSite) && wrapper.supportsCallee(callSite);
+				}
+				
+				@Override
+				public boolean supportsCallee(SootMethod method) {
+					return SystemClassHandler.isClassInSystemPackage(method.getDeclaringClass().getName())
+							&& wrapper.supportsCallee(method);
+				}
+				
+				@Override
+				public boolean isExclusive(Stmt stmt, Abstraction taintedPath) {
+					return isSystemClass(stmt) && wrapper.isExclusive(stmt, taintedPath);
+				}
+				
+				@Override
+				public void initialize(InfoflowManager manager) {
+					wrapper.initialize(manager);
+				}
+				
+				@Override
+				public int getWrapperMisses() {
+					return 0;
+				}
+				
+				@Override
+				public int getWrapperHits() {
+					return 0;
+				}
+				
+				@Override
+				public Set<Abstraction> getTaintsForMethod(Stmt stmt, Abstraction d1,
+						Abstraction taintedPath) {
+					if (!isSystemClass(stmt))
+						return null;
+					return wrapper.getTaintsForMethod(stmt, d1, taintedPath);
+				}
+				
+				@Override
+				public Set<Abstraction> getAliasesForMethod(Stmt stmt, Abstraction d1,
+						Abstraction taintedPath) {
+					if (!isSystemClass(stmt))
+						return null;
+					return wrapper.getAliasesForMethod(stmt, d1, taintedPath);
+				}
+				
+			};
+			
 			Method setFallbackMethod = summaryWrapper.getClass().getMethod("setFallbackTaintWrapper",
 					ITaintPropagationWrapper.class);
-			setFallbackMethod.invoke(summaryWrapper,
-					new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
+			setFallbackMethod.invoke(summaryWrapper, systemClassWrapper);
 			
 			return summaryWrapper;
 		}
