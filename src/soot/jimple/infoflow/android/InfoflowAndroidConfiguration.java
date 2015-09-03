@@ -20,6 +20,19 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 	
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
+	@Override
+	public void merge(InfoflowConfiguration config) {
+		super.merge(config);
+		if (config instanceof InfoflowAndroidConfiguration) {
+			InfoflowAndroidConfiguration androidConfig = (InfoflowAndroidConfiguration) config;
+			this.computeResultPaths = androidConfig.computeResultPaths;
+			this.pathBuilder = androidConfig.pathBuilder;
+			this.enableCallbacks = androidConfig.enableCallbacks;
+			this.enableCallbackSources = androidConfig.enableCallbackSources;
+			this.layoutMatchingMode = androidConfig.layoutMatchingMode;
+		}
+	}
+	
 	/**
 	 * Sets the algorithm to be used for reconstructing the paths between sources and sinks
 	 * 
