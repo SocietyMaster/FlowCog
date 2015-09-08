@@ -122,8 +122,9 @@ public class AndroidMethod extends SootMethodAndClass {
 	@Override
 	public String toString() {
 		String s = getSignature();
-		for (String perm : permissions)
-			s += " " + perm;
+		if (permissions != null)
+			for (String perm : permissions)
+				s += " " + perm;
 
 		if (this.isSource || this.isSink || this.isNeitherNor)
 			s += " ->";
