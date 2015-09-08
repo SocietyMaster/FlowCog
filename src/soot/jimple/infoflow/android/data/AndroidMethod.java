@@ -12,6 +12,7 @@ package soot.jimple.infoflow.android.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class AndroidMethod extends SootMethodAndClass {
 		AUDIO, SMS_MMS, CONTACT_INFORMATION, CALENDAR_INFORMATION, SYSTEM_SETTINGS, IMAGE, BROWSER_INFORMATION, NFC
 	}
 
-	private final Set<String> permissions;
+	private Set<String> permissions;
 
 	private boolean isSource = false;
 	private boolean isSink = false;
@@ -51,12 +52,12 @@ public class AndroidMethod extends SootMethodAndClass {
 	
 	public AndroidMethod(String methodName, String returnType, String className) {
 		super(methodName, className, returnType, new ArrayList<String>());
-		this.permissions = Collections.emptySet();
+		this.permissions = null;
 	}
 
 	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className) {
 		super(methodName, className, returnType, parameters);
-		this.permissions = Collections.emptySet();
+		this.permissions = null;
 	}
 
 	public AndroidMethod(String methodName, List<String> parameters, String returnType, String className,
@@ -67,16 +68,17 @@ public class AndroidMethod extends SootMethodAndClass {
 
 	public AndroidMethod(SootMethod sm) {
 		super(sm);
-		this.permissions = Collections.emptySet();
+		this.permissions = null;
 	}
 
 	public AndroidMethod(SootMethodAndClass methodAndClass) {
 		super(methodAndClass);
-		this.permissions = Collections.emptySet();
+		this.permissions = null;
 	}
 
 	public Set<String> getPermissions() {
-		return this.permissions;
+		return this.permissions == null ? Collections.<String>emptySet()
+				: this.permissions;
 	}
 
 	public boolean isSource() {
@@ -88,6 +90,8 @@ public class AndroidMethod extends SootMethodAndClass {
 	}
 
 	public void addPermission(String permission) {
+		if (this.permissions == null)
+			this.permissions = new HashSet<>();
 		this.permissions.add(permission);
 	}
 
