@@ -23,8 +23,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.security.util.BigInt;
-
 /**
  * Parser for reading out the contents of Android's resource.arsc file.
  * Structure declarations and comments taken from the Android source
