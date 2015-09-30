@@ -20,6 +20,7 @@ import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.source.data.AccessPathTuple;
 import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.data.AccessPath;
+import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.source.SourceInfo;
 
@@ -147,14 +148,14 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		if (baseVal.getType() instanceof PrimType
 				|| apt.getFields() == null
 				|| apt.getFields().length == 0)
-			return new AccessPath(baseVal, true);
+			return AccessPathFactory.v().createAccessPath(baseVal, true);
 		
 		SootClass baseClass = ((RefType) baseVal.getType()).getSootClass();
 		SootField[] fields = new SootField[apt.getFields().length];
 		for (int i = 0; i < fields.length; i++)
 			fields[i] = baseClass.getFieldByName(apt.getFields()[i]);
 		
-		return new AccessPath(baseVal, fields, true);
+		return AccessPathFactory.v().createAccessPath(baseVal, fields, true);
 	}
 	
 	@Override

@@ -43,6 +43,7 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.data.AccessPath;
+import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
@@ -299,7 +300,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if (type == SourceType.UISource || type == SourceType.Callback) {
 			if (sCallSite instanceof DefinitionStmt) {
 				DefinitionStmt defStmt = (DefinitionStmt) sCallSite;
-				return new SourceInfo(new AccessPath(defStmt.getLeftOp(), true));
+				return new SourceInfo(AccessPathFactory.v().createAccessPath(
+						defStmt.getLeftOp(), true));
 			}
 			return null;
 		}
@@ -314,11 +316,13 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if (sCallSite instanceof DefinitionStmt
 				&& sCallSite.getInvokeExpr().getMethod().getReturnType() != null) {
 			DefinitionStmt defStmt = (DefinitionStmt) sCallSite;
-			return new SourceInfo(new AccessPath(defStmt.getLeftOp(), true));
+			return new SourceInfo(AccessPathFactory.v().createAccessPath(
+					defStmt.getLeftOp(), true));
 		}
 		else if (sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr) {
 			InstanceInvokeExpr iinv = (InstanceInvokeExpr) sCallSite.getInvokeExpr();
-			return new SourceInfo(new AccessPath(iinv.getBase(), true));
+			return new SourceInfo(AccessPathFactory.v().createAccessPath(
+					iinv.getBase(), true));
 		}
 		else
 			return null;
