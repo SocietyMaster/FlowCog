@@ -11,7 +11,7 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuil
  *
  */
 public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
-
+		
 	private boolean computeResultPaths = true;
 	private PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	
@@ -19,6 +19,12 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 	private boolean enableCallbackSources = true;
 	
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
+	
+	public InfoflowAndroidConfiguration() {
+		// We need to adapt some of the defaults. Most people don't care about
+		// this stuff, but want a faster analysis.
+		this.setEnableArraySizeTainting(false);
+	}
 	
 	@Override
 	public void merge(InfoflowConfiguration config) {

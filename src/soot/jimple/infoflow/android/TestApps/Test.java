@@ -345,6 +345,10 @@ public class Test {
 				config.setEnableArraySizeTainting(false);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--arraysize")) {
+				config.setEnableArraySizeTainting(true);
+				i++;
+			}
 			else if (args[i].equalsIgnoreCase("--notypetightening")) {
 				InfoflowAndroidConfiguration.setUseTypeTightening(false);
 				i++;
