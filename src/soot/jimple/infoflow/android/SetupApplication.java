@@ -619,7 +619,7 @@ public class SetupApplication {
 			Options.v().set_force_android_jar(androidJar);
 		else
 			Options.v().set_android_jars(androidJar);
-		Options.v().set_src_prec(Options.src_prec_apk);
+		Options.v().set_src_prec(Options.src_prec_apk_class_jimple);
 		Main.v().autoSetOptions();
 
 		// Configure the callgraph algorithm
