@@ -24,6 +24,8 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 		// We need to adapt some of the defaults. Most people don't care about
 		// this stuff, but want a faster analysis.
 		this.setEnableArraySizeTainting(false);
+		this.setInspectSources(false);
+		this.setInspectSinks(false);
 	}
 	
 	@Override

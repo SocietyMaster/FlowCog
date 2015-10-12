@@ -689,10 +689,6 @@ public class SetupApplication {
 		info.setConfig(config);
 		info.setSootConfig(sootConfig);
 		
-		// We need to force some properties
-		info.getConfig().setInspectSources(false);
-		info.getConfig().setInspectSinks(false);
-		
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}
