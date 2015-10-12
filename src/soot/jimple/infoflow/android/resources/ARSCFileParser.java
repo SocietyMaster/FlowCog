@@ -436,6 +436,11 @@ public class ARSCFileParser extends AbstractResourceParser {
 		public int getValue() {
 			return this.value;
 		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(value);
+		}
 	}
 	
 	/**
@@ -450,6 +455,11 @@ public class ARSCFileParser extends AbstractResourceParser {
 		
 		public float getValue() {
 			return this.value;
+		}
+		
+		@Override
+		public String toString() {
+			return Float.toString(value);
 		}
 	}
 
@@ -466,6 +476,12 @@ public class ARSCFileParser extends AbstractResourceParser {
 		public boolean getValue() {
 			return this.value;
 		}
+
+		@Override
+		public String toString() {
+			return Boolean.toString(value);
+		}
+		
 	}
 	
 	/**
@@ -499,6 +515,12 @@ public class ARSCFileParser extends AbstractResourceParser {
 		public int getB() {
 			return this.b;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("#%02x%02x%02x%02x", a, r, g, b);
+		}
+		
 	}
 	
 	/**
@@ -594,6 +616,11 @@ public class ARSCFileParser extends AbstractResourceParser {
 		
 		public Dimension getUnit() {
 			return this.unit;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(this.value) + unit.toString().toLowerCase();
 		}
 	}
 	
