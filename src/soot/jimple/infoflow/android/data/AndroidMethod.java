@@ -143,8 +143,9 @@ public class AndroidMethod extends SootMethodAndClass {
 
 	public String getSignatureAndPermissions() {
 		String s = getSignature();
-		for (String perm : permissions)
-			s += " " + perm;
+		if (permissions != null)
+			for (String perm : permissions)
+				s += " " + perm;
 		return s;
 	}
 
