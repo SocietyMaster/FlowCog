@@ -17,12 +17,12 @@ import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.android.resources.LayoutControl;
-import soot.jimple.infoflow.android.source.data.AccessPathTuple;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.source.SourceInfo;
+import soot.jimple.infoflow.source.data.AccessPathTuple;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 
 /**
  * SourceSinkManager for Android applications. This class uses precise access
@@ -92,7 +92,7 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		SourceSinkDefinition def = sourceMethods.get(signature);
 				
 		// If we don't have any more precise source information, we take the
-		// default behavior of our parent implementation. We do the same of we
+		// default behavior of our parent implementation. We do the same if we
 		// tried using access paths and failed, but this is a shortcut in case
 		// we know that we don't have any access paths anyway.
 		if (null == def || def.isEmpty())

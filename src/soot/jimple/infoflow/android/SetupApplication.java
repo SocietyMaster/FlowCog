@@ -25,6 +25,7 @@ import javax.activation.UnsupportedDataTypeException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.Main;
@@ -42,8 +43,6 @@ import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.android.resources.LayoutFileParser;
 import soot.jimple.infoflow.android.source.AccessPathBasedSourceSinkManager;
-import soot.jimple.infoflow.android.source.data.ISourceSinkDefinitionProvider;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.android.source.parsers.xml.XMLSourceSinkParser;
 import soot.jimple.infoflow.cfg.BiDirICFGFactory;
 import soot.jimple.infoflow.config.IInfoflowConfig;
@@ -53,6 +52,9 @@ import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.results.InfoflowResults;
+import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
+import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.options.Options;
 
@@ -300,7 +302,8 @@ public class SetupApplication {
 	}
 	
 	/**
-	 * Calculates the sets of sources, sinks, entry points, and callbacks methods for the given APK file.
+	 * Calculates the sets of sources, sinks, entry points, and callback methods
+	 * for the given APK file.
 	 * 
 	 * @param sourceSinkFile
 	 *            The full path and file name of the file containing the sources and sinks
@@ -309,20 +312,28 @@ public class SetupApplication {
 	 * @throws XmlPullParserException
 	 *             Thrown if the Android manifest file could not be read.
 	 */
-	public void calculateSourcesSinksEntrypoints(String sourceSinkFile) throws IOException, XmlPullParserException {
+	public void calculateSourcesSinksEntrypoints(String sourceSinkFile)
+			throws IOException, XmlPullParserException {
 		ISourceSinkDefinitionProvider parser = null;
-
+		
 		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
 		fileExtension = fileExtension.toLowerCase();
 		
-		if (fileExtension.equals(".xml"))
-			parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
-		else if(fileExtension.equals(".txt"))
-			parser = PermissionMethodParser.fromFile(sourceSinkFile);
-		else
-			throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
-		
-		calculateSourcesSinksEntrypoints(parser);
+		try {
+			if (fileExtension.equals(".xml"))
+				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".txt"))
+				parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".rifl"))
+				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
+			else
+				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
+			
+			calculateSourcesSinksEntrypoints(parser);
+		}
+		catch (SAXException ex) {
+			throw new IOException("Could not read XML file", ex);
+		}
 	}
 
 	/**

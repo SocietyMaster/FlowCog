@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Set;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
-import soot.jimple.infoflow.android.source.data.ISourceSinkDefinitionProvider;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
+import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 
 /**
  * Parser for Android method / permission maps in the format defined by Port Felt

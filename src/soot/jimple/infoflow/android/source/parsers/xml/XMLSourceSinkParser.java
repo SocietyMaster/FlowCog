@@ -24,10 +24,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
-import soot.jimple.infoflow.android.source.data.AccessPathTuple;
-import soot.jimple.infoflow.android.source.data.ISourceSinkDefinitionProvider;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.data.SootMethodAndClass;
+import soot.jimple.infoflow.source.data.AccessPathTuple;
+import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 
 /**
  * Parses informations from the new Dataformat (XML) with the help of SAX. Returns only a Set of Android Method when

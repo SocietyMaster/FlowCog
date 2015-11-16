@@ -11,8 +11,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.android.source.parsers.xml.XMLSourceSinkParser;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 
 /**
  * Testing the new xml-parser with the new xml format
