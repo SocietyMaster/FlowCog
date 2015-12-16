@@ -41,7 +41,6 @@ public class ArrayAndListTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
-	@Ignore		// not supported yet
 	public void runTestArrayToString1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayToString1.apk");
 		Assert.assertEquals(1, res.size());
