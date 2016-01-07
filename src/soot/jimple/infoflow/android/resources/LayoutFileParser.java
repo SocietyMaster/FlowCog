@@ -313,6 +313,9 @@ public class LayoutFileParser extends AbstractResourceParser {
 		int id = -1;
 		
 		for (Entry<String, AXmlAttribute<?>> entry : rootNode.getAttributes().entrySet()) {
+			if (entry.getKey() == null)
+				continue;
+			
 			String attrName = entry.getKey().trim();
 			AXmlAttribute<?> attr = entry.getValue();
 			
