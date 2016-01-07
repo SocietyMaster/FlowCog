@@ -37,9 +37,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
-import soot.jimple.infoflow.InfoflowConfiguration;
-import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
+import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
