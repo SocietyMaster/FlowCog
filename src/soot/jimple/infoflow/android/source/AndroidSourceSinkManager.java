@@ -259,7 +259,19 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		final SootMethod callee = sCallSite.getInvokeExpr().getMethod();
 		final SootClass sc = callee.getDeclaringClass();
 		final String subSig = callee.getSubSignature();
-		if (!sc.isInterface()) {
+		
+		// Do not consider ICC methods as sinks if only the base object is
+		// tainted
+		boolean isParamTainted = false;
+		if (!sc.isInterface() && !ap.isStaticFieldRef()) {
+			for (int i = 0; i < sCallSite.getInvokeExpr().getArgCount(); i++)
+				if (sCallSite.getInvokeExpr().getArg(i) == ap.getPlainValue()) {
+					isParamTainted = true;
+					break;
+				}
+		}
+		
+		if (isParamTainted) {
 			for (SootClass clazz : iccBaseClasses) {
 				if (Scene.v().getOrMakeFastHierarchy().isSubclass(sc, clazz)) {
 					if (clazz.declaresMethod(subSig)) {
