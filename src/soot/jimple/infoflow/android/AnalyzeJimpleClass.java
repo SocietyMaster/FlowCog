@@ -89,7 +89,7 @@ public class AnalyzeJimpleClass {
 			Set<String> androidCallbacks) {
 		this.config = config;
 		this.entryPointClasses = entryPointClasses;
-		this.androidCallbacks = new HashSet<String>();
+		this.androidCallbacks = androidCallbacks;
 	}
 
 	/**
