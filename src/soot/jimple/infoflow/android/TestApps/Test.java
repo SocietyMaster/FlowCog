@@ -13,6 +13,7 @@ package soot.jimple.infoflow.android.TestApps;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -77,6 +78,7 @@ public class Test {
 				print("No results found.");
 			}
 			else {
+				// Report the results
 				for (ResultSinkInfo sink : results.getResults().keySet()) {
 					print("Found a flow to sink " + sink + ", from the following sources:");
 					for (ResultSourceInfo source : results.getResults().get(sink)) {
@@ -86,7 +88,25 @@ public class Test {
 							print("\t\ton Path " + Arrays.toString(source.getPath()));
 					}
 				}
+				
+				// Serialize the results if requested
+				// Write the results into a file if requested
+				if (resultFilePath != null && !resultFilePath.isEmpty()) {
+					InfoflowResultsSerializer serializer = new InfoflowResultsSerializer(cfg);
+					try {
+						serializer.serialize(results, resultFilePath);
+					} catch (FileNotFoundException ex) {
+						System.err.println("Could not write data flow results to file: " + ex.getMessage());
+						ex.printStackTrace();
+						throw new RuntimeException(ex);
+					} catch (XMLStreamException ex) {
+						System.err.println("Could not write data flow results to file: " + ex.getMessage());
+						ex.printStackTrace();
+						throw new RuntimeException(ex);
+					}
+				}
 			}
+			
 		}
 
 		private void print(String string) {
@@ -561,14 +581,7 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
-			
-			// Write the results into a file if requested
-			if (resultFilePath != null && !resultFilePath.isEmpty()) {
-				InfoflowResultsSerializer serializer = new InfoflowResultsSerializer();
-				serializer.serialize(res, resultFilePath);
-			}
-			
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");			
 			return res;
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
@@ -576,10 +589,6 @@ public class Test {
 			throw new RuntimeException(ex);
 		} catch (XmlPullParserException ex) {
 			System.err.println("Could not read Android manifest file: " + ex.getMessage());
-			ex.printStackTrace();
-			throw new RuntimeException(ex);
-		} catch (XMLStreamException ex) {
-			System.err.println("Could not write data flow results to file: " + ex.getMessage());
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		}
