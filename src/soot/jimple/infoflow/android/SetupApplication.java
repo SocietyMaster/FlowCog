@@ -33,6 +33,7 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.jimple.Stmt;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -90,6 +91,9 @@ public class SetupApplication {
 	
 	private long maxMemoryConsumption = -1;
 	
+	private Set<Stmt> collectedSources = null;
+	private Set<Stmt> collectedSinks = null;
+	
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
@@ -146,13 +150,24 @@ public class SetupApplication {
 	}
 	
 	/**
-	 * Gets the set of sinks loaded into FlowDroid
+	 * Gets the set of sinks loaded into FlowDroid These are the sinks as
+	 * they are defined through the SourceSinkManager.
 	 * 
 	 * @return The set of sinks loaded into FlowDroid
 	 */
 	public Set<SourceSinkDefinition> getSinks() {
 		return this.sourceSinkProvider == null ? null
 				: this.sourceSinkProvider.getSinks();
+	}
+	
+	/**
+	 * Gets the concrete instances of sinks that have been collected inside
+	 * the app. This method returns null if source and sink logging has not
+	 * been enabled (see InfoflowConfiguration.setLogSourcesAndSinks()).
+	 * @return The set of concrete sink instances in the app
+	 */
+	public Set<Stmt> getCollectedSinks() {
+		return collectedSinks;
 	}
 
 	/**
@@ -171,13 +186,24 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Gets the set of sources loaded into FlowDroid
+	 * Gets the set of sources loaded into FlowDroid. These are the sources as
+	 * they are defined through the SourceSinkManager.
 	 * 
 	 * @return The set of sources loaded into FlowDroid
 	 */
 	public Set<SourceSinkDefinition> getSources() {
 		return this.sourceSinkProvider == null ? null
 				: this.sourceSinkProvider.getSources();
+	}
+	
+	/**
+	 * Gets the concrete instances of sources that have been collected inside
+	 * the app. This method returns null if source and sink logging has not
+	 * been enabled (see InfoflowConfiguration.setLogSourcesAndSinks()).
+	 * @return The set of concrete source instances in the app
+	 */
+	public Set<Stmt> getCollectedSources() {
+		return collectedSources;
 	}
 
 	/**
@@ -708,6 +734,8 @@ public class SetupApplication {
 
 		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
+		this.collectedSources = info.getCollectedSources();
+		this.collectedSinks = info.getCollectedSinks();
 
 		return info.getResults();
 	}

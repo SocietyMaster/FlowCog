@@ -377,6 +377,10 @@ public class Test {
 				InfoflowAndroidConfiguration.setUseThisChainReduction(false);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--logsourcesandsinks")) {
+				config.setLogSourcesAndSinks(true);
+				i++;
+			}
 			else
 				i++;
 		}
@@ -472,7 +476,8 @@ public class Test {
 //				"--repeatCount", Integer.toString(repeatCount),
 				config.getEnableArraySizeTainting() ? "" : "--noarraysize",
 				InfoflowAndroidConfiguration.getUseTypeTightening() ? "" : "--notypetightening",
-				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode"
+				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode",
+				config.getLogSourcesAndSinks() ? "--logsourcesandsinks" : "",
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
@@ -581,7 +586,21 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");			
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+			
+			if (config.getLogSourcesAndSinks()) {
+				if (!app.getCollectedSources().isEmpty()) {
+					System.out.println("Collected sources:");
+					for (Stmt s : app.getCollectedSources())
+						System.out.println("\t" + s);
+				}
+				if (!app.getCollectedSinks().isEmpty()) {
+					System.out.println("Collected sinks:");
+					for (Stmt s : app.getCollectedSinks())
+						System.out.println("\t" + s);
+				}
+			}
+			
 			return res;
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
@@ -718,6 +737,7 @@ public class Test {
 		System.out.println("\t--SYSFLOWS Also analyze classes in system packages");
 		System.out.println("\t--NOTAINTWRAPPER Disables the use of taint wrappers");
 		System.out.println("\t--NOTYPETIGHTENING Disables the use of taint wrappers");
+		System.out.println("\t--LOGSOURCESANDSINKS Print out concrete source/sink instances");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
