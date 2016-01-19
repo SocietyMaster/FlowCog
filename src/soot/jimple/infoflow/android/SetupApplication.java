@@ -392,11 +392,16 @@ public class SetupApplication {
 		// Add the callback methods
 		LayoutFileParser lfp = null;
 		if (config.getEnableCallbacks()) {
-			lfp = new LayoutFileParser(this.appPackageName, resParser);
-			calculateCallbackMethods(resParser, lfp);
-
-			// Some informational output
-			System.out.println("Found " + lfp.getUserControls() + " layout controls");
+			if (callbackClasses != null && callbackClasses.isEmpty()) {
+				logger.warn("Callback definition file is empty, disabling callbacks");
+			}
+			else {
+				lfp = new LayoutFileParser(this.appPackageName, resParser);
+				calculateCallbackMethods(resParser, lfp);
+				
+				// Some informational output
+				System.out.println("Found " + lfp.getUserControls() + " layout controls");
+			}
 		}
 		
 		System.out.println("Entry point calculation done.");
