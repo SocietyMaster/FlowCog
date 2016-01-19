@@ -400,7 +400,7 @@ public class ProcessManifest {
 	 */
 	public int getVersionCode() {
 		AXmlAttribute<?> attr = this.manifest.getAttribute("versionCode");
-		return attr == null ? -1 : Integer.getInteger((String) attr.getValue());
+		return attr == null ? -1 : Integer.parseInt("" + attr.getValue());
 	}
 	
 	/**
@@ -446,7 +446,7 @@ public class ProcessManifest {
 		if (attr.getValue() instanceof Integer)
 			return (Integer) attr.getValue();
 		
-		return Integer.getInteger((String) attr.getValue());		
+		return Integer.parseInt("" + attr.getValue());		
 	}
 	
 	/**
@@ -465,7 +465,7 @@ public class ProcessManifest {
 		if (attr.getValue() instanceof Integer)
 			return (Integer) attr.getValue();
 		
-		return Integer.getInteger((String) attr.getValue());		
+		return Integer.parseInt("" + attr.getValue());		
 	}
 	
 	/**
