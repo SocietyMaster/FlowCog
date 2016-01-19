@@ -83,7 +83,7 @@ public class InsecureBankTests {
 	public void runTestInsecureBank() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile(false);
 		// 7 leaks + 1x inter-component communication (server ip going through an intent)
-		Assert.assertEquals(12, res.size());
+		Assert.assertEquals(11, res.size());
 		
 		Assert.assertTrue(res.isPathBetweenMethods(activity_startActivity, activity_findViewById));
 
