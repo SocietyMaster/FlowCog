@@ -23,6 +23,7 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.infoflow.source.data.AccessPathTuple;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
+import soot.jimple.infoflow.util.SystemClassHandler;
 
 /**
  * SourceSinkManager for Android applications. This class uses precise access
@@ -172,9 +173,11 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 			return false;
 		
 		// If we have no precise information, we conservatively assume that
-		// everything is tainted without looking at the access path
+		// everything is tainted without looking at the access path. Only
+		// exception: separate compilation assumption
 		if (def.isEmpty())
-			return true;
+			return SystemClassHandler.isTaintVisible(sourceAccessPath,
+					sCallSite.getInvokeExpr().getMethod());
 		
 		// If we are only checking whether this statement can be a sink in
 		// general, we know this by now

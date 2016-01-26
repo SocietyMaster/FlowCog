@@ -27,6 +27,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
+import soot.VoidType;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
@@ -325,13 +326,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// If this is a method call and we have a return value, we taint it.
 		// Otherwise, if we have an instance invocation, we taint the base
 		// object
-		if (sCallSite instanceof DefinitionStmt
-				&& sCallSite.getInvokeExpr().getMethod().getReturnType() != null) {
+		final InvokeExpr iexpr = sCallSite.getInvokeExpr();
+		if (sCallSite instanceof DefinitionStmt && iexpr.getMethod().getReturnType() != null) {
 			DefinitionStmt defStmt = (DefinitionStmt) sCallSite;
 			return new SourceInfo(AccessPathFactory.v().createAccessPath(
 					defStmt.getLeftOp(), true));
 		}
-		else if (sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr) {
+		else if (iexpr instanceof InstanceInvokeExpr
+				&& iexpr.getMethod().getReturnType() == VoidType.v()) {
 			InstanceInvokeExpr iinv = (InstanceInvokeExpr) sCallSite.getInvokeExpr();
 			return new SourceInfo(AccessPathFactory.v().createAccessPath(
 					iinv.getBase(), true));
