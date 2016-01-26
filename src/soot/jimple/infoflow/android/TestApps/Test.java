@@ -321,6 +321,10 @@ public class Test {
 				config.setFlowSensitiveAliasing(false);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--paths")) {
+				config.setComputeResultPaths(true);
+				i++;
+			}
 			else if (args[i].equalsIgnoreCase("--nopaths")) {
 				config.setComputeResultPaths(false);
 				i++;
