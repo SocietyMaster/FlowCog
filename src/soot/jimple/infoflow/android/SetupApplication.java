@@ -35,6 +35,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.Infoflow;
+import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -84,7 +85,7 @@ public class SetupApplication {
 	private AccessPathBasedSourceSinkManager sourceSinkManager = null;
 	private AndroidEntryPointCreator entryPointCreator = null;
 
-	private IInfoflowConfig sootConfig = null;
+	private IInfoflowConfig sootConfig = new SootConfigForAndroid();
 	private BiDirICFGFactory cfgFactory = null;
 
 	private IIPCManager ipcManager = null;
