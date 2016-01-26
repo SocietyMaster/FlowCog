@@ -554,6 +554,8 @@ public class Test {
 			
 			// Set configuration object
 			app.setConfig(config);
+			if (noTaintWrapper)
+				app.setSootConfig(null);
 			
 			final ITaintPropagationWrapper taintWrapper;
 			if (noTaintWrapper)
