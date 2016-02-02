@@ -48,6 +48,7 @@ import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
+import soot.jimple.infoflow.util.SystemClassHandler;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
 import soot.tagkit.IntegerConstantValueTag;
@@ -236,6 +237,11 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			InterproceduralCFG<Unit, SootMethod> cfg, AccessPath ap) {
 		if (!sCallSite.containsInvokeExpr())
 			return false;
+		
+		// Check whether the taint is even visible inside the callee
+		final SootMethod callee = sCallSite.getInvokeExpr().getMethod();
+		if (!SystemClassHandler.isTaintVisible(ap, callee))
+			return false;
 
 		// For ICC methods (e.g., startService), the classes name of these
 		// methods may change through user's definition. We match all the
@@ -257,7 +263,6 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 																	// class
 			};
 		
-		final SootMethod callee = sCallSite.getInvokeExpr().getMethod();
 		final SootClass sc = callee.getDeclaringClass();
 		final String subSig = callee.getSubSignature();
 		
