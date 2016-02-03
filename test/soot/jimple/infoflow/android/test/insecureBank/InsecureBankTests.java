@@ -42,15 +42,15 @@ public class InsecureBankTests {
 
 	private final static String log_e =
 			"<android.util.Log: int e(java.lang.String,java.lang.String)>";
-	private final static String log_d =
-			"<android.util.Log: int d(java.lang.String,java.lang.String)>";
+//	private final static String log_d =
+//			"<android.util.Log: int d(java.lang.String,java.lang.String)>";
 	private final static String log_i =
 			"<android.util.Log: int i(java.lang.String,java.lang.String)>";
 	
 	private final static String urlConnection_openConnection =
 			"<java.net.URL: java.net.URLConnection openConnection()>";
-	private final static String cursor_getString =
-			"<android.database.Cursor: java.lang.String getString(int)>";
+//	private final static String cursor_getString =
+//			"<android.database.Cursor: java.lang.String getString(int)>";
 	
 	/**
 	 * Analyzes the given APK file for data flows
@@ -92,7 +92,9 @@ public class InsecureBankTests {
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, bundle_getString));
 		Assert.assertTrue(res.isPathBetweenMethods(log_e, urlConnection_openConnection));
 
-		Assert.assertTrue(res.isPathBetweenMethods(log_d, cursor_getString));
+		// We do not consider the length of a list as sensitive only because it
+		// contains some sensitive entries
+//		Assert.assertTrue(res.isPathBetweenMethods(log_d, cursor_getString));
 		
 		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, activity_findViewById));
 		Assert.assertTrue(res.isPathBetweenMethods(sharedPrefs_putString, activity_findViewById));
