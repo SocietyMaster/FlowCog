@@ -670,11 +670,16 @@ public class SetupApplication {
 		// Configure the callgraph algorithm
 		switch (config.getCallgraphAlgorithm()) {
 		case AutomaticSelection:
+		case SPARK:
 			Options.v().setPhaseOption("cg.spark", "on");
+			break;
+		case CHA:
+			Options.v().setPhaseOption("cg.cha", "on");
 			break;
 		case RTA:
 			Options.v().setPhaseOption("cg.spark", "on");
 			Options.v().setPhaseOption("cg.spark", "rta:true");
+			Options.v().setPhaseOption("cg.spark", "on-fly-cg:false");
 			break;
 		case VTA:
 			Options.v().setPhaseOption("cg.spark", "on");
