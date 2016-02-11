@@ -99,7 +99,6 @@ public class CallbackTests extends JUnitTests {
 	}
 
 	@Test(timeout=300000)
-	@Ignore		// Callback ordering is not supported
 	public void runTestOrdering1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Callbacks/Ordering1.apk");
 		Assert.assertNotNull(res);
