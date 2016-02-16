@@ -23,6 +23,26 @@ import soot.jimple.infoflow.results.InfoflowResults;
 public class LifecycleTests extends JUnitTests {
 	
 	@Test(timeout=300000)
+	public void runTestActivityEventSequence1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityEventSequence1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
+	@Ignore // Test case broken?
+	public void runTestActivityEventSequence2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityEventSequence2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
+	@Ignore
+	public void runTestActivityEventSequence3() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityEventSequence3.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
 	public void runTestActivityLifecycle1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Lifecycle/ActivityLifecycle1.apk");
 		Assert.assertEquals(1, res.size());
@@ -108,6 +128,20 @@ public class LifecycleTests extends JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 	
+	@Test(timeout=300000)
+	@Ignore
+	public void runTestServiceEventSequence1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ServiceEventSequence1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
+	@Test(timeout=300000)
+	@Ignore
+	public void runTestServiceEventSequence2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/ServiceEventSequence2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
 	@Test(timeout=300000)
 	public void runTestServiceLifecycle1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Lifecycle/ServiceLifecycle1.apk");
