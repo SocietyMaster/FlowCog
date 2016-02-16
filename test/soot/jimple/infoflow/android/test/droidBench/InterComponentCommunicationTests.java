@@ -100,7 +100,7 @@ public class InterComponentCommunicationTests extends JUnitTests {
 	@Test(timeout=300000)
 	public void runTestIntentSink1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("InterComponentCommunication/IntentSink1.apk");
-		Assert.assertEquals(2, res.size());
+		Assert.assertEquals(1, res.size());
 	}
 
 	@Test(timeout=300000)
