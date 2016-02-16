@@ -28,7 +28,7 @@ public class EmulatorDetectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
 	public void runTestIMEI1() throws IOException, XmlPullParserException {
-		InfoflowResults res = analyzeAPKFile("EmulatorDetection/IMEI1.apk");
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/IMEI1.apk", true);
 		Assert.assertEquals(2, res.size());
 	}
 	
