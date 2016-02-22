@@ -81,8 +81,7 @@ public class ArrayAndListTests extends JUnitTests {
 	@Test(timeout=300000)
 	public void runTestMultidimensionalArray1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists/MultidimensionalArray1.apk");
-		if (res != null)
-			Assert.assertEquals(0, res.size());
+		Assert.assertEquals(1, res.size());
 	}
 
 }
