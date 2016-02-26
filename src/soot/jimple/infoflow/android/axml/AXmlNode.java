@@ -239,5 +239,13 @@ public class AXmlNode extends AXmlElement {
 				attributes += " " + attrNode;
 		return "<" + tag + attributes + ">";
 	}
+
+	/**
+	 * Remove child 'child' of this node
+	 * @param child
+	 */
+	public void removeChild(AXmlNode child) {
+		children.remove(child);
+	}
 	
 }
