@@ -645,7 +645,7 @@ public class SetupApplication {
 				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		if (this.additionalClasspath != null && !this.additionalClasspath.isEmpty())
 			classpath += File.pathSeparator + this.additionalClasspath;
-`		logger.debug("soot classpath: " + classpath);
+		logger.debug("soot classpath: " + classpath);
 		return classpath;
 	}
 
