@@ -289,6 +289,8 @@ public class Test {
 					config.setCallgraphAlgorithm(CallgraphAlgorithm.RTA);
 				else if (algo.equalsIgnoreCase("SPARK"))
 					config.setCallgraphAlgorithm(CallgraphAlgorithm.SPARK);
+				else if (algo.equalsIgnoreCase("GEOM"))
+					config.setCallgraphAlgorithm(CallgraphAlgorithm.GEOM);
 				else {
 					System.err.println("Invalid callgraph algorithm");
 					return false;
@@ -513,6 +515,8 @@ public class Test {
 				return "RTA";
 			case SPARK:
 				return "SPARK";
+			case GEOM:
+				return "GEOM";
 			default:
 				return "unknown";
 		}
@@ -754,7 +758,7 @@ public class Test {
 		System.out.println("\t--NOTYPETIGHTENING Disables the use of taint wrappers");
 		System.out.println("\t--LOGSOURCESANDSINKS Print out concrete source/sink instances");
 		System.out.println();
-		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK");
+		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK, GEOM");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
 		System.out.println("Supported path algorithms: CONTEXTSENSITIVE, CONTEXTINSENSITIVE, SOURCESONLY");
 	}
