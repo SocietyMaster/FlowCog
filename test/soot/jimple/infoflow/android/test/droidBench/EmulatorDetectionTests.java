@@ -21,9 +21,45 @@ import soot.jimple.infoflow.results.InfoflowResults;
 public class EmulatorDetectionTests extends JUnitTests {
 	
 	@Test(timeout=300000)
+	public void runTestBattery1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/Battery1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestBluetooth1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/Bluetooth1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestBuild1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/Build1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestContacts1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/Contacts1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
 	public void runTestContentProvider1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("EmulatorDetection/ContentProvider1.apk");
 		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestDeviceId1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/DeviceId1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestFile1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/File1.apk");
+		Assert.assertEquals(1, res.size());
 	}
 	
 	@Test(timeout=300000)
@@ -33,9 +69,45 @@ public class EmulatorDetectionTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
+	public void runTestIP1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/IP1.apk", true);
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestPI1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/PI1.apk", true);
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
 	public void runTestPlayStore1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("EmulatorDetection/PlayStore1.apk");
 		Assert.assertEquals(2, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestPlayStore2() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/PlayStore2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestSensors1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/Sensors1.apk", true);
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestSubscriberId1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/SubscriberId1.apk", true);
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestVoiceMail1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("EmulatorDetection/VoiceMail1.apk", true);
+		Assert.assertEquals(1, res.size());
 	}
 	
 }
