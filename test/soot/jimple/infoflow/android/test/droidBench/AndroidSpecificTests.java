@@ -22,7 +22,6 @@ import soot.jimple.infoflow.results.InfoflowResults;
 public class AndroidSpecificTests extends JUnitTests {
 	
 	@Test(timeout=300000)
-	@Ignore		// not supported yet, but should not be too hard to implement
 	public void runTestApplicationModeling1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("AndroidSpecific/ApplicationModeling1.apk");
 		Assert.assertEquals(1, res.size());

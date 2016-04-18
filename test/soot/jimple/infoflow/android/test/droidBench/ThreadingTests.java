@@ -13,7 +13,6 @@ package soot.jimple.infoflow.android.test.droidBench;
 import java.io.IOException;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -46,7 +45,6 @@ public class ThreadingTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
-	@Ignore		// not yet supported
 	public void runTestLooper1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Threading/Looper1.apk");
 		Assert.assertEquals(1, res.size());
