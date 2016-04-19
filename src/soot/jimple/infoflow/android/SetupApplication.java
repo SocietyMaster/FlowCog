@@ -34,6 +34,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.Stmt;
+import soot.jimple.infoflow.AbstractInfoflow;
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
@@ -645,6 +646,7 @@ public class SetupApplication {
 				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		if (this.additionalClasspath != null && !this.additionalClasspath.isEmpty())
 			classpath += File.pathSeparator + this.additionalClasspath;
+		logger.debug("soot classpath: " + classpath);
 		return classpath;
 	}
 
@@ -672,6 +674,10 @@ public class SetupApplication {
 		case AutomaticSelection:
 		case SPARK:
 			Options.v().setPhaseOption("cg.spark", "on");
+			break;
+		case GEOM:
+			Options.v().setPhaseOption("cg.spark", "on");
+			AbstractInfoflow.setGeomPtaSpecificOptions();
 			break;
 		case CHA:
 			Options.v().setPhaseOption("cg.cha", "on");
