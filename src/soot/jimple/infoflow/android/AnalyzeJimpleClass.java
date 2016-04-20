@@ -76,10 +76,19 @@ public class AnalyzeJimpleClass {
 			new HashMap<String, Set<Integer>>();
 	private final Set<String> dynamicManifestComponents =
 			new HashSet<>();
+	
+	private String androidCallbackFile = "AndroidCallbacks.txt";
 
 	public AnalyzeJimpleClass(InfoflowAndroidConfiguration config,
 			Set<String> entryPointClasses) throws IOException {
+		this(config, entryPointClasses, "AndroidCallbacks.txt");
+	}
+	
+
+	public AnalyzeJimpleClass(InfoflowAndroidConfiguration config,
+			Set<String> entryPointClasses, String callbackFile) throws IOException {
 		this.config = config;
+		this.androidCallbackFile = callbackFile;
 		this.entryPointClasses = entryPointClasses;
 		this.androidCallbacks = loadAndroidCallbacks();
 	}
@@ -90,6 +99,10 @@ public class AnalyzeJimpleClass {
 		this.config = config;
 		this.entryPointClasses = entryPointClasses;
 		this.androidCallbacks = androidCallbacks;
+	}
+	
+	public void setCallbackFile(String androidCallbackFile) {
+		this.androidCallbackFile = androidCallbackFile;
 	}
 
 	/**
@@ -102,7 +115,7 @@ public class AnalyzeJimpleClass {
 		Set<String> androidCallbacks = new HashSet<String>();
 		BufferedReader rdr = null;
 		try {
-			String fileName = "AndroidCallbacks.txt";
+			String fileName = androidCallbackFile;
 			if (!new File(fileName).exists()) {
 				fileName = "../soot-infoflow-android/AndroidCallbacks.txt";
 				if (!new File(fileName).exists())
@@ -129,6 +142,7 @@ public class AnalyzeJimpleClass {
 	 */
 	public void collectCallbackMethods() {
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
+			@Override
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				// Find the mappings between classes and layouts
 				findClassLayoutMappings();
@@ -161,6 +175,7 @@ public class AnalyzeJimpleClass {
 	 */
 	public void collectCallbackMethodsIncremental() {
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
+			@Override
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				// Process the worklist from last time
 				System.out.println("Running incremental callback analysis for " + callbackWorklist.size()
