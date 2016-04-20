@@ -19,7 +19,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import soot.jimple.infoflow.results.InfoflowResults;
 
-@Ignore
 public class LifecycleTests extends JUnitTests {
 	
 	@Test(timeout=300000)
@@ -102,9 +101,16 @@ public class LifecycleTests extends JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 	
+	@Ignore
 	@Test(timeout=300000)
 	public void runTestBroadcastReceiverLifecycle2() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("Lifecycle/BroadcastReceiverLifecycle2.apk");
+		Assert.assertEquals(1, res.size());
+	}
+	
+	@Test(timeout=300000)
+	public void runTestBroadcastReceiverLifecycle3() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Lifecycle/BroadcastReceiverLifecycle3.apk");
 		Assert.assertEquals(1, res.size());
 	}
 	
