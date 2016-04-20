@@ -290,10 +290,12 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			}
 		}
 
+		{
 		final String signature = methodToSignature.getUnchecked(
 				sCallSite.getInvokeExpr().getMethod());
 		if (this.sinkMethods.containsKey(signature))
 			return true;
+		}
 
 		// Check whether we have any of the interfaces on the list
 		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
@@ -301,7 +303,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 				if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(i.getMethod(subSig))))
 					return true;
 		}
-
+		
+		// Ask the CFG in case we don't know any better
+		for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
+			String signature = methodToSignature.getUnchecked(sm);
+			if (this.sourceMethods.containsKey(signature))
+				return true;
+		}
+		
 		return false;
 	}
 
@@ -365,10 +374,12 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		
 		// This might be a normal source method
 		if (sCallSite.containsInvokeExpr()) {
+			{
 			String signature = methodToSignature.getUnchecked(
 					sCallSite.getInvokeExpr().getMethod());
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
+			}
 
 			// Check whether we have any of the interfaces on the list
 			final String subSig = sCallSite.getInvokeExpr().getMethod().getSubSignature();
@@ -378,6 +389,13 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 					if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(
 							i.getMethod(subSig))))
 						return SourceType.MethodCall;
+			}
+			
+			// Ask the CFG in case we don't know any better
+			for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
+				String signature = methodToSignature.getUnchecked(sm);
+				if (this.sourceMethods.containsKey(signature))
+					return SourceType.MethodCall;
 			}
 		}
 
