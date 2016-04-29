@@ -11,12 +11,27 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuil
  *
  */
 public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
-		
+	
+	/**
+	 * Enumeration containing the supported callback analyzers
+	 */
+	public enum CallbackAnalyzer {
+		/**
+		 * The highly-precise default analyzer
+		 */
+		Default,
+		/**
+		 * An analyzer that favors performance over precision
+		 */
+		Fast
+	}
+	
 	private boolean computeResultPaths = true;
 	private PathBuilder pathBuilder = PathBuilder.ContextInsensitiveSourceFinder;
 	
 	private boolean enableCallbacks = true;
 	private boolean enableCallbackSources = true;
+	private CallbackAnalyzer callbackAnalyzer = CallbackAnalyzer.Default;
 	
 	private LayoutMatchingMode layoutMatchingMode = LayoutMatchingMode.MatchSensitiveOnly;
 	
@@ -138,6 +153,24 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 	 */
 	public LayoutMatchingMode getLayoutMatchingMode() {
 		return this.layoutMatchingMode;
+	}
+	
+	/**
+	 * Sets the callback analyzer to be used in preparation for the taint analysis
+	 * @param callbackAnalyzer The callback analyzer to be used
+	 */
+	public void setCallbackAnalyzer(CallbackAnalyzer callbackAnalyzer) {
+		this.callbackAnalyzer = callbackAnalyzer;
+	}
+	
+	/**
+	 * Gets the callback analyzer that is being used in preparation for the taint
+	 * analysis
+	 * @return The callback analyzer being used
+	 * @return
+	 */
+	public CallbackAnalyzer getCallbackAnalyzer() {
+		return this.callbackAnalyzer;
 	}
 
 }

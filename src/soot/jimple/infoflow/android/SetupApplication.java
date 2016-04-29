@@ -36,6 +36,9 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.AbstractInfoflow;
 import soot.jimple.infoflow.Infoflow;
+import soot.jimple.infoflow.android.callbacks.AbstractCallbackAnalyzer;
+import soot.jimple.infoflow.android.callbacks.DefaultCallbackAnalyzer;
+import soot.jimple.infoflow.android.callbacks.FastCallbackAnalyzer;
 import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
@@ -399,7 +402,16 @@ public class SetupApplication {
 			}
 			else {
 				lfp = new LayoutFileParser(this.appPackageName, resParser);
-				calculateCallbackMethods(resParser, lfp);
+				switch (config.getCallbackAnalyzer()) {
+				case Fast:
+					calculateCallbackMethodsFast(resParser, lfp);
+					break;
+				case Default:
+					calculateCallbackMethods(resParser, lfp);
+					break;
+				default:
+					throw new RuntimeException("Unknown callback analyzer");
+				}
 				
 				// Some informational output
 				System.out.println("Found " + lfp.getUserControls() + " layout controls");
@@ -460,7 +472,7 @@ public class SetupApplication {
 	 *             Thrown if a required configuration cannot be read
 	 */
 	private void calculateCallbackMethods(ARSCFileParser resParser, LayoutFileParser lfp) throws IOException {
-		AnalyzeJimpleClass jimpleClass = null;
+		AbstractCallbackAnalyzer jimpleClass = null;
 
 		boolean hasChanged = true;
 		while (hasChanged) {
@@ -468,22 +480,18 @@ public class SetupApplication {
 
 			// Create the new iteration of the main method
 			soot.G.reset();
-			initializeSoot();
+			initializeSoot(true);
 			createMainMethod();
 
 			if (jimpleClass == null) {
 				// Collect the callback interfaces implemented in the app's
 				// source code
-				if (callbackClasses == null) {
-					jimpleClass = new AnalyzeJimpleClass(config, entrypoints);
-				} else {
-					jimpleClass = new AnalyzeJimpleClass(config, entrypoints, callbackClasses);
-				}
+				jimpleClass = new DefaultCallbackAnalyzer(config, entrypoints, callbackClasses);
 				jimpleClass.collectCallbackMethods();
 
 				// Find the user-defined sources in the layout XML files. This
 				// only needs to be done once, but is a Soot phase.
-				lfp.parseLayoutFile(apkFileLocation, entrypoints);
+				lfp.parseLayoutFile(apkFileLocation);
 			} else
 				jimpleClass.collectCallbackMethodsIncremental();
 
@@ -494,8 +502,9 @@ public class SetupApplication {
 
 			// Collect the results of the soot-based phases
 			for (Entry<String, Set<SootMethodAndClass>> entry : jimpleClass.getCallbackMethods().entrySet()) {
-				if (this.callbackMethods.containsKey(entry.getKey())) {
-					if (this.callbackMethods.get(entry.getKey()).addAll(entry.getValue()))
+				Set<SootMethodAndClass> curCallbacks = this.callbackMethods.get(entry.getKey());
+				if (curCallbacks != null) {
+					if (curCallbacks.addAll(entry.getValue()))
 						hasChanged = true;
 				} else {
 					this.callbackMethods.put(entry.getKey(), new HashSet<>(entry.getValue()));
@@ -507,6 +516,20 @@ public class SetupApplication {
 				hasChanged = true;
 		}
 
+		// Collect the XML-based callback methods
+		collectXmlBasedCallbackMethods(resParser, lfp, jimpleClass);
+	}
+
+	/**
+	 * Collects the XML-based callback methods, e.g., Button.onClick() declared
+	 * in layout XML files
+	 * @param resParser The ARSC resource parser
+	 * @param lfp The layout file parser
+	 * @param jimpleClass The analysis class that gives us a mapping between
+	 * layout IDs and components
+	 */
+	private void collectXmlBasedCallbackMethods(ARSCFileParser resParser,
+			LayoutFileParser lfp, AbstractCallbackAnalyzer jimpleClass) {
 		// Collect the XML-based callback methods
 		for (Entry<String, Set<Integer>> lcentry : jimpleClass.getLayoutClasses().entrySet()) {
 			final SootClass callbackClass = Scene.v().getSootClass(lcentry.getKey());
@@ -552,7 +575,7 @@ public class SetupApplication {
 					System.err.println("Unexpected resource type for layout class");
 			}
 		}
-
+		
 		// Add the callback methods as sources and sinks
 		{
 			Set<SootMethodAndClass> callbacksPlain = new HashSet<SootMethodAndClass>();
@@ -561,6 +584,45 @@ public class SetupApplication {
 			System.out.println("Found " + callbacksPlain.size() + " callback methods for "
 					+ this.callbackMethods.size() + " components");
 		}
+	}
+	
+	/**
+	 * Calculates the set of callback methods declared in the XML resource
+	 * files or the app's source code. This method prefers performance over
+	 * precision and scans the code including unreachable methods. 
+	 * 
+	 * @param resParser
+	 *            The binary resource parser containing the app resources
+	 * @param lfp
+	 *            The layout file parser to be used for analyzing UI controls
+	 * @throws IOException
+	 *             Thrown if a required configuration cannot be read
+	 */
+	private void calculateCallbackMethodsFast(ARSCFileParser resParser,
+			LayoutFileParser lfp) throws IOException {
+		// We need a running Soot instance
+		soot.G.reset();
+		initializeSoot(false);
+		
+		// Collect the callback interfaces implemented in the app's
+		// source code
+		AbstractCallbackAnalyzer jimpleClass = new FastCallbackAnalyzer(
+				config, entrypoints, callbackClasses);
+		jimpleClass.collectCallbackMethods();
+		
+		// Collect the results
+		Set<SootMethodAndClass> callbacks = jimpleClass.getCallbackMethods().get("");
+		if (callbacks != null) {
+			for (String componentName : this.entrypoints)
+				callbackMethods.put(componentName, callbacks);
+		}
+		
+		// Find the user-defined sources in the layout XML files. This
+		// only needs to be done once, but is a Soot phase.
+		lfp.parseLayoutFileDirect(apkFileLocation);
+		
+		// Collect the XML-based callback methods
+		collectXmlBasedCallbackMethods(resParser, lfp, jimpleClass);
 	}
 	
 	/**
@@ -652,12 +714,13 @@ public class SetupApplication {
 
 	/**
 	 * Initializes soot for running the soot-based phases of the application metadata analysis
+	 * @param constructCallgraph True if a callgraph shall be constructed, otherwise false
 	 */
-	private void initializeSoot() {
+	private void initializeSoot(boolean constructCallgraph) {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
-		Options.v().set_whole_program(true);
+		Options.v().set_whole_program(constructCallgraph);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
 		Options.v().set_soot_classpath(getClasspath());
 		if (forceAndroidJar)
@@ -668,31 +731,37 @@ public class SetupApplication {
 		Options.v().set_keep_line_number(false);
 		Options.v().set_keep_offset(false);
 		Main.v().autoSetOptions();
+		
+		// Set the Soot configuration options
+		if (sootConfig != null)
+			sootConfig.setSootOptions(Options.v());
 
 		// Configure the callgraph algorithm
-		switch (config.getCallgraphAlgorithm()) {
-		case AutomaticSelection:
-		case SPARK:
-			Options.v().setPhaseOption("cg.spark", "on");
-			break;
-		case GEOM:
-			Options.v().setPhaseOption("cg.spark", "on");
-			AbstractInfoflow.setGeomPtaSpecificOptions();
-			break;
-		case CHA:
-			Options.v().setPhaseOption("cg.cha", "on");
-			break;
-		case RTA:
-			Options.v().setPhaseOption("cg.spark", "on");
-			Options.v().setPhaseOption("cg.spark", "rta:true");
-			Options.v().setPhaseOption("cg.spark", "on-fly-cg:false");
-			break;
-		case VTA:
-			Options.v().setPhaseOption("cg.spark", "on");
-			Options.v().setPhaseOption("cg.spark", "vta:true");
-			break;
-		default:
-			throw new RuntimeException("Invalid callgraph algorithm");
+		if (constructCallgraph) {
+			switch (config.getCallgraphAlgorithm()) {
+			case AutomaticSelection:
+			case SPARK:
+				Options.v().setPhaseOption("cg.spark", "on");
+				break;
+			case GEOM:
+				Options.v().setPhaseOption("cg.spark", "on");
+				AbstractInfoflow.setGeomPtaSpecificOptions();
+				break;
+			case CHA:
+				Options.v().setPhaseOption("cg.cha", "on");
+				break;
+			case RTA:
+				Options.v().setPhaseOption("cg.spark", "on");
+				Options.v().setPhaseOption("cg.spark", "rta:true");
+				Options.v().setPhaseOption("cg.spark", "on-fly-cg:false");
+				break;
+			case VTA:
+				Options.v().setPhaseOption("cg.spark", "on");
+				Options.v().setPhaseOption("cg.spark", "vta:true");
+				break;
+			default:
+				throw new RuntimeException("Invalid callgraph algorithm");
+			}
 		}
 
 		// Load whetever we need

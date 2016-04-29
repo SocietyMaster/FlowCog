@@ -41,6 +41,7 @@ import soot.jimple.Stmt;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
+import soot.jimple.infoflow.android.InfoflowAndroidConfiguration.CallbackAnalyzer;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.config.IInfoflowConfig;
@@ -389,6 +390,18 @@ public class Test {
 				config.setLogSourcesAndSinks(true);
 				i++;
 			}
+			else if (args[i].equalsIgnoreCase("--callbackanalyzer")) {
+				String algo = args[i+1];
+				if (algo.equalsIgnoreCase("DEFAULT"))
+					config.setCallbackAnalyzer(CallbackAnalyzer.Default);
+				else if (algo.equalsIgnoreCase("FAST"))
+					config.setCallbackAnalyzer(CallbackAnalyzer.Fast);
+				else {
+					System.err.println("Invalid callback analysis algorithm");
+					return false;
+				}
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -486,6 +499,7 @@ public class Test {
 				InfoflowAndroidConfiguration.getUseTypeTightening() ? "" : "--notypetightening",
 				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode",
 				config.getLogSourcesAndSinks() ? "--logsourcesandsinks" : "",
+				"--callbackanalyzer", callbackAlgorithmToString(config.getCallbackAnalyzer()),
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
@@ -548,6 +562,17 @@ public class Test {
 		}
 	}
 	
+	private static String callbackAlgorithmToString(CallbackAnalyzer analyzer) {
+		switch (analyzer) {
+			case Default:
+				return "DEFAULT";
+			case Fast:
+				return "FAST";
+			default :
+				return "UNKNOWN";
+		}
+	}
+
 	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
@@ -757,10 +782,12 @@ public class Test {
 		System.out.println("\t--NOTAINTWRAPPER Disables the use of taint wrappers");
 		System.out.println("\t--NOTYPETIGHTENING Disables the use of taint wrappers");
 		System.out.println("\t--LOGSOURCESANDSINKS Print out concrete source/sink instances");
+		System.out.println("\t--CALLBACKANALYZER x Uses callback analysis algorithm x");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK, GEOM");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
 		System.out.println("Supported path algorithms: CONTEXTSENSITIVE, CONTEXTINSENSITIVE, SOURCESONLY");
+		System.out.println("Supported callback algorithms: DEFAULT, FAST");
 	}
 
 }

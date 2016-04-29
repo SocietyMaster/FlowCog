@@ -176,4 +176,44 @@ public class AndroidMethod extends SootMethodAndClass {
 		return new AndroidMethod(smac.getMethodName(), smac.getParameters(),
 				smac.getReturnType(), smac.getClassName());
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((category == null) ? 0 : category.hashCode());
+		result = prime * result + (isNeitherNor ? 1231 : 1237);
+		result = prime * result + (isSink ? 1231 : 1237);
+		result = prime * result + (isSource ? 1231 : 1237);
+		result = prime * result
+				+ ((permissions == null) ? 0 : permissions.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AndroidMethod other = (AndroidMethod) obj;
+		if (category != other.category)
+			return false;
+		if (isNeitherNor != other.isNeitherNor)
+			return false;
+		if (isSink != other.isSink)
+			return false;
+		if (isSource != other.isSource)
+			return false;
+		if (permissions == null) {
+			if (other.permissions != null)
+				return false;
+		} else if (!permissions.equals(other.permissions))
+			return false;
+		return true;
+	}
+	
 }
