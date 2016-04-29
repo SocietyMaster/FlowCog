@@ -98,6 +98,8 @@ public class SetupApplication {
 	
 	private Set<Stmt> collectedSources = null;
 	private Set<Stmt> collectedSinks = null;
+
+	private String callbackFile = "AndroidCallbacks.txt"; 
 	
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
@@ -486,7 +488,9 @@ public class SetupApplication {
 			if (jimpleClass == null) {
 				// Collect the callback interfaces implemented in the app's
 				// source code
-				jimpleClass = new DefaultCallbackAnalyzer(config, entrypoints, callbackClasses);
+				jimpleClass = callbackClasses == null
+						? new DefaultCallbackAnalyzer(config, entrypoints, callbackFile)
+						: new DefaultCallbackAnalyzer(config, entrypoints, callbackClasses);
 				jimpleClass.collectCallbackMethods();
 
 				// Find the user-defined sources in the layout XML files. This
@@ -606,8 +610,9 @@ public class SetupApplication {
 		
 		// Collect the callback interfaces implemented in the app's
 		// source code
-		AbstractCallbackAnalyzer jimpleClass = new FastCallbackAnalyzer(
-				config, entrypoints, callbackClasses);
+		AbstractCallbackAnalyzer jimpleClass = callbackClasses == null
+				? new FastCallbackAnalyzer(config, entrypoints, callbackFile)
+				: new FastCallbackAnalyzer(config, entrypoints, callbackClasses);
 		jimpleClass.collectCallbackMethods();
 		
 		// Collect the results
@@ -904,6 +909,10 @@ public class SetupApplication {
 	 */
 	public void setConfig(InfoflowAndroidConfiguration config) {
 		this.config = config;
+	}
+	
+	public void setCallbackFile(String callbackFile) {
+		this.callbackFile = callbackFile;
 	}
 	
 }

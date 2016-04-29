@@ -64,10 +64,18 @@ public abstract class AbstractCallbackAnalyzer {
 			new HashMap<String, Set<Integer>>();
 	protected final Set<String> dynamicManifestComponents =
 			new HashSet<>();
-
+	
 	public AbstractCallbackAnalyzer(InfoflowAndroidConfiguration config,
 			Set<String> entryPointClasses) throws IOException {
-		this(config, entryPointClasses, null);
+		this(config, entryPointClasses, "AndroidCallbacks.txt");
+	}
+	
+	public AbstractCallbackAnalyzer(InfoflowAndroidConfiguration config,
+			Set<String> entryPointClasses,
+			String callbackFile) throws IOException {
+		this.config = config;
+		this.entryPointClasses = entryPointClasses;
+		this.androidCallbacks = loadAndroidCallbacks(callbackFile);
 	}
 
 	public AbstractCallbackAnalyzer(InfoflowAndroidConfiguration config,
@@ -75,23 +83,21 @@ public abstract class AbstractCallbackAnalyzer {
 			Set<String> androidCallbacks) throws IOException {
 		this.config = config;
 		this.entryPointClasses = entryPointClasses;
-		if (androidCallbacks == null)
-			this.androidCallbacks = loadAndroidCallbacks();
-		else
-			this.androidCallbacks = androidCallbacks;
+		this.androidCallbacks = androidCallbacks;
 	}
-
+	
 	/**
 	 * Loads the set of interfaces that are used to implement Android callback
 	 * handlers from a file on disk
+	 * @param androidCallbackFile The file from which to load the callback definitions
 	 * @return A set containing the names of the interfaces that are used to
 	 * implement Android callback handlers
 	 */
-	private Set<String> loadAndroidCallbacks() throws IOException {
+	private Set<String> loadAndroidCallbacks(String androidCallbackFile) throws IOException {
 		Set<String> androidCallbacks = new HashSet<String>();
 		BufferedReader rdr = null;
 		try {
-			String fileName = "AndroidCallbacks.txt";
+			String fileName = androidCallbackFile;
 			if (!new File(fileName).exists()) {
 				fileName = "../soot-infoflow-android/AndroidCallbacks.txt";
 				if (!new File(fileName).exists())

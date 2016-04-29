@@ -29,6 +29,12 @@ public class FastCallbackAnalyzer extends AbstractCallbackAnalyzer {
 	
 	public FastCallbackAnalyzer(InfoflowAndroidConfiguration config,
 			Set<String> entryPointClasses,
+			String callbackFile) throws IOException {
+		super(config, entryPointClasses, callbackFile);
+	}
+
+	public FastCallbackAnalyzer(InfoflowAndroidConfiguration config,
+			Set<String> entryPointClasses,
 			Set<String> androidCallbacks) throws IOException {
 		super(config, entryPointClasses, androidCallbacks);
 	}
