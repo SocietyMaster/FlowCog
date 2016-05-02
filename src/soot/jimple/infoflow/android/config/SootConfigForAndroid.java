@@ -22,15 +22,18 @@ public class SootConfigForAndroid implements IInfoflowConfig{
 	public void setSootOptions(Options options) {
 		// explicitly include packages for shorter runtime:
 		List<String> excludeList = new LinkedList<String>();
-		excludeList.add("java.");
-		excludeList.add("sun.misc.");
-		excludeList.add("android.");
-		excludeList.add("org.apache.");
-		excludeList.add("soot.");
-		excludeList.add("javax.servlet.");
+		excludeList.add("java.*");
+		excludeList.add("sun.misc.*");
+		excludeList.add("android.*");
+		excludeList.add("org.apache.*");
+		excludeList.add("soot.*");
+		excludeList.add("javax.servlet.*");
 		options.set_exclude(excludeList);
 		Options.v().set_no_bodies_for_excluded(true);
 		options.set_output_format(Options.output_format_none);
+		
+		Options.v().setPhaseOption("cg.cha", "apponly:true");
+		Options.v().setPhaseOption("cg.spark", "apponly:true");
 	}
 
 }

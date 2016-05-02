@@ -727,7 +727,6 @@ public class SetupApplication {
 		Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(constructCallgraph);
 		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
-		Options.v().set_soot_classpath(getClasspath());
 		if (forceAndroidJar)
 			Options.v().set_force_android_jar(androidJar);
 		else
@@ -735,12 +734,15 @@ public class SetupApplication {
 		Options.v().set_src_prec(Options.src_prec_apk_class_jimple);
 		Options.v().set_keep_line_number(false);
 		Options.v().set_keep_offset(false);
-		Main.v().autoSetOptions();
 		
-		// Set the Soot configuration options
+		// Set the Soot configuration options. Note that this will needs to be
+		// done before we compute the classpath.
 		if (sootConfig != null)
 			sootConfig.setSootOptions(Options.v());
-
+		
+		Options.v().set_soot_classpath(getClasspath());
+		Main.v().autoSetOptions();
+		
 		// Configure the callgraph algorithm
 		if (constructCallgraph) {
 			switch (config.getCallgraphAlgorithm()) {
