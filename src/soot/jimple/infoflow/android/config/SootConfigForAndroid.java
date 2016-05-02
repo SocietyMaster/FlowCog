@@ -31,9 +31,6 @@ public class SootConfigForAndroid implements IInfoflowConfig{
 		options.set_exclude(excludeList);
 		Options.v().set_no_bodies_for_excluded(true);
 		options.set_output_format(Options.output_format_none);
-		
-		Options.v().setPhaseOption("cg.cha", "apponly:true");
-		Options.v().setPhaseOption("cg.spark", "apponly:true");
 	}
 
 }
