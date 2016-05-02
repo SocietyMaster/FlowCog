@@ -692,6 +692,10 @@ public class SetupApplication {
 		if (Scene.v().containsClass(entryPoint.getDeclaringClass().getName()))
 			Scene.v().removeClass(entryPoint.getDeclaringClass());
 		Scene.v().addClass(entryPoint.getDeclaringClass());
+		
+		// addClass() declares the given class as a library class. We need to
+		// fix this.
+		entryPoint.getDeclaringClass().setApplicationClass();
 	}
 
 	/**
