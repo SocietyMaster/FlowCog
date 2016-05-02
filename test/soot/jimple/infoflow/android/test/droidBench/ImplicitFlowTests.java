@@ -29,24 +29,28 @@ public class ImplicitFlowTests extends JUnitTests {
 	@Test(timeout=300000)
 	public void runTestImplicitFlow2() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows/ImplicitFlow2.apk", true);
+		Assert.assertNotNull(res);
 		Assert.assertEquals(2, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestImplicitFlow3() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows/ImplicitFlow3.apk", true);
+		Assert.assertNotNull(res);
 		Assert.assertEquals(2, res.size());
 	}
 
 	@Test(timeout=300000)
 	public void runTestImplicitFlow4() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows/ImplicitFlow4.apk", true);
+		Assert.assertNotNull(res);
 		Assert.assertEquals(2, res.size());
 	}
 	
 	@Test(timeout=300000)
 	public void runTestImplicitFlow5() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ImplicitFlows/ImplicitFlow5.apk", true);
+		Assert.assertNotNull(res);
 		Assert.assertEquals(1, res.size());
 	}
 }

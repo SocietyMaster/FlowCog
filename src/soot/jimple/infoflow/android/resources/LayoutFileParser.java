@@ -56,6 +56,12 @@ public class LayoutFileParser extends AbstractResourceParser {
 		this.resParser = resParser;
 	}
 	
+	private boolean isRealClass(SootClass sc) {
+		if (sc == null)
+			return false;
+		return !(sc.isPhantom() && sc.getMethodCount() == 0 && sc.getFieldCount() == 0);
+	}
+	
 	private SootClass getLayoutClass(String className) {
 		// Cut off some junk returned by the parser
 		if (className.startsWith(";"))
@@ -69,13 +75,13 @@ public class LayoutFileParser extends AbstractResourceParser {
 		SootClass sc = Scene.v().forceResolve(className, SootClass.BODIES);
 		if ((sc == null || sc.isPhantom()) && !packageName.isEmpty())
 			sc = Scene.v().forceResolve(packageName + "." + className, SootClass.BODIES);
-		if (sc == null || sc.isPhantom())
+		if (!isRealClass(sc))
 			sc = Scene.v().forceResolve("android.view." + className, SootClass.BODIES);
-		if (sc == null || sc.isPhantom())
+		if (!isRealClass(sc))
 			sc = Scene.v().forceResolve("android.widget." + className, SootClass.BODIES);
-		if (sc == null || sc.isPhantom())
+		if (!isRealClass(sc))
 			sc = Scene.v().forceResolve("android.webkit." + className, SootClass.BODIES);
-		if (sc == null || sc.isPhantom()) {
+		if (!isRealClass(sc)) {
    			System.err.println("Could not find layout class " + className);
    			return null;
 		}
