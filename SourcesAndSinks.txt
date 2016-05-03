@@ -266,7 +266,7 @@
 
 
 <android.bluetooth.BluetoothAdapter: java.lang.String getAddress()> -> _SOURCE_
-<android.net.wifi.WifiInfo: java.lang.String: getMacAddress()> -> _SOURCE_
+<android.net.wifi.WifiInfo: java.lang.String getMacAddress()> -> _SOURCE_
 <java.util.Locale: java.lang.String getCountry()> -> _SOURCE_
 <android.net.wifi.WifiInfo: java.lang.String getSSID()> -> _SOURCE_
 <android.telephony.gsm.GsmCellLocation: int getCid()> -> _SOURCE_
