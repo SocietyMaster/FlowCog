@@ -169,8 +169,20 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		final String methodSignature = methodToSignature.getUnchecked(
 				sCallSite.getInvokeExpr().getMethod());
 		SourceSinkDefinition def = sinkMethods.get(methodSignature);
-		if (def == null)
-			return false;
+		if (def == null) {
+			// If we don't have a sink definition for the direct callee, we
+			// check the CFG.
+			boolean found = false;
+			for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
+				String signature = methodToSignature.getUnchecked(sm);
+				if (this.sinkMethods.containsKey(signature)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				return false;
+		}
 		
 		// If we have no precise information, we conservatively assume that
 		// everything is tainted without looking at the access path. Only
@@ -189,7 +201,7 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 				&& def.getBaseObjects() != null) {
 			for (AccessPathTuple apt : def.getBaseObjects())
 				if (apt.isSink() && accessPathMatches(sourceAccessPath, apt))
-					return true;	
+					return true;
 		}
 		
 		// Check whether a parameter matches our definition

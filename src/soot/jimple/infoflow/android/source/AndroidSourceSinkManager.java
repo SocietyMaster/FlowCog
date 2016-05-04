@@ -307,7 +307,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// Ask the CFG in case we don't know any better
 		for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
 			String signature = methodToSignature.getUnchecked(sm);
-			if (this.sourceMethods.containsKey(signature))
+			if (this.sinkMethods.containsKey(signature))
 				return true;
 		}
 		
