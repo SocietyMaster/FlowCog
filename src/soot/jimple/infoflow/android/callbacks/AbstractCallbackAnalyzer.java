@@ -220,15 +220,35 @@ public abstract class AbstractCallbackAnalyzer {
 			}
 		}
 	}
-
+	
+	/**
+	 * Gets whether the call in the given statement can end up in the respective method
+	 * inherited from one of the given classes.
+	 * @param stmt The statement containing the call sites
+	 * @param classNames The base classes in which the call can potentially end up
+	 * @return True if the given call can end up in a method inherited from one of
+	 * the given classes, otherwise falae
+	 */
 	private boolean isInheritedMethod(Stmt stmt, String... classNames) {
-		Iterator<Edge> edgeIt = Scene.v().getCallGraph().edgesOutOf(stmt);
-		while (edgeIt.hasNext()) {
-			Edge edge = edgeIt.next();
-			String targetClass = edge.getTgt().method().getDeclaringClass().getName();
-			for (String className : classNames)
-				if (className.equals(targetClass))
-					return true;
+		if (!stmt.containsInvokeExpr())
+			return false;
+		
+		// Look at the direct callee
+		SootMethod tgt = stmt.getInvokeExpr().getMethod();
+		for (String className : classNames)
+			if (className.equals(tgt.getDeclaringClass().getName()))
+				return true;
+
+		// If we have a callgraph, we can use that.
+		if (Scene.v().hasCallGraph()) {
+			Iterator<Edge> edgeIt = Scene.v().getCallGraph().edgesOutOf(stmt);
+			while (edgeIt.hasNext()) {
+				Edge edge = edgeIt.next();
+				String targetClass = edge.getTgt().method().getDeclaringClass().getName();
+				for (String className : classNames)
+					if (className.equals(targetClass))
+						return true;
+			}
 		}
 		return false;
 	}
