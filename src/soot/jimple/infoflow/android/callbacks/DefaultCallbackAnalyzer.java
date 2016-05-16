@@ -66,6 +66,8 @@ public class DefaultCallbackAnalyzer extends AbstractCallbackAnalyzer {
 	 * a new phase that will be executed when Soot is next run
 	 */
 	public void collectCallbackMethods() {
+		logger.info("Collecting callbacks in DEFAULT mode...");
+		
 		Transform transform = new Transform("wjtp.ajc", new SceneTransformer() {
 			protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
 				// Find the mappings between classes and layouts

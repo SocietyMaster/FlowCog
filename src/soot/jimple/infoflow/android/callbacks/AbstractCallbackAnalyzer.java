@@ -20,6 +20,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.Body;
 import soot.Local;
 import soot.RefType;
@@ -54,6 +57,8 @@ import soot.toolkits.scalar.SmartLocalDefs;
  */
 public abstract class AbstractCallbackAnalyzer {
 
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	protected final InfoflowAndroidConfiguration config;
 	protected final Set<String> entryPointClasses;
 	protected final Set<String> androidCallbacks;
