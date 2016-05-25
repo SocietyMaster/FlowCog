@@ -172,16 +172,12 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		if (def == null) {
 			// If we don't have a sink definition for the direct callee, we
 			// check the CFG.
-			boolean found = false;
 			for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
 				String signature = methodToSignature.getUnchecked(sm);
-				if (this.sinkMethods.containsKey(signature)) {
-					found = true;
-					break;
-				}
+				if (this.sinkMethods.containsKey(signature))
+					return true;
 			}
-			if (!found)
-				return false;
+			return false;
 		}
 		
 		// If we have no precise information, we conservatively assume that
