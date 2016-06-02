@@ -402,6 +402,10 @@ public class Test {
 				}
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--maxthreadnum")){
+				config.setMaxThreadNum(Integer.valueOf(args[i+1]));
+				i += 2;
+			}
 			else
 				i++;
 		}
@@ -500,6 +504,7 @@ public class Test {
 				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode",
 				config.getLogSourcesAndSinks() ? "--logsourcesandsinks" : "",
 				"--callbackanalyzer", callbackAlgorithmToString(config.getCallbackAnalyzer()),
+				"--maxthreadnum", Integer.toString(config.getMaxThreadNum())
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
@@ -783,6 +788,7 @@ public class Test {
 		System.out.println("\t--NOTYPETIGHTENING Disables the use of taint wrappers");
 		System.out.println("\t--LOGSOURCESANDSINKS Print out concrete source/sink instances");
 		System.out.println("\t--CALLBACKANALYZER x Uses callback analysis algorithm x");
+		System.out.println("\t--MAXTHREADNUM x Sets the maximum number of threads to be used by the analysis to x");
 		System.out.println();
 		System.out.println("Supported callgraph algorithms: AUTO, CHA, RTA, VTA, SPARK, GEOM");
 		System.out.println("Supported layout mode algorithms: NONE, PWD, ALL");
