@@ -386,7 +386,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr()
 					.getMethod().getDeclaringClass())) {
 				if (i.declaresMethod(subSig))
-					if (this.sinkMethods.containsKey(methodToSignature.getUnchecked(
+					if (this.sourceMethods.containsKey(methodToSignature.getUnchecked(
 							i.getMethod(subSig))))
 						return SourceType.MethodCall;
 			}
