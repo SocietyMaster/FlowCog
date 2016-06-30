@@ -67,6 +67,7 @@ public class JUnitTests {
 		setupApplication.setTaintWrapper(new EasyTaintWrapper("EasyTaintWrapperSource.txt"));
 		setupApplication.calculateSourcesSinksEntrypoints("SourcesAndSinks.txt");
 		setupApplication.getConfig().setEnableImplicitFlows(enableImplicitFlows);
+		setupApplication.getConfig().setEnableArraySizeTainting(true);
 		return setupApplication.runInfoflow();
 	}
 

@@ -52,6 +52,13 @@ public class ArrayAndListTests extends JUnitTests {
 	}
 	
 	@Test(timeout=300000)
+	public void runTestArrayAccess5() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayAccess5.apk");
+		if (res != null)
+			Assert.assertEquals(0, res.size());
+	}
+
+	@Test(timeout=300000)
 	public void runTestArrayCopy1() throws IOException, XmlPullParserException {
 		InfoflowResults res = analyzeAPKFile("ArraysAndLists/ArrayCopy1.apk");
 		Assert.assertEquals(1, res.size());

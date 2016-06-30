@@ -406,6 +406,10 @@ public class Test {
 				config.setMaxThreadNum(Integer.valueOf(args[i+1]));
 				i += 2;
 			}
+			else if (args[i].equalsIgnoreCase("--arraysizetainting")) {
+				config.setEnableArraySizeTainting(true);
+				i++;
+			}
 			else
 				i++;
 		}
@@ -504,7 +508,8 @@ public class Test {
 				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode",
 				config.getLogSourcesAndSinks() ? "--logsourcesandsinks" : "",
 				"--callbackanalyzer", callbackAlgorithmToString(config.getCallbackAnalyzer()),
-				"--maxthreadnum", Integer.toString(config.getMaxThreadNum())
+				"--maxthreadnum", Integer.toString(config.getMaxThreadNum()),
+				config.getEnableArraySizeTainting() ? "--arraysizetainting" : ""
 				};
 		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
 		try {
