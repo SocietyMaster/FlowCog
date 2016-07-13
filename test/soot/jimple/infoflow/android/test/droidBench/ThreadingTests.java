@@ -50,4 +50,10 @@ public class ThreadingTests extends JUnitTests {
 		Assert.assertEquals(1, res.size());
 	}
 	
+	@Test(timeout=300000)
+	public void runTestTimerTask1() throws IOException, XmlPullParserException {
+		InfoflowResults res = analyzeAPKFile("Threading/TimerTask1.apk");
+		Assert.assertEquals(1, res.size());
+	}
+
 }
