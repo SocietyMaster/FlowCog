@@ -676,13 +676,14 @@ public class Test {
 	private static ITaintPropagationWrapper createLibrarySummaryTW()
 			throws IOException {
 		try {
-			Class clzLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.summary.LazySummary");
+			Class clzLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.provider.LazySummaryProvider");
+			Class itfLazySummary = Class.forName("soot.jimple.infoflow.methodSummary.data.provider.IMethodSummaryProvider");
 			
 			Object lazySummary = clzLazySummary.getConstructor(File.class).newInstance(new File(summaryPath));
 			
 			ITaintPropagationWrapper summaryWrapper = (ITaintPropagationWrapper) Class.forName
 					("soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper").getConstructor
-					(clzLazySummary).newInstance(lazySummary);
+					(itfLazySummary).newInstance(lazySummary);
 			
 			ITaintPropagationWrapper systemClassWrapper = new ITaintPropagationWrapper() {
 				
