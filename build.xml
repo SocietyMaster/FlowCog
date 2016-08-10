@@ -56,8 +56,8 @@
 
 	<target name="rundroidbench" depends="compiletests">
 		<mkdir dir="reports" />
-		<junit printsummary="yes">
-			<jvmarg value="-Xmx10G" />
+		<junit printsummary="yes" fork="true" maxmemory="8G">
+			<jvmarg value="-Xmx8G" />
 			<sysproperty key="DROIDBENCH" value="${droidBenchDir}" />
 			<sysproperty key="ANDROID_JARS" value="${androidJarDir}" />
 			<classpath>
