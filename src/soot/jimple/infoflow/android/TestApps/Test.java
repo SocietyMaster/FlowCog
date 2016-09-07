@@ -622,10 +622,19 @@ public class Test {
 			}
 			else {
 				final EasyTaintWrapper easyTaintWrapper;
-				if (new File("../soot-infoflow/EasyTaintWrapperSource.txt").exists())
-					easyTaintWrapper = new EasyTaintWrapper("../soot-infoflow/EasyTaintWrapperSource.txt");
-				else
-					easyTaintWrapper = new EasyTaintWrapper("EasyTaintWrapperSource.txt");
+				File twSourceFile = new File("../soot-infoflow/EasyTaintWrapperSource.txt");
+				if (twSourceFile.exists())
+					easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+				else {
+					twSourceFile = new File("EasyTaintWrapperSource.txt");
+					if (twSourceFile.exists())
+						easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+					else {
+						System.err.println("Taint wrapper definition file not found at "
+								+ twSourceFile.getAbsolutePath());
+						return null;
+					}
+				}
 				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
 				taintWrapper = easyTaintWrapper;
 			}
