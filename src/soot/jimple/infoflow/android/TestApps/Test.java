@@ -236,8 +236,14 @@ public class Test {
 					runAnalysisTimeout(fullFilePath, args[1]);
 				else if (sysTimeout > 0)
 					runAnalysisSysTimeout(fullFilePath, args[1]);
-				else
+				else{
 					runAnalysis(fullFilePath, args[1]);
+					//XIANG
+					//XIANG
+//					System.out.println("Second Round!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//					soot.G.reset();
+//					runAnalysis(fullFilePath, args[1]);
+				}
 				repeatCount--;
 			}
 			
@@ -649,6 +655,9 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
+			
+			
+			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
 			
 			if (config.getLogSourcesAndSinks()) {

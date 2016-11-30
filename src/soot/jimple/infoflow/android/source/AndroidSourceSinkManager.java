@@ -400,8 +400,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		}
 
 		// This call might read out sensitive data from the UI
-		if (isUISource(sCallSite, cfg))
+		if (isUISource(sCallSite, cfg)){
+			System.out.println("UISOURCE  "+sCallSite);
 			return SourceType.UISource;
+		}
 
 		// This statement might access a sensitive parameter in a callback
 		// method
@@ -410,8 +412,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			if (sCallSite instanceof IdentityStmt) {
 				IdentityStmt is = (IdentityStmt) sCallSite;
 				if (is.getRightOp() instanceof ParameterRef)
-					if (this.callbackMethods.containsKey(callSiteSignature))
+					if (this.callbackMethods.containsKey(callSiteSignature)){
+						System.out.println("CALBACKSOURCE  "+sCallSite+" @"+cfg.getMethodOf(sCallSite));
 						return SourceType.Callback;
+					}
 			}
 		}
 

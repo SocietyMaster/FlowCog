@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import soot.Main;
+import soot.MethodOrMethodContext;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
@@ -43,6 +44,7 @@ import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
@@ -57,12 +59,16 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.options.Options;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
+import soot.util.queue.QueueReader;
 
 public class SetupApplication {
 
@@ -785,7 +791,10 @@ public class SetupApplication {
 	 * @return The results of the data flow analysis
 	 */
 	public InfoflowResults runInfoflow() {
+//		runInfoflow(null);
+//		System.out.println("Second round");
 		return runInfoflow(null);
+		
 	}
 
 	/**
@@ -833,7 +842,27 @@ public class SetupApplication {
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
-
+		
+		//XIANG
+		ARSCFileParser resParser = new ARSCFileParser();
+		try {
+			resParser.parse(apkFileLocation);
+		} catch (Exception e) {
+			System.err.println("NULIST: failed to init FlowTriggerEventAnalyzer: ARSCFileParser");
+			e.printStackTrace();
+		}
+		//this.resourcePackages = resParser.getPackages();	
+		
+		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(this.appPackageName, resParser);
+		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
+		Map<Integer, List<String>> id2Texts = lfpTE.getId2Texts();
+		for(Integer id : id2Texts.keySet()){
+			for(String msg : id2Texts.get(id))
+				System.out.println("VIEWTEXT: "+id+" -> "+msg);
+		}
+//		System.out.println("Start second round:");
+//		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
+		
 		return info.getResults();
 	}
 
