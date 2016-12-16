@@ -44,7 +44,10 @@ import soot.jimple.infoflow.android.config.SootConfigForAndroid;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.nu.FlowClassifier;
+import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
+import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
@@ -59,8 +62,12 @@ import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.nu.FlowPath;
+import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
+import soot.jimple.infoflow.results.ResultSinkInfo;
+import soot.jimple.infoflow.results.ResultSourceInfo;
 import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
@@ -107,6 +114,11 @@ public class SetupApplication {
 
 	private String callbackFile = "AndroidCallbacks.txt"; 
 	
+	private FlowPathSet fps = null;
+	
+	public void setFlowPathSet(FlowPathSet fps){
+		this.fps = fps;
+	}
 	/**
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
@@ -160,6 +172,8 @@ public class SetupApplication {
 
 		this.ipcManager = ipcManager;
 		this.additionalClasspath = additionalClasspath;
+		
+		this.fps = null;
 	}
 	
 	/**
@@ -838,34 +852,49 @@ public class SetupApplication {
 			info.setIPCManager(ipcManager);
 		}
 
-		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
+		if(fps == null)
+			info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
+		else
+			info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager, fps);
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		
 		//XIANG
-		ARSCFileParser resParser = new ARSCFileParser();
-		try {
-			resParser.parse(apkFileLocation);
-		} catch (Exception e) {
-			System.err.println("NULIST: failed to init FlowTriggerEventAnalyzer: ARSCFileParser");
-			e.printStackTrace();
-		}
-		//this.resourcePackages = resParser.getPackages();	
+		FlowClassifier fc = new FlowClassifier(apkFileLocation, this.appPackageName);
 		
-		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(this.appPackageName, resParser);
-		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
-		Map<Integer, List<String>> id2Texts = lfpTE.getId2Texts();
-		for(Integer id : id2Texts.keySet()){
-			for(String msg : id2Texts.get(id))
-				System.out.println("VIEWTEXT: "+id+" -> "+msg);
+//		fc.showDemo(info.getResults());
+		if(fps == null){
+			InfoflowResults rs = info.getResults();
+			FlowPathSet fpsLocal = new FlowPathSet();
+			for(ResultSinkInfo sink : rs.getResults().keySet()){
+				for(ResultSourceInfo source : rs.getResults().get(sink)){
+					FlowPath fp = new FlowPath(info.getICFG(), source, sink,
+							fpsLocal.getEventListenerMap(), fpsLocal.getLifeCycleEventListenerSet(),
+							fpsLocal.getRegistryMap());
+					fpsLocal.addFlowPath(fp);
+				}
+			}
+	
+			//XIANG
+			
+			//GraphTool.displayAllMethodGraph();
+			InfoflowResultsWithFlowPathSet rsWithPathSet = new InfoflowResultsWithFlowPathSet(rs);
+			rsWithPathSet.setFlowPathSet(fpsLocal);
+			return rsWithPathSet;
 		}
-//		System.out.println("Start second round:");
-//		info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
-		
+		else{
+			Set<Stmt> stmts = getCollectedSources();
+			//for(Stmt stmt : stmts)
+			//	System.out.println("OUTPUT SOURCES: "+stmt);
+		}
 		return info.getResults();
 	}
 
+	public FlowPathSet getFlowPathSet(){
+		return fps;
+	}
+	
 	private AndroidEntryPointCreator createEntryPointCreator() {
 		AndroidEntryPointCreator entryPointCreator = new AndroidEntryPointCreator(new ArrayList<String>(
 				this.entrypoints));

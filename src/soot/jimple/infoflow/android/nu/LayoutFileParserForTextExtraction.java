@@ -41,6 +41,8 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	
 	//id -> [text1,text2, ...]
 	private final Map<Integer, List<String>> id2Texts = new HashMap<Integer, List<String>>();
+	private final Map<Integer, String> id2Type = new HashMap<Integer, String>();
+	private final Map<Integer, LayoutTextTreeNode> id2Node = new HashMap<Integer, LayoutTextTreeNode>();
 	//filename -> LayoutTextTree
 	private final Map<String, LayoutTextTreeNode> textTreeMap = new HashMap<String, LayoutTextTreeNode>();
 	
@@ -468,6 +470,14 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	public Map<Integer, List<String>> getId2Texts() {
 		return id2Texts;
 	}
+	
+	public Map<Integer, String> getId2Type(){
+		return id2Type;
+	}
+	
+	public Map<Integer, LayoutTextTreeNode> getId2Node(){
+		return id2Node;
+	}
 
 	public Map<String, LayoutTextTreeNode> getTextTreeMap() {
 		return textTreeMap;
@@ -483,15 +493,24 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	}
 	
 	private void traverseTextTreeHelper(LayoutTextTreeNode node, int level){
+		if(node.nodeID != 0){
+			id2Type.put(node.nodeID, node.nodeType);
+			id2Node.put(node.nodeID, node);
+		}
+		
 		if(node.nodeID!=0 && !node.text.equals("")){
 			List<String> texts = null;
-			if (id2Texts.containsKey(node.nodeID))
+			
+			if (id2Texts.containsKey(node.nodeID)){
 				texts = id2Texts.get(node.nodeID);
+			}
 			else{
 				texts = new ArrayList<String>(1);
 				id2Texts.put(node.nodeID, texts);
 			}
 			texts.add(node.text);	
+			
+			System.out.println("DEBUGDEBUG: "+node.nodeID+" T:"+node.nodeType+" ");
 		}
 		String space = new String(new char[level*2]).replace('\0', ' ');
 		//System.out.println("DEBUG: "+space+node.toString());

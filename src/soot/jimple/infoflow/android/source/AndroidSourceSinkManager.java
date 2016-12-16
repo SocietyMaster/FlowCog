@@ -317,6 +317,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	@Override
 	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		SourceType type = getSourceType(sCallSite, cfg);
+		//System.out.println("GETSRCTYPE: "+sCallSite+" //"+type);
 		if (type == SourceType.NoSource)
 			return null;
 		
@@ -368,7 +369,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	 * @return The type of source that was detected in the statement of NoSource
 	 *         if the statement does not contain a source
 	 */
-	protected SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
+	public SourceType getSourceType(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
 		assert cfg != null;
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
@@ -377,6 +378,9 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			{
 			String signature = methodToSignature.getUnchecked(
 					sCallSite.getInvokeExpr().getMethod());
+//			if(signature.contains("findViewById")){
+//				System.out.println("getSourceType findViewById:"+signature+" "+this.sourceMethods.containsKey(signature));
+//			}
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
 			}
@@ -400,10 +404,11 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		}
 
 		// This call might read out sensitive data from the UI
-		if (isUISource(sCallSite, cfg)){
-			System.out.println("UISOURCE  "+sCallSite);
-			return SourceType.UISource;
-		}
+		//TODO: currently we disable UISOURCE
+//		if (isUISource(sCallSite, cfg)){
+//			System.out.println("UISOURCE  "+sCallSite);
+//			return SourceType.UISource;
+//		}
 
 		// This statement might access a sensitive parameter in a callback
 		// method
@@ -413,7 +418,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 				IdentityStmt is = (IdentityStmt) sCallSite;
 				if (is.getRightOp() instanceof ParameterRef)
 					if (this.callbackMethods.containsKey(callSiteSignature)){
-						System.out.println("CALBACKSOURCE  "+sCallSite+" @"+cfg.getMethodOf(sCallSite));
+						//System.out.println("CALBACKSOURCE  "+sCallSite+" @"+cfg.getMethodOf(sCallSite));
 						return SourceType.Callback;
 					}
 			}

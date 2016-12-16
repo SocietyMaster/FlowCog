@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -42,13 +43,18 @@ import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration.CallbackAnalyzer;
+import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.android.nu.FlowClassifier;
+import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.Abstraction;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.nu.FlowPathSet;
+import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
@@ -60,6 +66,10 @@ import soot.jimple.infoflow.util.SystemClassHandler;
 import soot.options.Options;
 
 public class Test {
+	
+	//XIANG: store the flow path set returned by the first SetupApplication.
+	//not a good design, think about how to fix it.
+	//private static FlowPathSet fps = null;
 	
 	private static final class MyResultsAvailableHandler implements
 			ResultsAvailableHandler {
@@ -237,12 +247,41 @@ public class Test {
 				else if (sysTimeout > 0)
 					runAnalysisSysTimeout(fullFilePath, args[1]);
 				else{
-					runAnalysis(fullFilePath, args[1]);
+					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
 					//XIANG
-					//XIANG
-//					System.out.println("Second Round!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//					soot.G.reset();
-//					runAnalysis(fullFilePath, args[1]);
+					System.out.println("getSourceType findViewById: Second round:");
+//					GraphTool.displayAllMethodGraph();
+					soot.G.reset();
+					//GraphTool.displayAllMethodGraph();
+					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
+					
+					try{
+						ProcessManifest processMan = new ProcessManifest(fullFilePath);
+						String appPackageName = processMan.getPackageName();
+						//extract View info (e.g., View id, texts)
+						FlowClassifier fc = new FlowClassifier(fullFilePath, appPackageName);
+						Map<Integer, List<String>> ss = fc.getId2Texts();
+						Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
+						for(Integer flowId : map.keySet()){
+							Set<Integer> set = map.get(flowId);
+							for(Integer viewId : set){
+								System.out.println("Flow:"+flowId+" => "+viewId+" ["+fps.getLst().get(flowId).getTag()+"]");
+								List<String> tmp = ss.get(viewId);
+								if(tmp != null){
+									for(String s : tmp){
+										System.out.println("    "+s);
+									}
+								}
+								else {
+									
+								}
+							}
+						}
+					}
+					catch(Exception e){
+						System.err.println("failed to run taint analysis on view-flow. "+e);
+						e.printStackTrace();
+					}
 				}
 				repeatCount--;
 			}
@@ -437,6 +476,10 @@ public class Test {
 	}
 	
 	private static void runAnalysisTimeout(final String fileName, final String androidJar) {
+		//XIANG
+		//Invalid for now.
+		//Fix return value if wanna use this method.
+		/*
 		FutureTask<InfoflowResults> task = new FutureTask<InfoflowResults>(new Callable<InfoflowResults>() {
 
 			@Override
@@ -478,6 +521,7 @@ public class Test {
 		
 		// Make sure to remove leftovers
 		executor.shutdown();		
+		*/
 	}
 
 	private static void runAnalysisSysTimeout(final String fileName, final String androidJar) {
@@ -589,7 +633,7 @@ public class Test {
 		}
 	}
 
-	private static InfoflowResults runAnalysis(final String fileName, final String androidJar) {
+	private static FlowPathSet runAnalysis(final String fileName, final String androidJar) {
 		try {
 			final long beforeRun = System.nanoTime();
 
@@ -655,10 +699,104 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			
-			
+			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
 			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+			
+			if (config.getLogSourcesAndSinks()) {
+				if (!app.getCollectedSources().isEmpty()) {
+					System.out.println("Collected sources:");
+					for (Stmt s : app.getCollectedSources())
+						System.out.println("\t" + s);
+				}
+				if (!app.getCollectedSinks().isEmpty()) {
+					System.out.println("Collected sinks:");
+					for (Stmt s : app.getCollectedSinks())
+						System.out.println("\t" + s);
+				}
+			}
+			
+			return resFPS.getFlowPathSet();
+		} catch (IOException ex) {
+			System.err.println("Could not read file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		} catch (XmlPullParserException ex) {
+			System.err.println("Could not read Android manifest file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	//XIANG
+	private static InfoflowResults runAnalysisForFlowViewCorrelation(final String fileName, final String androidJar, FlowPathSet fps) {
+		try {
+			final long beforeRun = System.nanoTime();
+
+			final SetupApplication app;
+			if (null == ipcManager)
+			{
+				app = new SetupApplication(androidJar, fileName);
+			}
+			else
+			{
+				app = new SetupApplication(androidJar, fileName, ipcManager);
+			}
+			//XIANG
+			app.setFlowPathSet(fps);
+			
+			// Set configuration object
+			app.setConfig(config);
+			if (noTaintWrapper)
+				app.setSootConfig(new IInfoflowConfig() {
+					
+					@Override
+					public void setSootOptions(Options options) {
+						options.set_include_all(true);
+					}
+					
+				});
+			
+			final ITaintPropagationWrapper taintWrapper;
+			if (noTaintWrapper)
+				taintWrapper = null;
+			else if (summaryPath != null && !summaryPath.isEmpty()) {
+				System.out.println("Using the StubDroid taint wrapper");
+				taintWrapper = createLibrarySummaryTW();
+				if (taintWrapper == null) {
+					System.err.println("Could not initialize StubDroid");
+					return null;
+				}
+			}
+			else {
+				final EasyTaintWrapper easyTaintWrapper;
+				File twSourceFile = new File("../soot-infoflow/EasyTaintWrapperSource.txt");
+				if (twSourceFile.exists())
+					easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+				else {
+					twSourceFile = new File("EasyTaintWrapperSource.txt");
+					if (twSourceFile.exists())
+						easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+					else {
+						System.err.println("Taint wrapper definition file not found at "
+								+ twSourceFile.getAbsolutePath());
+						return null;
+					}
+				}
+				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+				taintWrapper = easyTaintWrapper;
+			}
+			app.setTaintWrapper(taintWrapper);
+			app.calculateSourcesSinksEntrypoints("SourceAndSinksForFlowViewCorrelation.txt");
+			
+			app.printEntrypoints();
+			app.printSinks();
+			app.printSources();
+			
+			System.out.println("Running data flow analysis...");
+			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
+			
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
 			
 			if (config.getLogSourcesAndSinks()) {
 				if (!app.getCollectedSources().isEmpty()) {

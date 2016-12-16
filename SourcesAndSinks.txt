@@ -164,20 +164,20 @@
 <android.os.Handler: android.os.Message obtainMessage(int)> -> _SOURCE_
 <android.os.Handler: android.os.Message obtainMessage(int,java.lang.Object)> -> _SOURCE_
 
-<android.util.Log: int d(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int d(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int e(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int e(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int i(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int i(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int v(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int v(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int w(java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int w(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int w(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int wtf(java.lang.String,java.lang.Throwable)> -> _SINK_
-<android.util.Log: int wtf(java.lang.String,java.lang.String)> -> _SINK_
-<android.util.Log: int wtf(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int d(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int d(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int e(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int e(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int i(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int i(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int v(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int v(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int w(java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int w(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int w(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int wtf(java.lang.String,java.lang.Throwable)> -> _SINK_
+%<android.util.Log: int wtf(java.lang.String,java.lang.String)> -> _SINK_
+%<android.util.Log: int wtf(java.lang.String,java.lang.String,java.lang.Throwable)> -> _SINK_
 
 <java.io.OutputStream: void write(byte[])> -> _SINK_
 <java.io.OutputStream: void write(byte[],int,int)> -> _SINK_
@@ -199,7 +199,7 @@
 <java.net.URL: void set(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String)> -> _SINK_
 <java.net.URL: void set(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)> -> _SINK_
 
-<java.net.URLConnection: void setRequestProperty(java.lang.String,java.lang.String)> -> _SINK_
+<java.net.URLConnection: void setRequestProperty(java.lang.String,java.lang.String)`> -> _SINK_
 <android.content.Intent: android.content.Intent setAction(java.lang.String)> -> _SINK_
 <android.content.Intent: android.content.Intent setClassName(android.content.Context,java.lang.Class)> -> _SINK_
 <android.content.Intent: android.content.Intent setClassName(android.content.Context,java.lang.String)> -> _SINK_
@@ -292,9 +292,9 @@
 <java.net.URL: void <init>(java.net.URL,java.lang.String)> -> _SINK_
 <java.net.URL: void <init>(java.net.URL,java.lang.String,java.net.URLStreamHandler)> -> _SINK_
 
-<android.content.Context: void startActivity(android.content.Intent)> -> _SINK_
-<android.content.ContextWrapper: void startActivity(android.content.Intent)> -> _SINK_
-<android.content.Context: void startActivity(android.content.Intent,android.os.Bundle)> -> _SINK_
+%<android.content.Context: void startActivity(android.content.Intent)> -> _SINK_
+%<android.content.ContextWrapper: void startActivity(android.content.Intent)> -> _SINK_
+%<android.content.Context: void startActivity(android.content.Intent,android.os.Bundle)> -> _SINK_
 <android.content.Context: void startActivities(android.content.Intent[])> -> _SINK_
 <android.content.Context: void startActivities(android.content.Intent[],android.os.Bundle)> -> _SINK_
 <android.content.Context: android.content.ComponentName startService(android.content.Intent)> -> _SINK_
@@ -311,7 +311,7 @@
 % <android.app.Activity: void onActivityResult(int,int,android.content.Intent)> -> _SOURCE_
 
 <android.app.Activity: void startActivity(android.content.Intent)> -> _SINK_
-<android.app.Activity: void startActivity(android.content.Intent,android.os.Bundle)> -> _SINK_
+%<android.app.Activity: void startActivity(android.content.Intent,android.os.Bundle)> -> _SINK_
 <android.app.Activity: void startActivities(android.content.Intent[])> -> _SINK_
 <android.app.Activity: void startActivities(android.content.Intent[],android.os.Bundle)> -> _SINK_
 <android.app.Activity: void startActivityForResult(android.content.Intent,int)> -> _SINK_
@@ -344,7 +344,7 @@
 
 
 
-<android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
+% <android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
 <android.database.Cursor: java.lang.String getString(int)> -> _SOURCE_
 <android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)> -> _SOURCE_
 <android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,android.os.CancellationSignal)> -> _SOURCE_

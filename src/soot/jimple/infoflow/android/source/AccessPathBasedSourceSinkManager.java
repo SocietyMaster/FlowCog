@@ -74,6 +74,10 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 			LayoutMatchingMode layoutMatching,
 			Map<Integer, LayoutControl> layoutControls) {
 		super(sources, sinks, callbackMethods, layoutMatching, layoutControls);
+		
+//		for(SourceSinkDefinition source : sources){
+//			System.out.println("FINDSOURCE: "+source.getMethod());
+//		}
 	}
 	
 	@Override
@@ -81,10 +85,12 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		// Callbacks and UI controls are already properly handled by our parent
 		// implementation
 		SourceType type = getSourceType(sCallSite, cfg);
+		//System.out.println("getSourceInfo: "+sCallSite+" // "+type);
 		if (type == SourceType.NoSource)
 			return null;
 		if (type == SourceType.Callback || type == SourceType.UISource)
 			return super.getSourceInfo(sCallSite, type);
+		
 		
 		// This is a method-based source, so we need to obtain the correct
 		// access path
