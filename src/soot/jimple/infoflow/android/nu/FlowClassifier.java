@@ -32,6 +32,7 @@ public class FlowClassifier {
 	Map<String, LayoutTextTreeNode> layouts;
 	Map<String, Integer> flowMappingType = new HashMap<String, Integer>();
 	Map<String, List<Integer>> flowMapping = new HashMap<String, List<Integer>>();
+	ARSCFileParser resParser;
 	
 	public FlowClassifier(String apkFileLocation, String appPackageName){
 		String[] mappingRaw = {
@@ -64,7 +65,7 @@ public class FlowClassifier {
 				lst.add(Integer.valueOf(coms[i]) );
 		}
 		
-		ARSCFileParser resParser = new ARSCFileParser();
+		resParser = new ARSCFileParser();
 		try {
 			resParser.parse(apkFileLocation);
 		} catch (Exception e) {
@@ -85,17 +86,21 @@ public class FlowClassifier {
 					System.out.println("VIEWTEXT: "+id+"("+type+") -> "+msg);
 			}
 			else if(type.endsWith("Layout") && id2Node.containsKey(id)){
-				String text = id2Node.get(id).toStringTree();
+				String text = id2Node.get(id).toStringTree(0,"");
 			}
 			else
 				System.out.println("VIEWTEXT: "+id+"("+lfpTE.getId2Type().get(id)+") -> null");
 		}
 		for(String cls : layouts.keySet()){
-			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree());
+			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree(0,""));
 		}
 		
 	}
 	
+	public ARSCFileParser getResParser() {
+		return resParser;
+	}
+
 	public String getFlowTag(ResultSourceInfo source, ResultSinkInfo sink, StringBuilder sb){
 		Stmt[] path = source.getPath();
 		//StringBuilder sb = new StringBuilder();

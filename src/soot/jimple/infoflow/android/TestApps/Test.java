@@ -48,12 +48,16 @@ import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.nu.FlowClassifier;
 import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
+import soot.jimple.infoflow.android.nu.ResourceManager;
+import soot.jimple.infoflow.android.resources.ARSCFileParser;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.Abstraction;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
+import soot.jimple.infoflow.nu.FlowPath;
 import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
@@ -260,33 +264,9 @@ public class Test {
 						ProcessManifest processMan = new ProcessManifest(fullFilePath);
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
-						FlowClassifier fc = new FlowClassifier(fullFilePath, appPackageName);
-						Map<Integer, List<String>> id2Texts = fc.getId2Texts();
-						Map<Integer, LayoutTextTreeNode> id2Node = fc.getId2Node();
-						Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
-						for(Integer flowId : map.keySet()){
-							Set<Integer> set = map.get(flowId);
-							for(Integer viewId : set){
-								LayoutTextTreeNode node = id2Node.get(viewId);
-								String type = "unknown";
-								if(node != null)
-									type = node.nodeType;
-								System.out.println("Flow:"+flowId+" => "+viewId+" ("+
-									type+") ["+fps.getLst().get(flowId).getTag()+"]");
-								List<String> tmp = id2Texts.get(viewId);
-								if(tmp != null){
-									for(String s : tmp){
-										System.out.println("    "+s);
-									}
-								}
-								
-							}
-						}
-						for(int i=0; i<fps.getLst().size(); i++){
-							if(!map.containsKey(i)){
-								System.out.println("Flow:"+i+" => null ["+fps.getLst().get(i).getTag()+"]");
-							}
-						}
+//						FlowClassifier fc = new FlowClassifier(fullFilePath, appPackageName);
+						ResourceManager resMgr = new ResourceManager(fullFilePath, appPackageName);
+						displayFlowViewInfo(fps, resMgr);
 					}
 					catch(Exception e){
 						System.err.println("failed to run taint analysis on view-flow. "+e);
@@ -298,6 +278,61 @@ public class Test {
 			
 			System.gc();
 		}
+	}
+	
+	//XIANG
+	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
+			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
+			System.out.println("NULIST: Display Flow View Info");
+			//first go through the views with VIEWs found.
+			for(Integer flowId : map.keySet()){
+				Set<Integer> set = map.get(flowId);
+				for(Integer viewId : set){
+					LayoutTextTreeNode node = resMgr.getNodeById(viewId);
+					String type = "unknown";
+					if(node != null)  type = node.nodeType;
+					System.out.println("NULIST:  Flow:"+flowId+" => "+viewId+" ("+
+						type+") ["+fps.getLst().get(flowId).getTag()+"]");
+					List<String> tmp = resMgr.getTextsById(viewId);
+					if(tmp != null){
+						for(String s : tmp){
+							System.out.println("NULIST:    Text:"+s);
+						}
+					}
+					else{
+						System.out.println("NULIST:    No Texts");
+					}
+				}
+			}
+			//then go through the views triggered by life cycle events (e.g., onCreate)
+			//display the layout information.
+			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
+			for(int i=0; i<fps.getLst().size(); i++){
+				//only display those flows without associated views
+				if(!map.containsKey(i)){
+					FlowPath fp = fps.getLst().get(i);
+					Set<String> declaringCls = fp.getDeclaringClassSet();
+					System.out.println("NULIST:  Flow:"+i+" => no view ["+fps.getLst().get(i).getTag()+"]");
+					for(String cls : declaringCls){
+						
+						Set<Integer> layouts = cls2LayoutIds.get(cls);
+						System.out.println("NULIST:    CLS:"+cls+" layouts:"+layouts);
+						if(layouts == null) continue;
+						for(Integer layoutId : layouts){
+							//LayoutTextTreeNode node = id2Node.get(layoutId);
+							LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
+							if(layout == null){
+								System.out.println("NULIST:  cannot find this layout "+layoutId);
+								continue;
+							}
+							
+							System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
+						}
+							
+						
+					}
+				}
+			}
 	}
 
 	/**

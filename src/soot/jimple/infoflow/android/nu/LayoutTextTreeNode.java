@@ -27,18 +27,18 @@ public class LayoutTextTreeNode {
 		return "<"+nodeType+", id:"+nodeID+", Text:"+text+" >";
 	}
 	
-	public String toStringTree(){
+	public String toStringTree(int initSpace, String logo){
 		StringBuilder sb = new StringBuilder();
-		traverseTextTreeHelper(this, 0, sb);
+		traverseTextTreeHelper(this, initSpace, sb, logo);
 		return sb.toString();
 	}
 	
-	private void traverseTextTreeHelper(LayoutTextTreeNode node, int level, StringBuilder sb){
+	private void traverseTextTreeHelper(LayoutTextTreeNode node, int level, StringBuilder sb, String logo){
 		String space = new String(new char[level*2]).replace('\0', ' ');
-		sb.append(space+node.toString()+"\n");
+		sb.append(logo+space+node.toString()+"\n");
 		if(node.children != null){
 			for(LayoutTextTreeNode child : node.children)
-				traverseTextTreeHelper(child, level+1, sb);
+				traverseTextTreeHelper(child, level+1, sb, logo);
 		}
 	}
 }

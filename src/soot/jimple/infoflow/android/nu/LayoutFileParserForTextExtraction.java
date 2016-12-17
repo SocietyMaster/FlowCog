@@ -350,7 +350,8 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	private void parseLayoutAttributes(String layoutFile, SootClass layoutClass, AXmlNode rootNode, LayoutTextTreeNode textTreeNode, LayoutTextTreeNode root) {
 		boolean isSensitive = false;
 		int id = -1;
-		
+//		System.out.println("Parsing Layout:"+layoutFile+" "+rootNode.getAttribute("id"));
+//		System.out.println("  "+rootNode.toString()+" // ");
 		for (Entry<String, AXmlAttribute<?>> entry : rootNode.getAttributes().entrySet()) {
 			if (entry.getKey() == null)
 				continue;
@@ -496,6 +497,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		if(node.nodeID != 0){
 			id2Type.put(node.nodeID, node.nodeType);
 			id2Node.put(node.nodeID, node);
+			//System.out.println("NodeID:"+node.nodeID+" "+node.nodeType);
 		}
 		
 		if(node.nodeID!=0 && !node.text.equals("")){
