@@ -47,6 +47,7 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.nu.FlowClassifier;
 import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
+import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.Abstraction;
@@ -260,21 +261,30 @@ public class Test {
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
 						FlowClassifier fc = new FlowClassifier(fullFilePath, appPackageName);
-						Map<Integer, List<String>> ss = fc.getId2Texts();
+						Map<Integer, List<String>> id2Texts = fc.getId2Texts();
+						Map<Integer, LayoutTextTreeNode> id2Node = fc.getId2Node();
 						Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
 						for(Integer flowId : map.keySet()){
 							Set<Integer> set = map.get(flowId);
 							for(Integer viewId : set){
-								System.out.println("Flow:"+flowId+" => "+viewId+" ["+fps.getLst().get(flowId).getTag()+"]");
-								List<String> tmp = ss.get(viewId);
+								LayoutTextTreeNode node = id2Node.get(viewId);
+								String type = "unknown";
+								if(node != null)
+									type = node.nodeType;
+								System.out.println("Flow:"+flowId+" => "+viewId+" ("+
+									type+") ["+fps.getLst().get(flowId).getTag()+"]");
+								List<String> tmp = id2Texts.get(viewId);
 								if(tmp != null){
 									for(String s : tmp){
 										System.out.println("    "+s);
 									}
 								}
-								else {
-									
-								}
+								
+							}
+						}
+						for(int i=0; i<fps.getLst().size(); i++){
+							if(!map.containsKey(i)){
+								System.out.println("Flow:"+i+" => null ["+fps.getLst().get(i).getTag()+"]");
 							}
 						}
 					}
