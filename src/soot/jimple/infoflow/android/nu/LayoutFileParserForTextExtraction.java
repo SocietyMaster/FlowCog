@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pxb.android.axml.AxmlVisitor;
 import soot.PackManager;
@@ -45,9 +47,11 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	private final Map<Integer, LayoutTextTreeNode> id2Node = new HashMap<Integer, LayoutTextTreeNode>();
 	//filename -> LayoutTextTree
 	private final Map<String, LayoutTextTreeNode> textTreeMap = new HashMap<String, LayoutTextTreeNode>();
-	
+	private final Map<String, Set<Integer>> listenerCls2Ids = new HashMap<String, Set<Integer>>();
+
 	private final String packageName;
 	private final ARSCFileParser resParser;
+	private final Pattern eventPattern;
 	
 	private final static int TYPE_NUMBER_VARIATION_PASSWORD = 0x00000010;
 	private final static int TYPE_TEXT_VARIATION_PASSWORD = 0x00000080;
@@ -57,6 +61,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	public LayoutFileParserForTextExtraction(String packageName, ARSCFileParser resParser) {
 		this.packageName = packageName;
 		this.resParser = resParser;
+		this.eventPattern = Pattern.compile("^on[A-Z]\\w+$");
 	}
 	
 	private boolean isRealClass(SootClass sc) {
@@ -347,7 +352,8 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	 * @param layoutClass The class for the attributes are parsed
 	 * @param rootNode The AXml node containing the attributes
 	 */
-	private void parseLayoutAttributes(String layoutFile, SootClass layoutClass, AXmlNode rootNode, LayoutTextTreeNode textTreeNode, LayoutTextTreeNode root) {
+	private void parseLayoutAttributes(String layoutFile, SootClass layoutClass, AXmlNode rootNode, 
+			LayoutTextTreeNode textTreeNode, LayoutTextTreeNode root) {
 		boolean isSensitive = false;
 		int id = -1;
 //		System.out.println("Parsing Layout:"+layoutFile+" "+rootNode.getAttribute("id"));
@@ -380,6 +386,33 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 					isSensitive = (Boolean) attr.getValue();
 				else
 					throw new RuntimeException("Unknown representation of boolean data type");
+			}
+			else if(attrName.startsWith("on")){ //add event listener
+				Matcher m = eventPattern.matcher(attrName);
+				if(m.matches() && rootNode.getAttribute("id")!=null && rootNode.getAttribute("id").getValue()!=null && attr.getValue()!=null){
+					
+					try{
+						String clsName = (String)attr.getValue();
+						Integer nodeID = Integer.valueOf(rootNode.getAttribute("id").getValue().toString());
+						int lastIdx = clsName.lastIndexOf('.');
+						if(lastIdx != -1) clsName = clsName.substring(lastIdx+1, clsName.length());
+						if(listenerCls2Ids.containsKey(clsName))
+							listenerCls2Ids.get(clsName).add(nodeID);
+						else{
+							Set<Integer> tmp = new HashSet<Integer>();
+							tmp.add(nodeID);
+							listenerCls2Ids.put(clsName, tmp);
+						}
+						System.out.println("ALERTALERT: onClick:"+clsName+" -> "+nodeID);
+					}
+					catch(Exception e){
+						System.err.println("NULIST: error "+e.toString());
+					}
+					
+				}
+				
+				//listenerCls2Ids
+				
 			}
 			else if (!isSensitive && attrName.equals("inputType") && attr.getType() == AxmlVisitor.TYPE_INT_HEX) {
 				int tp = (Integer) attr.getValue();
@@ -482,6 +515,10 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 
 	public Map<String, LayoutTextTreeNode> getTextTreeMap() {
 		return textTreeMap;
+	}
+	
+	public Map<String, Set<Integer>> getListenerCls2Ids() {
+		return listenerCls2Ids;
 	}
 	
 	public void traverseTextTree(String filename){

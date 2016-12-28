@@ -1,7 +1,9 @@
 package soot.jimple.infoflow.android.nu;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -14,6 +16,8 @@ public class ResourceManager {
 	private Map<Integer, LayoutTextTreeNode> id2Node;
 	private Map<String, LayoutTextTreeNode> layouts;
 	private LayoutFileParserForTextExtraction lfpTE;
+	private Map<String, Set<Integer>> listenerCls2Ids;
+	
 	
 	public ResourceManager(String apkFileLocation, String appPackageName){
 		resParser = new ARSCFileParser();
@@ -29,6 +33,7 @@ public class ResourceManager {
 		id2Texts = lfpTE.getId2Texts();
 		id2Node = lfpTE.getId2Node();
 		layouts = lfpTE.getTextTreeMap();
+		listenerCls2Ids = lfpTE.getListenerCls2Ids();
 		
 		if(debug)
 			displayResources();
@@ -46,7 +51,10 @@ public class ResourceManager {
 		String layoutName = ar.getResourceName();
 		return layouts.get(layoutName);
 	}
-	
+	public Map<String, Set<Integer>> getListenerCls2Ids() {
+		return listenerCls2Ids;
+	}
+
 	
 	public void displayResources(){
 		for(Integer id : lfpTE.getId2Type().keySet()){

@@ -255,17 +255,16 @@ public class Test {
 					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
 					//XIANG
 					System.out.println("getSourceType findViewById: Second round:");
-//					GraphTool.displayAllMethodGraph();
 					soot.G.reset();
 					//GraphTool.displayAllMethodGraph();
 					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-					
+//					
 					try{
 						ProcessManifest processMan = new ProcessManifest(fullFilePath);
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
-//						FlowClassifier fc = new FlowClassifier(fullFilePath, appPackageName);
 						ResourceManager resMgr = new ResourceManager(fullFilePath, appPackageName);
+						fps.updateXMLEventListener(resMgr.getListenerCls2Ids());
 						displayFlowViewInfo(fps, resMgr);
 					}
 					catch(Exception e){
@@ -304,10 +303,16 @@ public class Test {
 					}
 				}
 			}
+			//resMgr.getL
 			//then go through the views triggered by life cycle events (e.g., onCreate)
 			//display the layout information.
 			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
 			for(int i=0; i<fps.getLst().size(); i++){
+//				FlowPath fp2 = fps.getLst().get(i);
+//				Set<String> ss = fp2.getEventListenerClassSet();
+//				for(String s : ss){
+//					System.out.println("XPAN: "+s);
+//				}
 				//only display those flows without associated views
 				if(!map.containsKey(i)){
 					FlowPath fp = fps.getLst().get(i);
@@ -328,8 +333,6 @@ public class Test {
 							
 							System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
 						}
-							
-						
 					}
 				}
 			}
