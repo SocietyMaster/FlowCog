@@ -516,8 +516,12 @@ public class SetupApplication {
 				// Find the user-defined sources in the layout XML files. This
 				// only needs to be done once, but is a Soot phase.
 				lfp.parseLayoutFile(apkFileLocation);
-			} else
+
+				//System.out.println("XPAN: JIMPLE1:"+jimpleClass.getClass().toString());
+			} else{
 				jimpleClass.collectCallbackMethodsIncremental();
+				//System.out.println("XPAN: JIMPLE2:"+jimpleClass.getClass().toString());
+			}
 
 			// Run the soot-based operations
 			PackManager.v().getPack("wjpp").apply();
@@ -532,6 +536,7 @@ public class SetupApplication {
 						hasChanged = true;
 				} else {
 					this.callbackMethods.put(entry.getKey(), new HashSet<>(entry.getValue()));
+					//System.out.println("XPAN:"+entry.getKey()+" -> "+entry.getValue());
 					hasChanged = true;
 				}
 			}

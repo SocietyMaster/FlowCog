@@ -51,6 +51,8 @@ public class DefaultCallbackAnalyzer extends AbstractCallbackAnalyzer {
 			Set<String> entryPointClasses,
 			String callbackFile) throws IOException {
 		super(config, entryPointClasses, callbackFile);
+		for(String cls : entryPointClasses)
+			System.out.println("XPAN: entryPointClass: "+cls);
 	}
 
 	public DefaultCallbackAnalyzer(InfoflowAndroidConfiguration config,

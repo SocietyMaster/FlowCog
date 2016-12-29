@@ -47,7 +47,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	private final Map<Integer, LayoutTextTreeNode> id2Node = new HashMap<Integer, LayoutTextTreeNode>();
 	//filename -> LayoutTextTree
 	private final Map<String, LayoutTextTreeNode> textTreeMap = new HashMap<String, LayoutTextTreeNode>();
-	private final Map<String, Set<Integer>> listenerCls2Ids = new HashMap<String, Set<Integer>>();
+	private final Map<String, Set<Integer>> xmlEventHandler2ViewIds = new HashMap<String, Set<Integer>>();
 
 	private final String packageName;
 	private final ARSCFileParser resParser;
@@ -394,14 +394,13 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 					try{
 						String clsName = (String)attr.getValue();
 						Integer nodeID = Integer.valueOf(rootNode.getAttribute("id").getValue().toString());
-						int lastIdx = clsName.lastIndexOf('.');
-						if(lastIdx != -1) clsName = clsName.substring(lastIdx+1, clsName.length());
-						if(listenerCls2Ids.containsKey(clsName))
-							listenerCls2Ids.get(clsName).add(nodeID);
+
+						if(xmlEventHandler2ViewIds.containsKey(clsName))
+							xmlEventHandler2ViewIds.get(clsName).add(nodeID);
 						else{
 							Set<Integer> tmp = new HashSet<Integer>();
 							tmp.add(nodeID);
-							listenerCls2Ids.put(clsName, tmp);
+							xmlEventHandler2ViewIds.put(clsName, tmp);
 						}
 						System.out.println("ALERTALERT: onClick:"+clsName+" -> "+nodeID);
 					}
@@ -517,8 +516,8 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		return textTreeMap;
 	}
 	
-	public Map<String, Set<Integer>> getListenerCls2Ids() {
-		return listenerCls2Ids;
+	public Map<String, Set<Integer>> getXmlEventHandler2ViewIds() {
+		return xmlEventHandler2ViewIds;
 	}
 	
 	public void traverseTextTree(String filename){

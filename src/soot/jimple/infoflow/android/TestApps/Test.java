@@ -258,13 +258,13 @@ public class Test {
 					soot.G.reset();
 					//GraphTool.displayAllMethodGraph();
 					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-//					
+				
 					try{
 						ProcessManifest processMan = new ProcessManifest(fullFilePath);
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
 						ResourceManager resMgr = new ResourceManager(fullFilePath, appPackageName);
-						fps.updateXMLEventListener(resMgr.getListenerCls2Ids());
+						fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 						displayFlowViewInfo(fps, resMgr);
 					}
 					catch(Exception e){
@@ -281,6 +281,11 @@ public class Test {
 	
 	//XIANG
 	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
+			System.out.println("NULIST: Display Flow Index");
+			for(int i=0; i<fps.getLst().size(); i++){
+				System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
+			}
+			System.out.println("NULIST: Done Display Flow Index");
 			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
 			System.out.println("NULIST: Display Flow View Info");
 			//first go through the views with VIEWs found.
@@ -290,17 +295,18 @@ public class Test {
 					LayoutTextTreeNode node = resMgr.getNodeById(viewId);
 					String type = "unknown";
 					if(node != null)  type = node.nodeType;
-					System.out.println("NULIST:  Flow:"+flowId+" => "+viewId+" ("+
+					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
 					List<String> tmp = resMgr.getTextsById(viewId);
+					StringBuilder sb = new StringBuilder();
 					if(tmp != null){
 						for(String s : tmp){
-							System.out.println("NULIST:    Text:"+s);
+							if(sb.length() > 0) sb.append(" || ");
+							sb.append(s.replace("||", ","));
 						}
 					}
-					else{
-						System.out.println("NULIST:    No Texts");
-					}
+					System.out.println("NULIST:[TEXT]:"+sb.toString());
+					System.out.println("NULIST:[END]");
 				}
 			}
 			//resMgr.getL
@@ -317,11 +323,10 @@ public class Test {
 				if(!map.containsKey(i)){
 					FlowPath fp = fps.getLst().get(i);
 					Set<String> declaringCls = fp.getDeclaringClassSet();
-					System.out.println("NULIST:  Flow:"+i+" => no view ["+fps.getLst().get(i).getTag()+"]");
+					System.out.println("NULIST:[BEGIN] Flow:"+i+" => noview ["+fps.getLst().get(i).getTag()+"]");
 					for(String cls : declaringCls){
-						
 						Set<Integer> layouts = cls2LayoutIds.get(cls);
-						System.out.println("NULIST:    CLS:"+cls+" layouts:"+layouts);
+						//System.out.println("NULIST:    Class:"+cls+" layouts:"+layouts);
 						if(layouts == null) continue;
 						for(Integer layoutId : layouts){
 							//LayoutTextTreeNode node = id2Node.get(layoutId);
@@ -330,12 +335,14 @@ public class Test {
 								System.out.println("NULIST:  cannot find this layout "+layoutId);
 								continue;
 							}
-							
-							System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
+							//System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
+							System.out.println("NULIST:[TEXT]:"+layout.extractTexts("||"));
 						}
 					}
+					System.out.println("NULIST:[END]");
 				}
 			}
+			System.out.println("NULIST: Done Displaying Flow View Info");
 	}
 
 	/**

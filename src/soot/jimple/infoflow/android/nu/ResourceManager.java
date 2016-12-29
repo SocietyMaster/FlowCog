@@ -16,7 +16,7 @@ public class ResourceManager {
 	private Map<Integer, LayoutTextTreeNode> id2Node;
 	private Map<String, LayoutTextTreeNode> layouts;
 	private LayoutFileParserForTextExtraction lfpTE;
-	private Map<String, Set<Integer>> listenerCls2Ids;
+	private Map<String, Set<Integer>> xmlEventHandler2ViewIds;
 	
 	
 	public ResourceManager(String apkFileLocation, String appPackageName){
@@ -33,7 +33,7 @@ public class ResourceManager {
 		id2Texts = lfpTE.getId2Texts();
 		id2Node = lfpTE.getId2Node();
 		layouts = lfpTE.getTextTreeMap();
-		listenerCls2Ids = lfpTE.getListenerCls2Ids();
+		xmlEventHandler2ViewIds = lfpTE.getXmlEventHandler2ViewIds();
 		
 		if(debug)
 			displayResources();
@@ -51,8 +51,8 @@ public class ResourceManager {
 		String layoutName = ar.getResourceName();
 		return layouts.get(layoutName);
 	}
-	public Map<String, Set<Integer>> getListenerCls2Ids() {
-		return listenerCls2Ids;
+	public Map<String, Set<Integer>> getXMLEventHandler2ViewIds() {
+		return xmlEventHandler2ViewIds;
 	}
 
 	

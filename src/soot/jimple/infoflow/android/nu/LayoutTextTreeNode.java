@@ -33,6 +33,23 @@ public class LayoutTextTreeNode {
 		return sb.toString();
 	}
 	
+	public String extractTexts(String delimiter ){
+		StringBuilder sb = new StringBuilder();
+		extractTextsHelper(this, delimiter, sb);
+		return sb.toString();
+	}
+	
+	private void extractTextsHelper(LayoutTextTreeNode node, String delimiter, StringBuilder sb ){
+		if(node.text!=null && node.text.trim().length() > 0){
+			if(sb.length()>0) sb.append(" "+delimiter+" ");
+			sb.append(node.text.trim());
+		}	
+		if(node.children != null){
+			for(LayoutTextTreeNode child : node.children)
+				extractTextsHelper(child, delimiter, sb);
+		}
+	}
+	
 	private void traverseTextTreeHelper(LayoutTextTreeNode node, int level, StringBuilder sb, String logo){
 		String space = new String(new char[level*2]).replace('\0', ' ');
 		sb.append(logo+space+node.toString()+"\n");
