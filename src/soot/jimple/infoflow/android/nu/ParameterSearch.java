@@ -10,6 +10,7 @@ import java.util.Set;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import soot.MethodOrMethodContext;
+import soot.PrimType;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
@@ -24,8 +25,10 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.NumericConstant;
 import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.UnopExpr;
@@ -40,24 +43,14 @@ import soot.util.queue.QueueReader;
 
 public class ParameterSearch {
 	final String FIND_VIEW_BY_ID = "findViewById";
+	final String GET_IDENTIFIER_SIGNATURE = 
+			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
 	ResourceManager resMgr = null;
 	
 	public ParameterSearch(ResourceManager resMgr){
 		this.resMgr = resMgr;
 	}
 	public void findViewByIdParamSearch(){
-//		try{
-//			ProcessManifest processMan = new ProcessManifest(fullFilePath);
-//			String appPackageName = processMan.getPackageName();
-//			//extract View info (e.g., View id, texts)
-//			ResourceManager resMgr = new ResourceManager(fullFilePath, appPackageName);
-//			fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
-//			displayFlowViewInfo(fps, resMgr);
-//		}
-//		catch(Exception e){
-//			System.err.println("failed to run taint analysis on view-flow. "+e);
-//			e.printStackTrace();
-//		}
 		
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
@@ -65,7 +58,6 @@ public class ParameterSearch {
 			if(!m.hasActiveBody()) continue;
 			
 			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
-		    //LocalDefs localDefs = LocalDefs.Factory.newLocalDefs(g);
 		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
 		    for (Unit u : orderer.newList(g, false)) {
 		    	Stmt s = (Stmt)u;
@@ -73,16 +65,14 @@ public class ParameterSearch {
 		    	
 		    	InvokeExpr ie = s.getInvokeExpr();
 		    	if(ie.getMethod().getName().equals(FIND_VIEW_BY_ID)){
-		    		//System.out.println(ie);
 		    		Value v = ie.getArg(0);
 		    		if(v instanceof Constant){
-		    			//TODO: handle when arg is a constant.
+		    			//TODO: add constant to map
 		    			continue;
 		    		}
-		    		System.out.println("Method:"+m+" "+ie);
+		    		System.out.println("NonConstant FindViewByID in Method:"+m+" "+ie);
 		    		GraphTool.displayGraph(g, m);
-		    		
-		    		searchVariableDefs(g, s, v, new ArrayList<String>());
+		    		searchVariableDefs(g, s, v, new ArrayList<List<Object>>());
 		    	}
 		    }
 		}
@@ -102,7 +92,7 @@ public class ParameterSearch {
 		return null;
 	}
 	
-	private List<Stmt> searchVariableDefs(UnitGraph g, Stmt s, Value target, List<String> args){
+	private List<Stmt> searchVariableDefs(UnitGraph g, Stmt s, Value target, List<List<Object>> args){
 		List<Stmt> rs = new ArrayList<Stmt>();
 		Queue<Unit> queue = new LinkedList<Unit>();
 		Set<Unit> visited = new HashSet<Unit>();
@@ -135,31 +125,32 @@ public class ParameterSearch {
 						System.out.println("  DEBUG: this is invoke expr: "+right);
 						InvokeExpr nie = (InvokeExpr)right;
 						if(nie.getArgCount()>0){
+							List<Object> newArgs = new ArrayList<Object>();
 							for(int i=0; i<nie.getArgCount(); i++){
 								Value arg = nie.getArg(i);
 								if(arg instanceof StringConstant){
 									StringConstant sc = (StringConstant)arg;
-									args.add(sc.value);
+									newArgs.add(sc.value);
 								}
 								else if(arg instanceof Constant){
-									//TODO:
+									newArgs.add(arg);
 								}
 							}
+							args.add(newArgs);
 						}
 						UnitGraph targetGraph = findMethodGraph(nie.getMethod());
 						if(targetGraph == null){
 							//TODO: change to Signature
-							if(nie.getMethod().getName().equals("getIdentifier")){
-								
-								for(int i=0; i<args.size(); i++){
-									//TODO: change resMgr
-									if(resMgr.getLfpTE().getDecompiledValuesNameIDMap().containsKey(args.get(i))){
-										int id = resMgr.getLfpTE().getDecompiledValuesNameIDMap().get(args.get(i));
-										System.out.println("FOUND ID of "+args.get(i)+" "+id);
-									}
-								}
+							if(nie.getMethod().getSignature().equals(GET_IDENTIFIER_SIGNATURE)){
+								//System.out.println(nie.getMethod().getSignature());
+								if(args.size()>0)
+									handleGetIdentifierCase(args.get(0));
+								else
+									System.out.println("No args stored for getIndetifier");
 							}
-							System.out.println("  ALERT: no body: "+nie.getMethod());
+							else{
+								System.out.println("  ALERT: no body: "+nie.getMethod());
+							}
 						}
 						else{
 							GraphTool.displayGraph(targetGraph, nie.getMethod());
@@ -167,12 +158,12 @@ public class ParameterSearch {
 							for(Unit t : tails){
 								if(t instanceof RetStmt){
 									RetStmt retStmt = (RetStmt)t;
-									System.out.println("  RetVal:"+retStmt.getStmtAddress());
+									//System.out.println("  RetVal:"+retStmt.getStmtAddress());
 									searchVariableDefs(targetGraph, (Stmt)t, retStmt.getStmtAddress(),args);
 								}
 								else if(t instanceof ReturnStmt){
 									ReturnStmt returnStmt = (ReturnStmt)t;
-									System.out.println("  ReturnVal:"+returnStmt.getOp());
+									//System.out.println("  ReturnVal:"+returnStmt.getOp());
 									searchVariableDefs(targetGraph, (Stmt)t, returnStmt.getOp(),args);
 								}
 							}
@@ -180,7 +171,21 @@ public class ParameterSearch {
 						}
 					}
 					else{
-						System.out.println("  DEBUG: this is other expr: "+right);
+						if(right instanceof StaticFieldRef){
+							try{
+								StaticFieldRef sfr = (StaticFieldRef)right;
+								Integer v = sfr.getField().getNumber();
+								System.out.println("Found id: "+v);
+								//TODO: add constant to map
+							}
+							catch(Exception e){
+								System.out.println("Error converting NumbericConstant to int: "+e+" "+right);
+							}
+							
+						}
+						else{
+							System.out.println("  DEBUG: this is other expr: "+right.getClass());
+						}
 					}
 			
 					rs.add(as);
@@ -201,4 +206,17 @@ public class ParameterSearch {
 		}
 		return rs;
 	}
+	
+	private void handleGetIdentifierCase(List<Object> args){
+		for(int i=0; i<args.size(); i++){
+			if(!(args.get(i) instanceof String))
+				continue;
+			String arg = (String)args.get(i);
+			if(resMgr.getValueResourceNameIDMap().containsKey(arg)){
+				int id = resMgr.getValueResourceNameIDMap().get(arg);
+				System.out.println("FOUND ID of "+args.get(i)+" "+id);
+			}
+		}
+	}
+	
 }

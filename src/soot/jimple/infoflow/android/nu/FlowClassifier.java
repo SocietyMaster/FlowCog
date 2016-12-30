@@ -11,6 +11,7 @@ import java.util.Map;
 import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.infoflow.android.TestApps.Test;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
@@ -73,7 +74,8 @@ public class FlowClassifier {
 			e.printStackTrace();
 		}
 		
-		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(appPackageName, resParser);
+		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(appPackageName, 
+				resParser,Test.getApktoolpath(), Test.getTmpDirPath());
 		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
 		id2Texts = lfpTE.getId2Texts();
 		id2Node = lfpTE.getId2Node();

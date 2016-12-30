@@ -149,7 +149,8 @@ public class Test {
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
 	private static String apktoolpath = "apktool";
-	private static String tmppath = "/tmp/";
+
+	private static String tmpDirPath = "/tmp/";
 	
 	private static boolean aggressiveTaintWrapper = false;
 	private static boolean noTaintWrapper = false;
@@ -166,6 +167,12 @@ public class Test {
 	public static IIPCManager getIPCManager()
 	{
 		return Test.ipcManager;
+	}
+	public static String getApktoolpath() {
+		return apktoolpath;
+	}
+	public static String getTmpDirPath() {
+		return tmpDirPath;
 	}
 	
 	/**
@@ -260,9 +267,9 @@ public class Test {
 				else{
 					//XIANG
 					try{
-						File f = new File(tmppath);
+						File f = new File(tmpDirPath);
 						if(!f.exists() || !f.isDirectory()){
-							System.err.println("tmp folder not exits: "+tmppath);
+							System.err.println("tmp folder not exits: "+tmpDirPath);
 							System.exit(1);
 						}
 					}
@@ -284,11 +291,10 @@ public class Test {
 						processMan = new ProcessManifest(fullFilePath);
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
-						resMgr = new ResourceManager(fullFilePath, appPackageName);
-						resMgr.getLfpTE().decompileAPKFile(fullFilePath, apktoolpath, tmppath);
-						Map<String,Integer> valueMap = resMgr.getLfpTE().getDecompiledValuesNameIDMap();
-						//for(String key : valueMap.keySet())
-						//	System.out.println(key+" => "+valueMap.get(key));
+						resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
+						Map<String,Integer> valueMap = resMgr.getValueResourceNameIDMap();
+//						for(String key : valueMap.keySet())
+//							System.out.println(key+" => "+valueMap.get(key));
 					}
 					catch(Exception e){
 						System.err.println("failed to run taint analysis on view-flow. "+e);
@@ -389,9 +395,9 @@ public class Test {
 			}
 			else if(args[i].equalsIgnoreCase("--tmppath")) {
 				//output tmp files
-				tmppath = args[i+1];
-				if(!tmppath.endsWith(File.separator))
-					tmppath += File.separator;
+				tmpDirPath = args[i+1];
+				if(!tmpDirPath.endsWith(File.separator))
+					tmpDirPath += File.separator;
 				i += 2;
 			}
 			else if (args[i].equalsIgnoreCase("--timeout")) {

@@ -71,16 +71,21 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 	private final String packageName;
 	private final ARSCFileParser resParser;
 	private final Pattern eventPattern;
+	private final String apkToolPath;
+	private final String tmpDirPath;
 	
 	private final static int TYPE_NUMBER_VARIATION_PASSWORD = 0x00000010;
 	private final static int TYPE_TEXT_VARIATION_PASSWORD = 0x00000080;
 	private final static int TYPE_TEXT_VARIATION_VISIBLE_PASSWORD = 0x00000090;
 	private final static int TYPE_TEXT_VARIATION_WEB_PASSWORD = 0x000000e0;
 	
-	public LayoutFileParserForTextExtraction(String packageName, ARSCFileParser resParser) {
+	public LayoutFileParserForTextExtraction(String packageName, ARSCFileParser resParser,String apkToolPath, String tmppath) {
 		this.packageName = packageName;
 		this.resParser = resParser;
 		this.eventPattern = Pattern.compile("^on[A-Z]\\w+$");
+		this.apkToolPath = apkToolPath;
+		this.tmpDirPath = tmppath;
+		
 	}
 	
 	private boolean isRealClass(SootClass sc) {
@@ -278,9 +283,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		});
 	}
 
-	public void decompileAPKFile(String filename, String apkToolPath, String tmppath){
-		
-		//change the name
+	public void extractNameIDPairsFromCompiledValueResources(String filename){
 		File apkF = new File(filename);
 		if (!apkF.exists())
 			throw new RuntimeException("file '" + filename + "' does not exist!");
@@ -293,19 +296,16 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 			}
 			if(fname.endsWith(".apk"))
 				fname = fname.substring(0, fname.length()-4);
-			String path = tmppath+fname;
-			//TODO: add apktool to 
+			String path = tmpDirPath+fname;
 			String cmd = apkToolPath+" d "+filename +" -o "+path;
 			System.out.println("Execute cmd: "+cmd);
 			Process p = Runtime.getRuntime().exec(cmd);
-		    // You maybe should wait for the process to complete
 		    p.waitFor(); 
 		    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		    String line = "";
 		    while((line = reader.readLine()) != null)
-		    	System.out.print(line + "\n");
-//		    
-		    //TODO: make this more compatible
+		    	System.out.print("Decompiling APK: "+line + "\n");
+
 		    path = path + "/res/values/";
 		    File f = new File(path);
 		    if(!f.isDirectory()){
@@ -315,27 +315,24 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		    
 		    SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
-			DefaultHandler handler = getDefaultHandler();
+			DefaultHandler handler = getValueResouceHandler();
 		    for(String xmlFile : f.list()){
 		    	xmlFile = f.getAbsolutePath()+"/"+xmlFile;
 		    	if(!xmlFile.toLowerCase().endsWith(".xml"))
 		    		continue;
 		    	InputStream is = new FileInputStream(xmlFile);
-		    	System.out.println("analyzing file "+xmlFile+" //"+is.available());
+		    	System.out.println("analyzing file "+xmlFile);
 		    	try{
 		    		saxParser.parse(is, handler);
-		    		//parseValueNode( handler.getDocument().getRootNode());
 		    	}
 		    	catch(Exception e){
 		    		System.out.println("Error analyzing file."+e.toString());
 		    	}
-		    	
-				
 		    }
 
 		}
 		catch (Exception e) {
-			System.err.println("Error when looking for XML resource files in apk "
+			System.err.println("Error extractNameIDPairsFromCompiledValueResources in apk "
 					+ filename + ": " + e);
 			e.printStackTrace();
 			if (e instanceof RuntimeException)
@@ -345,8 +342,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		}
 	}
 	
-	
-	private DefaultHandler getDefaultHandler(){
+	private DefaultHandler getValueResouceHandler(){
 		DefaultHandler handler = new DefaultHandler() {
 			public void startElement(String uri, String localName,String qName,
 		                Attributes attributes) throws SAXException {
@@ -436,15 +432,6 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 			parseLayoutNode(layoutFile, childNode, childTextTreeNode, root);
 		}
 	}
-	
-	private void parseValueNode(AXmlNode rootNode) {
-		parseValueAttributes(rootNode);
-		// Parse the child nodes
-		for (AXmlNode childNode : rootNode.getChildren()){
-			parseValueNode(childNode);
-		}
-	}
-	
 	
 	/**
 	 * Parses the attributes required for a layout file inclusion

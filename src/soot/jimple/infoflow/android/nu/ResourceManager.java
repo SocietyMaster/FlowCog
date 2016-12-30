@@ -16,15 +16,11 @@ public class ResourceManager {
 	private Map<Integer, LayoutTextTreeNode> id2Node;
 	private Map<String, LayoutTextTreeNode> layouts;
 	private LayoutFileParserForTextExtraction lfpTE;
-	public LayoutFileParserForTextExtraction getLfpTE() {
-		return lfpTE;
-	}
-
-
+	private Map<String, Integer> valueResourceNameIDMap;
 	private Map<String, Set<Integer>> xmlEventHandler2ViewIds;
 	
 	
-	public ResourceManager(String apkFileLocation, String appPackageName){
+	public ResourceManager(String apkFileLocation, String appPackageName, String apkToolPath, String tmpDirPath){
 		resParser = new ARSCFileParser();
 		try {
 			resParser.parse(apkFileLocation);
@@ -33,12 +29,14 @@ public class ResourceManager {
 			e.printStackTrace();
 		}
 		
-		lfpTE = new LayoutFileParserForTextExtraction(appPackageName, resParser);
+		lfpTE = new LayoutFileParserForTextExtraction(appPackageName, resParser, apkToolPath, tmpDirPath);
 		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
+		lfpTE.extractNameIDPairsFromCompiledValueResources(apkFileLocation);
 		id2Texts = lfpTE.getId2Texts();
 		id2Node = lfpTE.getId2Node();
 		layouts = lfpTE.getTextTreeMap();
 		xmlEventHandler2ViewIds = lfpTE.getXmlEventHandler2ViewIds();
+		valueResourceNameIDMap = lfpTE.getDecompiledValuesNameIDMap();
 		
 		if(debug)
 			displayResources();
@@ -47,20 +45,22 @@ public class ResourceManager {
 	public LayoutTextTreeNode getNodeById(int id){
 		return id2Node.get(id);
 	}
+	
 	public List<String> getTextsById(int id){
 		return id2Texts.get(id);
 	}
+	
 	public LayoutTextTreeNode getLayoutById(int id){
 		AbstractResource ar = resParser.findResource(id);
 		if (ar == null) return null;
 		String layoutName = ar.getResourceName();
 		return layouts.get(layoutName);
 	}
+	
 	public Map<String, Set<Integer>> getXMLEventHandler2ViewIds() {
 		return xmlEventHandler2ViewIds;
 	}
 
-	
 	public void displayResources(){
 		for(Integer id : lfpTE.getId2Type().keySet()){
 			List<String> texts = id2Texts.get(id);
@@ -78,5 +78,13 @@ public class ResourceManager {
 		for(String cls : layouts.keySet()){
 			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree(0,""));
 		}
+	}
+	
+	public LayoutFileParserForTextExtraction getLfpTE() {
+		return lfpTE;
+	}
+	
+	public Map<String, Integer> getValueResourceNameIDMap() {
+		return valueResourceNameIDMap;
 	}
 }
