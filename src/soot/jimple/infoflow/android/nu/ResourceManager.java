@@ -16,6 +16,11 @@ public class ResourceManager {
 	private Map<Integer, LayoutTextTreeNode> id2Node;
 	private Map<String, LayoutTextTreeNode> layouts;
 	private LayoutFileParserForTextExtraction lfpTE;
+	public LayoutFileParserForTextExtraction getLfpTE() {
+		return lfpTE;
+	}
+
+
 	private Map<String, Set<Integer>> xmlEventHandler2ViewIds;
 	
 	

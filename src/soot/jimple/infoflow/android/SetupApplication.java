@@ -48,6 +48,7 @@ import soot.jimple.infoflow.android.nu.FlowClassifier;
 import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
+import soot.jimple.infoflow.android.nu.ParameterSearch;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
@@ -72,6 +73,7 @@ import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
@@ -865,10 +867,13 @@ public class SetupApplication {
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		
+		//DEBUG
+		//CallGraph cgraph = Scene.v().getCallGraph();
+		//System.out.println(cgraph);
+//		ParameterSearch ps = new ParameterSearch();
+//		ps.findViewByIdParamSearch();
 		//XIANG
-		FlowClassifier fc = new FlowClassifier(apkFileLocation, this.appPackageName);
-		
-//		fc.showDemo(info.getResults());
+		/*
 		if(fps == null){
 			InfoflowResults rs = info.getResults();
 			FlowPathSet fpsLocal = new FlowPathSet();
@@ -892,7 +897,7 @@ public class SetupApplication {
 			Set<Stmt> stmts = getCollectedSources();
 			//for(Stmt stmt : stmts)
 			//	System.out.println("OUTPUT SOURCES: "+stmt);
-		}
+		}*/
 		return info.getResults();
 	}
 

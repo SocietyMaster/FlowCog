@@ -37,15 +37,17 @@ public abstract class AbstractResourceParser {
 		if (!apkF.exists())
 			throw new RuntimeException("file '" + apk + "' does not exist!");
 
+		
 		try {
 			ZipFile archive = null;
 			try {
 				archive = new ZipFile(apkF);
 				Enumeration<?> entries = archive.entries();
+				
 				while (entries.hasMoreElements()) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName = entry.getName();
-					
+					//System.out.println("ALL:"+entryName);
 					handler.handleResourceFile(entryName, fileNameFilter, archive.getInputStream(entry));
 				}
 			}

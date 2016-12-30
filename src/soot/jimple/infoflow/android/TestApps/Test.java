@@ -20,6 +20,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +38,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
@@ -48,6 +50,7 @@ import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.nu.FlowClassifier;
 import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
+import soot.jimple.infoflow.android.nu.ParameterSearch;
 import soot.jimple.infoflow.android.nu.ResourceManager;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -68,6 +71,7 @@ import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.util.SystemClassHandler;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
 
 public class Test {
@@ -144,6 +148,8 @@ public class Test {
 	private static int repeatCount = 1;
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
+	private static String apktoolpath = "apktool";
+	private static String tmppath = "/tmp/";
 	
 	private static boolean aggressiveTaintWrapper = false;
 	private static boolean noTaintWrapper = false;
@@ -252,25 +258,48 @@ public class Test {
 				else if (sysTimeout > 0)
 					runAnalysisSysTimeout(fullFilePath, args[1]);
 				else{
-					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
 					//XIANG
-					System.out.println("getSourceType findViewById: Second round:");
-					soot.G.reset();
-					//GraphTool.displayAllMethodGraph();
-					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-				
 					try{
-						ProcessManifest processMan = new ProcessManifest(fullFilePath);
+						File f = new File(tmppath);
+						if(!f.exists() || !f.isDirectory()){
+							System.err.println("tmp folder not exits: "+tmppath);
+							System.exit(1);
+						}
+					}
+					catch(Exception e){
+						System.err.println("tmp folder not exits:"+e.toString());
+						System.exit(1);
+					}
+					
+					
+					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
+//					System.out.println("getSourceType findViewById: Second round:");
+//					soot.G.reset();
+//					//GraphTool.displayAllMethodGraph();
+//					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
+//					
+					ProcessManifest processMan = null;
+					ResourceManager resMgr = null;
+					try{
+						processMan = new ProcessManifest(fullFilePath);
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
-						ResourceManager resMgr = new ResourceManager(fullFilePath, appPackageName);
-						fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
-						displayFlowViewInfo(fps, resMgr);
+						resMgr = new ResourceManager(fullFilePath, appPackageName);
+						resMgr.getLfpTE().decompileAPKFile(fullFilePath, apktoolpath, tmppath);
+						Map<String,Integer> valueMap = resMgr.getLfpTE().getDecompiledValuesNameIDMap();
+						//for(String key : valueMap.keySet())
+						//	System.out.println(key+" => "+valueMap.get(key));
 					}
 					catch(Exception e){
 						System.err.println("failed to run taint analysis on view-flow. "+e);
 						e.printStackTrace();
 					}
+					
+					ParameterSearch ps = new ParameterSearch(resMgr);
+					ps.findViewByIdParamSearch();
+					
+//					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
+//					displayFlowViewInfo(fps, resMgr);
 				}
 				repeatCount--;
 			}
@@ -354,7 +383,18 @@ public class Test {
 	private static boolean parseAdditionalOptions(String[] args) {
 		int i = 2;
 		while (i < args.length) {
-			if (args[i].equalsIgnoreCase("--timeout")) {
+			if(args[i].equalsIgnoreCase("--apktoolpath")) {
+				apktoolpath = args[i+1];
+				i += 2;
+			}
+			else if(args[i].equalsIgnoreCase("--tmppath")) {
+				//output tmp files
+				tmppath = args[i+1];
+				if(!tmppath.endsWith(File.separator))
+					tmppath += File.separator;
+				i += 2;
+			}
+			else if (args[i].equalsIgnoreCase("--timeout")) {
 				timeout = Integer.valueOf(args[i+1]);
 				i += 2;
 			}
@@ -753,25 +793,28 @@ public class Test {
 			}
 			
 			System.out.println("Running data flow analysis...");
+
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
-			
-			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
-			
-			if (config.getLogSourcesAndSinks()) {
-				if (!app.getCollectedSources().isEmpty()) {
-					System.out.println("Collected sources:");
-					for (Stmt s : app.getCollectedSources())
-						System.out.println("\t" + s);
-				}
-				if (!app.getCollectedSinks().isEmpty()) {
-					System.out.println("Collected sinks:");
-					for (Stmt s : app.getCollectedSinks())
-						System.out.println("\t" + s);
-				}
-			}
-			
-			return resFPS.getFlowPathSet();
+			return null; //XIANG
+			//TODO
+//			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
+//			
+//			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+//			
+//			if (config.getLogSourcesAndSinks()) {
+//				if (!app.getCollectedSources().isEmpty()) {
+//					System.out.println("Collected sources:");
+//					for (Stmt s : app.getCollectedSources())
+//						System.out.println("\t" + s);
+//				}
+//				if (!app.getCollectedSinks().isEmpty()) {
+//					System.out.println("Collected sinks:");
+//					for (Stmt s : app.getCollectedSinks())
+//						System.out.println("\t" + s);
+//				}
+//			}
+//			
+//			return resFPS.getFlowPathSet();
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
 			ex.printStackTrace();
