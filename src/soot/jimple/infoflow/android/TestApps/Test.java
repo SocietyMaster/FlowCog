@@ -301,6 +301,10 @@ public class Test {
 						e.printStackTrace();
 					}
 					
+					
+					
+					//System.out.println(cg);
+					//FIndViewByID Handler
 					ParameterSearch ps = new ParameterSearch(resMgr);
 					ps.findViewByIdParamSearch();
 					
