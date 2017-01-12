@@ -313,10 +313,10 @@ public class Test {
 						e.printStackTrace();
 					}
 					
-					//System.out.println(cg);
-					//FIndViewByID Handler
-					ParameterSearch ps = new ParameterSearch(resMgr);
-					ps.findViewByIdParamSearch();
+					//comment because it's for id search.
+					//add back when detecting findViewByID
+//					ParameterSearch ps = new ParameterSearch(resMgr);
+//					ps.findViewByIdParamSearch();
 					
 					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 					displayFlowViewInfo(fps, resMgr);
