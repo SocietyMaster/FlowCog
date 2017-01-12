@@ -313,8 +313,8 @@ public class Test {
 						e.printStackTrace();
 					}
 					
-					//comment because it's for id search.
-					//add back when detecting findViewByID
+					//System.out.println(cg);
+					//FIndViewByID Handler
 					ParameterSearch ps = new ParameterSearch(resMgr);
 					ps.findViewByIdParamSearch();
 					

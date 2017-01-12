@@ -2,6 +2,7 @@ package soot.jimple.infoflow.android.nu;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -20,6 +21,7 @@ import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.Constant;
+import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
@@ -34,6 +36,8 @@ import soot.jimple.StringConstant;
 import soot.jimple.UnopExpr;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.nu.GraphTool;
+import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.Orderer;
 import soot.toolkits.graph.PseudoTopologicalOrderer;
@@ -46,12 +50,13 @@ public class ParameterSearch {
 	final String GET_IDENTIFIER_SIGNATURE = 
 			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
 	ResourceManager resMgr = null;
-	
+	CallGraph cg = null;
 	public ParameterSearch(ResourceManager resMgr){
 		this.resMgr = resMgr;
+		this.cg = Scene.v().getCallGraph();
 	}
 	public void findViewByIdParamSearch(){
-		
+		//first search all findViewById statements
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -72,7 +77,7 @@ public class ParameterSearch {
 		    		}
 		    		System.out.println("NonConstant FindViewByID in Method:"+m+" "+ie);
 		    		GraphTool.displayGraph(g, m);
-		    		searchVariableDefs(g, s, v, new ArrayList<List<Object>>());
+		    		searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
 		    	}
 		    }
 		}
@@ -92,7 +97,7 @@ public class ParameterSearch {
 		return null;
 	}
 	
-	private List<Stmt> searchVariableDefs(UnitGraph g, Stmt s, Value target, List<List<Object>> args){
+	private List<Stmt> searchVariableDefs(UnitGraph g, Stmt s, Value target, List<List<Object>> args, SootMethod m){
 		List<Stmt> rs = new ArrayList<Stmt>();
 		Queue<Unit> queue = new LinkedList<Unit>();
 		Set<Unit> visited = new HashSet<Unit>();
@@ -140,7 +145,8 @@ public class ParameterSearch {
 						}
 						UnitGraph targetGraph = findMethodGraph(nie.getMethod());
 						if(targetGraph == null){
-							//TODO: change to Signature
+							//built-in function.
+							//getIdentifier
 							if(nie.getMethod().getSignature().equals(GET_IDENTIFIER_SIGNATURE)){
 								//System.out.println(nie.getMethod().getSignature());
 								if(args.size()>0)
@@ -156,15 +162,15 @@ public class ParameterSearch {
 							GraphTool.displayGraph(targetGraph, nie.getMethod());
 							List<Unit> tails = targetGraph.getTails();
 							for(Unit t : tails){
-								if(t instanceof RetStmt){
+								if(t instanceof RetStmt){//No use case
 									RetStmt retStmt = (RetStmt)t;
 									//System.out.println("  RetVal:"+retStmt.getStmtAddress());
-									searchVariableDefs(targetGraph, (Stmt)t, retStmt.getStmtAddress(),args);
+									searchVariableDefs(targetGraph, (Stmt)t, retStmt.getStmtAddress(),args, nie.getMethod());
 								}
 								else if(t instanceof ReturnStmt){
 									ReturnStmt returnStmt = (ReturnStmt)t;
 									//System.out.println("  ReturnVal:"+returnStmt.getOp());
-									searchVariableDefs(targetGraph, (Stmt)t, returnStmt.getOp(),args);
+									searchVariableDefs(targetGraph, (Stmt)t, returnStmt.getOp(),args, nie.getMethod());
 								}
 							}
 							//searchVariableDefs(g, s, v);
@@ -177,11 +183,16 @@ public class ParameterSearch {
 								Integer v = sfr.getField().getNumber();
 								System.out.println("Found id: "+v);
 								//TODO: add constant to map
+								searchStaticVariable(sfr);
 							}
 							catch(Exception e){
 								System.out.println("Error converting NumbericConstant to int: "+e+" "+right);
 							}
 							
+						}
+						else if(right instanceof FieldRef){
+							//TODO: regular field
+							System.out.println("  DEBUG: this is other expr: "+right.getClass());
 						}
 						else{
 							System.out.println("  DEBUG: this is other expr: "+right.getClass());
@@ -194,6 +205,13 @@ public class ParameterSearch {
 			}
 			else if(pred instanceof IdentityStmt){
 				System.out.println("  DEBUG: this is IdentityStmt: ");
+				Iterator<Edge> edges = cg.edgesInto(m);
+				while(edges.hasNext()){
+					Edge edge = edges.next();
+					MethodOrMethodContext mmc = edge.getSrc();
+					System.out.println("    CalledBy:"+mmc.method().getSignature());
+					GraphTool.displayGraph(findMethodGraph(mmc.method()), mmc.method());
+				}
 			}
 			
 			if(cont){
@@ -216,6 +234,30 @@ public class ParameterSearch {
 				int id = resMgr.getValueResourceNameIDMap().get(arg);
 				System.out.println("FOUND ID of "+args.get(i)+" "+id);
 			}
+		}
+	}
+	
+	private void searchStaticVariable(StaticFieldRef sfr){
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt s = (Stmt)u;
+		    	if(s instanceof AssignStmt){
+		    		AssignStmt as = (AssignStmt)s;
+		    		Value left = as.getLeftOp();
+		    		if(left.toString().contains(sfr.getField().getName())){
+		    			System.out.println("SEARCH_STATIC_VARIABLE:"+as+" ||"+sfr.getField().getName());
+		    		}
+		    		else{
+		    			//System.out.println("");
+		    		}
+		    	}
+		    }
 		}
 	}
 	
