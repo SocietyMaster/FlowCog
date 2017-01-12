@@ -2,6 +2,13 @@
 <android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
 <android.support.v4.app.FragmentActivity: android.view.View findViewById(int)> -> _SOURCE_
 <android.app.View: android.view.View findViewById(int)> -> _SOURCE_
+<android.content.SharedPreferences: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
+<android.content.SharedPreferences: float getFloat(java.lang.String, float)> -> _SOURCE_
+<android.content.SharedPreferences: int getInt(java.lang.String, int)> -> _SOURCE_
+<android.content.SharedPreferences: long getLong(java.lang.String, long)> -> _SOURCE_
+<android.content.SharedPreferences: java.lang.String getFloat(java.lang.String, java.lang.String)> -> _SOURCE_
+<android.content.SharedPreferences: java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String)>> -> _SOURCE_
+
 %bundle sinks
 <android.os.Bundle: void putBinder(java.lang.String,android.os.IBinder)> -> _SINK_
 <android.os.Bundle: void putBoolean(java.lang.String,boolean)> -> _SINK_

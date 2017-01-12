@@ -280,11 +280,23 @@ public class Test {
 					
 					
 					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
-//					System.out.println("getSourceType findViewById: Second round:");
-//					soot.G.reset();
-//					//GraphTool.displayAllMethodGraph();
-//					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-//					
+					
+					//debug
+					fps.displayFlowPaths();
+					Map<Stmt, Set<Stmt>> map = fps.getPreferenceValue2ViewMap();
+					for(Stmt key : map.keySet()){
+						Set<Stmt> set = map.get(key);
+						System.out.println("PreferenceSet: "+key);
+						for(Stmt v : set)
+							System.out.println("  "+v);
+					}
+					
+					//second round
+					GraphTool.displayAllMethodGraph();
+					soot.G.reset();
+					
+					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
+					
 					ProcessManifest processMan = null;
 					ResourceManager resMgr = null;
 					try{
@@ -293,19 +305,21 @@ public class Test {
 						//extract View info (e.g., View id, texts)
 						resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
 						Map<String,Integer> valueMap = resMgr.getValueResourceNameIDMap();
-//						for(String key : valueMap.keySet())
-//							System.out.println(key+" => "+valueMap.get(key));
+						//for(String key : valueMap.keySet())
+						//	System.out.println(key+" => "+valueMap.get(key));
 					}
 					catch(Exception e){
 						System.err.println("failed to run taint analysis on view-flow. "+e);
 						e.printStackTrace();
 					}
 					
+					//comment because it's for id search.
+					//add back when detecting findViewByID
 					ParameterSearch ps = new ParameterSearch(resMgr);
 					ps.findViewByIdParamSearch();
 					
-//					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
-//					displayFlowViewInfo(fps, resMgr);
+					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
+					displayFlowViewInfo(fps, resMgr);
 				}
 				repeatCount--;
 			}
@@ -319,6 +333,7 @@ public class Test {
 			System.out.println("NULIST: Display Flow Index");
 			for(int i=0; i<fps.getLst().size(); i++){
 				System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
+				System.out.println("  DEBUG:"+fps.getLst().get(i).toString());
 			}
 			System.out.println("NULIST: Done Display Flow Index");
 			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
@@ -332,6 +347,7 @@ public class Test {
 					if(node != null)  type = node.nodeType;
 					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
+					
 					List<String> tmp = resMgr.getTextsById(viewId);
 					StringBuilder sb = new StringBuilder();
 					if(tmp != null){
@@ -801,26 +817,25 @@ public class Test {
 			System.out.println("Running data flow analysis...");
 
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			return null; //XIANG
-			//TODO
-//			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
-//			
-//			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
-//			
-//			if (config.getLogSourcesAndSinks()) {
-//				if (!app.getCollectedSources().isEmpty()) {
-//					System.out.println("Collected sources:");
-//					for (Stmt s : app.getCollectedSources())
-//						System.out.println("\t" + s);
-//				}
-//				if (!app.getCollectedSinks().isEmpty()) {
-//					System.out.println("Collected sinks:");
-//					for (Stmt s : app.getCollectedSinks())
-//						System.out.println("\t" + s);
-//				}
-//			}
-//			
-//			return resFPS.getFlowPathSet();
+
+			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
+			
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
+			
+			if (config.getLogSourcesAndSinks()) {
+				if (!app.getCollectedSources().isEmpty()) {
+					System.out.println("Collected sources:");
+					for (Stmt s : app.getCollectedSources())
+						System.out.println("\t" + s);
+				}
+				if (!app.getCollectedSinks().isEmpty()) {
+					System.out.println("Collected sinks:");
+					for (Stmt s : app.getCollectedSinks())
+						System.out.println("\t" + s);
+				}
+			}
+			
+			return resFPS.getFlowPathSet();
 		} catch (IOException ex) {
 			System.err.println("Could not read file: " + ex.getMessage());
 			ex.printStackTrace();

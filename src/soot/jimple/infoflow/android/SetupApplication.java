@@ -867,13 +867,8 @@ public class SetupApplication {
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		
-		//DEBUG
-		//CallGraph cgraph = Scene.v().getCallGraph();
-		//System.out.println(cgraph);
-//		ParameterSearch ps = new ParameterSearch();
-//		ps.findViewByIdParamSearch();
 		//XIANG
-		/*
+		
 		if(fps == null){
 			InfoflowResults rs = info.getResults();
 			FlowPathSet fpsLocal = new FlowPathSet();
@@ -897,7 +892,7 @@ public class SetupApplication {
 			Set<Stmt> stmts = getCollectedSources();
 			//for(Stmt stmt : stmts)
 			//	System.out.println("OUTPUT SOURCES: "+stmt);
-		}*/
+		}
 		return info.getResults();
 	}
 
