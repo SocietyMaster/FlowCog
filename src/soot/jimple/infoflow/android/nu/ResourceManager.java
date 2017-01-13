@@ -46,8 +46,13 @@ public class ResourceManager {
 		return id2Node.get(id);
 	}
 	
-	public List<String> getTextsById(int id){
-		return id2Texts.get(id);
+	
+	//TODO:
+	public String getTextsById(int id){
+		LayoutTextTreeNode node = id2Node.get(id);
+		if(node == null)
+			return "Error: no "+id+" view node";
+		return node.textObj.toString();
 	}
 	
 	public LayoutTextTreeNode getLayoutById(int id){
@@ -62,21 +67,21 @@ public class ResourceManager {
 	}
 
 	public void displayResources(){
-		for(Integer id : lfpTE.getId2Type().keySet()){
-			List<String> texts = id2Texts.get(id);
-			String type = lfpTE.getId2Type().get(id);
-			if(texts != null){
-				for(String msg : id2Texts.get(id))
-					System.out.println("VIEWTEXT: "+id+"("+type+") -> "+msg);
-			}
-			else if(type.endsWith("Layout") && id2Node.containsKey(id)){
-				String text = id2Node.get(id).toStringTree(0,"");
-			}
-			else
-				System.out.println("VIEWTEXT: "+id+"("+lfpTE.getId2Type().get(id)+") -> null");
-		}
+//		for(Integer id : lfpTE.getId2Type().keySet()){	
+//			List<String> texts = id2Texts.get(id);
+//			String type = lfpTE.getId2Type().get(id);
+//			if(texts != null){
+//				for(String msg : id2Texts.get(id))
+//					System.out.println("VIEWTEXT: "+id+"("+type+") -> "+msg);
+//			}
+//			else if(type.endsWith("Layout") && id2Node.containsKey(id)){
+//				String text = id2Node.get(id).toStringTree(0,"");
+//			}
+//			else
+//				System.out.println("VIEWTEXT: "+id+"("+lfpTE.getId2Type().get(id)+") -> null");
+//		}
 		for(String cls : layouts.keySet()){
-			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree(0,""));
+			System.out.println(" LAYOUTTEXT2: "+cls+" "+layouts.get(cls).toStringTree(0,""));
 		}
 	}
 	

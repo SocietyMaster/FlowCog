@@ -5,9 +5,40 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class LayoutTextTreeNode {
+
+	public enum ViewTextType {
+		VIEW_TEXT,   /*Texts extracted from the View's text attribute.*/
+		PARENT_TEXT, /*Texts extracted from all the Views sharing the same parent (grandparent) View. */
+		LAYOUT_TEXT,  /*Texts extracted from all the Views in current layout.*/
+		NO_TEXT
+	}
+	
+	public class ViewText {
+		public ViewTextType textType;
+		public String viewType;
+		public String texts; //seperated by ||
+		public ViewText(ViewTextType textType, String viewType, String texts){
+			this.textType = textType;
+			this.viewType = viewType;
+			this.texts = texts;
+		}
+		public String toString(){
+			StringBuilder sb = new StringBuilder();
+			sb.append("TextType:"+textType+",");
+			sb.append("ViewType:"+viewType+",");
+			sb.append("ID:"+nodeID+",");
+			sb.append("Text:"+texts);
+			return sb.toString();
+		}
+	}
+	
 	public String nodeType;
 	public int nodeID = 0;
 	public String text = "";
+	
+	public String allTexts = "";
+	public ViewText textObj = null;
+	
 	public LayoutTextTreeNode parent = null;
 	public List<LayoutTextTreeNode> children = null;
 	
@@ -40,10 +71,9 @@ public class LayoutTextTreeNode {
 	}
 	
 	private void extractTextsHelper(LayoutTextTreeNode node, String delimiter, StringBuilder sb ){
-		if(node.text!=null && node.text.trim().length() > 0){
-			if(sb.length()>0) sb.append(" "+delimiter+" ");
-			sb.append(node.text.trim());
-		}	
+		if(sb.length()>0) sb.append(" "+delimiter+" ");
+		sb.append(node.textObj.toString());	
+		
 		if(node.children != null){
 			for(LayoutTextTreeNode child : node.children)
 				extractTextsHelper(child, delimiter, sb);
@@ -52,7 +82,7 @@ public class LayoutTextTreeNode {
 	
 	private void traverseTextTreeHelper(LayoutTextTreeNode node, int level, StringBuilder sb, String logo){
 		String space = new String(new char[level*2]).replace('\0', ' ');
-		sb.append(logo+space+node.toString()+"\n");
+		sb.append(logo+space+node.textObj.toString()+"\n");
 		if(node.children != null){
 			for(LayoutTextTreeNode child : node.children)
 				traverseTextTreeHelper(child, level+1, sb, logo);

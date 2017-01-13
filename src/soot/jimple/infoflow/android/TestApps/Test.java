@@ -38,6 +38,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import soot.PackManager;
 import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.Stmt;
@@ -278,25 +279,14 @@ public class Test {
 						System.exit(1);
 					}
 					
-					
+//					//first round
 					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
-					
-					//debug
-					fps.displayFlowPaths();
-					Map<Stmt, Set<Stmt>> map = fps.getPreferenceValue2ViewMap();
-					for(Stmt key : map.keySet()){
-						Set<Stmt> set = map.get(key);
-						System.out.println("PreferenceSet: "+key);
-						for(Stmt v : set)
-							System.out.println("  "+v);
-					}
-					
-					//second round
-					GraphTool.displayAllMethodGraph();
+//					
+//					//second round
+					//GraphTool.displayAllMethodGraph();
 					soot.G.reset();
-					
 					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-					
+//					
 					ProcessManifest processMan = null;
 					ResourceManager resMgr = null;
 					try{
@@ -304,9 +294,6 @@ public class Test {
 						String appPackageName = processMan.getPackageName();
 						//extract View info (e.g., View id, texts)
 						resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
-						Map<String,Integer> valueMap = resMgr.getValueResourceNameIDMap();
-						//for(String key : valueMap.keySet())
-						//	System.out.println(key+" => "+valueMap.get(key));
 					}
 					catch(Exception e){
 						System.err.println("failed to run taint analysis on view-flow. "+e);
@@ -315,10 +302,14 @@ public class Test {
 					
 					//comment because it's for id search.
 					//add back when detecting findViewByID
+					//remember to enabled forwardSolver.solve() in Infoflow.java file;
 //					ParameterSearch ps = new ParameterSearch(resMgr);
-//					ps.findViewByIdParamSearch();
+					//ps.findViewByIdParamSearch();
+//					ps.findPreferenceSetMethods();
 					
+					//correlate view and flow based on events defined in XML file
 					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
+					//display for debug
 					displayFlowViewInfo(fps, resMgr);
 				}
 				repeatCount--;
@@ -348,15 +339,9 @@ public class Test {
 					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
 					
-					List<String> tmp = resMgr.getTextsById(viewId);
-					StringBuilder sb = new StringBuilder();
-					if(tmp != null){
-						for(String s : tmp){
-							if(sb.length() > 0) sb.append(" || ");
-							sb.append(s.replace("||", ","));
-						}
-					}
-					System.out.println("NULIST:[TEXT]:"+sb.toString());
+					String texts = resMgr.getTextsById(viewId);
+					
+					System.out.println("NULIST:[TEXT]:"+texts);
 					System.out.println("NULIST:[END]");
 				}
 			}

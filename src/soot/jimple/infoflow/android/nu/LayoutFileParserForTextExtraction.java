@@ -36,6 +36,8 @@ import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlHandler;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.axml.parsers.AXML20Parser;
+import soot.jimple.infoflow.android.nu.LayoutTextTreeNode.ViewText;
+import soot.jimple.infoflow.android.nu.LayoutTextTreeNode.ViewTextType;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResConfig;
@@ -273,7 +275,8 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 					textTreeMap.put(entryClass, textTreeNode);
 					parseLayoutNode(entryClass, handler.getDocument().getRootNode(), textTreeNode, textTreeNode);
 					
-					traverseTextTree(entryClass);
+					updateNodeAllTextsAndId2XX(entryClass);
+					updateNodeViewTextField(entryClass);
 				}
 				catch (Exception ex) {
 					System.err.println("Could not read binary XML file: " + ex.getMessage());
@@ -676,7 +679,46 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		return xmlEventHandler2ViewIds;
 	}
 	
-	public void traverseTextTree(String filename){
+	private void updateNodeViewTextField(String filename){
+		if(!textTreeMap.containsKey(filename)){
+			System.err.println("Error: no text tree for file: "+filename);
+			return;
+		}
+		traverseTextTreeToUpdateViewTextField(textTreeMap.get(filename));
+	}
+	private void traverseTextTreeToUpdateViewTextField(LayoutTextTreeNode node){
+		if(node.text.length() > 0){
+			//ViewTextType textType, String viewType, String texts
+			ViewText viewText = node.new ViewText(ViewTextType.VIEW_TEXT, node.nodeType, node.text);
+			node.textObj = viewText;
+		}
+		else if(node.allTexts.length() > 0){
+			ViewText viewText = node.new ViewText(ViewTextType.VIEW_TEXT, node.nodeType, node.allTexts);
+			node.textObj = viewText;
+		}
+		else {
+			LayoutTextTreeNode parent = node.parent;
+			ViewText viewText = null;
+			while(parent != null){
+				if(parent.allTexts.length() > 0){
+					if(parent.parent==null)
+						viewText = node.new ViewText(ViewTextType.LAYOUT_TEXT, node.nodeType, parent.allTexts);
+					else
+						viewText = node.new ViewText(ViewTextType.PARENT_TEXT, node.nodeType, parent.allTexts);
+					break;
+				}
+				parent = parent.parent;
+			}
+			if(viewText == null)
+				viewText = node.new ViewText(ViewTextType.NO_TEXT, node.nodeType, "");
+			node.textObj = viewText;
+		}
+		if(node.children != null)
+			for(LayoutTextTreeNode child : node.children)
+				traverseTextTreeToUpdateViewTextField(child);
+	}
+	
+	private void updateNodeAllTextsAndId2XX(String filename){
 		if(!textTreeMap.containsKey(filename)){
 			System.err.println("Error: no text tree for file: "+filename);
 			return;
@@ -689,12 +731,11 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 		if(node.nodeID != 0){
 			id2Type.put(node.nodeID, node.nodeType);
 			id2Node.put(node.nodeID, node);
-			//System.out.println("NodeID:"+node.nodeID+" "+node.nodeType);
 		}
 		
-		if(node.nodeID!=0 && !node.text.equals("")){
-			List<String> texts = null;
-			
+		List<String> texts = null;
+	
+		if(node.nodeID!=0 && node.text.length()!=0){
 			if (id2Texts.containsKey(node.nodeID)){
 				texts = id2Texts.get(node.nodeID);
 			}
@@ -703,15 +744,20 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 				id2Texts.put(node.nodeID, texts);
 			}
 			texts.add(node.text);	
-			
-			System.out.println("DEBUGDEBUG: "+node.nodeID+" T:"+node.nodeType+" ");
 		}
 		String space = new String(new char[level*2]).replace('\0', ' ');
 		//System.out.println("DEBUG: "+space+node.toString());
+		String allTexts = node.text;
 		if(node.children != null){
-			for(LayoutTextTreeNode child : node.children)
+			for(LayoutTextTreeNode child : node.children){
 				traverseTextTreeHelper(child, level+1);
+				if(child.allTexts.length() > 0){
+					if(allTexts.length() > 0) allTexts += " || ";
+					allTexts += child.allTexts;
+				}
+			}
 		}
+		node.allTexts = allTexts;
 	}
 	
 	

@@ -83,6 +83,29 @@ public class ParameterSearch {
 		}
 	}
 	
+	public void findPreferenceSetMethods(){
+		//first search all findViewById statements
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt s = (Stmt)u;
+		    	if(!s.containsInvokeExpr()) continue;
+		    	
+		    	InvokeExpr ie = s.getInvokeExpr();
+		    	SootMethod method = ie.getMethod();
+		    	if(method.getSignature().contains("android.content.SharedPreferences$Editor") &&
+		    			method.getName().contains("put")){
+		    		System.out.println("PreferenceSetMethod:" + ie);
+		    	}
+		    }
+		}
+	}
+	
 	private UnitGraph findMethodGraph(SootMethod method){
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
