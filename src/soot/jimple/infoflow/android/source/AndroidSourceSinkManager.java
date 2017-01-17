@@ -108,7 +108,12 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		/**
 		 * The data is read from a UI element
 		 */
-		UISource
+		UISource,
+		/*
+		 * XIANG:
+		 * Used for Constant Propogation.
+		 * */
+		ConstantSource
 	}
 
 	protected final static String Activity_FindViewById = "<android.app.Activity: android.view.View findViewById(int)>";
@@ -378,9 +383,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 			{
 			String signature = methodToSignature.getUnchecked(
 					sCallSite.getInvokeExpr().getMethod());
-//			if(signature.contains("findViewById")){
-//				System.out.println("getSourceType findViewById:"+signature+" "+this.sourceMethods.containsKey(signature));
-//			}
+
 			if (this.sourceMethods.containsKey(signature))
 				return SourceType.MethodCall;
 			}

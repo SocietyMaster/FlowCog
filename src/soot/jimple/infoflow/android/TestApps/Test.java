@@ -23,6 +23,9 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +44,22 @@ import org.xmlpull.v1.XmlPullParserException;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootMethod;
+import soot.Unit;
+import soot.Value;
+import soot.jimple.AnyNewExpr;
+import soot.jimple.AssignStmt;
+import soot.jimple.BinopExpr;
+import soot.jimple.CastExpr;
+import soot.jimple.Constant;
+import soot.jimple.IdentityStmt;
+import soot.jimple.IntConstant;
+import soot.jimple.InvokeExpr;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
+import soot.jimple.UnopExpr;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
@@ -56,6 +74,7 @@ import soot.jimple.infoflow.android.nu.ResourceManager;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.config.IInfoflowConfig;
 import soot.jimple.infoflow.data.Abstraction;
 import soot.jimple.infoflow.data.pathBuilders.DefaultPathBuilderFactory.PathBuilder;
@@ -142,6 +161,141 @@ public class Test {
 				// ignore
 			}
 		}
+	}
+	private static final class ConstantPropogationResultsHanlder implements ResultsAvailableHandler {
+		private final BufferedWriter wr;
+		private final Map<Stmt, Set> rs = new HashMap<Stmt, Set>();
+		
+		public Map<Stmt, Set> getRS() {
+			return rs;
+		}
+
+		private ConstantPropogationResultsHanlder() {
+			this.wr = null;
+		}
+
+		private ConstantPropogationResultsHanlder(BufferedWriter wr) {
+			this.wr = wr;
+		}
+
+		@Override
+		public void onResultsAvailable(
+				IInfoflowCFG cfg, InfoflowResults results) {
+			// Dump the results
+			if (results == null) {
+				print("No results found.");
+			}
+			else {
+				// Report the results
+				for (ResultSinkInfo sink : results.getResults().keySet()) {
+					print("Found a flow to sink " + sink + ", from the following sources:");
+					for (ResultSourceInfo source : results.getResults().get(sink)) {
+						print("\t- " + source.getSource() + " (in "
+								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
+						if (source.getPath() != null)
+							print("\t\ton Path " + Arrays.toString(source.getPath()));
+						
+						Stmt sourceStmt = source.getSource();
+						Stmt sinkStmt = sink.getSink();
+						Set set = rs.get(sinkStmt);
+						if(set == null){
+							set = new HashSet<Object>();
+							rs.put(sinkStmt, set);
+						}
+						if(sinkStmt.getInvokeExpr().getMethod().getName().equals("findViewById")){
+							if(sourceStmt instanceof IdentityStmt){
+								IdentityStmt is = (IdentityStmt)sourceStmt;
+								if(is.getRightOp() instanceof ParameterRef){
+									ParameterRef right = (ParameterRef)(is.getRightOp());
+									int idx = right.getIndex();
+									Collection<Unit> callers = cfg.getCallersOf(cfg.getMethodOf(sourceStmt));
+									if(callers != null && callers.size()>0){
+										for(Unit caller : callers){
+											InvokeExpr ie = ((Stmt)caller).getInvokeExpr();
+											if(idx >= ie.getArgCount())
+												continue;
+											Value arg = ie.getArg(idx);
+											if(arg instanceof IntConstant){
+												Integer v = ((IntConstant)arg).value;
+												set.add(v);
+											}
+												
+										}
+									}
+								}
+							}
+							else if(sourceStmt instanceof AssignStmt){
+								AssignStmt as = (AssignStmt)sourceStmt;
+								Value right = as.getRightOp();
+								if(right instanceof CastExpr){
+									CastExpr ce = (CastExpr)right;
+									Value v = ce.getOp();
+									if(v instanceof IntConstant)
+										set.add(((IntConstant)v).value);
+								}
+								else if(right instanceof UnopExpr){
+									UnopExpr ue = (UnopExpr)right;
+									
+									Value v = ue.getOp();
+									if(v instanceof IntConstant)
+										set.add(Math.abs(((IntConstant)v).value));
+								}
+								else if(right instanceof BinopExpr ){
+									BinopExpr be = (BinopExpr)right;
+									Value v1 = be.getOp1();
+									Value v2 = be.getOp2();
+									if(v1 instanceof IntConstant && v2 instanceof IntConstant){
+										Integer v1Int = ((IntConstant)v1).value;
+										Integer v2Int = ((IntConstant)v2).value;
+										if(be.getSymbol().equals("+"))
+											set.add(v1Int+v2Int);
+										else if(be.getSymbol().equals("*"))
+											set.add(v1Int*v2Int);
+										else if(be.getSymbol().equals("-"))
+											set.add(v1Int-v2Int);
+										else if(be.getSymbol().equals("/"))
+											set.add(v1Int/v2Int);
+									}
+								}
+								else if(right instanceof InvokeExpr){
+									InvokeExpr ie = sourceStmt.getInvokeExpr();
+									SootMethod sm = ie.getMethod();
+									if(sm.getName().equals("valueOf") && sm.getDeclaringClass().getName().equals("java.lang.Integer")){
+										Value arg = ie.getArg(0);
+										if(arg instanceof IntConstant)
+											set.add(((IntConstant)arg).value);
+									}
+									
+								}
+								else if(right instanceof IntConstant){
+									set.add(((IntConstant)right).value);
+								}
+								else{
+									System.out.println("UNKNOWN SOURCE: "+sourceStmt);
+								}
+							}
+						}//findViewById case
+						else {
+							//TODO: add PreferenceValues
+						}
+					}
+				}
+				
+			}
+			
+		}
+
+		private void print(String string) {
+			try {
+				System.out.println(string);
+				if (wr != null)
+					wr.write(string + "\n");
+			}
+			catch (IOException ex) {
+				// ignore
+			}
+		}
+		
 	}
 	
 	private static InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
@@ -266,57 +420,67 @@ public class Test {
 				else if (sysTimeout > 0)
 					runAnalysisSysTimeout(fullFilePath, args[1]);
 				else{
-					//XIANG
-					try{
-						File f = new File(tmpDirPath);
-						if(!f.exists() || !f.isDirectory()){
-							System.err.println("tmp folder not exits: "+tmpDirPath);
-							System.exit(1);
-						}
-					}
-					catch(Exception e){
-						System.err.println("tmp folder not exits:"+e.toString());
-						System.exit(1);
-					}
-					
-//					//first round
-					FlowPathSet fps = runAnalysis(fullFilePath, args[1]);
-//					
-//					//second round
-					//GraphTool.displayAllMethodGraph();
-					soot.G.reset();
-					runAnalysisForFlowViewCorrelation(fullFilePath, args[1], fps);
-//					
-					ProcessManifest processMan = null;
-					ResourceManager resMgr = null;
-					try{
-						processMan = new ProcessManifest(fullFilePath);
-						String appPackageName = processMan.getPackageName();
-						//extract View info (e.g., View id, texts)
-						resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
-					}
-					catch(Exception e){
-						System.err.println("failed to run taint analysis on view-flow. "+e);
-						e.printStackTrace();
-					}
+					//Analysis
+					//runNUDataFlowAnalysis(fullFilePath, args[1]);
 					
 					//comment because it's for id search.
 					//add back when detecting findViewByID
 					//remember to enabled forwardSolver.solve() in Infoflow.java file;
 //					ParameterSearch ps = new ParameterSearch(resMgr);
-					//ps.findViewByIdParamSearch();
+//					ps.findViewByIdParamSearch();
 //					ps.findPreferenceSetMethods();
 					
-					//correlate view and flow based on events defined in XML file
-					fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
-					//display for debug
-					displayFlowViewInfo(fps, resMgr);
+					
+					runAnalysisForConstantPropogation(fullFilePath, args[1], null);
+					//GraphTool.displayAllMethodGraph();
+					
 				}
 				repeatCount--;
 			}
 			
 			System.gc();
 		}
+	}
+	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar){
+		//XIANG
+		try{
+			File f = new File(tmpDirPath);
+			if(!f.exists() || !f.isDirectory()){
+				System.err.println("tmp folder not exits: "+tmpDirPath);
+				System.exit(1);
+			}
+		}
+		catch(Exception e){
+			System.err.println("tmp folder not exits:"+e.toString());
+			System.exit(1);
+		}
+		
+		//first round data flow analysis to find flows.
+		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
+		
+		//second round data flow analysis to correlate flows and views.
+		//GraphTool.displayAllMethodGraph();
+		soot.G.reset();
+		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
+		
+		//analyze resource file to extract view info
+		ProcessManifest processMan = null;
+		ResourceManager resMgr = null;
+		try{
+			processMan = new ProcessManifest(fullFilePath);
+			String appPackageName = processMan.getPackageName();
+			//extract View info (e.g., View id, texts)
+			resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
+		}
+		catch(Exception e){
+			System.err.println("failed to run taint analysis on view-flow. "+e);
+			e.printStackTrace();
+		}
+		
+		//correlate view and flow based on events defined in XML file
+		fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
+		//display for debug
+		displayFlowViewInfo(fps, resMgr);
 	}
 	
 	//XIANG
@@ -875,6 +1039,7 @@ public class Test {
 			else {
 				final EasyTaintWrapper easyTaintWrapper;
 				File twSourceFile = new File("../soot-infoflow/EasyTaintWrapperSource.txt");
+				
 				if (twSourceFile.exists())
 					easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
 				else {
@@ -892,7 +1057,7 @@ public class Test {
 			}
 			app.setTaintWrapper(taintWrapper);
 			app.calculateSourcesSinksEntrypoints("SourceAndSinksForFlowViewCorrelation.txt");
-			
+			//app.calculateSourcesSinksEntrypoints("Test.txt");
 			app.printEntrypoints();
 			app.printSinks();
 			app.printSources();
@@ -901,6 +1066,109 @@ public class Test {
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
+			
+			if (config.getLogSourcesAndSinks()) {
+				if (!app.getCollectedSources().isEmpty()) {
+					System.out.println("Collected sources:");
+					for (Stmt s : app.getCollectedSources())
+						System.out.println("\t" + s);
+				}
+				if (!app.getCollectedSinks().isEmpty()) {
+					System.out.println("Collected sinks:");
+					for (Stmt s : app.getCollectedSinks())
+						System.out.println("\t" + s);
+				}
+			}
+			
+			return res;
+		} catch (IOException ex) {
+			System.err.println("Could not read file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		} catch (XmlPullParserException ex) {
+			System.err.println("Could not read Android manifest file: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps) {
+		try {
+			final long beforeRun = System.nanoTime();
+
+			final SetupApplication app;
+			if (null == ipcManager)
+			{
+				app = new SetupApplication(androidJar, fileName);
+			}
+			else
+			{
+				app = new SetupApplication(androidJar, fileName, ipcManager);
+			}
+			//XIANG
+			//app.setFlowPathSet(fps);
+			
+			// Set configuration object
+			app.setConfig(config);
+			if (noTaintWrapper)
+				app.setSootConfig(new IInfoflowConfig() {
+					
+					@Override
+					public void setSootOptions(Options options) {
+						options.set_include_all(true);
+					}
+					
+				});
+			
+			final ITaintPropagationWrapper taintWrapper;
+			if (noTaintWrapper)
+				taintWrapper = null;
+			else if (summaryPath != null && !summaryPath.isEmpty()) {
+				System.out.println("Using the StubDroid taint wrapper");
+				taintWrapper = createLibrarySummaryTW();
+				if (taintWrapper == null) {
+					System.err.println("Could not initialize StubDroid");
+					return null;
+				}
+			}
+			else {
+				final EasyTaintWrapper easyTaintWrapper;
+				//TODO: what's this.
+				File twSourceFile = new File("../soot-infoflow/EasyTaintWrapperSource.txt");
+				
+				if (twSourceFile.exists())
+					easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+				else {
+					twSourceFile = new File("EasyTaintWrapperSource.txt");
+					if (twSourceFile.exists())
+						easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+					else {
+						System.err.println("Taint wrapper definition file not found at "
+								+ twSourceFile.getAbsolutePath());
+						return null;
+					}
+				}
+				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+				taintWrapper = easyTaintWrapper;
+			}
+			app.setTaintWrapper(taintWrapper);
+			app.calculateSourcesSinksEntrypointsForConstantPropogation("Test.txt");
+			app.printEntrypoints();
+			app.printSinks();
+			app.printSources();
+			
+			System.out.println("Running data flow analysis...");
+			ConstantPropogationResultsHanlder rh = new ConstantPropogationResultsHanlder();
+			final InfoflowResults res = app.runInfoflowForConstantPropogation(rh);
+			
+			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
+			Map<Stmt,Set> constantAnalysisMap = rh.getRS();
+			for(Stmt sink : constantAnalysisMap.keySet()){
+				Set vals = constantAnalysisMap.get(sink);
+				for(Object obj : vals)
+					System.out.println("FINDID: "+sink+" ==> "+obj);
+			}
+			
 			
 			if (config.getLogSourcesAndSinks()) {
 				if (!app.getCollectedSources().isEmpty()) {

@@ -2,21 +2,30 @@ package soot.jimple.infoflow.android.source;
 
 import heros.InterproceduralCFG;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import soot.MethodOrMethodContext;
 import soot.PrimType;
 import soot.RefType;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.Constant;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
+import soot.jimple.ThisRef;
 import soot.jimple.infoflow.android.resources.LayoutControl;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
@@ -24,6 +33,11 @@ import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.infoflow.source.data.AccessPathTuple;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.util.SystemClassHandler;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.Orderer;
+import soot.toolkits.graph.PseudoTopologicalOrderer;
+import soot.toolkits.graph.UnitGraph;
+import soot.util.queue.QueueReader;
 
 /**
  * SourceSinkManager for Android applications. This class uses precise access
