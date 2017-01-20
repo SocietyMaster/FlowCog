@@ -23,6 +23,7 @@ import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
+import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
@@ -53,7 +54,8 @@ import soot.toolkits.graph.UnitGraph;
 import soot.util.queue.QueueReader;
 
 public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceSinkManager {
-
+	private static int MIN_ID_VALUE = 255;
+	
 	public ConstantPropogationSourceSinkManager(Set<SourceSinkDefinition> sources, Set<SourceSinkDefinition> sinks) {
 		super(sources, sinks);
 	}
@@ -71,12 +73,30 @@ public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceS
 	public SourceInfo getSourceInfo(Stmt stmt, InterproceduralCFG<Unit, SootMethod> cfg) {
 		SourceType type = getSourceType(stmt, cfg);
 		//System.out.println("getSourceInfo: "+sCallSite+" // "+type);
-		if (type != SourceType.ConstantSource)
+		//if (type!=SourceType.IntConstantSource && type!=SourceType.StringConstantSource)
+		//	return null;
+		if (type!=SourceType.IntConstantSource)
 			return null;
 		
-		DefinitionStmt defStmt = (DefinitionStmt) stmt;
-		return new SourceInfo(AccessPathFactory.v().createAccessPath(
+		System.out.println("SOURCE:"+stmt);
+		
+		if(stmt instanceof DefinitionStmt){
+			DefinitionStmt defStmt = (DefinitionStmt) stmt;
+			return new SourceInfo(AccessPathFactory.v().createAccessPath(
 				defStmt.getLeftOp(), true));
+		}
+		else{ // e.g., ArrayList.add(Integer)
+			if(!stmt.containsInvokeExpr())
+				return null;
+			InvokeExpr ie = stmt.getInvokeExpr();
+			
+			if(ie instanceof InstanceInvokeExpr){
+				Value baseVal = ((InstanceInvokeExpr)ie).getBase();
+				return new SourceInfo(AccessPathFactory.v().createAccessPath(
+						baseVal, true));
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -93,21 +113,31 @@ public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceS
 			if(right instanceof CastExpr){
 				CastExpr ce = (CastExpr)right;
 				Value v = ce.getOp();
-				if(v instanceof Constant)
-					return SourceType.ConstantSource;
+				if(v instanceof IntConstant){
+					if(((IntConstant) v).value >= MIN_ID_VALUE)
+						return SourceType.IntConstantSource;
+				}
+				else if(v instanceof StringConstant)
+					return SourceType.StringConstantSource;
 			}
 			else if(right instanceof UnopExpr){
 				UnopExpr ue = (UnopExpr)right;
 				Value v = ue.getOp();
-				if(v instanceof Constant)
-					return SourceType.ConstantSource;
+				if(v instanceof IntConstant)
+					if(((IntConstant) v).value >= MIN_ID_VALUE)
+						return SourceType.IntConstantSource;
+				else if(v instanceof StringConstant)
+					return SourceType.StringConstantSource;
 			}
 			else if(right instanceof BinopExpr ){
 				BinopExpr be = (BinopExpr)right;
 				Value v1 = be.getOp1();
 				Value v2 = be.getOp2();
-				if(v1 instanceof Constant && v2 instanceof Constant)
-					return SourceType.ConstantSource;
+				if(v1 instanceof IntConstant && v2 instanceof IntConstant)
+					if( ((IntConstant) v1).value >= MIN_ID_VALUE || ((IntConstant) v2).value >= MIN_ID_VALUE)
+						return SourceType.IntConstantSource;
+				else if(v1 instanceof StringConstant && v2 instanceof StringConstant)
+					return SourceType.StringConstantSource;
 			}
 			else if(right instanceof AnyNewExpr ||
 					right instanceof NewArrayExpr ||
@@ -119,23 +149,50 @@ public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceS
 				InvokeExpr ie = stmt.getInvokeExpr();
 				if(ie.getArgCount() == 0){
 					//TODO:
-					System.out.println("ALERT: getSourceType: InvokeExpr with 0 Arg Assignment."+as);
+					//System.out.println("ALERT: getSourceType: InvokeExpr with 0 Arg Assignment."+as);
 					return SourceType.NoSource;
 				}
 				SootMethod sm = ie.getMethod();
 				if(sm.getName().equals("valueOf") && sm.getDeclaringClass().getName().equals("java.lang.Integer")){
 					Value arg = ie.getArg(0);
-					if(arg instanceof Constant)
-						return SourceType.ConstantSource;
+					if(arg instanceof IntConstant)
+						if(((IntConstant) arg).value >= MIN_ID_VALUE)
+							return SourceType.IntConstantSource;
+					else if(arg instanceof StringConstant)
+						return SourceType.StringConstantSource;
 				}
 				else if(sm.getName().equals("valueOf") && sm.getDeclaringClass().getName().equals("java.lang.String")){
 					Value arg = ie.getArg(0);
-					if(arg instanceof Constant)
-						return SourceType.ConstantSource;
+					if(arg instanceof IntConstant)
+						if(((IntConstant) arg).value >= MIN_ID_VALUE)
+							return SourceType.IntConstantSource;
+					else if(arg instanceof StringConstant)
+						return SourceType.StringConstantSource;
+				}
+				else if(sm.getName().equals("get") && sm.getDeclaringClass().getName().equals("java.util.List")){
+					//TODO: write this part as blacklist
+					return SourceType.NoSource;
+				}
+				else if(sm.getName().equals("findViewById")){
+					return SourceType.NoSource;
+				}
+				else if(sm.getParameterCount()==1){
+					//TODO: this branch is too coarse.
+					//It's better to provide explicit function name, like last two branches.
+					Value arg = ie.getArg(0);
+					if(arg instanceof IntConstant)
+						if(((IntConstant) arg).value >= MIN_ID_VALUE)
+							return SourceType.IntConstantSource;
+					else if(arg instanceof StringConstant)
+						return SourceType.StringConstantSource;
 				}
 			}
-			else if(right instanceof Constant){
-				return SourceType.ConstantSource;
+			else if(right instanceof IntConstant){
+				if(((IntConstant) right).value >= MIN_ID_VALUE)
+					return SourceType.IntConstantSource;
+			}
+			else if(right instanceof StringConstant){
+				return SourceType.StringConstantSource;
 			}
 		}// stmt instanceof AssignStmt
 		else if(stmt instanceof IdentityStmt){
@@ -153,8 +210,11 @@ public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceS
 						if(idx >= ie.getArgCount())
 							continue;
 						Value arg = ie.getArg(idx);
-						if(arg instanceof Constant)
-							return SourceType.ConstantSource;
+						if(arg instanceof IntConstant)
+							if(((IntConstant) arg).value >= MIN_ID_VALUE)
+								return SourceType.IntConstantSource;
+						else if(arg instanceof StringConstant)
+							return SourceType.StringConstantSource;
 					}
 				}
 			}

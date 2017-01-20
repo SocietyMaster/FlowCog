@@ -31,17 +31,17 @@ public class ResourceManager {
 		
 		lfpTE = new LayoutFileParserForTextExtraction(appPackageName, resParser, apkToolPath, tmpDirPath);
 		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
-		lfpTE.extractNameIDPairsFromCompiledValueResources(apkFileLocation);
+		//lfpTE.extractNameIDPairsFromCompiledValueResources(apkFileLocation);
 		id2Texts = lfpTE.getId2Texts();
 		id2Node = lfpTE.getId2Node();
 		layouts = lfpTE.getTextTreeMap();
 		xmlEventHandler2ViewIds = lfpTE.getXmlEventHandler2ViewIds();
-		valueResourceNameIDMap = lfpTE.getDecompiledValuesNameIDMap();
+		//valueResourceNameIDMap = lfpTE.getDecompiledValuesNameIDMap();
 		
 		if(debug)
 			displayResources();
 	}
-	
+
 	public LayoutTextTreeNode getNodeById(int id){
 		return id2Node.get(id);
 	}

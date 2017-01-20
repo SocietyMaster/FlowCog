@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -41,12 +43,14 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import soot.Local;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.AnyNewExpr;
+import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
@@ -59,6 +63,7 @@ import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.UnopExpr;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowManager;
@@ -68,9 +73,12 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.nu.FlowClassifier;
 import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
+import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.nu.ParameterSearch;
+import soot.jimple.infoflow.android.nu.ResolvedConstantTag;
 import soot.jimple.infoflow.android.nu.ResourceManager;
+import soot.jimple.infoflow.android.nu.ValueResourceParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
@@ -93,6 +101,11 @@ import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.util.SystemClassHandler;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
+import soot.tagkit.Tag;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.Orderer;
+import soot.toolkits.graph.PseudoTopologicalOrderer;
+import soot.toolkits.graph.UnitGraph;
 
 public class Test {
 	
@@ -188,14 +201,18 @@ public class Test {
 			else {
 				// Report the results
 				for (ResultSinkInfo sink : results.getResults().keySet()) {
-					print("Found a flow to sink " + sink + ", from the following sources:");
+					print("Found a flow to sink " + sink + ", from the following sources:"+sink.getSink());
 					for (ResultSourceInfo source : results.getResults().get(sink)) {
-						print("\t- " + source.getSource() + " (in "
+						print("\tSource:" + source.getSource() + " (in "
 								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
-						if (source.getPath() != null)
-							print("\t\ton Path " + Arrays.toString(source.getPath()));
+						if (source.getPath() != null){
+							for(Stmt stmt : source.getPath()){
+								print("\t\t -" + stmt+" @"+cfg.getMethodOf(stmt));
+							}
+						}
 						
 						Stmt sourceStmt = source.getSource();
+						
 						Stmt sinkStmt = sink.getSink();
 						Set set = rs.get(sinkStmt);
 						if(set == null){
@@ -274,17 +291,112 @@ public class Test {
 									System.out.println("UNKNOWN SOURCE: "+sourceStmt);
 								}
 							}
+							
+							//solve the case when initialize array with Integer[] arr = {id1,id2, id3, id4}
+							//FlowDroid will only display the last 2 or 3 ids.
+							//If this happens, we will find all assignments to arrayref
+							//and then find potential def for the array
+							if (source.getPath() != null){
+								for(Stmt stmt : source.getPath()){
+									if(stmt instanceof AssignStmt && ((AssignStmt) stmt).getLeftOp() instanceof ArrayRef){
+										ArrayRef ar = (ArrayRef)((AssignStmt) stmt).getLeftOp();
+										Value base = ar.getBase();
+										System.out.println("Found array assign: "+stmt);
+										if(base instanceof Local){
+											Local lbase = (Local)base;
+											SootMethod sm = cfg.getMethodOf(stmt);
+											if(!sm.hasActiveBody()) continue;
+											
+											UnitGraph g = new ExceptionalUnitGraph(sm.getActiveBody());
+										    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+										    for (Unit u : orderer.newList(g, false)) {
+										    	Stmt s = (Stmt)u;
+										    	if(! (s instanceof AssignStmt && 
+										    		 ((AssignStmt) s).getLeftOp() instanceof ArrayRef))
+										    		continue;
+										    	Value b = ((ArrayRef)(((AssignStmt) s).getLeftOp())).getBase();
+										    	if(lbase.equals(b)){
+										    		System.out.println("  Found another array assign to this base: ");
+										    		Value rv = ((AssignStmt) s).getRightOp();
+										    		if(rv instanceof Constant){
+										    			System.out.println("    Constant:"+rv);
+										    		}
+										    		else if(rv instanceof Local){
+										    			IntConstant c = searchIntConstantDef(g, (Stmt)u, (Local)rv);
+										    			if(c != null){
+										    				System.out.println("    ConstantFound:"+c);
+										    				set.add(c.value);
+										    			}
+										    			else{
+										    				System.out.println("    Cannot find constant");
+										    			}
+										    		}
+										    	}
+										    }//for u in g
+										}
+									}
+								}
+							}
 						}//findViewById case
 						else {
 							//TODO: add PreferenceValues
 						}
+						
+						
+					}//source
+					Set set = rs.get(sink.getSink());
+					ResolvedConstantTag rct = new ResolvedConstantTag();
+					sink.getSink().addTag(rct);
+					for(Object obj : set){
+						if(obj instanceof Integer)
+							rct.addIntegerConstant((Integer)obj);
+						else if(obj instanceof String)
+							rct.addStringConstant((String)obj);
 					}
-				}
+					
+					
+				}//per sink
 				
 			}
 			
 		}
-
+		
+		private IntConstant searchIntConstantDef(UnitGraph ug, Stmt stmt, Local target){
+			Set<Stmt> visited = new HashSet<Stmt>();
+			Queue<Stmt> queue = new LinkedList<Stmt>();
+			queue.add(stmt);
+			while(!queue.isEmpty()){
+				stmt = queue.poll();
+				if(stmt instanceof AssignStmt && ((AssignStmt) stmt).getLeftOp().equals(target)){
+					Value rv = ((AssignStmt) stmt).getRightOp();
+					if(rv instanceof IntConstant){
+						return (IntConstant)rv;
+					}
+					else if(rv instanceof Local){
+						target = (Local)rv;
+					}
+					else if(rv instanceof InvokeExpr){
+						InvokeExpr ie = (InvokeExpr)rv;
+						SootMethod sm = ie.getMethod();
+						if(sm.getName().equals("valueOf") && sm.getDeclaringClass().getName().equals("java.lang.Integer")){
+							Value arg = ie.getArg(0);
+							if(arg instanceof IntConstant)
+								return (IntConstant)arg;
+						}
+					}
+				}
+				visited.add(stmt);
+				List<Unit> preds = ug.getPredsOf(stmt);
+				if(preds != null){
+					for(Unit pred : preds)
+						if(!visited.contains((Stmt)pred)){
+							queue.add((Stmt)pred);
+						}
+				}
+			}
+			return null;
+		}
+		
 		private void print(String string) {
 			try {
 				System.out.println(string);
@@ -361,7 +473,13 @@ public class Test {
 			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
+		String apkName = "it.lascuola.creationlite-10000.apk";
+		//String apkName = "com.app_greenjobs.layout-400.apk";
+		if(!args[0].toLowerCase().endsWith("apk"))
+			args[0] += apkName;
+		
 		File apkFile = new File(args[0]);
+		
 		if (apkFile.isDirectory()) {
 			String[] dirFiles = apkFile.list(new FilenameFilter() {
 			
@@ -420,20 +538,14 @@ public class Test {
 				else if (sysTimeout > 0)
 					runAnalysisSysTimeout(fullFilePath, args[1]);
 				else{
+					//analyze resource file to extract view info
+					ValueResourceParser valResParser = new ValueResourceParser(fullFilePath, apktoolpath, tmpDirPath);
+					valResParser.displayDecompiledValueIDPairs();
+					runAnalysisForConstantPropogation(fullFilePath, args[1], null, valResParser,true);
+					
 					//Analysis
-					//runNUDataFlowAnalysis(fullFilePath, args[1]);
-					
-					//comment because it's for id search.
-					//add back when detecting findViewByID
-					//remember to enabled forwardSolver.solve() in Infoflow.java file;
-//					ParameterSearch ps = new ParameterSearch(resMgr);
-//					ps.findViewByIdParamSearch();
-//					ps.findPreferenceSetMethods();
-					
-					
-					runAnalysisForConstantPropogation(fullFilePath, args[1], null);
+					//runNUDataFlowAnalysis(fullFilePath, args[1]);					
 					//GraphTool.displayAllMethodGraph();
-					
 				}
 				repeatCount--;
 			}
@@ -454,6 +566,18 @@ public class Test {
 			System.err.println("tmp folder not exits:"+e.toString());
 			System.exit(1);
 		}
+		ProcessManifest processMan = null;
+		ResourceManager resMgr = null;
+		try{
+			processMan = new ProcessManifest(fullFilePath);
+			String appPackageName = processMan.getPackageName();
+			System.out.println("FillFilePath: "+fullFilePath);
+			resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
+		}
+		catch(Exception e){
+			System.err.println("failed to run taint analysis on view-flow. "+e);
+			e.printStackTrace();
+		}
 		
 		//first round data flow analysis to find flows.
 		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
@@ -462,21 +586,7 @@ public class Test {
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
-		
-		//analyze resource file to extract view info
-		ProcessManifest processMan = null;
-		ResourceManager resMgr = null;
-		try{
-			processMan = new ProcessManifest(fullFilePath);
-			String appPackageName = processMan.getPackageName();
-			//extract View info (e.g., View id, texts)
-			resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
-		}
-		catch(Exception e){
-			System.err.println("failed to run taint analysis on view-flow. "+e);
-			e.printStackTrace();
-		}
-		
+				
 		//correlate view and flow based on events defined in XML file
 		fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 		//display for debug
@@ -642,6 +752,10 @@ public class Test {
 			else if (args[i].equalsIgnoreCase("--nopaths")) {
 				config.setComputeResultPaths(false);
 				i++;
+			}
+			else if(args[i].equalsIgnoreCase("--graphoutpath")){
+				GraphTool.setOutputFolder(args[i+1]);
+				i += 2;
 			}
 			else if (args[i].equalsIgnoreCase("--aggressivetw")) {
 				aggressiveTaintWrapper = false;
@@ -1092,10 +1206,65 @@ public class Test {
 		}
 	}
 	
-	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps) {
+	
+	//TODO: modify return value;
+	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps, 
+			ValueResourceParser valResMgr, boolean onlyDoFast) {
 		try {
 			final long beforeRun = System.nanoTime();
-
+			SetupApplication app1;
+			if (null == ipcManager) app1 = new SetupApplication(androidJar, fileName);
+			else app1 = new SetupApplication(androidJar, fileName, ipcManager);
+			
+			app1.setConfig(config);
+			if (noTaintWrapper)
+				app1.setSootConfig(new IInfoflowConfig() {
+					@Override
+					public void setSootOptions(Options options) {
+						options.set_include_all(true);
+					}	
+				});
+			final ITaintPropagationWrapper taintWrapper1;
+			if (noTaintWrapper) taintWrapper1 = null;
+			else if (summaryPath != null && !summaryPath.isEmpty()) {
+				System.out.println("Using the StubDroid taint wrapper");
+				taintWrapper1 = createLibrarySummaryTW();
+				if (taintWrapper1 == null) {
+					System.err.println("Could not initialize StubDroid");
+					return null;
+				}
+			}
+			else {
+				final EasyTaintWrapper easyTaintWrapper;
+				File twSourceFile = new File("../soot-infoflow/EasyTaintWrapperSource.txt");
+				if (twSourceFile.exists())
+					easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+				else {
+					twSourceFile = new File("EasyTaintWrapperSource.txt");
+					if (twSourceFile.exists())
+						easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
+					else {
+						System.err.println("Taint wrapper definition file not found at "
+								+ twSourceFile.getAbsolutePath());
+						return null;
+					}
+				}
+				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
+				taintWrapper1 = easyTaintWrapper;
+			}
+			app1.setTaintWrapper(taintWrapper1);
+			app1.calculateSourcesSinksEntrypointsForConstantPropogation("Test.txt");
+			Set<Stmt> findViewByIdStmts = app1.fastSearchKeyInvokeExprSearch(valResMgr);
+			if(findViewByIdStmts==null || findViewByIdStmts.size()==0)
+				return null;
+			if(onlyDoFast){
+				System.err.println("ALERT: exit because onlyDoFast");
+				return null;
+			}
+			
+			//run data flow analysis 
+			//this could be very slow.
+			System.out.println("NULIST: start data flow analysis for findViewById");
 			final SetupApplication app;
 			if (null == ipcManager)
 			{
@@ -1105,10 +1274,6 @@ public class Test {
 			{
 				app = new SetupApplication(androidJar, fileName, ipcManager);
 			}
-			//XIANG
-			//app.setFlowPathSet(fps);
-			
-			// Set configuration object
 			app.setConfig(config);
 			if (noTaintWrapper)
 				app.setSootConfig(new IInfoflowConfig() {
@@ -1159,7 +1324,7 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			ConstantPropogationResultsHanlder rh = new ConstantPropogationResultsHanlder();
-			final InfoflowResults res = app.runInfoflowForConstantPropogation(rh);
+			final InfoflowResults res = app.runInfoflowForConstantPropogation(rh, valResMgr);
 			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
 			Map<Stmt,Set> constantAnalysisMap = rh.getRS();
@@ -1182,6 +1347,14 @@ public class Test {
 						System.out.println("\t" + s);
 				}
 			}
+			
+			//Test
+			ARSCFileParser resParser = new ARSCFileParser();
+			resParser.parse(fileName);
+			ProcessManifest processMan = new ProcessManifest(fileName);
+			//this.appPackageName = processMan.getPackageName();
+			ParameterSearch ps = new ParameterSearch(valResMgr,  resParser.getPackages(),  processMan.getPackageName(),null);
+			ps.searchMethodCall("findViewById", null);
 			
 			return res;
 		} catch (IOException ex) {

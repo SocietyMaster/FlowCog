@@ -53,6 +53,8 @@ import soot.jimple.infoflow.android.nu.InfoflowResultsWithFlowPathSet;
 import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.nu.ParameterSearch;
+import soot.jimple.infoflow.android.nu.ResourceManager;
+import soot.jimple.infoflow.android.nu.ValueResourceParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
@@ -75,11 +77,13 @@ import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
 import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
+import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
+import soot.tagkit.Tag;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.Orderer;
 import soot.toolkits.graph.PseudoTopologicalOrderer;
@@ -995,8 +999,42 @@ public class SetupApplication {
 		return info.getResults();
 	}
 	
+	public Set<Stmt> fastSearchKeyInvokeExprSearch( ValueResourceParser valResMgr){
+		Infoflow info;
+		if (cfgFactory == null)
+			info = new Infoflow(androidJar, forceAndroidJar, null,
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
+		else
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
+		
+		final String path;
+		if (forceAndroidJar)
+			path = androidJar;
+		else
+			path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+
+		info.setTaintWrapper(taintWrapper);
+		System.out.println("Starting infoflow computation...");
+		info.setConfig(config);
+		info.setSootConfig(sootConfig);
+		
+		if (null != ipcManager) {
+			info.setIPCManager(ipcManager);
+		}
+		info.initializeSootWithoutPerformingInfoflow(apkFileLocation, path, entryPointCreator);
+		
+		ParameterSearch ps = new ParameterSearch(valResMgr, this.resourcePackages,this.appPackageName, info.getICFG());
+		Set<Stmt> rs = ps.findViewByIdParamSearch();
+		//GraphTool.displayAllMethodGraph();
+		soot.G.reset();
+		return rs;
+	}
+	
 	//XPAN
-	public InfoflowResults runInfoflowForConstantPropogation(ResultsAvailableHandler onResultsAvailable) {
+	public InfoflowResults runInfoflowForConstantPropogation(ResultsAvailableHandler onResultsAvailable, ValueResourceParser valResMgr) {
 		if (this.sourceSinkProvider == null)
 			throw new RuntimeException("Sources and/or sinks not calculated yet");
 
@@ -1029,7 +1067,7 @@ public class SetupApplication {
 		if (null != ipcManager) {
 			info.setIPCManager(ipcManager);
 		}
-
+		
 		if(fps == null)
 			info.computeInfoflow(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 		else
@@ -1038,8 +1076,10 @@ public class SetupApplication {
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		
-		((ConstantPropogationSourceSinkManager)sourceSinkManager).displayAllSourceStmts(info.getICFG());
+		//((ConstantPropogationSourceSinkManager)sourceSinkManager).displayAllSourceStmts(info.getICFG());
+		//ps.searchMethodCall("findViewById", null);
 		
+		//icfg.get
 		return info.getResults();
 	}
 

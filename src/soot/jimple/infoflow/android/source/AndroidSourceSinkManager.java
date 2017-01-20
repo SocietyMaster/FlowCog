@@ -113,7 +113,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		 * XIANG:
 		 * Used for Constant Propogation.
 		 * */
-		ConstantSource
+		IntConstantSource,
+		StringConstantSource
 	}
 
 	protected final static String Activity_FindViewById = "<android.app.Activity: android.view.View findViewById(int)>";

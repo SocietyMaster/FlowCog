@@ -1,6 +1,7 @@
 package soot.jimple.infoflow.android.nu;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,9 +11,11 @@ import java.util.Set;
 
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
+import soot.Local;
 import soot.MethodOrMethodContext;
 import soot.PrimType;
 import soot.Scene;
+import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -23,11 +26,13 @@ import soot.jimple.CastExpr;
 import soot.jimple.Constant;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
+import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.NumericConstant;
+import soot.jimple.ParameterRef;
 import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.StaticFieldRef;
@@ -35,9 +40,15 @@ import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.UnopExpr;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.resources.ARSCFileParser;
+import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
+import soot.tagkit.IntegerConstantValueTag;
+import soot.tagkit.Tag;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.Orderer;
 import soot.toolkits.graph.PseudoTopologicalOrderer;
@@ -49,14 +60,25 @@ public class ParameterSearch {
 	final String FIND_VIEW_BY_ID = "findViewById";
 	final String GET_IDENTIFIER_SIGNATURE = 
 			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
-	ResourceManager resMgr = null;
+	ValueResourceParser valResParser = null;
 	CallGraph cg = null;
-	public ParameterSearch(ResourceManager resMgr){
-		this.resMgr = resMgr;
+	List<ARSCFileParser.ResPackage> resourcePackages;
+	String appPackageName;
+	BiDiInterproceduralCFG<Unit, SootMethod> cfg;
+	public ParameterSearch(ValueResourceParser valResParser, List<ARSCFileParser.ResPackage> resourcePackages,String appPackageName,
+			BiDiInterproceduralCFG<Unit, SootMethod> cfg){
+		this.valResParser = valResParser;
 		this.cg = Scene.v().getCallGraph();
+		this.appPackageName = appPackageName;
+		this.resourcePackages = resourcePackages;
+		this.cfg = cfg;
 	}
-	public void findViewByIdParamSearch(){
+	
+	public Set<Stmt> findViewByIdParamSearch(){
 		//first search all findViewById statements
+		Set<Stmt> rs = new HashSet<Stmt>();
+		int solvedCnt = 0;
+		int unsolvedCnt = 0;
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -64,7 +86,9 @@ public class ParameterSearch {
 			
 			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
 		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    int cnt = 0;
 		    for (Unit u : orderer.newList(g, false)) {
+		    	cnt++;
 		    	Stmt s = (Stmt)u;
 		    	if(!s.containsInvokeExpr()) continue;
 		    	
@@ -75,9 +99,63 @@ public class ParameterSearch {
 		    			//TODO: add constant to map
 		    			continue;
 		    		}
-		    		System.out.println("NonConstant FindViewByID in Method:"+m+" "+ie);
+		    		
+		    		s.addTag(new StmtPosTag("Line:"+cnt+"@"+m.getSignature()));
+		    		System.out.println("NonConstant FindViewByID in Method:"+s);
+		    		List<Tag> tt = s.getTags();
+		    		if((tt != null))
+		    			for(Tag t : tt)
+		    				System.out.println("  TAG: "+t.toString());
+		    		rs.add(s);
 		    		GraphTool.displayGraph(g, m);
-		    		searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
+		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
+		    		
+		    		//v2
+		    		Integer id = findLastResIDAssignment(s, v, cfg);
+		    		if(id == null){
+		    			System.out.println("  Failed to resolve this ID.");
+		    			unsolvedCnt++;
+		    		}
+		    		else{
+		    			System.out.println("  ID Value: "+id);
+		    			solvedCnt++;
+		    		}
+		    	}
+		    }
+		}
+		System.out.println("SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
+		return rs;
+	}
+	
+	public void searchMethodCall(String methodName, String className){
+		//first search all findViewById statements
+		System.out.println("SearchMethodCall:"+methodName+"@"+className);
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    int cnt = 0;
+		    for (Unit u : orderer.newList(g, false)) {
+		    	cnt++;
+		    	Stmt s = (Stmt)u;
+		    	if(!s.containsInvokeExpr()) continue;
+		    	
+		    	InvokeExpr ie = s.getInvokeExpr();
+		    	if(ie.getMethod().getName().equals(methodName) && 
+		    			(className==null || ie.getMethod().getDeclaration().equals(className)) ){
+		    		Value v = ie.getArg(0);
+		    		if(v instanceof Constant){
+		    			//TODO: add constant to map
+		    			continue;
+		    		}
+		    		System.out.println("Found one instance: "+s+" CLASS:"+ie.getMethod().getDeclaration());
+		    		List<Tag> tags = s.getTags();
+		    		if((tags != null))
+		    			for(Tag t : tags)
+		    				System.out.println("  TAG: "+t.toString());
 		    	}
 		    }
 		}
@@ -120,6 +198,190 @@ public class ParameterSearch {
 		return null;
 	}
 	
+	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+//		if (!doneSet.add(stmt))
+//			return null;
+		
+		if(cfg == null) {
+			System.err.println("Error: findLastResIDAssignment cfg is not set.");
+			return null;
+		}
+		// If this is an assign statement, we need to check whether it changes
+		// the variable we're looking for
+		if (stmt instanceof AssignStmt) {
+			AssignStmt assign = (AssignStmt) stmt;
+			if (assign.getLeftOp() == target) {
+				System.out.println("Debug: "+assign+" "+assign.getRightOp().getClass());
+				// ok, now find the new value from the right side
+				if (assign.getRightOp() instanceof IntConstant)
+					return ((IntConstant) assign.getRightOp()).value;
+				else if (assign.getRightOp() instanceof FieldRef) {
+					SootField field = ((FieldRef) assign.getRightOp()).getField();
+					for (Tag tag : field.getTags()){
+						if (tag instanceof IntegerConstantValueTag){
+							//System.out.println("This is an integerCOnstantValue");
+							return ((IntegerConstantValueTag) tag).getIntValue();
+						}
+						else
+							System.err.println("  Constant " + field + " was of unexpected type");
+					}
+					StaticFieldRef sfr = (StaticFieldRef)assign.getRightOp();
+					if(sfr.getFieldRef().declaringClass().getName().endsWith("android.R$id")){
+						Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
+						if(id != null)
+							return id;
+					}
+					
+					System.out.println("  Field not assigned:"+sfr);
+					target = assign.getRightOp();
+				} 
+				else if(assign.getRightOp() instanceof Local){
+					target = assign.getRightOp();
+				}
+				else if (assign.getRightOp() instanceof InvokeExpr) {
+					InvokeExpr inv = (InvokeExpr) assign.getRightOp();
+					if (inv.getMethod().getName().equals("getIdentifier") && 
+							inv.getMethod().getDeclaringClass().getName().equals("android.content.res.Resources") 
+							&& this.resourcePackages != null) {
+						// The right side of the assignment is a call into the
+						// well-known
+						// Android API method for resource handling
+						if (inv.getArgCount() != 3) {
+							System.err.println("Invalid parameter count for call to getIdentifier");
+							return null;
+						}
+
+						// Find the parameter values
+						String resName = "";
+						String resID = "";
+						String packageName = "";
+
+						// In the trivial case, these values are constants
+						if (inv.getArg(0) instanceof StringConstant)
+							resName = ((StringConstant) inv.getArg(0)).value;
+						if (inv.getArg(1) instanceof StringConstant)
+							resID = ((StringConstant) inv.getArg(1)).value;
+						if (inv.getArg(2) instanceof StringConstant)
+							packageName = ((StringConstant) inv.getArg(2)).value;
+						else if (inv.getArg(2) instanceof Local)
+							packageName = findLastStringAssignment(stmt, (Local) inv.getArg(2), cfg);
+						else {
+							System.err.println("Unknown parameter type in call to getIdentifier");
+							return null;
+						}
+
+						// Find the resource
+						ARSCFileParser.AbstractResource res = findResource(resName, resID, packageName);
+						if (res != null)
+							return res.getResourceID();
+					}
+					else if((inv.getMethod().getName().startsWith("get") || inv.getMethod().getName().equals("id") ) && 
+							inv.getArgCount()>=1 && inv.getArg(0) instanceof StringConstant ){
+						System.out.println("ReturnType:"+inv.getMethod().getReturnType().getEscapedName().equals("int"));
+						if(inv.getArgCount() < 1) return null;
+						String resName = "";
+						if (inv.getArg(0) instanceof StringConstant)
+							resName = ((StringConstant) inv.getArg(0)).value;
+						if(!resName.equals("")){
+							return valResParser.getResourceIDFromValueResourceFile(resName);
+						}
+					}
+					else if(inv.getMethod().getName().equals("getId") && 
+							inv.getMethod().getDeclaringClass().getName().equals("com.playhaven.android.compat.VendorCompat") ){
+						//com.playhaven.android.compat.VendorCompat: int getId(android.content.Context,com.playhaven.android.compat.VendorCompat$ID)
+						Value v = inv.getArg(1);
+						if(v instanceof Local){
+							Value vv = findFirstLocalDef(assign, (Local)v, cfg);
+							if(vv!=null && vv instanceof StaticFieldRef){
+								Integer id = valResParser.getResourceIDFromValueResourceFile(((StaticFieldRef)vv).getField().getName());
+								if(id != null)
+									return id;
+							}
+						}
+					}
+					else{
+						try{
+						GraphTool.displayGraph(new ExceptionalUnitGraph(inv.getMethod().getActiveBody()), inv.getMethod());
+						}
+						catch(Exception e){}
+					}
+					
+				}
+			}
+			
+		}
+		else if(stmt instanceof IdentityStmt){
+			IdentityStmt is = (IdentityStmt)stmt;
+			if(is.getLeftOp() == target){
+				System.out.println("From IdentityStmt: "+is);
+				if(is.getRightOp() instanceof ParameterRef){
+					ParameterRef right = (ParameterRef)(is.getRightOp());
+					int idx = right.getIndex();
+					Collection<Unit> callers = cfg.getCallersOf(cfg.getMethodOf(stmt));
+					if(callers != null && callers.size()>0){
+						for(Unit caller : callers){
+							System.out.println("  Caller: From IdentityStmt: "+caller);
+							InvokeExpr ie = ((Stmt)caller).getInvokeExpr();
+							if(idx >= ie.getArgCount())
+								continue;
+							Value arg = ie.getArg(idx);
+							if(arg instanceof IntConstant)
+								return ((IntConstant) arg).value;
+							else{
+								System.out.println("Still not integer");
+								Integer lastAssignment = findLastResIDAssignment((Stmt) caller, arg, cfg);
+								if (lastAssignment != null)
+									return lastAssignment;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Continue the search upwards
+		for (Unit pred : cfg.getPredsOf(stmt)) {
+			if (!(pred instanceof Stmt))
+				continue;
+			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, target, cfg);
+			if (lastAssignment != null)
+				return lastAssignment;
+		}
+		return null;
+	}
+	
+
+	/**
+	 * Finds the last assignment to the given String local by searching upwards
+	 * from the given statement
+	 * 
+	 * @param stmt
+	 *            The statement from which to look backwards
+	 * @param local
+	 *            The variable for which to look for assignments
+	 * @return The last value assigned to the given variable
+	 */
+	private String findLastStringAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+		if (stmt instanceof AssignStmt) {
+			AssignStmt assign = (AssignStmt) stmt;
+			if (assign.getLeftOp() == local) {
+				// ok, now find the new value from the right side
+				if (assign.getRightOp() instanceof StringConstant)
+					return ((StringConstant) assign.getRightOp()).value;
+			}
+		}
+
+		// Continue the search upwards
+		for (Unit pred : cfg.getPredsOf(stmt)) {
+			if (!(pred instanceof Stmt))
+				continue;
+			String lastAssignment = findLastStringAssignment((Stmt) pred, local, cfg);
+			if (lastAssignment != null)
+				return lastAssignment;
+		}
+		return null;
+	}
+	
 	private List<Stmt> searchVariableDefs(UnitGraph g, Stmt s, Value target, List<List<Object>> args, SootMethod m){
 		List<Stmt> rs = new ArrayList<Stmt>();
 		Queue<Unit> queue = new LinkedList<Unit>();
@@ -135,9 +397,10 @@ public class ParameterSearch {
 				if(as.getLeftOp().equals(target)){
 					Value right = as.getRightOp();
 					cont = false;
-					System.out.println("  "+as);
+					System.out.println("  -"+as+" "+right.getClass());
 					if(right instanceof CastExpr){
 						System.out.println("  DEBUG: this is cast expr: "+right);
+						target = ((CastExpr) right).getOp();
 					}
 					else if(right instanceof BinopExpr ||
 							right instanceof UnopExpr){
@@ -168,8 +431,6 @@ public class ParameterSearch {
 						}
 						UnitGraph targetGraph = findMethodGraph(nie.getMethod());
 						if(targetGraph == null){
-							//built-in function.
-							//getIdentifier
 							if(nie.getMethod().getSignature().equals(GET_IDENTIFIER_SIGNATURE)){
 								//System.out.println(nie.getMethod().getSignature());
 								if(args.size()>0)
@@ -203,9 +464,7 @@ public class ParameterSearch {
 						if(right instanceof StaticFieldRef){
 							try{
 								StaticFieldRef sfr = (StaticFieldRef)right;
-								Integer v = sfr.getField().getNumber();
-								System.out.println("Found id: "+v);
-								//TODO: add constant to map
+								
 								searchStaticVariable(sfr);
 							}
 							catch(Exception e){
@@ -248,19 +507,74 @@ public class ParameterSearch {
 		return rs;
 	}
 	
+	private Value findFirstLocalDef(Stmt sp, Local target, BiDiInterproceduralCFG<Unit, SootMethod> cfg){
+		Set<Unit> visited = new HashSet<Unit>();
+		Queue<Unit> queue = new LinkedList<Unit>();
+		queue.add(sp);
+		while(!queue.isEmpty()){
+			Stmt stmt = (Stmt)queue.poll();
+			visited.add(stmt);
+			if(stmt instanceof AssignStmt){
+				if(((AssignStmt) stmt).getLeftOp() == target){
+					Value right = ((AssignStmt) stmt).getRightOp();
+					System.out.println(" found an def of target: "+right+" ?//"+right.getClass());
+					return right;
+				}
+			}
+			for (Unit pred : cfg.getPredsOf(stmt)) {
+				if (!(pred instanceof Stmt))
+					continue;
+				if(!visited.contains(pred))
+					queue.add(pred);
+			}
+		}
+		return null;
+	}
+	
 	private void handleGetIdentifierCase(List<Object> args){
 		for(int i=0; i<args.size(); i++){
 			if(!(args.get(i) instanceof String))
 				continue;
 			String arg = (String)args.get(i);
-			if(resMgr.getValueResourceNameIDMap().containsKey(arg)){
-				int id = resMgr.getValueResourceNameIDMap().get(arg);
+			Integer id = valResParser.getResourceIDFromValueResourceFile(arg);
+			if(id != null){
 				System.out.println("FOUND ID of "+args.get(i)+" "+id);
 			}
 		}
 	}
 	
+	/**
+	 * Finds the given resource in the given package
+	 * 
+	 * @param resName
+	 *            The name of the resource to retrieve
+	 * @param resID
+	 * @param packageName
+	 *            The name of the package in which to look for the resource
+	 * @return The specified resource if available, otherwise null
+	 */
+	private AbstractResource findResource(String resName, String resID, String packageName) {
+		// Find the correct package
+		for (ARSCFileParser.ResPackage pkg : this.resourcePackages) {
+			// If we don't have any package specification, we pick the app's
+			// default package
+			boolean matches = (packageName == null || packageName.isEmpty()) && pkg.getPackageName().equals(this.appPackageName);
+			matches |= pkg.getPackageName().equals(packageName);
+			if (!matches)
+				continue;
+
+			// We have found a suitable package, now look for the resource
+			for (ARSCFileParser.ResType type : pkg.getDeclaredTypes())
+				if (type.getTypeName().equals(resID)) {
+					AbstractResource res = type.getFirstResource(resName);
+					return res;
+				}
+		}
+		return null;
+	}
+	
 	private void searchStaticVariable(StaticFieldRef sfr){
+		System.out.println("Start search static variable: "+sfr);
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -273,11 +587,15 @@ public class ParameterSearch {
 		    	if(s instanceof AssignStmt){
 		    		AssignStmt as = (AssignStmt)s;
 		    		Value left = as.getLeftOp();
-		    		if(left.toString().contains(sfr.getField().getName())){
-		    			System.out.println("SEARCH_STATIC_VARIABLE:"+as+" ||"+sfr.getField().getName());
-		    		}
-		    		else{
-		    			//System.out.println("");
+		    		if(left instanceof StaticFieldRef){
+		    			StaticFieldRef ls = (StaticFieldRef)left;
+		    			if(ls.getField().equals(sfr.getField().getName())  && 
+		    					ls.getFieldRef().declaringClass().getName().equals(sfr.getFieldRef().declaringClass().getName())){
+			    			System.out.println("  SEARCH_STATIC_VARIABLE:"+as+" ||"+sfr.getField().getName());
+			    		}
+			    		else{
+			    			//System.out.println("");
+			    		}
 		    		}
 		    	}
 		    }
