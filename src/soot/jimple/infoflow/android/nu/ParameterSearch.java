@@ -225,15 +225,16 @@ public class ParameterSearch {
 						else
 							System.err.println("  Constant " + field + " was of unexpected type");
 					}
-					StaticFieldRef sfr = (StaticFieldRef)assign.getRightOp();
-					if(sfr.getFieldRef().declaringClass().getName().endsWith("android.R$id")){
-						Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
-						if(id != null)
-							return id;
+					if(assign.getRightOp() instanceof StaticFieldRef){
+						StaticFieldRef sfr = (StaticFieldRef)assign.getRightOp();
+						if(sfr.getFieldRef().declaringClass().getName().endsWith(".R$id")){
+							Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
+							if(id != null)
+								return id;
+						}
+						System.out.println("  Field not assigned:"+sfr);
+						target = assign.getRightOp();
 					}
-					
-					System.out.println("  Field not assigned:"+sfr);
-					target = assign.getRightOp();
 				} 
 				else if(assign.getRightOp() instanceof Local){
 					target = assign.getRightOp();
@@ -247,7 +248,7 @@ public class ParameterSearch {
 						// well-known
 						// Android API method for resource handling
 						if (inv.getArgCount() != 3) {
-							System.err.println("Invalid parameter count for call to getIdentifier");
+							System.err.println("Invalid parameter count for call to getIdentifier:"+inv.getArgCount());
 							return null;
 						}
 
@@ -264,9 +265,16 @@ public class ParameterSearch {
 						if (inv.getArg(2) instanceof StringConstant)
 							packageName = ((StringConstant) inv.getArg(2)).value;
 						else if (inv.getArg(2) instanceof Local)
-							packageName = findLastStringAssignment(stmt, (Local) inv.getArg(2), cfg);
+							packageName = findLastStringAssignment(stmt, (Local) inv.getArg(2), cfg, new HashSet<Stmt>());
 						else {
-							System.err.println("Unknown parameter type in call to getIdentifier");
+							if(inv.getArg(0) instanceof Local){
+								GraphTool.displayGraph(new ExceptionalUnitGraph(cfg.getMethodOf(assign).getActiveBody()), cfg.getMethodOf(assign));
+								String key = findLastStringAssignment(stmt, (Local)inv.getArg(0), cfg,  new HashSet<Stmt>());
+								
+								if(key !=null && key.length()>0)
+									return valResParser.getResourceIDFromValueResourceFile(key);
+							}
+							System.err.println("Unknown parameter type in call to getIdentifier: "+inv.getArg(0));
 							return null;
 						}
 
@@ -276,7 +284,8 @@ public class ParameterSearch {
 							return res.getResourceID();
 					}
 					else if((inv.getMethod().getName().startsWith("get") || inv.getMethod().getName().equals("id") ) && 
-							inv.getArgCount()>=1 && inv.getArg(0) instanceof StringConstant ){
+							inv.getArgCount()>=1 && inv.getArg(0) instanceof StringConstant && 
+							inv.getMethod().getReturnType().getEscapedName().equals("int")){
 						System.out.println("ReturnType:"+inv.getMethod().getReturnType().getEscapedName().equals("int"));
 						if(inv.getArgCount() < 1) return null;
 						String resName = "";
@@ -294,6 +303,16 @@ public class ParameterSearch {
 							Value vv = findFirstLocalDef(assign, (Local)v, cfg);
 							if(vv!=null && vv instanceof StaticFieldRef){
 								Integer id = valResParser.getResourceIDFromValueResourceFile(((StaticFieldRef)vv).getField().getName());
+								if(id != null)
+									return id;
+							}
+						}
+					}
+					else if(inv.getArgCount()>=1 && inv.getMethod().getReturnType().getEscapedName().equals("int")){
+						for(Value arg : inv.getArgs()){
+							if(arg instanceof StringConstant){
+								String key = ((StringConstant) arg).value;
+								Integer id = valResParser.getResourceIDFromValueResourceFile(key);
 								if(id != null)
 									return id;
 							}
@@ -361,13 +380,17 @@ public class ParameterSearch {
 	 *            The variable for which to look for assignments
 	 * @return The last value assigned to the given variable
 	 */
-	private String findLastStringAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+	private String findLastStringAssignment(Stmt stmt, Local local, BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> visited) {
+		if(visited.contains(stmt))
+			return null;
+		visited.add(stmt);
 		if (stmt instanceof AssignStmt) {
 			AssignStmt assign = (AssignStmt) stmt;
 			if (assign.getLeftOp() == local) {
 				// ok, now find the new value from the right side
 				if (assign.getRightOp() instanceof StringConstant)
 					return ((StringConstant) assign.getRightOp()).value;
+				
 			}
 		}
 
@@ -375,7 +398,7 @@ public class ParameterSearch {
 		for (Unit pred : cfg.getPredsOf(stmt)) {
 			if (!(pred instanceof Stmt))
 				continue;
-			String lastAssignment = findLastStringAssignment((Stmt) pred, local, cfg);
+			String lastAssignment = findLastStringAssignment((Stmt) pred, local, cfg, visited);
 			if (lastAssignment != null)
 				return lastAssignment;
 		}
@@ -443,7 +466,7 @@ public class ParameterSearch {
 							}
 						}
 						else{
-							GraphTool.displayGraph(targetGraph, nie.getMethod());
+							//GraphTool.displayGraph(targetGraph, nie.getMethod());
 							List<Unit> tails = targetGraph.getTails();
 							for(Unit t : tails){
 								if(t instanceof RetStmt){//No use case
@@ -492,7 +515,7 @@ public class ParameterSearch {
 					Edge edge = edges.next();
 					MethodOrMethodContext mmc = edge.getSrc();
 					System.out.println("    CalledBy:"+mmc.method().getSignature());
-					GraphTool.displayGraph(findMethodGraph(mmc.method()), mmc.method());
+					//GraphTool.displayGraph(findMethodGraph(mmc.method()), mmc.method());
 				}
 			}
 			

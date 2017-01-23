@@ -473,7 +473,7 @@ public class Test {
 			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
-		String apkName = "it.lascuola.creationlite-10000.apk";
+		String apkName = "com.cssoft.eztrans.km01-25.apk";
 		//String apkName = "com.app_greenjobs.layout-400.apk";
 		if(!args[0].toLowerCase().endsWith("apk"))
 			args[0] += apkName;
