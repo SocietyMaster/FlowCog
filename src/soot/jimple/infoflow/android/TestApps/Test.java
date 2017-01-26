@@ -474,6 +474,7 @@ public class Test {
 		
 		List<String> apkFiles = new ArrayList<String>();
 		String apkName = "com.cssoft.eztrans.km01-25.apk";
+		//String apkName = "air.com.eni.JudyChineseMaker2-1003000.apk";
 		//String apkName = "com.app_greenjobs.layout-400.apk";
 		if(!args[0].toLowerCase().endsWith("apk"))
 			args[0] += apkName;
@@ -544,7 +545,7 @@ public class Test {
 					runAnalysisForConstantPropogation(fullFilePath, args[1], null, valResParser,true);
 					
 					//Analysis
-					//runNUDataFlowAnalysis(fullFilePath, args[1]);					
+					runNUDataFlowAnalysis(fullFilePath, args[1]);					
 					//GraphTool.displayAllMethodGraph();
 				}
 				repeatCount--;
@@ -566,6 +567,10 @@ public class Test {
 			System.err.println("tmp folder not exits:"+e.toString());
 			System.exit(1);
 		}
+		//first round data flow analysis to find flows.
+		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
+		
+		System.out.println("AAAAA Start second round.");
 		ProcessManifest processMan = null;
 		ResourceManager resMgr = null;
 		try{
@@ -579,9 +584,7 @@ public class Test {
 			e.printStackTrace();
 		}
 		
-		//first round data flow analysis to find flows.
-		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
-		
+		System.out.println("Start correlating View and Flow.");
 		//second round data flow analysis to correlate flows and views.
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
@@ -633,10 +636,10 @@ public class Test {
 				if(!map.containsKey(i)){
 					FlowPath fp = fps.getLst().get(i);
 					Set<String> declaringCls = fp.getDeclaringClassSet();
-					System.out.println("NULIST:[BEGIN] Flow:"+i+" => noview ["+fps.getLst().get(i).getTag()+"]");
+					System.out.println("NULIST:[BEGIN] Flow:"+i+" => noview ["+fps.getLst().get(i).getTag()+"] "+declaringCls.size());
 					for(String cls : declaringCls){
 						Set<Integer> layouts = cls2LayoutIds.get(cls);
-						//System.out.println("NULIST:    Class:"+cls+" layouts:"+layouts);
+						System.out.println("NULIST:    Class:"+cls+" layouts:"+layouts);
 						if(layouts == null) continue;
 						for(Integer layoutId : layouts){
 							//LayoutTextTreeNode node = id2Node.get(layoutId);
@@ -1170,11 +1173,13 @@ public class Test {
 				taintWrapper = easyTaintWrapper;
 			}
 			app.setTaintWrapper(taintWrapper);
-			app.calculateSourcesSinksEntrypoints("SourceAndSinksForFlowViewCorrelation.txt");
+			//app.calculateSourcesSinksEntrypoints("SourceAndSinksForFlowViewCorrelation.txt");
+			app.calculateSourcesSinksEntrypointsForViewFlowCorrelation("SourceAndSinksForFlowViewCorrelation.txt");
 			//app.calculateSourcesSinksEntrypoints("Test.txt");
 			app.printEntrypoints();
 			app.printSinks();
 			app.printSources();
+			
 			
 			System.out.println("Running data flow analysis...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
@@ -1259,6 +1264,7 @@ public class Test {
 				return null;
 			if(onlyDoFast){
 				System.err.println("ALERT: exit because onlyDoFast");
+				//GraphTool.displayAllMethodGraph();
 				return null;
 			}
 			

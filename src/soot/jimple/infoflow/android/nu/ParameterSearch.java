@@ -43,7 +43,9 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
+import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
+import soot.jimple.infoflow.nu.StmtPosTag;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
@@ -58,6 +60,7 @@ import soot.util.queue.QueueReader;
 
 public class ParameterSearch {
 	final String FIND_VIEW_BY_ID = "findViewById";
+	final String SET_CONTENT_VIEW = "setContentView";
 	final String GET_IDENTIFIER_SIGNATURE = 
 			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
 	ValueResourceParser valResParser = null;
@@ -100,7 +103,7 @@ public class ParameterSearch {
 		    			continue;
 		    		}
 		    		
-		    		s.addTag(new StmtPosTag("Line:"+cnt+"@"+m.getSignature()));
+		    		s.addTag(new StmtPosTag(cnt, m));
 		    		System.out.println("NonConstant FindViewByID in Method:"+s);
 		    		List<Tag> tt = s.getTags();
 		    		if((tt != null))
@@ -111,7 +114,7 @@ public class ParameterSearch {
 		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
 		    		
 		    		//v2
-		    		Integer id = findLastResIDAssignment(s, v, cfg);
+		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>());
 		    		if(id == null){
 		    			System.out.println("  Failed to resolve this ID.");
 		    			unsolvedCnt++;
@@ -119,6 +122,64 @@ public class ParameterSearch {
 		    		else{
 		    			System.out.println("  ID Value: "+id);
 		    			solvedCnt++;
+		    			GlobalData global = GlobalData.getInstance();
+		    			global.addViewID(s, cfg, id);
+		    		}
+		    	}
+		    }
+		}
+		System.out.println("SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
+		return rs;
+	}
+	
+	public Set<Stmt> setContentViewSearch(){
+		//first search all findViewById statements
+		Set<Stmt> rs = new HashSet<Stmt>();
+		int solvedCnt = 0;
+		int unsolvedCnt = 0;
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    int cnt = 0;
+		    for (Unit u : orderer.newList(g, false)) {
+		    	cnt++;
+		    	Stmt s = (Stmt)u;
+		    	if(!s.containsInvokeExpr()) continue;
+		    	
+		    	InvokeExpr ie = s.getInvokeExpr();
+		    	if(ie.getMethod().getName().equals(SET_CONTENT_VIEW)){
+		    		Value v = ie.getArg(0);
+		    		if(v instanceof Constant){
+		    			//TODO: add constant to map
+		    			continue;
+		    		}
+		    		
+		    		s.addTag(new StmtPosTag(cnt, m));
+		    		System.out.println("NonConstant SetContentView in Method:"+s);
+		    		System.out.println("  DeclaringCls:"+cfg.getMethodOf(s).getDeclaringClass().getName());
+		    		List<Tag> tt = s.getTags();
+		    		if((tt != null))
+		    			for(Tag t : tt)
+		    				System.out.println("  TAG: "+t.toString());
+		    		rs.add(s);
+		    		GraphTool.displayGraph(g, m);
+		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
+		    		
+		    		//v2
+		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>());
+		    		if(id == null){
+		    			System.out.println("  Failed to resolve this ID.");
+		    			unsolvedCnt++;
+		    		}
+		    		else{
+		    			System.out.println("  ID Value: "+id);
+		    			solvedCnt++;
+		    			GlobalData global = GlobalData.getInstance();
+		    			global.addLayoutID(s, cfg, id);
 		    		}
 		    	}
 		    }
@@ -128,6 +189,7 @@ public class ParameterSearch {
 	}
 	
 	public void searchMethodCall(String methodName, String className){
+		GlobalData gd = GlobalData.getInstance();
 		//first search all findViewById statements
 		System.out.println("SearchMethodCall:"+methodName+"@"+className);
 		for (QueueReader<MethodOrMethodContext> rdr =
@@ -152,10 +214,12 @@ public class ParameterSearch {
 		    			continue;
 		    		}
 		    		System.out.println("Found one instance: "+s+" CLASS:"+ie.getMethod().getDeclaration());
-		    		List<Tag> tags = s.getTags();
-		    		if((tags != null))
-		    			for(Tag t : tags)
-		    				System.out.println("  TAG: "+t.toString());
+		    		System.out.println("  "+gd.getViewID(s, cfg));
+//		    		List<Tag> tags = s.getTags();
+//		    		if((tags != null))
+//		    			for(Tag t : tags)
+//		    				System.out.println("  TAG: "+t.toString());
+		    		
 		    	}
 		    }
 		}
@@ -198,9 +262,13 @@ public class ParameterSearch {
 		return null;
 	}
 	
-	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg) {
+	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> visited) {
 //		if (!doneSet.add(stmt))
 //			return null;
+		if(visited.contains(stmt)){
+			return null;
+		}
+		visited.add(stmt);
 		
 		if(cfg == null) {
 			System.err.println("Error: findLastResIDAssignment cfg is not set.");
@@ -318,6 +386,13 @@ public class ParameterSearch {
 							}
 						}
 					}
+					else if(inv.getArgCount()>=1 && inv.getMethod().getName().equals("inflate") ){
+						Value arg = inv.getArg(0);
+						if(arg instanceof Local)
+							target = arg;
+						else if(arg instanceof IntConstant)
+							return ((IntConstant) arg).value;
+					}
 					else{
 						try{
 						GraphTool.displayGraph(new ExceptionalUnitGraph(inv.getMethod().getActiveBody()), inv.getMethod());
@@ -348,7 +423,7 @@ public class ParameterSearch {
 								return ((IntConstant) arg).value;
 							else{
 								System.out.println("Still not integer");
-								Integer lastAssignment = findLastResIDAssignment((Stmt) caller, arg, cfg);
+								Integer lastAssignment = findLastResIDAssignment((Stmt) caller, arg, cfg, visited);
 								if (lastAssignment != null)
 									return lastAssignment;
 							}
@@ -362,7 +437,7 @@ public class ParameterSearch {
 		for (Unit pred : cfg.getPredsOf(stmt)) {
 			if (!(pred instanceof Stmt))
 				continue;
-			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, target, cfg);
+			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, target, cfg, visited);
 			if (lastAssignment != null)
 				return lastAssignment;
 		}

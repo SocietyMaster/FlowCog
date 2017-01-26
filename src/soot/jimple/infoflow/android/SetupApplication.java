@@ -55,6 +55,7 @@ import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.nu.ParameterSearch;
 import soot.jimple.infoflow.android.nu.ResourceManager;
 import soot.jimple.infoflow.android.nu.ValueResourceParser;
+import soot.jimple.infoflow.android.nu.ViewFlowRelateSourceSinkManager;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.StringResource;
@@ -426,6 +427,30 @@ public class SetupApplication {
 			throw new IOException("Could not read XML file", ex);
 		}
 	}
+	
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(String sourceSinkFile)
+			throws IOException, XmlPullParserException {
+		ISourceSinkDefinitionProvider parser = null;
+		
+		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
+		fileExtension = fileExtension.toLowerCase();
+		
+		try {
+			if (fileExtension.equals(".xml"))
+				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".txt"))
+				parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".rifl"))
+				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
+			else
+				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
+			
+			calculateSourcesSinksEntrypointsForViewFlowCorrelation(parser);
+		}
+		catch (SAXException ex) {
+			throw new IOException("Could not read XML file", ex);
+		}
+	}
 
 	/**
 	 * Calculates the sets of sources, sinks, entry points, and callbacks methods for the given APK file.
@@ -490,6 +515,72 @@ public class SetupApplication {
 				callbacks.addAll(methods);
 
 			sourceSinkManager = new AccessPathBasedSourceSinkManager(
+					this.sourceSinkProvider.getSources(),
+					this.sourceSinkProvider.getSinks(),
+					callbacks,
+					config.getLayoutMatchingMode(),
+					lfp == null ? null : lfp.getUserControlsByID());
+
+			sourceSinkManager.setAppPackageName(this.appPackageName);
+			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
+		}
+
+		entryPointCreator = createEntryPointCreator();
+	}
+	
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(ISourceSinkDefinitionProvider sourcesAndSinks)
+			throws IOException, XmlPullParserException {
+		// To look for callbacks, we need to start somewhere. We use the Android
+		// lifecycle methods for this purpose.
+		this.sourceSinkProvider = sourcesAndSinks;
+		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
+		this.appPackageName = processMan.getPackageName();
+		this.entrypoints = processMan.getEntryPointClasses();
+
+		// Parse the resource file
+		long beforeARSC = System.nanoTime();
+		ARSCFileParser resParser = new ARSCFileParser();
+		resParser.parse(apkFileLocation);
+		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
+		this.resourcePackages = resParser.getPackages();
+
+		// Add the callback methods
+		LayoutFileParser lfp = null;
+		if (config.getEnableCallbacks()) {
+			if (callbackClasses != null && callbackClasses.isEmpty()) {
+				logger.warn("Callback definition file is empty, disabling callbacks");
+			}
+			else {
+				lfp = new LayoutFileParser(this.appPackageName, resParser);
+				switch (config.getCallbackAnalyzer()) {
+				case Fast:
+					calculateCallbackMethodsFast(resParser, lfp);
+					break;
+				case Default:
+					calculateCallbackMethods(resParser, lfp);
+					break;
+				default:
+					throw new RuntimeException("Unknown callback analyzer");
+				}
+				
+				// Some informational output
+				System.out.println("Found " + lfp.getUserControls() + " layout controls");
+			}
+		}
+		
+		System.out.println("Entry point calculation done.");
+
+		// Clean up everything we no longer need
+		soot.G.reset();
+
+		// Create the SourceSinkManager
+		{
+			Set<SootMethodAndClass> callbacks = new HashSet<>();
+			for (Set<SootMethodAndClass> methods : this.callbackMethods.values())
+				callbacks.addAll(methods);
+
+			sourceSinkManager = new ViewFlowRelateSourceSinkManager(
 					this.sourceSinkProvider.getSources(),
 					this.sourceSinkProvider.getSinks(),
 					callbacks,
@@ -570,6 +661,8 @@ public class SetupApplication {
 		entryPointCreator = createEntryPointCreator();
 		
 	}
+	
+	
 
 	/**
 	 * Adds a method to the set of callback method
@@ -970,6 +1063,10 @@ public class SetupApplication {
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		
+		
+//		ParameterSearch ps = new ParameterSearch(null, this.resourcePackages,this.appPackageName, info.getICFG());
+//		ps.searchMethodCall("findViewById", null);
+		
 		//XIANG
 		
 		if(fps == null){
@@ -985,7 +1082,6 @@ public class SetupApplication {
 			}
 	
 			//XIANG
-			
 			//GraphTool.displayAllMethodGraph();
 			InfoflowResultsWithFlowPathSet rsWithPathSet = new InfoflowResultsWithFlowPathSet(rs);
 			rsWithPathSet.setFlowPathSet(fpsLocal);
@@ -1028,6 +1124,7 @@ public class SetupApplication {
 		
 		ParameterSearch ps = new ParameterSearch(valResMgr, this.resourcePackages,this.appPackageName, info.getICFG());
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
+		ps.setContentViewSearch();
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
 		return rs;
