@@ -473,9 +473,9 @@ public class Test {
 			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
-		String apkName = "com.cssoft.eztrans.km01-25.apk";
+		//String apkName = "com.cssoft.eztrans.km01-25.apk";
 		//String apkName = "air.com.eni.JudyChineseMaker2-1003000.apk";
-		//String apkName = "com.app_greenjobs.layout-400.apk";
+		String apkName = "com.rsm.golemon-7.apk";
 		if(!args[0].toLowerCase().endsWith("apk"))
 			args[0] += apkName;
 		
@@ -545,7 +545,7 @@ public class Test {
 					runAnalysisForConstantPropogation(fullFilePath, args[1], null, valResParser,true);
 					
 					//Analysis
-					runNUDataFlowAnalysis(fullFilePath, args[1]);					
+					//runNUDataFlowAnalysis(fullFilePath, args[1]);					
 					//GraphTool.displayAllMethodGraph();
 				}
 				repeatCount--;
