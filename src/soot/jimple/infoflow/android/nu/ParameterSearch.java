@@ -26,8 +26,10 @@ import soot.jimple.CastExpr;
 import soot.jimple.Constant;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InstanceFieldRef;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
@@ -39,6 +41,7 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.UnopExpr;
+import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -61,6 +64,8 @@ import soot.util.queue.QueueReader;
 public class ParameterSearch {
 	final String FIND_VIEW_BY_ID = "findViewById";
 	final String SET_CONTENT_VIEW = "setContentView";
+	final String SET_BACKGROUND_RESOURCE= "setBackgroundResource";
+	
 	final String GET_IDENTIFIER_SIGNATURE = 
 			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
 	ValueResourceParser valResParser = null;
@@ -114,7 +119,7 @@ public class ParameterSearch {
 		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
 		    		
 		    		//v2
-		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>());
+		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), FIND_VIEW_BY_ID);
 		    		if(id == null){
 		    			System.out.println("  Failed to resolve this ID.");
 		    			unsolvedCnt++;
@@ -128,7 +133,7 @@ public class ParameterSearch {
 		    	}
 		    }
 		}
-		System.out.println("SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
+		System.out.println("FindViewById SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
 		return rs;
 	}
 	
@@ -159,32 +164,133 @@ public class ParameterSearch {
 		    		}
 		    		
 		    		s.addTag(new StmtPosTag(cnt, m));
-		    		System.out.println("NonConstant SetContentView in Method:"+s);
-		    		System.out.println("  DeclaringCls:"+cfg.getMethodOf(s).getDeclaringClass().getName());
-		    		List<Tag> tt = s.getTags();
-		    		if((tt != null))
-		    			for(Tag t : tt)
-		    				System.out.println("  TAG: "+t.toString());
+		    		
 		    		rs.add(s);
 		    		GraphTool.displayGraph(g, m);
 		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
-		    		
+		    		System.out.println("NonConstant SetContentView Begin:"+s);
 		    		//v2
-		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>());
+		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), SET_CONTENT_VIEW);
 		    		if(id == null){
+		    			System.out.println("  NonConstant SetContentView Failed, "+cfg.getMethodOf(s).getDeclaringClass().getName()+" ,"+s);
+			    		//System.out.println("  DeclaringCls:"+cfg.getMethodOf(s).getDeclaringClass().getName());
 		    			System.out.println("  Failed to resolve this ID.");
 		    			unsolvedCnt++;
 		    		}
 		    		else{
+		    			System.out.println("  NonConstant SetContentView Succeed, "+cfg.getMethodOf(s).getDeclaringClass().getName()+" ,"+s);
 		    			System.out.println("  ID Value: "+id);
 		    			solvedCnt++;
 		    			GlobalData global = GlobalData.getInstance();
 		    			global.addLayoutID(s, cfg, id);
 		    		}
+		    		System.out.println("NonConstant SetContentView End:"+s);
 		    	}
 		    }
 		}
-		System.out.println("SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
+		System.out.println("SetContentBackground SolvedCnt:"+solvedCnt+" UnsolvedCnt:"+unsolvedCnt);
+		return rs;
+	}
+	
+	public void setBackgroundResourceProcessing(){
+		//first search all findViewById statements
+		GlobalData gData = GlobalData.getInstance();
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt s = (Stmt)u;
+		    	if(!s.containsInvokeExpr()) continue;
+		    	
+		    	InvokeExpr ie = s.getInvokeExpr();
+		    	if(ie.getMethod().getName().equals(SET_BACKGROUND_RESOURCE)){
+		    		if(! (ie instanceof VirtualInvokeExpr)){
+		    			System.out.println("ALERT: "+SET_BACKGROUND_RESOURCE+" is not invokestmt");
+		    			continue;
+		    		}
+		    		
+		    		Value v = ie.getArg(0);
+		    		if(v instanceof IntConstant){
+		    			VirtualInvokeExpr vie = (VirtualInvokeExpr)ie;
+		    			System.out.println("SETBACKGROUNDRESOURCE:");
+		    			Value base = vie.getBase();
+		    			if(base instanceof FieldRef){
+		    				gData.addFieldID( ((FieldRef)base).getField(), ((IntConstant)v).value);
+		    			}
+		    			else if(base instanceof Local){
+		    				Set<SootField> ssf = resolveLocalBase(g, s, (Local)base);
+		    				for(SootField sf : ssf)
+		    					gData.addFieldID(sf, ((IntConstant)v).value);
+		    			}
+		    			continue;
+		    		}
+		    		
+		    		GraphTool.displayGraph(g, m);
+		    		//searchVariableDefs(g, s, v, new ArrayList<List<Object>>(), m);
+		    		
+		    		//v2
+		    		Integer id = findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), SET_BACKGROUND_RESOURCE);
+		    		if(id == null){
+		    			System.out.println("  Failed to resolve this ID. (SetBackgroundResource)");
+		    		
+		    		}
+		    		else{
+		    			System.out.println("  ID Value: "+id);
+		    			
+		    			VirtualInvokeExpr vie = (VirtualInvokeExpr)ie;
+		    			Value base = vie.getBase();
+		    			if(base instanceof FieldRef){
+		    				gData.addFieldID( ((FieldRef)base).getField(), id);
+		    				//solvedCnt++;
+		    			}
+		    			else if(base instanceof Local){
+		    				Set<SootField> ssf = resolveLocalBase(g, s, (Local)base);
+		    				for(SootField sf : ssf)
+		    					gData.addFieldID(sf, id);
+		    				//solvedCnt++;
+		    			}
+		    		}
+		    	}
+		    }
+		}
+	}
+	
+	public Set<SootField> resolveLocalBase(UnitGraph g, Stmt s, Local target){
+		Set<SootField> rs = new HashSet<SootField>();
+		HashSet<Stmt> visited = new HashSet<Stmt>();
+		Queue<Stmt> queue = new LinkedList<Stmt>();
+		queue.add(s);
+		Stmt origin = s;
+		while(!queue.isEmpty()){
+			s = queue.poll();
+			visited.add(s);
+			if(s instanceof AssignStmt){
+				AssignStmt as = (AssignStmt)s;
+				if(as.getLeftOp().equals(target)){
+					if(as.getRightOp() instanceof FieldRef){
+						FieldRef fr = (FieldRef)as.getRightOp();
+						//System.out.println("StoreReousrceInfo: "+GlobalData.getFieldKey(fr.getField())+" -> "+id);
+						rs.add(fr.getField());
+					}
+					else {
+						System.out.println("TODO: resolveLocalBase missing case: "+s);
+					}
+				}
+			}
+			else{
+				for(Unit u : g.getPredsOf(s)){
+					if(visited.contains((Stmt)u))
+						continue;
+					queue.add((Stmt)u);
+				}
+			}
+		}
+		if(rs.size() <= 0)
+			System.out.println("Failed to store background resource: "+origin);
 		return rs;
 	}
 	
@@ -207,19 +313,47 @@ public class ParameterSearch {
 		    	
 		    	InvokeExpr ie = s.getInvokeExpr();
 		    	if(ie.getMethod().getName().equals(methodName) && 
-		    			(className==null || ie.getMethod().getDeclaration().equals(className)) ){
+		    			(className==null || ie.getMethod().getDeclaringClass().getName().equals(className)) ){
 		    		Value v = ie.getArg(0);
 		    		if(v instanceof Constant){
 		    			//TODO: add constant to map
 		    			continue;
 		    		}
 		    		System.out.println("Found one instance: "+s+" CLASS:"+ie.getMethod().getDeclaration());
-		    		System.out.println("  "+gd.getViewID(s, cfg));
-//		    		List<Tag> tags = s.getTags();
-//		    		if((tags != null))
-//		    			for(Tag t : tags)
-//		    				System.out.println("  TAG: "+t.toString());
+		    		System.out.println("  "+gd.getViewID(s, cfg));	
+		    	}
+		    }
+		}
+	}
+	
+	//class name cannot be null and method name can be a part
+	public void searchMethodCallVaguely(String methodName, String className){
+		GlobalData gd = GlobalData.getInstance();
+		//first search all findViewById statements
+		System.out.println("SearchMethodCall:"+methodName+"@"+className);
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody()) continue;
+			
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    int cnt = 0;
+		    for (Unit u : orderer.newList(g, false)) {
+		    	cnt++;
+		    	Stmt s = (Stmt)u;
+		    	if(!s.containsInvokeExpr()) continue;
+		    	
+		    	InvokeExpr ie = s.getInvokeExpr();
+		    	if(ie.getMethod().getName().contains(methodName) && ie.getMethod().getDeclaringClass().getName().equals(className) ){
+//		    		Value v = ie.getArg(0);
+//		    		if(v instanceof Constant){
+//		    			//TODO: add constant to map
+//		    			continue;
+//		    		}
 		    		
+		    		System.out.println("NULIST Found one instance: "+s+" CLASS:"+ie.getMethod().getDeclaringClass().getName());
+		    		//System.out.println("  "+gd.getViewID(s, cfg));	
 		    	}
 		    }
 		}
@@ -262,14 +396,16 @@ public class ParameterSearch {
 		return null;
 	}
 	
-	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> visited) {
+	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg, 
+			Set<Stmt> visited, String methodName) {
 //		if (!doneSet.add(stmt))
 //			return null;
+		
 		if(visited.contains(stmt)){
 			return null;
 		}
 		visited.add(stmt);
-		
+		GlobalData gData = GlobalData.getInstance();
 		if(cfg == null) {
 			System.err.println("Error: findLastResIDAssignment cfg is not set.");
 			return null;
@@ -279,7 +415,7 @@ public class ParameterSearch {
 		if (stmt instanceof AssignStmt) {
 			AssignStmt assign = (AssignStmt) stmt;
 			if (assign.getLeftOp() == target) {
-				System.out.println("Debug: "+assign+" "+assign.getRightOp().getClass());
+				System.out.println("  Debug: "+assign+" "+assign.getRightOp().getClass());
 				// ok, now find the new value from the right side
 				if (assign.getRightOp() instanceof IntConstant)
 					return ((IntConstant) assign.getRightOp()).value;
@@ -293,12 +429,35 @@ public class ParameterSearch {
 						else
 							System.err.println("  Constant " + field + " was of unexpected type");
 					}
+					if(assign.getRightOp() instanceof InstanceFieldRef && 
+							(!methodName.equals("setBackgroundResource"))){
+						FieldRef fr = (FieldRef)assign.getRightOp();
+						Integer id = valResParser.getResourceIDFromValueResourceFile(fr.getFieldRef().name());
+						if(id != null)
+							return id;
+						
+						id = gData.getFieldID(fr.getField());
+						if(id != null)
+							return id;
+					}
 					if(assign.getRightOp() instanceof StaticFieldRef){
 						StaticFieldRef sfr = (StaticFieldRef)assign.getRightOp();
+						Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
+						if(id != null)
+							return id;
+						/*
 						if(sfr.getFieldRef().declaringClass().getName().endsWith(".R$id")){
 							Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
 							if(id != null)
 								return id;
+						}
+						if(sfr.getFieldRef().declaringClass().getName().endsWith(".R$layout")){
+							Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
+							if(id != null)
+								return id;
+						}*/
+						if(gData.getFieldID(sfr.getField())!=null ){
+							return gData.getFieldID(sfr.getField());
 						}
 						System.out.println("  Field not assigned:"+sfr);
 						target = assign.getRightOp();
@@ -423,7 +582,7 @@ public class ParameterSearch {
 								return ((IntConstant) arg).value;
 							else{
 								System.out.println("Still not integer");
-								Integer lastAssignment = findLastResIDAssignment((Stmt) caller, arg, cfg, visited);
+								Integer lastAssignment = findLastResIDAssignment((Stmt) caller, arg, cfg, visited, methodName);
 								if (lastAssignment != null)
 									return lastAssignment;
 							}
@@ -437,7 +596,7 @@ public class ParameterSearch {
 		for (Unit pred : cfg.getPredsOf(stmt)) {
 			if (!(pred instanceof Stmt))
 				continue;
-			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, target, cfg, visited);
+			Integer lastAssignment = findLastResIDAssignment((Stmt) pred, target, cfg, visited, methodName);
 			if (lastAssignment != null)
 				return lastAssignment;
 		}

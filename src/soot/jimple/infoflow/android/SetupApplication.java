@@ -1080,6 +1080,7 @@ public class SetupApplication {
 					fpsLocal.addFlowPath(fp);
 				}
 			}
+			fpsLocal.handleInterComponent();
 	
 			//XIANG
 			//GraphTool.displayAllMethodGraph();
@@ -1123,8 +1124,18 @@ public class SetupApplication {
 		info.initializeSootWithoutPerformingInfoflow(apkFileLocation, path, entryPointCreator);
 		
 		ParameterSearch ps = new ParameterSearch(valResMgr, this.resourcePackages,this.appPackageName, info.getICFG());
+		//====DEBUG======
+//		Set<Stmt> rs = null;
+//		ps.searchMethodCallVaguely("get", "android.os.Bundle");
+//		ps.searchMethodCallVaguely("put", "android.os.Bundle");
+//		ps.searchMethodCallVaguely("get", "android.content.Intent");
+//		ps.searchMethodCallVaguely("put", "android.content.Intent");
+		//===============
+		
+		ps.setBackgroundResourceProcessing();
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
+//		
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
 		return rs;

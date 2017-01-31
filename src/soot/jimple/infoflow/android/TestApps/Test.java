@@ -475,7 +475,7 @@ public class Test {
 		List<String> apkFiles = new ArrayList<String>();
 		//String apkName = "com.cssoft.eztrans.km01-25.apk";
 		//String apkName = "air.com.eni.JudyChineseMaker2-1003000.apk";
-		String apkName = "com.rsm.golemon-7.apk";
+		String apkName = "beautifier.mobilechamps-4.apk";
 		if(!args[0].toLowerCase().endsWith("apk"))
 			args[0] += apkName;
 		
@@ -545,7 +545,7 @@ public class Test {
 					runAnalysisForConstantPropogation(fullFilePath, args[1], null, valResParser,true);
 					
 					//Analysis
-					//runNUDataFlowAnalysis(fullFilePath, args[1]);					
+					runNUDataFlowAnalysis(fullFilePath, args[1]);					
 					//GraphTool.displayAllMethodGraph();
 				}
 				repeatCount--;
@@ -1259,7 +1259,9 @@ public class Test {
 			}
 			app1.setTaintWrapper(taintWrapper1);
 			app1.calculateSourcesSinksEntrypointsForConstantPropogation("Test.txt");
+			
 			Set<Stmt> findViewByIdStmts = app1.fastSearchKeyInvokeExprSearch(valResMgr);
+			
 			if(findViewByIdStmts==null || findViewByIdStmts.size()==0)
 				return null;
 			if(onlyDoFast){
@@ -1270,7 +1272,7 @@ public class Test {
 			
 			//run data flow analysis 
 			//this could be very slow.
-			System.out.println("NULIST: start data flow analysis for findViewById");
+			System.out.println("NULIST: start resolving constants.");
 			final SetupApplication app;
 			if (null == ipcManager)
 			{

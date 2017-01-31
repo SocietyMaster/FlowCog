@@ -9,3 +9,87 @@
 <android.content.SharedPreferences: java.lang.String getFloat(java.lang.String, java.lang.String)> -> _SOURCE_
 <android.content.SharedPreferences: java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String)>> -> _SOURCE_
 
+%bundle sources
+<android.os.Bundle: java.lang.Object get(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: boolean getBoolean(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
+<android.os.Bundle: boolean[] getBooleanArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Bundle getBundle(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: byte getByte(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.Byte getByte(java.lang.String,byte)> -> _SOURCE_
+<android.os.Bundle: byte[] getByteArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: char getChar(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: char getChar(java.lang.String,char)> -> _SOURCE_
+<android.os.Bundle: char[] getCharArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String,java.lang.CharSequence)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence getCharSequence(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.CharSequence[] getCharSequenceArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getCharSequenceArrayList(java.lang.String)> -> _SOURCE_
+%<android.os.Bundle: java.lang.ClassLoader getClassLoader()> -> _SOURCE_
+<android.os.Bundle: double getDouble(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: double getDouble(java.lang.String,double)> -> _SOURCE_
+<android.os.Bundle: double[] getDoubleArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: float getFloat(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: float getFloat(java.lang.String,float)> -> _SOURCE_
+<android.os.Bundle: float[] getFloatArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: int getInt(java.lang.String,int)> -> _SOURCE_
+<android.os.Bundle: int getInt(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: int[] getIntArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getIntegerArrayList(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: long getLong(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: long getLong(java.lang.String,long)> -> _SOURCE_
+<android.os.Bundle: long[] getLongArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Parcelable getParcelable(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.os.Parcelable[] getParcelableArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getParcelableArrayList(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.io.Serializable getSerializable(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: short getShort(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: short getShort(java.lang.String,short)> -> _SOURCE_
+<android.os.Bundle: short[] getShortArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: android.util.SparseArray getSparseParcelableArray(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
+<android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
+
+%<android.content.Intent: java.lang.String getAction()> -> _SOURCE_
+<android.content.Intent: boolean[] getBooleanArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: boolean getBooleanExtra(java.lang.String, boolean)> -> _SOURCE_
+<android.content.Intent: android.os.Bundle getBundleExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: byte[] getByteArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: byte getByteExtra(java.lang.String, byte)> -> _SOURCE_
+<android.content.Intent: java.util.Set getCategories()> -> _SOURCE_
+<android.content.Intent: char[] getCharArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: char getCharExtra(java.lang.String, char)> -> _SOURCE_
+<android.content.Intent: java.lang.CharSequence[] getCharSequenceArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.util.ArrayList getCharSequenceArrayListExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.lang.CharSequence getCharSequenceExtra(java.lang.String)> -> _SOURCE_
+%<android.content.Intent: android.content.ClipData getClipData()> -> _SOURCE_
+%<android.content.Intent: android.content.ComponentName getComponent()> -> _SOURCE_
+%<android.content.Intent: android.net.Uri getData()> -> _SOURCE_
+%<android.content.Intent: java.lang.String getDataString()> -> _SOURCE_
+<android.content.Intent: double[] getDoubleArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: double getDoubleExtra(java.lang.String, double)> -> _SOURCE_
+%<android.content.Intent: android.os.Bundle getExtras()> -> _SOURCE_
+%<android.content.Intent: int getFlags()> -> _SOURCE_
+<android.content.Intent: float[] getFloatArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: float getFloatExtra(java.lang.String, float)> -> _SOURCE_
+<android.content.Intent: int[] getIntArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.util.ArrayList getIntegerArrayListExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: android.content.Intent getIntent(java.lang.String)> -> _SOURCE_
+<android.content.Intent: android.content.Intent getIntentOld(java.lang.String)> -> _SOURCE_
+<android.content.Intent: int getIntExtra(java.lang.String, int)> -> _SOURCE_
+<android.content.Intent: long[] getLongArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: long getLongExtra(java.lang.String, long)> -> _SOURCE_
+%<android.content.Intent: java.lang.String getPackage()> -> _SOURCE_
+<android.content.Intent: android.os.Parcelable[] getParcelableArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.util.ArrayList getParcelableArrayListExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: android.os.Parcelable getParcelableExtra(java.lang.String)> -> _SOURCE_
+%<android.content.Intent: java.lang.String getScheme()> -> _SOURCE_
+%<android.content.Intent: android.content.Intent getSelector()> -> _SOURCE_
+<android.content.Intent: java.io.Serializable getSerializableExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: short[] getShortArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: short getShortExtra(java.lang.String, short)> -> _SOURCE_
+<android.content.Intent: android.graphics.Rect getSourceBounds()> -> _SOURCE_
+<android.content.Intent: java.lang.String[] getStringArrayExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.util.ArrayList getStringArrayListExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.lang.String getStringExtra(java.lang.String)> -> _SOURCE_
+<android.content.Intent: java.lang.String getType()> -> _SOURCE_
