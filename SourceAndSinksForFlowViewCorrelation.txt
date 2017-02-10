@@ -1,7 +1,9 @@
-%<org.apache.http.message.BasicNameValuePair: void <init>(java.lang.String,java.lang.String)> -> _SINK_
+%view sources
 <android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_
 <android.support.v4.app.FragmentActivity: android.view.View findViewById(int)> -> _SOURCE_
 <android.app.View: android.view.View findViewById(int)> -> _SOURCE_
+
+%preference sources
 <android.content.SharedPreferences: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
 <android.content.SharedPreferences: float getFloat(java.lang.String, float)> -> _SOURCE_
 <android.content.SharedPreferences: int getInt(java.lang.String, int)> -> _SOURCE_
@@ -50,6 +52,7 @@
 <android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
 
+%Intent sources
 %<android.content.Intent: java.lang.String getAction()> -> _SOURCE_
 <android.content.Intent: boolean[] getBooleanArrayExtra(java.lang.String)> -> _SOURCE_
 <android.content.Intent: boolean getBooleanExtra(java.lang.String, boolean)> -> _SOURCE_

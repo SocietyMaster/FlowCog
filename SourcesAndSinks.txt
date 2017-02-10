@@ -268,7 +268,9 @@
 
 <java.lang.ProcessBuilder: java.lang.Process start()> -> _SINK_
 
+
 %Include inter-component analysis
+%Bundle sources
 <android.os.Bundle: java.lang.Object get(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: boolean getBoolean(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
@@ -308,7 +310,7 @@
 <android.os.Bundle: android.util.SparseArray getSparseParcelableArray(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: java.lang.String getString(java.lang.String)> -> _SOURCE_
 <android.os.Bundle: java.util.ArrayList getStringArrayList(java.lang.String key)> -> _SOURCE_
-
+%Intent sources
 <android.content.Intent: boolean[] getBooleanArrayExtra(java.lang.String)> -> _SOURCE_
 <android.content.Intent: boolean getBooleanExtra(java.lang.String, boolean)> -> _SOURCE_
 <android.content.Intent: android.os.Bundle getBundleExtra(java.lang.String)> -> _SOURCE_
@@ -342,3 +344,10 @@
 <android.content.Intent: java.util.ArrayList getStringArrayListExtra(java.lang.String)> -> _SOURCE_
 <android.content.Intent: java.lang.String getStringExtra(java.lang.String)> -> _SOURCE_
 <android.content.Intent: java.lang.String getType()> -> _SOURCE_
+%preference sources
+<android.content.SharedPreferences: boolean getBoolean(java.lang.String,boolean)> -> _SOURCE_
+<android.content.SharedPreferences: float getFloat(java.lang.String, float)> -> _SOURCE_
+<android.content.SharedPreferences: int getInt(java.lang.String, int)> -> _SOURCE_
+<android.content.SharedPreferences: long getLong(java.lang.String, long)> -> _SOURCE_
+<android.content.SharedPreferences: java.lang.String getFloat(java.lang.String, java.lang.String)> -> _SOURCE_
+<android.content.SharedPreferences: java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String)>> -> _SOURCE_

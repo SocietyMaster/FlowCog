@@ -90,6 +90,7 @@ import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.nu.FlowPath;
 import soot.jimple.infoflow.nu.FlowPathSet;
+import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
@@ -588,6 +589,8 @@ public class Test {
 		//second round data flow analysis to correlate flows and views.
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
+		GlobalData globalData = GlobalData.getInstance();
+		globalData.setAllowModification(false);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
 		//correlate view and flow based on events defined in XML file

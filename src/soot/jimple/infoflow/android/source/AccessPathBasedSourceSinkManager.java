@@ -104,6 +104,7 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 			return null;
 		if (type == SourceType.Callback || type == SourceType.UISource){
 			SourceInfo si = super.getSourceInfo(sCallSite, type);
+			
 //			if(si != null)
 //				System.out.println("  TYPE:"+type+" "+sCallSite);
 			return si;

@@ -45,6 +45,8 @@ import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
+import soot.jimple.infoflow.nu.GlobalData;
+import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
 import soot.jimple.infoflow.source.ISourceSinkManager;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
@@ -379,6 +381,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		assert cfg != null;
 		assert cfg instanceof BiDiInterproceduralCFG;
 		
+		//XPAN
+		if(isUISource(sCallSite, cfg)){
+			GlobalData gd = GlobalData.getInstance();
+			gd.addSensitiveUISource(sCallSite, (IInfoflowCFG)cfg);
+			System.out.println("AddedUISource: "+sCallSite);
+			return SourceType.UISource;
+		}
+		
 		// This might be a normal source method
 		if (sCallSite.containsInvokeExpr()) {
 			{
@@ -447,6 +457,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		// If we match input controls, we need to check whether this is a call
 		// to one of the well-known resource handling functions in Android
 		if (this.layoutMatching != LayoutMatchingMode.NoMatch && sCallSite.containsInvokeExpr()) {
+			//System.out.println("LAYOUTMATCHING: "+this.layoutMatching);
 			InvokeExpr ie = sCallSite.getInvokeExpr();
 			final String signature = methodToSignature.getUnchecked(ie.getMethod());
 			if (signature.equals(Activity_FindViewById)
