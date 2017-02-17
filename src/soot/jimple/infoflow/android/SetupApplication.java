@@ -73,6 +73,7 @@ import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.ipc.IIPCManager;
 import soot.jimple.infoflow.nu.FlowPath;
 import soot.jimple.infoflow.nu.FlowPathSet;
+import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
@@ -428,7 +429,7 @@ public class SetupApplication {
 		}
 	}
 	
-	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(String sourceSinkFile)
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(String sourceSinkFile, FlowPathSet fps)
 			throws IOException, XmlPullParserException {
 		ISourceSinkDefinitionProvider parser = null;
 		
@@ -445,7 +446,7 @@ public class SetupApplication {
 			else
 				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
 			
-			calculateSourcesSinksEntrypointsForViewFlowCorrelation(parser);
+			calculateSourcesSinksEntrypointsForViewFlowCorrelation(parser, fps);
 		}
 		catch (SAXException ex) {
 			throw new IOException("Could not read XML file", ex);
@@ -529,7 +530,7 @@ public class SetupApplication {
 		entryPointCreator = createEntryPointCreator();
 	}
 	
-	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(ISourceSinkDefinitionProvider sourcesAndSinks)
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(ISourceSinkDefinitionProvider sourcesAndSinks, FlowPathSet fps)
 			throws IOException, XmlPullParserException {
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
@@ -585,7 +586,7 @@ public class SetupApplication {
 					this.sourceSinkProvider.getSinks(),
 					callbacks,
 					config.getLayoutMatchingMode(),
-					lfp == null ? null : lfp.getUserControlsByID());
+					lfp == null ? null : lfp.getUserControlsByID(), fps);
 
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
@@ -1062,15 +1063,9 @@ public class SetupApplication {
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
-		
-		
-//		ParameterSearch ps = new ParameterSearch(null, this.resourcePackages,this.appPackageName, info.getICFG());
-//		ps.searchMethodCall("findViewById", null);
-		
-		//XIANG
-		
+		GlobalData gData = GlobalData.getInstance();
+		InfoflowResults rs = info.getResults();
 		if(fps == null){
-			InfoflowResults rs = info.getResults();
 			FlowPathSet fpsLocal = new FlowPathSet();
 			for(ResultSinkInfo sink : rs.getResults().keySet()){
 				for(ResultSourceInfo source : rs.getResults().get(sink)){
@@ -1080,19 +1075,75 @@ public class SetupApplication {
 					fpsLocal.addFlowPath(fp);
 				}
 			}
-			fpsLocal.handleInterComponent();
-	
-			//XIANG
-			//GraphTool.displayAllMethodGraph();
+			if(gData.enableInterComponent()){
+				System.out.println("NULIST: do inter-component analysis");
+				fpsLocal.handleInterComponent();
+			}
+			else{
+				System.out.println("NULIST: no inter-component analysis");
+			}
+
 			InfoflowResultsWithFlowPathSet rsWithPathSet = new InfoflowResultsWithFlowPathSet(rs);
 			rsWithPathSet.setFlowPathSet(fpsLocal);
 			return rsWithPathSet;
 		}
-		else{
-			Set<Stmt> stmts = getCollectedSources();
-			//for(Stmt stmt : stmts)
-			//	System.out.println("OUTPUT SOURCES: "+stmt);
-		}
+//		else {
+//			for(ResultSinkInfo sink : rs.getResults().keySet()){
+//				for(ResultSourceInfo source : rs.getResults().get(sink)){
+//					List<Integer> lfp = fps.findFlowPath((Stmt)sink.getSink(), info.getICFG());
+//					System.out.println("NULIST DEBUG: "+lfp.size()+" "+sink.getSink());
+//					Integer intVal = FlowPathSet.getViewIdFromStmt(source.getSource());
+//					if(intVal != null){
+//						for(int flowId : lfp)
+//							fps.addViewFlowMapping(flowId, intVal);
+//					}
+//					String key = FlowPathSet.getPreferenceKey(source.getSource());
+//					int tag = 0;
+//					if(key !=null){
+//						System.out.println("  NULIST: 1taint with Preference Key:"+key);
+//						tag = 1;
+//					}
+//					else{
+//						key = FlowPathSet.getIntentKey(source.getSource());
+//						if(key != null){
+//							System.out.println("  NULIST: 1taint with Intent Key:"+key);
+//							tag = 2;
+//						}
+//						else {
+//							key = FlowPathSet.getBundleKey(source.getSource());
+//							if(key != null){
+//								System.out.println("  NULIST: 1taint with Bundle Key:"+key);
+//								tag = 3;
+//							}
+//						}
+//					}
+//					Set<Integer> ids = null;
+//					switch (tag){
+//						case 1:
+//							ids = fps.getPreferenceKey2ViewIDMap().get(key);
+//							break;
+//						case 2:
+//							ids = fps.getIntentKey2ViewIDMap().get(key);
+//							break;
+//						case 3:
+//							ids = fps.getBundleKey2ViewIDMap().get(key);
+//							break;
+//						default:
+//							break;
+//					}
+//					if(ids != null){
+//						for(int flowId : lfp){
+//							for(int viewId : ids){
+//								fps.addViewFlowMapping(flowId, viewId);
+//								System.out.println("NULIST: 1AddViewFlowMaping via "+tag+":"+flowId+"->"+viewId);
+//								
+//							}
+//						}
+//					}
+//				}
+//			}
+//			
+//		}
 		return info.getResults();
 	}
 	

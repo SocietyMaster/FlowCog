@@ -1,6 +1,7 @@
 package soot.jimple.infoflow.android.nu;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.AccessPathFactory;
 import soot.jimple.infoflow.data.SootMethodAndClass;
+import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.source.SourceInfo;
 import soot.jimple.infoflow.source.data.AccessPathTuple;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
@@ -40,7 +42,9 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 	public ViewFlowRelateSourceSinkManager(Set<SourceSinkDefinition> sources,
 			Set<SourceSinkDefinition> sinks) {
 		super(sources, sinks);
+		this.fps = null;
 	}
+	final FlowPathSet fps;
 
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with strong matching, i.e. the methods in
@@ -67,9 +71,9 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 			Set<SourceSinkDefinition> sinks,
 			Set<SootMethodAndClass> callbackMethods,
 			LayoutMatchingMode layoutMatching,
-			Map<Integer, LayoutControl> layoutControls) {
+			Map<Integer, LayoutControl> layoutControls, FlowPathSet fps) {
 		super(sources, sinks, callbackMethods, layoutMatching, layoutControls);
-		
+		this.fps = fps;
 //		for(SourceSinkDefinition source : sources){
 //			System.out.println("FINDSOURCE: "+source.getMethod());
 //		}
@@ -80,14 +84,17 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		// Callbacks and UI controls are already properly handled by our parent
 		// implementation
 		SourceType type = getSourceType(sCallSite, cfg);
-		//System.out.println("getSourceInfo: "+sCallSite+" // "+type);
+		
 		if (type == SourceType.NoSource)
 			return null;
-		if (type == SourceType.Callback || type == SourceType.UISource){
+		if (type == SourceType.Callback ){
 			return null;
 		}
 		
-		
+//		if(!sCallSite.toString().contains("2131558524"))
+//			return null;
+//		System.out.println("getSourceInfo: "+sCallSite+" @"+cfg.getMethodOf(sCallSite).getSignature());
+//		
 		// This is a method-based source, so we need to obtain the correct
 		// access path
 		final String signature = methodToSignature.getUnchecked(
@@ -110,6 +117,7 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 				&& sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr
 				&& def.getBaseObjects() != null) {
 			Value baseVal = ((InstanceInvokeExpr) sCallSite.getInvokeExpr()).getBase();
+			//System.out.println("GETSRC: "+baseVal+" SRC:"+sCallSite);
 			for (AccessPathTuple apt : def.getBaseObjects())
 				if (apt.isSource())
 					aps.add(getAccessPathFromDef(baseVal, apt));
@@ -164,6 +172,15 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 	@Override
 	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg,
 			AccessPath sourceAccessPath) {
+		return false;
+//		List<Integer> rs = fps.findFlowPath(sCallSite, cfg);
+//		if(rs.size() > 0){
+//			System.out.println("ISSINK: "+sCallSite+" "+rs.get(0)+" SIZE:"+rs.size());
+//			return true;
+//		}
+//		return false;
+		
+		/*
 		if (!sCallSite.containsInvokeExpr())
 			return false;
 				
@@ -217,6 +234,8 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		
 		// No matching access path found
 		return false;
+		
+		*/
 	}
 	
 	/**

@@ -108,8 +108,9 @@ import soot.toolkits.graph.Orderer;
 import soot.toolkits.graph.PseudoTopologicalOrderer;
 import soot.toolkits.graph.UnitGraph;
 
+
 public class Test {
-	
+	final static boolean INTERCOMPONENTANALYSIS = false;
 	//XIANG: store the flow path set returned by the first SetupApplication.
 	//not a good design, think about how to fix it.
 	//private static FlowPathSet fps = null;
@@ -140,8 +141,12 @@ public class Test {
 					for (ResultSourceInfo source : results.getResults().get(sink)) {
 						print("\t- " + source.getSource() + " (in "
 								+ cfg.getMethodOf(source.getSource()).getSignature()  + ")");
-						if (source.getPath() != null)
-							print("\t\ton Path " + Arrays.toString(source.getPath()));
+						if (source.getPath() != null){
+							print("\t\ton Path " );
+							for(Stmt stmt : source.getPath()){
+								print("\t\t "+stmt+" @"+cfg.getMethodOf(stmt));
+							}
+						}
 					}
 				}
 				
@@ -547,7 +552,7 @@ public class Test {
 					
 					//Analysis
 					runNUDataFlowAnalysis(fullFilePath, args[1]);					
-					//GraphTool.displayAllMethodGraph();
+					GraphTool.displayAllMethodGraph();
 				}
 				repeatCount--;
 			}
@@ -557,6 +562,9 @@ public class Test {
 	}
 	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar){
 		//XIANG
+		GlobalData globalData = GlobalData.getInstance();
+		globalData.setEnableInterComponent(INTERCOMPONENTANALYSIS);
+		
 		try{
 			File f = new File(tmpDirPath);
 			if(!f.exists() || !f.isDirectory()){
@@ -589,7 +597,7 @@ public class Test {
 		//second round data flow analysis to correlate flows and views.
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
-		GlobalData globalData = GlobalData.getInstance();
+		
 		globalData.setAllowModification(false);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
@@ -1176,15 +1184,13 @@ public class Test {
 				taintWrapper = easyTaintWrapper;
 			}
 			app.setTaintWrapper(taintWrapper);
-			//app.calculateSourcesSinksEntrypoints("SourceAndSinksForFlowViewCorrelation.txt");
-			app.calculateSourcesSinksEntrypointsForViewFlowCorrelation("SourceAndSinksForFlowViewCorrelation.txt");
-			//app.calculateSourcesSinksEntrypoints("Test.txt");
+			app.calculateSourcesSinksEntrypointsForViewFlowCorrelation("SourceAndSinksForFlowViewCorrelation.txt", fps);
 			app.printEntrypoints();
 			app.printSinks();
 			app.printSources();
 			
 			
-			System.out.println("Running data flow analysis...");
+			System.out.println("Running data flow analysis for flow view correlation...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
@@ -1267,6 +1273,7 @@ public class Test {
 			
 			if(findViewByIdStmts==null || findViewByIdStmts.size()==0)
 				return null;
+			
 			if(onlyDoFast){
 				System.err.println("ALERT: exit because onlyDoFast");
 				//GraphTool.displayAllMethodGraph();
