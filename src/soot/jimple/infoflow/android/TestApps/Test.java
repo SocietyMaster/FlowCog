@@ -43,6 +43,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import nu.NUSootConfig;
 import soot.Local;
 import soot.PackManager;
 import soot.Scene;
@@ -564,7 +565,8 @@ public class Test {
 		//XIANG
 		GlobalData globalData = GlobalData.getInstance();
 		globalData.setEnableInterComponent(INTERCOMPONENTANALYSIS);
-		
+		NUSootConfig config = NUSootConfig.getInstance();
+		config.setEnableGraphEnhance(false);
 		try{
 			File f = new File(tmpDirPath);
 			if(!f.exists() || !f.isDirectory()){
@@ -599,6 +601,7 @@ public class Test {
 		soot.G.reset();
 		
 		globalData.setAllowModification(false);
+		config.setEnableGraphEnhance(true);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
 		//correlate view and flow based on events defined in XML file
