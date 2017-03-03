@@ -56,6 +56,7 @@ import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.Constant;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
@@ -619,6 +620,7 @@ public class Test {
 			}
 			System.out.println("NULIST: Done Display Flow Index");
 			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
+			
 			System.out.println("NULIST: Display Flow View Info");
 			//first go through the views with VIEWs found.
 			for(Integer flowId : map.keySet()){
@@ -633,6 +635,26 @@ public class Test {
 					String texts = resMgr.getTextsById(viewId);
 					
 					System.out.println("NULIST:[TEXT]:"+texts);
+					System.out.println("NULIST:[END]");
+				}
+			}
+			
+			System.out.println("NULIST: Display Flow View Info (Dynamic)");
+			Map<Integer, Set<Stmt>> mapStmt = fps.getViewStmtFlowMap();
+			for(Integer flowId : mapStmt.keySet()){
+				Set<Stmt> set = mapStmt.get(flowId);
+				for(Stmt stmt : set){
+					DefinitionStmt ds = (DefinitionStmt)stmt;
+					String[] tmp = ds.getRightOp().getType().getEscapedName().split("\\.");
+					if(tmp==null || tmp.length==0) continue;
+					String type = tmp[tmp.length-1];
+					
+					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => dynamic view ("+
+						type+") ["+fps.getLst().get(flowId).getTag()+"]");
+					
+					//String texts = resMgr.getTextsById(viewId);
+					//System.out.println("NULIST:[TEXT]:"+texts);
+					
 					System.out.println("NULIST:[END]");
 				}
 			}

@@ -90,6 +90,11 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		if (type == SourceType.Callback ){
 			return null;
 		}
+		if(type == SourceType.NewDialogSource || type==SourceType.NewWidgetSource){
+			SourceInfo si =  super.getSourceInfo(sCallSite, cfg);
+			System.out.println("NewSource: "+sCallSite+"  :"+type+" "+si);
+			return si;
+		}
 		
 //		if(!sCallSite.toString().contains("2131558524"))
 //			return null;

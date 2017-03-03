@@ -102,11 +102,9 @@ public class AccessPathBasedSourceSinkManager extends AndroidSourceSinkManager {
 		//System.out.println("getSourceInfo: "+sCallSite+" // "+type);
 		if (type == SourceType.NoSource)
 			return null;
-		if (type == SourceType.Callback || type == SourceType.UISource){
+		if (type == SourceType.Callback || type == SourceType.UISource 
+				||type==SourceType.NewDialogSource || type==SourceType.NewWidgetSource){
 			SourceInfo si = super.getSourceInfo(sCallSite, type);
-			
-//			if(si != null)
-//				System.out.println("  TYPE:"+type+" "+sCallSite);
 			return si;
 		}
 		

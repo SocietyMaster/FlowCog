@@ -27,6 +27,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
+import soot.Value;
 import soot.VoidType;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
@@ -35,12 +36,14 @@ import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.ResPackage;
+import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
 import soot.jimple.infoflow.android.resources.LayoutControl;
 import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.AccessPathFactory;
@@ -113,8 +116,10 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		UISource,
 		/*
 		 * XIANG:
-		 * Used for Constant Propogation.
 		 * */
+		NewWidgetSource,
+		NewDialogSource,
+		/*NO USE*/
 		IntConstantSource,
 		StringConstantSource
 	}
@@ -333,7 +338,8 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 	}
 
 	protected SourceInfo getSourceInfo(Stmt sCallSite, SourceType type) {
-		if (type == SourceType.UISource || type == SourceType.Callback) {
+		if (type == SourceType.UISource || type == SourceType.Callback
+				||type==SourceType.NewDialogSource || type==SourceType.NewWidgetSource) {
 			if (sCallSite instanceof DefinitionStmt) {
 				DefinitionStmt defStmt = (DefinitionStmt) sCallSite;
 				return new SourceInfo(AccessPathFactory.v().createAccessPath(
@@ -385,7 +391,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		if(isUISource(sCallSite, cfg)){
 			GlobalData gd = GlobalData.getInstance();
 			gd.addSensitiveUISource(sCallSite, (IInfoflowCFG)cfg);
-			System.out.println("AddedUISource: "+sCallSite);
+			
 			return SourceType.UISource;
 		}
 		
@@ -414,6 +420,27 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 				String signature = methodToSignature.getUnchecked(sm);
 				if (this.sourceMethods.containsKey(signature))
 					return SourceType.MethodCall;
+			}
+		}
+		else {
+			if(sCallSite instanceof DefinitionStmt){
+				DefinitionStmt as = (DefinitionStmt)sCallSite;
+				Value right = as.getRightOp();
+				if(right instanceof NewExpr){
+					String rightName = ((NewExpr)right).getType().getEscapedName();
+					String[] elems = rightName.split("\\.");
+					//System.out.println("DDDDD:"+rightName+" "+elems.length);
+					if(elems!=null && elems.length>0){
+						//View
+						if(elems.length>1 && elems[elems.length-2].equals("widget") && elems[0].equals("android"))
+							return SourceType.NewWidgetSource;
+						else if(elems.length>=3 && 
+								elems[0].equals("android") && elems[1].equals("app") && 
+								elems[elems.length-1].contains("Dialog")){
+							return SourceType.NewDialogSource;
+						}
+					}
+				}
 			}
 		}
 
