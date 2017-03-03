@@ -553,7 +553,7 @@ public class Test {
 					
 					//Analysis
 					runNUDataFlowAnalysis(fullFilePath, args[1]);					
-					//GraphTool.displayAllMethodGraph();
+					GraphTool.displayAllMethodGraph();
 				}
 				repeatCount--;
 			}
