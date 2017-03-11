@@ -51,7 +51,7 @@ public class ResourceManager {
 	public String getTextsById(int id){
 		LayoutTextTreeNode node = id2Node.get(id);
 		if(node == null)
-			return "Error: no "+id+" view node";
+			return null;
 		return node.textObj.toString();
 	}
 	

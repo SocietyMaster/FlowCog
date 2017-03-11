@@ -614,6 +614,7 @@ public class Test {
 	//XIANG
 	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
 			System.out.println("NULIST: Display Flow Index");
+			GlobalData gData = GlobalData.getInstance();
 			for(int i=0; i<fps.getLst().size(); i++){
 				System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
 				System.out.println("  DEBUG:"+fps.getLst().get(i).toString());
@@ -629,10 +630,17 @@ public class Test {
 					LayoutTextTreeNode node = resMgr.getNodeById(viewId);
 					String type = "unknown";
 					if(node != null)  type = node.nodeType;
+					if(node == null){
+						type = gData.getDynamicViewType(viewId);
+						if(type==null) type = "unknown";
+					}
 					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
 					
+					
 					String texts = resMgr.getTextsById(viewId);
+					if(texts == null)
+						texts = gData.getDynamicTextsFromViewID(viewId);
 					
 					System.out.println("NULIST:[TEXT]:"+texts);
 					System.out.println("NULIST:[END]");

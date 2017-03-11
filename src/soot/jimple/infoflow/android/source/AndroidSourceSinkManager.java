@@ -337,6 +337,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager {
 		return getSourceInfo(sCallSite, type);
 	}
 
+	
 	protected SourceInfo getSourceInfo(Stmt sCallSite, SourceType type) {
 		if (type == SourceType.UISource || type == SourceType.Callback
 				||type==SourceType.NewDialogSource || type==SourceType.NewWidgetSource) {

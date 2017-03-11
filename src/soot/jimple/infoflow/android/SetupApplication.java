@@ -1064,6 +1064,8 @@ public class SetupApplication {
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
 		GlobalData gData = GlobalData.getInstance();
+		gData.setICFG(info.getICFG());
+		
 		InfoflowResults rs = info.getResults();
 		if(fps == null){
 			FlowPathSet fpsLocal = new FlowPathSet();
@@ -1186,6 +1188,7 @@ public class SetupApplication {
 		ps.setBackgroundResourceProcessing();
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
+		ps.extractDynamicTexts();
 //		
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
