@@ -87,11 +87,12 @@ public class ValueResourceParser {
 			throw new RuntimeException("file '" + filename + "' does not exist!");
 		try {
 			String path = getCompiledPackagePath(filename);
-			path = path + "/res/values/";
+			String valuePath = path + "/res/values/";
 			File f = new File(path);
 			if(!f.exists() || !f.isDirectory())
 				compileApk(filename, path);
-			f = new File(path);
+			f = new File(valuePath);
+			System.out.println("PATH22:"+path);
 			if(!f.exists() || !f.isDirectory()){
 				System.out.println("failed to compile apk file: "+filename);
 				return ;
@@ -172,8 +173,8 @@ public class ValueResourceParser {
 					
 					String str = new String(ch, start, length);
 					str = str.trim();
-					//System.out.println("NAMENAME:" + qNameField+" N:"+nameField+" ID:"+idField+" "+str);
-					//System.out.println("CHARS:"+str );
+//					System.out.println("NAMENAME:" + qNameField+" N:"+nameField+" ID:"+idField+" "+str);
+//					System.out.println("CHARS:"+str );
 					if(str.length()>0 && idField!=-1){
 						decompiledIDStringMap.put(idField, str);
 						//System.out.println("DECOMPILED ID STRINGMAP: "+idField+ " "+str);

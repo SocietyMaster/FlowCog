@@ -110,9 +110,12 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		// default behavior of our parent implementation. We do the same if we
 		// tried using access paths and failed, but this is a shortcut in case
 		// we know that we don't have any access paths anyway.
-		if (null == def || def.isEmpty())
-			return super.getSourceInfo(sCallSite, cfg);
+		if (null == def || def.isEmpty()){
+			SourceInfo si = super.getSourceInfo(sCallSite, cfg);
+			//System.out.println("DEBUG221:"+sCallSite+" "+si);
+			return si;
 		
+		}
 		// We have real access path definitions, so we can construct precise
 		// source information objects
 		Set<AccessPath> aps = new HashSet<>();
@@ -148,10 +151,15 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		
 		// If we don't have any more precise source information, we take the
 		// default behavior of our parent implementation
-		if (aps.isEmpty())
-			return super.getSourceInfo(sCallSite, cfg);
+		if (aps.isEmpty()){
+			SourceInfo si = super.getSourceInfo(sCallSite, cfg);
+			//System.out.println("DEBUG222:"+sCallSite+" "+si);
+			return si;
+		}
 		
-		return new SourceInfo(aps);
+		SourceInfo si =  new SourceInfo(aps);
+		//System.out.println("DEBUG223:"+sCallSite+" "+si);
+		return si;
 	}
 	
 	/**

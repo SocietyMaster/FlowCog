@@ -78,6 +78,8 @@ public class ParameterSearch {
 	List<ARSCFileParser.ResPackage> resourcePackages;
 	String appPackageName;
 	BiDiInterproceduralCFG<Unit, SootMethod> cfg;
+	long startingTime;
+	
 	public ParameterSearch(ValueResourceParser valResParser, List<ARSCFileParser.ResPackage> resourcePackages,String appPackageName,
 			BiDiInterproceduralCFG<Unit, SootMethod> cfg){
 		this.valResParser = valResParser;
@@ -85,6 +87,7 @@ public class ParameterSearch {
 		this.appPackageName = appPackageName;
 		this.resourcePackages = resourcePackages;
 		this.cfg = cfg;
+		this.startingTime = System.currentTimeMillis();
 	}
 	
 	public Set<Stmt> findViewByIdParamSearch(){
@@ -388,6 +391,7 @@ public class ParameterSearch {
 	}
 	
 	public void extractDynamicTexts(){
+		startingTime = System.currentTimeMillis();
 		final String SET_TEXT_API = "setText";
 		final String SET_TITLE_API = "setTitle";
 		for (QueueReader<MethodOrMethodContext> rdr =
@@ -444,9 +448,11 @@ public class ParameterSearch {
 		    		InstanceInvokeExpr iie = (InstanceInvokeExpr)ie;
 		    		Set<Stmt> rs = new HashSet<Stmt>();
 		    		System.out.println("DEBUGTEST: target: "+stmt +"@"+cfg.getMethodOf(stmt));
+		    		long time1 = System.currentTimeMillis();
 		    		findViewDefStmt(stmt, iie.getBase(), new ArrayList<NUAccessPath>(),
 		    				cfg, new HashSet<Stmt>(), rs);
-		    		
+		    		long diff = (System.currentTimeMillis()-time1)/1000;
+		    		System.out.println("Done in "+diff+"s");
 		    		for(Stmt r : rs){
 		    			System.out.println("DEBUGTEST: origin: "+r+"@"+cfg.getMethodOf(stmt));
 		    			if(texts!=null && texts.trim().length()>0)
@@ -463,6 +469,12 @@ public class ParameterSearch {
 	
 	private void findViewDefStmt(Stmt stmt, Value target, List<NUAccessPath> bases,
 			BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> visited, Set<Stmt> rs){
+		long timeDiffSeconds = (System.currentTimeMillis() - startingTime)/1000;
+		if(timeDiffSeconds > 300){//5mins
+			System.out.println("passed time diff: "+timeDiffSeconds);
+			return ;
+		}
+		
 		if(visited.contains(stmt))
 			return ;
 		//System.out.println("VISITED:"+visited.size()+" "+stmt);
@@ -475,6 +487,7 @@ public class ParameterSearch {
 		if(stmt instanceof AssignStmt){
 			AssignStmt as = (AssignStmt)stmt;
 			if(sameValue(as.getLeftOp(),target) ){
+//				System.out.println("VISITED1:"+visited.size()+" "+stmt);
 //				System.out.println("   AssignStmt sameValue: T"+target+" AS:" +as);
 //				System.out.println("   NAP: "+NUAccessPath.listAPToString(bases));
 				findViewDefStmtHelper(as, target, bases, cfg, visited, rs);
@@ -485,6 +498,7 @@ public class ParameterSearch {
 				//because its possible a different Value points to target (alias)
 				
 				//check if left op points to the target
+//				System.out.println("VISITED2:"+visited.size()+" "+stmt);
 				Value left = as.getLeftOp();
 				if(pointToSameValue(left, target, bases)){
 //					System.out.println("   AssignStmt pointToSameValue: T:"+target+" AS:" +as);
@@ -508,8 +522,9 @@ public class ParameterSearch {
 					//====process called method============
 					//TODO: HAVE NOT TESTED!!!
 					InvokeExpr ie = stmt.getInvokeExpr();
-					SootMethod sm = ie.getMethod();
-					if(sm.hasActiveBody()){
+					SootMethod sm = null;
+					if(ie != null) sm = ie.getMethod();
+					if(sm!=null && sm.hasActiveBody()){
 						UnitGraph g = new ExceptionalUnitGraph(sm.getActiveBody());
 						List<NUAccessPath> newBases = new ArrayList<NUAccessPath>();
 						//if needs to replace base with $r0
@@ -580,8 +595,6 @@ public class ParameterSearch {
 			if(pointToSameValue( is.getLeftOp(),target, bases) || 
 				(target instanceof InstanceFieldRef && NUAccessPath.containsAccessPathWithPrefix(
 							bases, ((IdentityStmt) stmt).getLeftOp()))){
-//				System.out.println("   IdentityStmt pointToSameValue: "+target+" IS:"+is);
-//				System.out.println("   NAP: "+NUAccessPath.listAPToString(bases));
 				if(is.getRightOp() instanceof ParameterRef){
 					ParameterRef right = (ParameterRef)(is.getRightOp());
 					Value left = ((IdentityStmt) stmt).getLeftOp();
@@ -660,11 +673,6 @@ public class ParameterSearch {
 				}
 				return ;
 			}
-//			else if(target instanceof InstanceFieldRef){
-//				for(Value b : bases){
-//					System.out.println("DD "+target+" VS "+b);
-//				}
-//			}
 		}
 		else if(stmt.containsInvokeExpr() && stmt.getInvokeExpr() instanceof InstanceInvokeExpr){
 			InstanceInvokeExpr iie = (InstanceInvokeExpr)stmt.getInvokeExpr();
@@ -695,8 +703,6 @@ public class ParameterSearch {
 								newBases.add(newap);
 							}
 							
-//							System.out.println("   InvokeExpr prefix: T:"+target+" Base:" +base+" AS:"+stmt+"@"+cfg.getMethodOf(stmt));
-//							System.out.println("   NAP New: "+NUAccessPath.listAPToString(bases)+" "+visited.size()+" Tails:"+g.getTails().size());
 							Set<Stmt> newVisited = null;
 							if(g.getTails().size() == 1)
 								newVisited = visited;
@@ -714,13 +720,15 @@ public class ParameterSearch {
 		for (Unit pred : cfg.getPredsOf(stmt)) {
 			if (!(pred instanceof Stmt))
 				continue;
-			Set<Stmt> newVisited = null;
-			if(cfg.getPredsOf(stmt).size() == 1)
-				newVisited = visited;
-			else{
-				newVisited = new HashSet<Stmt>();
-				newVisited.addAll(visited);
-			}
+//			Set<Stmt> newVisited = null;
+//			if(cfg.getPredsOf(stmt).size() == 1)
+//				newVisited = visited;
+//			else{
+//				newVisited = new HashSet<Stmt>();
+//				newVisited.addAll(visited);
+//			}
+			//TODO: ideally, the newVisited should be reset for each predecessor, but it's too slow...
+			Set<Stmt> newVisited = visited;
 			findViewDefStmt((Stmt) pred, target, bases, cfg, newVisited, rs);
 		}	
 	}

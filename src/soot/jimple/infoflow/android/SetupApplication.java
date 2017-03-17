@@ -591,6 +591,9 @@ public class SetupApplication {
 			sourceSinkManager.setAppPackageName(this.appPackageName);
 			sourceSinkManager.setResourcePackages(this.resourcePackages);
 			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
+			fps.setSourceSinkMgr(sourceSinkManager);
+			//TODO: better to change to another location.
+			
 		}
 
 		entryPointCreator = createEntryPointCreator();
@@ -1188,6 +1191,7 @@ public class SetupApplication {
 		ps.setBackgroundResourceProcessing();
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
+		//TODO:comment for debugging
 		ps.extractDynamicTexts();
 //		
 		//GraphTool.displayAllMethodGraph();

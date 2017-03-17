@@ -1226,6 +1226,8 @@ public class Test {
 			System.out.println("Running data flow analysis for flow view correlation...");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
 			
+			fps.updateViewsInPaths();
+			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
 			
 			if (config.getLogSourcesAndSinks()) {
