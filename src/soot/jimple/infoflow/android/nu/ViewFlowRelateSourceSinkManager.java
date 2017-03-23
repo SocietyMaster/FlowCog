@@ -1,3 +1,8 @@
+/*
+ * This class is responsible for dealing with the sources and sinks of view-flow data flow analysis. 
+ * Mostly copied from class AccessPathBasedSourceSinkManager.
+ * By Xiang.
+ * */
 package soot.jimple.infoflow.android.nu;
 
 import java.util.HashSet;
@@ -31,6 +36,8 @@ import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.util.SystemClassHandler;
 
 public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkManager{
+	private FlowPathSet fps;
+	
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with either strong or weak matching.
 	 * 
@@ -44,7 +51,6 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		super(sources, sinks);
 		this.fps = null;
 	}
-	final FlowPathSet fps;
 
 	/**
 	 * Creates a new instance of the {@link AndroidSourceSinkManager} class with strong matching, i.e. the methods in
@@ -74,15 +80,11 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 			Map<Integer, LayoutControl> layoutControls, FlowPathSet fps) {
 		super(sources, sinks, callbackMethods, layoutMatching, layoutControls);
 		this.fps = fps;
-//		for(SourceSinkDefinition source : sources){
-//			System.out.println("FINDSOURCE: "+source.getMethod());
-//		}
 	}
 	
 	@Override
 	public SourceInfo getSourceInfo(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg) {
-		// Callbacks and UI controls are already properly handled by our parent
-		// implementation
+		// Callbacks and UI controls have already been properly handled by parent implementation
 		SourceType type = getSourceType(sCallSite, cfg);
 		
 		if (type == SourceType.NoSource)
@@ -92,14 +94,9 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		}
 		if(type == SourceType.NewDialogSource || type==SourceType.NewWidgetSource){
 			SourceInfo si =  super.getSourceInfo(sCallSite, cfg);
-			System.out.println("NewSource: "+sCallSite+"  :"+type+" "+si);
 			return si;
 		}
 		
-//		if(!sCallSite.toString().contains("2131558524"))
-//			return null;
-//		System.out.println("getSourceInfo: "+sCallSite+" @"+cfg.getMethodOf(sCallSite).getSignature());
-//		
 		// This is a method-based source, so we need to obtain the correct
 		// access path
 		final String signature = methodToSignature.getUnchecked(
@@ -112,9 +109,7 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		// we know that we don't have any access paths anyway.
 		if (null == def || def.isEmpty()){
 			SourceInfo si = super.getSourceInfo(sCallSite, cfg);
-			//System.out.println("DEBUG221:"+sCallSite+" "+si);
 			return si;
-		
 		}
 		// We have real access path definitions, so we can construct precise
 		// source information objects
@@ -125,7 +120,6 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 				&& sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr
 				&& def.getBaseObjects() != null) {
 			Value baseVal = ((InstanceInvokeExpr) sCallSite.getInvokeExpr()).getBase();
-			//System.out.println("GETSRC: "+baseVal+" SRC:"+sCallSite);
 			for (AccessPathTuple apt : def.getBaseObjects())
 				if (apt.isSource())
 					aps.add(getAccessPathFromDef(baseVal, apt));
@@ -153,12 +147,10 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		// default behavior of our parent implementation
 		if (aps.isEmpty()){
 			SourceInfo si = super.getSourceInfo(sCallSite, cfg);
-			//System.out.println("DEBUG222:"+sCallSite+" "+si);
 			return si;
 		}
 		
 		SourceInfo si =  new SourceInfo(aps);
-		//System.out.println("DEBUG223:"+sCallSite+" "+si);
 		return si;
 	}
 	
@@ -182,73 +174,13 @@ public class ViewFlowRelateSourceSinkManager extends AccessPathBasedSourceSinkMa
 		return AccessPathFactory.v().createAccessPath(baseVal, fields, true);
 	}
 	
+	/**
+	 * No sink for View-Flow dataflow analysis.
+	 * */
 	@Override
 	public boolean isSink(Stmt sCallSite, InterproceduralCFG<Unit, SootMethod> cfg,
 			AccessPath sourceAccessPath) {
 		return false;
-//		List<Integer> rs = fps.findFlowPath(sCallSite, cfg);
-//		if(rs.size() > 0){
-//			System.out.println("ISSINK: "+sCallSite+" "+rs.get(0)+" SIZE:"+rs.size());
-//			return true;
-//		}
-//		return false;
-		
-		/*
-		if (!sCallSite.containsInvokeExpr())
-			return false;
-				
-		// Get the sink definition
-		final String methodSignature = methodToSignature.getUnchecked(
-				sCallSite.getInvokeExpr().getMethod());
-		SourceSinkDefinition def = sinkMethods.get(methodSignature);
-		if (def == null) {
-			// If we don't have a sink definition for the direct callee, we
-			// check the CFG.
-			for (SootMethod sm : cfg.getCalleesOfCallAt(sCallSite)) {
-				String signature = methodToSignature.getUnchecked(sm);
-				if (this.sinkMethods.containsKey(signature))
-					return true;
-			}
-			return false;
-		}
-		
-		// If we have no precise information, we conservatively assume that
-		// everything is tainted without looking at the access path. Only
-		// exception: separate compilation assumption
-		if (def.isEmpty())
-			return SystemClassHandler.isTaintVisible(sourceAccessPath,
-					sCallSite.getInvokeExpr().getMethod());
-		
-		// If we are only checking whether this statement can be a sink in
-		// general, we know this by now
-		if (sourceAccessPath == null)
-			return true;
-		
-		// Check whether the base object matches our definition
-		if (sCallSite.getInvokeExpr() instanceof InstanceInvokeExpr
-				&& def.getBaseObjects() != null) {
-			for (AccessPathTuple apt : def.getBaseObjects())
-				if (apt.isSink() && accessPathMatches(sourceAccessPath, apt))
-					return true;
-		}
-		
-		// Check whether a parameter matches our definition
-		if (def.getParameters() != null && def.getParameters().length > 0) {
-			// Get the tainted parameter index
-			for (int i = 0; i < sCallSite.getInvokeExpr().getArgCount(); i++)
-				if (sCallSite.getInvokeExpr().getArg(i) == sourceAccessPath.getPlainValue()) {
-					// Check whether we have a sink on that parameter
-					if (def.getParameters().length > i)
-						for (AccessPathTuple apt : def.getParameters()[i])
-							if (apt.isSink() && accessPathMatches(sourceAccessPath, apt))
-								return true;
-				}
-		}
-		
-		// No matching access path found
-		return false;
-		
-		*/
 	}
 	
 	/**

@@ -36,66 +36,66 @@ public class FlowClassifier {
 	ARSCFileParser resParser;
 	
 	public FlowClassifier(String apkFileLocation, String appPackageName){
-		String[] mappingRaw = {
-				"392311F6DA335F56B5D3D077BD60C87C L 2131558522",
-				"FF84165204C582083B004EA4E9BD8586 L 2131558522",
-				"2805715E37A0C4124538003E0EA5C9CE L 2131558534",
-				"48ECF2695A77EA873D40BC6C35DA6494 N 2131558531",
-				"435DDF5C577E103AD2FC37B49E4B68E9 N 2131558526",
-				"505665A5190BE29E1183C10B6BAAA782 N 2131558504",
-				"7F7663F5093E921E0AAFFD496AD21801 O 2131558521 2131558520",
-				"5C677C66D27926D1BADF169D0A65ECC0 L 2131558508 2131558526 2131558527",
-				"457665580C7152F11D55CF459EFEDF31 N 2131558526",
-				"BCE1F59C0E2B7E54DB116DA8E16A5757 N 2131558526",
-				"8C8661E833EAA08594068C0A767135DA N 2131558526"
-		};
-		
-		for(String line : mappingRaw){
-			String[] coms = line.split(" ");
-			
-			List<Integer> lst = new ArrayList<Integer>();
-			if(coms[1].equals("N")) //N -> 0
-				flowMappingType.put(coms[0], 0); //specific view
-			else if(coms[1].equals("L"))
-				flowMappingType.put(coms[0], 1); //all views in the layout
-			else
-				flowMappingType.put(coms[0], 2); //nearby views
-			
-			flowMapping.put(coms[0], lst);
-			for(int i=2; i<coms.length; i++)
-				lst.add(Integer.valueOf(coms[i]) );
-		}
-		
-		resParser = new ARSCFileParser();
-		try {
-			resParser.parse(apkFileLocation);
-		} catch (Exception e) {
-			System.err.println("NULIST: failed to init FlowTriggerEventAnalyzer: ARSCFileParser");
-			e.printStackTrace();
-		}
-		
-		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(appPackageName, 
-				resParser,Test.getApktoolpath(), Test.getTmpDirPath());
-		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
-		id2Texts = lfpTE.getId2Texts();
-		id2Node = lfpTE.getId2Node();
-		layouts = lfpTE.getTextTreeMap();
-		for(Integer id : lfpTE.getId2Type().keySet()){
-			List<String> texts = id2Texts.get(id);
-			String type = lfpTE.getId2Type().get(id);
-			if(texts != null){
-				for(String msg : id2Texts.get(id))
-					System.out.println("VIEWTEXT: "+id+"("+type+") -> "+msg);
-			}
-			else if(type.endsWith("Layout") && id2Node.containsKey(id)){
-				String text = id2Node.get(id).toStringTree(0,"");
-			}
-			else
-				System.out.println("VIEWTEXT: "+id+"("+lfpTE.getId2Type().get(id)+") -> null");
-		}
-		for(String cls : layouts.keySet()){
-			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree(0,""));
-		}
+//		String[] mappingRaw = {
+//				"392311F6DA335F56B5D3D077BD60C87C L 2131558522",
+//				"FF84165204C582083B004EA4E9BD8586 L 2131558522",
+//				"2805715E37A0C4124538003E0EA5C9CE L 2131558534",
+//				"48ECF2695A77EA873D40BC6C35DA6494 N 2131558531",
+//				"435DDF5C577E103AD2FC37B49E4B68E9 N 2131558526",
+//				"505665A5190BE29E1183C10B6BAAA782 N 2131558504",
+//				"7F7663F5093E921E0AAFFD496AD21801 O 2131558521 2131558520",
+//				"5C677C66D27926D1BADF169D0A65ECC0 L 2131558508 2131558526 2131558527",
+//				"457665580C7152F11D55CF459EFEDF31 N 2131558526",
+//				"BCE1F59C0E2B7E54DB116DA8E16A5757 N 2131558526",
+//				"8C8661E833EAA08594068C0A767135DA N 2131558526"
+//		};
+//		
+//		for(String line : mappingRaw){
+//			String[] coms = line.split(" ");
+//			
+//			List<Integer> lst = new ArrayList<Integer>();
+//			if(coms[1].equals("N")) //N -> 0
+//				flowMappingType.put(coms[0], 0); //specific view
+//			else if(coms[1].equals("L"))
+//				flowMappingType.put(coms[0], 1); //all views in the layout
+//			else
+//				flowMappingType.put(coms[0], 2); //nearby views
+//			
+//			flowMapping.put(coms[0], lst);
+//			for(int i=2; i<coms.length; i++)
+//				lst.add(Integer.valueOf(coms[i]) );
+//		}
+//		
+//		resParser = new ARSCFileParser();
+//		try {
+//			resParser.parse(apkFileLocation);
+//		} catch (Exception e) {
+//			System.err.println("NULIST: failed to init FlowTriggerEventAnalyzer: ARSCFileParser");
+//			e.printStackTrace();
+//		}
+//		
+//		LayoutFileParserForTextExtraction lfpTE = new LayoutFileParserForTextExtraction(appPackageName, 
+//				resParser,Test.getApktoolpath(), Test.getTmpDirPath());
+//		lfpTE.parseLayoutFileForTextExtraction(apkFileLocation);
+//		id2Texts = lfpTE.getId2Texts();
+//		id2Node = lfpTE.getId2Node();
+//		layouts = lfpTE.getTextTreeMap();
+//		for(Integer id : lfpTE.getId2Type().keySet()){
+//			List<String> texts = id2Texts.get(id);
+//			String type = lfpTE.getId2Type().get(id);
+//			if(texts != null){
+//				for(String msg : id2Texts.get(id))
+//					System.out.println("VIEWTEXT: "+id+"("+type+") -> "+msg);
+//			}
+//			else if(type.endsWith("Layout") && id2Node.containsKey(id)){
+//				String text = id2Node.get(id).toStringTree(0,"");
+//			}
+//			else
+//				System.out.println("VIEWTEXT: "+id+"("+lfpTE.getId2Type().get(id)+") -> null");
+//		}
+//		for(String cls : layouts.keySet()){
+//			System.out.println(" LAYOUTTEXT: "+cls+" "+layouts.get(cls).toStringTree(0,""));
+//		}
 		
 	}
 	

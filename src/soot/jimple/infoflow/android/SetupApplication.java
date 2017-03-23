@@ -54,7 +54,6 @@ import soot.jimple.infoflow.android.nu.LayoutFileParserForTextExtraction;
 import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.nu.ParameterSearch;
 import soot.jimple.infoflow.android.nu.ResourceManager;
-import soot.jimple.infoflow.android.nu.ValueResourceParser;
 import soot.jimple.infoflow.android.nu.ViewFlowRelateSourceSinkManager;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
@@ -939,7 +938,7 @@ public class SetupApplication {
 	 * Builds the classpath for this analysis
 	 * @return The classpath to be used for the taint analysis
 	 */
-	private String getClasspath() {
+	public String getClasspath() {
 		String classpath = forceAndroidJar ? androidJar
 				: Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		if (this.additionalClasspath != null && !this.additionalClasspath.isEmpty())
@@ -952,7 +951,7 @@ public class SetupApplication {
 	 * Initializes soot for running the soot-based phases of the application metadata analysis
 	 * @param constructCallgraph True if a callgraph shall be constructed, otherwise false
 	 */
-	private void initializeSoot(boolean constructCallgraph) {
+	public void initializeSoot(boolean constructCallgraph) {
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		Options.v().set_output_format(Options.output_format_none);
@@ -1013,7 +1012,7 @@ public class SetupApplication {
 	 */
 	public InfoflowResults runInfoflow() {
 //		runInfoflow(null);
-//		System.out.println("Second round");
+		System.out.println("ClassPath:"+getClasspath());
 		return runInfoflow(null);
 		
 	}
@@ -1152,7 +1151,7 @@ public class SetupApplication {
 		return info.getResults();
 	}
 	
-	public Set<Stmt> fastSearchKeyInvokeExprSearch( ValueResourceParser valResMgr){
+	public Set<Stmt> fastSearchKeyInvokeExprSearch(){
 		Infoflow info;
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, forceAndroidJar, null,
@@ -1179,7 +1178,7 @@ public class SetupApplication {
 		}
 		info.initializeSootWithoutPerformingInfoflow(apkFileLocation, path, entryPointCreator);
 		
-		ParameterSearch ps = new ParameterSearch(valResMgr, this.resourcePackages,this.appPackageName, info.getICFG());
+		ParameterSearch ps = new ParameterSearch( this.resourcePackages,this.appPackageName, info.getICFG());
 		//====DEBUG======
 //		Set<Stmt> rs = null;
 //		ps.searchMethodCallVaguely("get", "android.os.Bundle");
@@ -1200,7 +1199,7 @@ public class SetupApplication {
 	}
 	
 	//XPAN
-	public InfoflowResults runInfoflowForConstantPropogation(ResultsAvailableHandler onResultsAvailable, ValueResourceParser valResMgr) {
+	public InfoflowResults runInfoflowForConstantPropogation(ResultsAvailableHandler onResultsAvailable) {
 		if (this.sourceSinkProvider == null)
 			throw new RuntimeException("Sources and/or sinks not calculated yet");
 

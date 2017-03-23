@@ -106,6 +106,7 @@ public class LayoutFileParserForTextExtraction extends AbstractResourceParser {
 			return null;
 		}
 		
+		
 		SootClass sc = Scene.v().forceResolve(className, SootClass.BODIES);
 		if ((sc == null || sc.isPhantom()) && !packageName.isEmpty())
 			sc = Scene.v().forceResolve(packageName + "." + className, SootClass.BODIES);

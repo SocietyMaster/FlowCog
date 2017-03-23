@@ -73,16 +73,14 @@ public class ParameterSearch {
 	
 	final String GET_IDENTIFIER_SIGNATURE = 
 			"<android.content.res.Resources: int getIdentifier(java.lang.String,java.lang.String,java.lang.String)>";
-	ValueResourceParser valResParser = null;
 	CallGraph cg = null;
 	List<ARSCFileParser.ResPackage> resourcePackages;
 	String appPackageName;
 	BiDiInterproceduralCFG<Unit, SootMethod> cfg;
 	long startingTime;
 	
-	public ParameterSearch(ValueResourceParser valResParser, List<ARSCFileParser.ResPackage> resourcePackages,String appPackageName,
+	public ParameterSearch(List<ARSCFileParser.ResPackage> resourcePackages,String appPackageName,
 			BiDiInterproceduralCFG<Unit, SootMethod> cfg){
-		this.valResParser = valResParser;
 		this.cg = Scene.v().getCallGraph();
 		this.appPackageName = appPackageName;
 		this.resourcePackages = resourcePackages;
@@ -394,6 +392,7 @@ public class ParameterSearch {
 		startingTime = System.currentTimeMillis();
 		final String SET_TEXT_API = "setText";
 		final String SET_TITLE_API = "setTitle";
+		ResourceManager resMgr = ResourceManager.getInstance();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -424,7 +423,7 @@ public class ParameterSearch {
 		    					id = findLastResIDAssignment(stmt, arg, cfg, new HashSet<Stmt>(), cfg.getMethodOf(stmt).getName());
 		    				
 		    				if(id != null)
-		    					texts = valResParser.getResourceStringFromValueResourceFile(id);
+		    					texts = resMgr.getStringById(id);
 		    				System.out.println("WWWW1: "+id+" "+texts);
 		    			}
 		    			else if(t.getEscapedName().equals("java.lang.CharSequence") ||
@@ -930,6 +929,7 @@ public class ParameterSearch {
 		}
 		visited.add(stmt);
 		GlobalData gData = GlobalData.getInstance();
+		ResourceManager resMgr = ResourceManager.getInstance();
 		if(cfg == null) {
 			System.err.println("Error: findLastResIDAssignment cfg is not set.");
 			return null;
@@ -956,7 +956,7 @@ public class ParameterSearch {
 					if(assign.getRightOp() instanceof InstanceFieldRef && 
 							(!methodName.equals("setBackgroundResource"))){
 						FieldRef fr = (FieldRef)assign.getRightOp();
-						Integer id = valResParser.getResourceIDFromValueResourceFile(fr.getFieldRef().name());
+						Integer id = resMgr.getResourceIdByName(fr.getFieldRef().name());
 						if(id != null)
 							return id;
 						
@@ -966,7 +966,7 @@ public class ParameterSearch {
 					}
 					if(assign.getRightOp() instanceof StaticFieldRef){
 						StaticFieldRef sfr = (StaticFieldRef)assign.getRightOp();
-						Integer id = valResParser.getResourceIDFromValueResourceFile(sfr.getFieldRef().name());
+						Integer id = resMgr.getResourceIdByName(sfr.getFieldRef().name());
 						if(id != null)
 							return id;
 						/*
@@ -1023,7 +1023,7 @@ public class ParameterSearch {
 								String key = findLastStringAssignment(stmt, (Local)inv.getArg(0), cfg,  new HashSet<Stmt>());
 								
 								if(key !=null && key.length()>0)
-									return valResParser.getResourceIDFromValueResourceFile(key);
+									return resMgr.getResourceIdByName(key);
 							}
 							System.err.println("Unknown parameter type in call to getIdentifier: "+inv.getArg(0));
 							return null;
@@ -1043,7 +1043,7 @@ public class ParameterSearch {
 						if (inv.getArg(0) instanceof StringConstant)
 							resName = ((StringConstant) inv.getArg(0)).value;
 						if(!resName.equals("")){
-							return valResParser.getResourceIDFromValueResourceFile(resName);
+							return resMgr.getResourceIdByName(resName);
 						}
 					}
 					else if(inv.getMethod().getName().equals("getId") && 
@@ -1053,7 +1053,7 @@ public class ParameterSearch {
 						if(v instanceof Local){
 							Value vv = findFirstLocalDef(assign, (Local)v, cfg);
 							if(vv!=null && vv instanceof StaticFieldRef){
-								Integer id = valResParser.getResourceIDFromValueResourceFile(((StaticFieldRef)vv).getField().getName());
+								Integer id = resMgr.getResourceIdByName(((StaticFieldRef)vv).getField().getName());
 								if(id != null)
 									return id;
 							}
@@ -1063,7 +1063,7 @@ public class ParameterSearch {
 						for(Value arg : inv.getArgs()){
 							if(arg instanceof StringConstant){
 								String key = ((StringConstant) arg).value;
-								Integer id = valResParser.getResourceIDFromValueResourceFile(key);
+								Integer id = resMgr.getResourceIdByName(key);
 								if(id != null)
 									return id;
 							}
@@ -1313,11 +1313,12 @@ public class ParameterSearch {
 	}
 	
 	private void handleGetIdentifierCase(List<Object> args){
+		ResourceManager resMgr = ResourceManager.getInstance();
 		for(int i=0; i<args.size(); i++){
 			if(!(args.get(i) instanceof String))
 				continue;
 			String arg = (String)args.get(i);
-			Integer id = valResParser.getResourceIDFromValueResourceFile(arg);
+			Integer id = resMgr.getResourceIdByName(arg);
 			if(id != null){
 				System.out.println("FOUND ID of "+args.get(i)+" "+id);
 			}

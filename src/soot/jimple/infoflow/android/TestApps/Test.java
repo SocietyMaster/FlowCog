@@ -80,7 +80,6 @@ import soot.jimple.infoflow.android.nu.LayoutTextTreeNode;
 import soot.jimple.infoflow.android.nu.ParameterSearch;
 import soot.jimple.infoflow.android.nu.ResolvedConstantTag;
 import soot.jimple.infoflow.android.nu.ResourceManager;
-import soot.jimple.infoflow.android.nu.ValueResourceParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.LayoutMatchingMode;
@@ -113,10 +112,6 @@ import soot.toolkits.graph.UnitGraph;
 
 public class Test {
 	final static boolean INTERCOMPONENTANALYSIS = false;
-	//XIANG: store the flow path set returned by the first SetupApplication.
-	//not a good design, think about how to fix it.
-	//private static FlowPathSet fps = null;
-	
 	private static final class MyResultsAvailableHandler implements
 			ResultsAvailableHandler {
 		private final BufferedWriter wr;
@@ -423,7 +418,7 @@ public class Test {
 	private static int repeatCount = 1;
 	private static int timeout = -1;
 	private static int sysTimeout = -1;
-	private static String apktoolpath = "apktool";
+	private static String apktoolPath = "apktool";
 
 	private static String tmpDirPath = "/tmp/";
 	
@@ -442,12 +437,6 @@ public class Test {
 	public static IIPCManager getIPCManager()
 	{
 		return Test.ipcManager;
-	}
-	public static String getApktoolpath() {
-		return apktoolpath;
-	}
-	public static String getTmpDirPath() {
-		return tmpDirPath;
 	}
 	
 	/**
@@ -481,8 +470,7 @@ public class Test {
 			return;
 		
 		List<String> apkFiles = new ArrayList<String>();
-		//String apkName = "com.cssoft.eztrans.km01-25.apk";
-		//String apkName = "air.com.eni.JudyChineseMaker2-1003000.apk";
+		//Xiang: for debuging purpose.
 		String apkName = "beautifier.mobilechamps-4.apk";
 		if(!args[0].toLowerCase().endsWith("apk"))
 			args[0] += apkName;
@@ -517,6 +505,11 @@ public class Test {
 				return;
 			}
 		}
+		NUSootConfig nuConfig = NUSootConfig.getInstance();
+		String androidJarPath = args[1];
+		nuConfig.setAndroidJarPath(args[1]);
+		nuConfig.setApkToolPath(apktoolPath);
+		nuConfig.setDecompiledAPKOutputPath(tmpDirPath);
 		
 		int oldRepeatCount = repeatCount;
 		for (final String fileName : apkFiles) {
@@ -538,36 +531,39 @@ public class Test {
 			}
 			else
 				fullFilePath = fileName;
-
+			nuConfig.setFullAPKFilePath(fullFilePath);
+			
 			// Run the analysis
+			//Xiang: remove the timeout version because they are not implemented properly.
 			while (repeatCount > 0) {
 				System.gc();
-				if (timeout > 0)
-					runAnalysisTimeout(fullFilePath, args[1]);
-				else if (sysTimeout > 0)
-					runAnalysisSysTimeout(fullFilePath, args[1]);
-				else{
-					//analyze resource file to extract view info
-					ValueResourceParser valResParser = new ValueResourceParser(fullFilePath, apktoolpath, tmpDirPath);
-					valResParser.displayDecompiledValueIDPairs();
-					runAnalysisForConstantPropogation(fullFilePath, args[1], null, valResParser,true);
-					
-					//Analysis
-					runNUDataFlowAnalysis(fullFilePath, args[1]);					
-					GraphTool.displayAllMethodGraph();
-				}
+				//initialize soot path is necessary to initialize ValueResourceParser and ResourceManager
+				initializeSootConfigAndClassPath(fullFilePath, androidJarPath);
+				ResourceManager resMgr = ResourceManager.getInstance();
+				
+				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null,true);
+				runNUDataFlowAnalysis(fullFilePath, args[1], resMgr);					
 				repeatCount--;
 			}
 			
 			System.gc();
 		}
 	}
-	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar){
+	
+	static private void initializeSootConfigAndClassPath(String fileName, String androidJar){
+		SetupApplication app;
+		if (null == ipcManager)  app = new SetupApplication(androidJar, fileName);
+		else app = new SetupApplication(androidJar, fileName, ipcManager);
+		app.setConfig(config);
+		app.initializeSoot(true);
+	}
+	
+	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar, ResourceManager resMgr){
 		//XIANG
 		GlobalData globalData = GlobalData.getInstance();
 		globalData.setEnableInterComponent(INTERCOMPONENTANALYSIS);
 		NUSootConfig config = NUSootConfig.getInstance();
-		config.setEnableGraphEnhance(false);
+		config.setGraphEnhanceEnabled(false);
 		try{
 			File f = new File(tmpDirPath);
 			if(!f.exists() || !f.isDirectory()){
@@ -579,22 +575,12 @@ public class Test {
 			System.err.println("tmp folder not exits:"+e.toString());
 			System.exit(1);
 		}
+		System.out.println("android jar: "+androidJar);
 		//first round data flow analysis to find flows.
 		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
 		
 		System.out.println("AAAAA Start second round.");
-		ProcessManifest processMan = null;
-		ResourceManager resMgr = null;
-		try{
-			processMan = new ProcessManifest(fullFilePath);
-			String appPackageName = processMan.getPackageName();
-			System.out.println("FillFilePath: "+fullFilePath);
-			resMgr = new ResourceManager(fullFilePath, appPackageName, apktoolpath, tmpDirPath);
-		}
-		catch(Exception e){
-			System.err.println("failed to run taint analysis on view-flow. "+e);
-			e.printStackTrace();
-		}
+		
 		
 		System.out.println("Start correlating View and Flow.");
 		//second round data flow analysis to correlate flows and views.
@@ -602,7 +588,7 @@ public class Test {
 		soot.G.reset();
 		
 		globalData.setAllowModification(false);
-		config.setEnableGraphEnhance(true);
+		config.setGraphEnhanceEnabled(true);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
 		//correlate view and flow based on events defined in XML file
@@ -712,7 +698,7 @@ public class Test {
 		int i = 2;
 		while (i < args.length) {
 			if(args[i].equalsIgnoreCase("--apktoolpath")) {
-				apktoolpath = args[i+1];
+				apktoolPath = args[i+1];
 				i += 2;
 			}
 			else if(args[i].equalsIgnoreCase("--tmppath")) {
@@ -900,108 +886,6 @@ public class Test {
 			return false;
 		}
 		return true;
-	}
-	
-	private static void runAnalysisTimeout(final String fileName, final String androidJar) {
-		//XIANG
-		//Invalid for now.
-		//Fix return value if wanna use this method.
-		/*
-		FutureTask<InfoflowResults> task = new FutureTask<InfoflowResults>(new Callable<InfoflowResults>() {
-
-			@Override
-			public InfoflowResults call() throws Exception {
-				
-				final BufferedWriter wr = new BufferedWriter(new FileWriter("_out_" + new File(fileName).getName() + ".txt"));
-				try {
-					final long beforeRun = System.nanoTime();
-					wr.write("Running data flow analysis...\n");
-					final InfoflowResults res = runAnalysis(fileName, androidJar);
-					wr.write("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds\n");
-					
-					wr.flush();
-					return res;
-				}
-				finally {
-					if (wr != null)
-						wr.close();
-				}
-			}
-			
-		});
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-		executor.execute(task);
-		
-		try {
-			System.out.println("Running infoflow task...");
-			task.get(timeout, TimeUnit.MINUTES);
-		} catch (ExecutionException e) {
-			System.err.println("Infoflow computation failed: " + e.getMessage());
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			System.err.println("Infoflow computation timed out: " + e.getMessage());
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			System.err.println("Infoflow computation interrupted: " + e.getMessage());
-			e.printStackTrace();
-		}
-		
-		// Make sure to remove leftovers
-		executor.shutdown();		
-		*/
-	}
-
-	private static void runAnalysisSysTimeout(final String fileName, final String androidJar) {
-		String classpath = System.getProperty("java.class.path");
-		String javaHome = System.getProperty("java.home");
-		String executable = "/usr/bin/timeout";
-		String[] command = new String[] { executable,
-				"-s", "KILL",
-				sysTimeout + "m",
-				javaHome + "/bin/java",
-				"-cp", classpath,
-				"soot.jimple.infoflow.android.TestApps.Test",
-				fileName,
-				androidJar,
-				config.getStopAfterFirstFlow() ? "--singleflow" : "--nosingleflow",
-				config.getEnableImplicitFlows() ? "--implicit" : "--noimplicit",
-				config.getEnableStaticFieldTracking() ? "--static" : "--nostatic", 
-				"--aplength", Integer.toString(InfoflowAndroidConfiguration.getAccessPathLength()),
-				"--cgalgo", callgraphAlgorithmToString(config.getCallgraphAlgorithm()),
-				config.getEnableCallbacks() ? "--callbacks" : "--nocallbacks",
-				config.getEnableExceptionTracking() ? "--exceptions" : "--noexceptions",
-				"--layoutmode", layoutMatchingModeToString(config.getLayoutMatchingMode()),
-				config.getFlowSensitiveAliasing() ? "--aliasflowsens" : "--aliasflowins",
-				config.getComputeResultPaths() ? "--paths" : "--nopaths",
-				aggressiveTaintWrapper ? "--aggressivetw" : "--nonaggressivetw",
-				"--pathalgo", pathAlgorithmToString(config.getPathBuilder()),
-				(summaryPath != null && !summaryPath.isEmpty()) ? "--summarypath" : "",
-				(summaryPath != null && !summaryPath.isEmpty()) ? summaryPath : "",
-				(resultFilePath != null && !resultFilePath.isEmpty()) ? "--saveresults" : "",
-				noTaintWrapper ? "--notaintwrapper" : "",
-//				"--repeatCount", Integer.toString(repeatCount),
-				config.getEnableArraySizeTainting() ? "" : "--noarraysize",
-				InfoflowAndroidConfiguration.getUseTypeTightening() ? "" : "--notypetightening",
-				InfoflowAndroidConfiguration.getUseThisChainReduction() ? "" : "--safemode",
-				config.getLogSourcesAndSinks() ? "--logsourcesandsinks" : "",
-				"--callbackanalyzer", callbackAlgorithmToString(config.getCallbackAnalyzer()),
-				"--maxthreadnum", Integer.toString(config.getMaxThreadNum()),
-				config.getEnableArraySizeTainting() ? "--arraysizetainting" : ""
-				};
-		System.out.println("Running command: " + executable + " " + Arrays.toString(command));
-		try {
-			ProcessBuilder pb = new ProcessBuilder(command);
-			pb.redirectOutput(new File("out_" + new File(fileName).getName() + "_" + repeatCount + ".txt"));
-			pb.redirectError(new File("err_" + new File(fileName).getName() + "_" + repeatCount + ".txt"));
-			Process proc = pb.start();
-			proc.waitFor();
-		} catch (IOException ex) {
-			System.err.println("Could not execute timeout command: " + ex.getMessage());
-			ex.printStackTrace();
-		} catch (InterruptedException ex) {
-			System.err.println("Process was interrupted: " + ex.getMessage());
-			ex.printStackTrace();
-		}
 	}
 	
 	private static String callgraphAlgorithmToString(CallgraphAlgorithm algorihm) {
@@ -1258,8 +1142,9 @@ public class Test {
 	
 	//TODO: modify return value;
 	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps, 
-			ValueResourceParser valResMgr, boolean onlyDoFast) {
+			boolean onlyDoFast) {
 		try {
+			System.out.println("WWWWWWAAAS");
 			final long beforeRun = System.nanoTime();
 			SetupApplication app1;
 			if (null == ipcManager) app1 = new SetupApplication(androidJar, fileName);
@@ -1273,6 +1158,9 @@ public class Test {
 						options.set_include_all(true);
 					}	
 				});
+			app1.initializeSoot(true);
+			System.out.println("CLASSPATH2:"+app1.getClasspath());
+			System.out.flush();
 			final ITaintPropagationWrapper taintWrapper1;
 			if (noTaintWrapper) taintWrapper1 = null;
 			else if (summaryPath != null && !summaryPath.isEmpty()) {
@@ -1303,8 +1191,9 @@ public class Test {
 			}
 			app1.setTaintWrapper(taintWrapper1);
 			app1.calculateSourcesSinksEntrypointsForConstantPropogation("Test.txt");
+			System.out.println("CLASSPATH:"+app1.getClasspath());
 			
-			Set<Stmt> findViewByIdStmts = app1.fastSearchKeyInvokeExprSearch(valResMgr);
+			Set<Stmt> findViewByIdStmts = app1.fastSearchKeyInvokeExprSearch();
 			
 			if(findViewByIdStmts==null || findViewByIdStmts.size()==0)
 				return null;
@@ -1377,7 +1266,7 @@ public class Test {
 			
 			System.out.println("Running data flow analysis...");
 			ConstantPropogationResultsHanlder rh = new ConstantPropogationResultsHanlder();
-			final InfoflowResults res = app.runInfoflowForConstantPropogation(rh, valResMgr);
+			final InfoflowResults res = app.runInfoflowForConstantPropogation(rh);
 			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
 			Map<Stmt,Set> constantAnalysisMap = rh.getRS();
@@ -1406,7 +1295,7 @@ public class Test {
 			resParser.parse(fileName);
 			ProcessManifest processMan = new ProcessManifest(fileName);
 			//this.appPackageName = processMan.getPackageName();
-			ParameterSearch ps = new ParameterSearch(valResMgr,  resParser.getPackages(),  processMan.getPackageName(),null);
+			ParameterSearch ps = new ParameterSearch(resParser.getPackages(),  processMan.getPackageName(),null);
 			ps.searchMethodCall("findViewById", null);
 			
 			return res;
