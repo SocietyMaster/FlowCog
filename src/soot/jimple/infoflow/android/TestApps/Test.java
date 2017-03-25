@@ -43,8 +43,10 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import nu.NUDisplay;
 import nu.NUSootConfig;
 import soot.Local;
+import soot.MethodOrMethodContext;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootMethod;
@@ -108,6 +110,7 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.Orderer;
 import soot.toolkits.graph.PseudoTopologicalOrderer;
 import soot.toolkits.graph.UnitGraph;
+import soot.util.queue.QueueReader;
 
 
 public class Test {
@@ -428,6 +431,8 @@ public class Test {
 	private static String resultFilePath = "";
 	
 	private static boolean DEBUG = false;
+	private static Set<Stmt> testx ;
+	
 
 	private static IIPCManager ipcManager = null;
 	public static void setIPCManager(IIPCManager ipcManager)
@@ -537,11 +542,13 @@ public class Test {
 			//Xiang: remove the timeout version because they are not implemented properly.
 			while (repeatCount > 0) {
 				System.gc();
-				//initialize soot path is necessary to initialize ValueResourceParser and ResourceManager
+				//initialize soot path is necessary to initialize ResourceManager
 				initializeSootConfigAndClassPath(fullFilePath, androidJarPath);
 				ResourceManager resMgr = ResourceManager.getInstance();
+				//extract key values from program.
+				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null);
 				
-				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null,true);
+				//start taint analysis
 				runNUDataFlowAnalysis(fullFilePath, args[1], resMgr);					
 				repeatCount--;
 			}
@@ -550,6 +557,7 @@ public class Test {
 		}
 	}
 	
+	//XIANG
 	static private void initializeSootConfigAndClassPath(String fileName, String androidJar){
 		SetupApplication app;
 		if (null == ipcManager)  app = new SetupApplication(androidJar, fileName);
@@ -558,36 +566,33 @@ public class Test {
 		app.initializeSoot(true);
 	}
 	
+	//XIANG
 	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar, ResourceManager resMgr){
-		//XIANG
 		GlobalData globalData = GlobalData.getInstance();
-		globalData.setEnableInterComponent(INTERCOMPONENTANALYSIS);
 		NUSootConfig config = NUSootConfig.getInstance();
+		config.setInterComponentAnalysisEnabled(INTERCOMPONENTANALYSIS);
 		config.setGraphEnhanceEnabled(false);
 		try{
 			File f = new File(tmpDirPath);
 			if(!f.exists() || !f.isDirectory()){
-				System.err.println("tmp folder not exits: "+tmpDirPath);
+				NUDisplay.error("tmp folder not exits: "+tmpDirPath, "runNUDataFlowAnalysis");
 				System.exit(1);
 			}
 		}
 		catch(Exception e){
-			System.err.println("tmp folder not exits:"+e.toString());
+			NUDisplay.error("tmp folder not exits:"+e.toString(), "runNUDataFlowAnalysis");
 			System.exit(1);
 		}
-		System.out.println("android jar: "+androidJar);
 		//first round data flow analysis to find flows.
 		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
-		
-		System.out.println("AAAAA Start second round.");
-		
+		//testx = extractFindViewById();
 		
 		System.out.println("Start correlating View and Flow.");
 		//second round data flow analysis to correlate flows and views.
 		//GraphTool.displayAllMethodGraph();
 		soot.G.reset();
 		
-		globalData.setAllowModification(false);
+		globalData.setAllowSensitiveUISourceUpdate(false);
 		config.setGraphEnhanceEnabled(true);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
@@ -595,6 +600,54 @@ public class Test {
 		fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 		//display for debug
 		displayFlowViewInfo(fps, resMgr);
+		//verifyFindViewById();
+	}
+	
+	public static Set<Stmt> extractFindViewById(){
+		Set<Stmt> set = new HashSet<Stmt>();
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt s = (Stmt)u;
+		    	if(s.containsInvokeExpr()){
+		    		InvokeExpr ie = s.getInvokeExpr();
+		    		if(ie.getMethod().getName().equals("findViewById")){
+		    			set.add(s);
+		    		}
+		    	}
+		    }
+		 }
+		return set;
+	}
+	public static void verifyFindViewById(){
+		Set<Stmt> set = new HashSet<Stmt>();
+		int cnt = 0;
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt s = (Stmt)u;
+		    	if(s.containsInvokeExpr()){
+		    		InvokeExpr ie = s.getInvokeExpr();
+		    		if(ie.getMethod().getName().equals("findViewById")){
+		    			if(testx.contains(s)) cnt++;
+		    			else {
+		    				System.out.println("MISSINGONE: "+s);
+		    			}
+		    		}
+		    	}
+		    }
+		 }
+		System.out.println("TESTRESULT:"+cnt+" vs "+testx.size());
 	}
 	
 	//XIANG
@@ -1055,7 +1108,6 @@ public class Test {
 			{
 				app = new SetupApplication(androidJar, fileName, ipcManager);
 			}
-			//XIANG
 			app.setFlowPathSet(fps);
 			
 			// Set configuration object
@@ -1138,36 +1190,33 @@ public class Test {
 			throw new RuntimeException(ex);
 		}
 	}
-	
-	
-	//TODO: modify return value;
-	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps, 
-			boolean onlyDoFast) {
+	//XIANG
+	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps) {
 		try {
-			System.out.println("WWWWWWAAAS");
-			final long beforeRun = System.nanoTime();
-			SetupApplication app1;
-			if (null == ipcManager) app1 = new SetupApplication(androidJar, fileName);
-			else app1 = new SetupApplication(androidJar, fileName, ipcManager);
+			NUDisplay.debug("start analysis for constant propogation", null);
 			
-			app1.setConfig(config);
+			final long beforeRun = System.nanoTime();
+			SetupApplication appFast;
+			if (null == ipcManager) appFast = new SetupApplication(androidJar, fileName);
+			else appFast = new SetupApplication(androidJar, fileName, ipcManager);
+			
+			appFast.setConfig(config);
 			if (noTaintWrapper)
-				app1.setSootConfig(new IInfoflowConfig() {
+				appFast.setSootConfig(new IInfoflowConfig() {
 					@Override
 					public void setSootOptions(Options options) {
 						options.set_include_all(true);
 					}	
 				});
-			app1.initializeSoot(true);
-			System.out.println("CLASSPATH2:"+app1.getClasspath());
-			System.out.flush();
+			appFast.initializeSoot(true);
+			
 			final ITaintPropagationWrapper taintWrapper1;
 			if (noTaintWrapper) taintWrapper1 = null;
 			else if (summaryPath != null && !summaryPath.isEmpty()) {
 				System.out.println("Using the StubDroid taint wrapper");
 				taintWrapper1 = createLibrarySummaryTW();
 				if (taintWrapper1 == null) {
-					System.err.println("Could not initialize StubDroid");
+					NUDisplay.error("Could not initialize StubDroid", "runAnalysisForConstantPropogation");
 					return null;
 				}
 			}
@@ -1181,32 +1230,33 @@ public class Test {
 					if (twSourceFile.exists())
 						easyTaintWrapper = new EasyTaintWrapper(twSourceFile);
 					else {
-						System.err.println("Taint wrapper definition file not found at "
-								+ twSourceFile.getAbsolutePath());
+						NUDisplay.error("Taint wrapper definition file not found at "
+								+ twSourceFile.getAbsolutePath(), 
+								"runAnalysisForConstantPropogation");
 						return null;
 					}
 				}
 				easyTaintWrapper.setAggressiveMode(aggressiveTaintWrapper);
 				taintWrapper1 = easyTaintWrapper;
 			}
-			app1.setTaintWrapper(taintWrapper1);
-			app1.calculateSourcesSinksEntrypointsForConstantPropogation("Test.txt");
-			System.out.println("CLASSPATH:"+app1.getClasspath());
+			appFast.setTaintWrapper(taintWrapper1);
+			appFast.calculateSourcesSinksEntrypointsForConstantPropogation("SourceAndSinksForFlowViewCorrelation.txt");
 			
-			Set<Stmt> findViewByIdStmts = app1.fastSearchKeyInvokeExprSearch();
+			
+			Set<Stmt> findViewByIdStmts = appFast.fastSearchKeyInvokeExprSearch();
 			
 			if(findViewByIdStmts==null || findViewByIdStmts.size()==0)
 				return null;
 			
-			if(onlyDoFast){
-				System.err.println("ALERT: exit because onlyDoFast");
-				//GraphTool.displayAllMethodGraph();
+			long time = (System.nanoTime() - beforeRun)/1000000;
+			NUSootConfig nuConfig = NUSootConfig.getInstance();
+			if(nuConfig.isFastConstantPropogationAnalysis()){
+				NUDisplay.debug("fast constant propogation analysis finished in "+time+" s.", null);
 				return null;
 			}
 			
-			//run data flow analysis 
-			//this could be very slow.
-			System.out.println("NULIST: start resolving constants.");
+			//TODO: Disabled for now because it's very slow. 
+			//Optimization is required
 			final SetupApplication app;
 			if (null == ipcManager)
 			{
@@ -1231,10 +1281,8 @@ public class Test {
 			if (noTaintWrapper)
 				taintWrapper = null;
 			else if (summaryPath != null && !summaryPath.isEmpty()) {
-				System.out.println("Using the StubDroid taint wrapper");
 				taintWrapper = createLibrarySummaryTW();
 				if (taintWrapper == null) {
-					System.err.println("Could not initialize StubDroid");
 					return null;
 				}
 			}

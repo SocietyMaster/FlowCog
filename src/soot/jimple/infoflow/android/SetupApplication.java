@@ -1091,63 +1091,6 @@ public class SetupApplication {
 			rsWithPathSet.setFlowPathSet(fpsLocal);
 			return rsWithPathSet;
 		}
-//		else {
-//			for(ResultSinkInfo sink : rs.getResults().keySet()){
-//				for(ResultSourceInfo source : rs.getResults().get(sink)){
-//					List<Integer> lfp = fps.findFlowPath((Stmt)sink.getSink(), info.getICFG());
-//					System.out.println("NULIST DEBUG: "+lfp.size()+" "+sink.getSink());
-//					Integer intVal = FlowPathSet.getViewIdFromStmt(source.getSource());
-//					if(intVal != null){
-//						for(int flowId : lfp)
-//							fps.addViewFlowMapping(flowId, intVal);
-//					}
-//					String key = FlowPathSet.getPreferenceKey(source.getSource());
-//					int tag = 0;
-//					if(key !=null){
-//						System.out.println("  NULIST: 1taint with Preference Key:"+key);
-//						tag = 1;
-//					}
-//					else{
-//						key = FlowPathSet.getIntentKey(source.getSource());
-//						if(key != null){
-//							System.out.println("  NULIST: 1taint with Intent Key:"+key);
-//							tag = 2;
-//						}
-//						else {
-//							key = FlowPathSet.getBundleKey(source.getSource());
-//							if(key != null){
-//								System.out.println("  NULIST: 1taint with Bundle Key:"+key);
-//								tag = 3;
-//							}
-//						}
-//					}
-//					Set<Integer> ids = null;
-//					switch (tag){
-//						case 1:
-//							ids = fps.getPreferenceKey2ViewIDMap().get(key);
-//							break;
-//						case 2:
-//							ids = fps.getIntentKey2ViewIDMap().get(key);
-//							break;
-//						case 3:
-//							ids = fps.getBundleKey2ViewIDMap().get(key);
-//							break;
-//						default:
-//							break;
-//					}
-//					if(ids != null){
-//						for(int flowId : lfp){
-//							for(int viewId : ids){
-//								fps.addViewFlowMapping(flowId, viewId);
-//								System.out.println("NULIST: 1AddViewFlowMaping via "+tag+":"+flowId+"->"+viewId);
-//								
-//							}
-//						}
-//					}
-//				}
-//			}
-//			
-//		}
 		return info.getResults();
 	}
 	
