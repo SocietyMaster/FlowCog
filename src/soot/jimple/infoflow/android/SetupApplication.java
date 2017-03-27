@@ -23,6 +23,9 @@ import java.util.Set;
 
 import javax.activation.UnsupportedDataTypeException;
 
+import nu.NUDisplay;
+import nu.NUSootConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -74,6 +77,7 @@ import soot.jimple.infoflow.nu.FlowPath;
 import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
+import soot.jimple.infoflow.nu.ToolSet;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
@@ -367,91 +371,6 @@ public class SetupApplication {
 		
 		calculateSourcesSinksEntrypoints(parser);
 	}
-	
-	/**
-	 * Calculates the sets of sources, sinks, entry points, and callback methods
-	 * for the given APK file.
-	 * 
-	 * @param sourceSinkFile
-	 *            The full path and file name of the file containing the sources and sinks
-	 * @throws IOException
-	 *             Thrown if the given source/sink file could not be read.
-	 * @throws XmlPullParserException
-	 *             Thrown if the Android manifest file could not be read.
-	 */
-	public void calculateSourcesSinksEntrypoints(String sourceSinkFile)
-			throws IOException, XmlPullParserException {
-		ISourceSinkDefinitionProvider parser = null;
-		
-		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
-		fileExtension = fileExtension.toLowerCase();
-		
-		try {
-			if (fileExtension.equals(".xml"))
-				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".txt"))
-				parser = PermissionMethodParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".rifl"))
-				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
-			else
-				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
-			
-			calculateSourcesSinksEntrypoints(parser);
-		}
-		catch (SAXException ex) {
-			throw new IOException("Could not read XML file", ex);
-		}
-	}
-	
-	//XPAN
-	public void calculateSourcesSinksEntrypointsForConstantPropogation(String sourceSinkFile)
-			throws IOException, XmlPullParserException {
-		ISourceSinkDefinitionProvider parser = null;
-		
-		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
-		fileExtension = fileExtension.toLowerCase();
-		
-		try {
-			if (fileExtension.equals(".xml"))
-				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".txt"))
-				parser = PermissionMethodParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".rifl"))
-				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
-			else
-				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
-			
-			calculateSourcesSinksEntrypointsForConstantPropogation(parser);
-		}
-		catch (SAXException ex) {
-			throw new IOException("Could not read XML file", ex);
-		}
-	}
-	
-	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(String sourceSinkFile, FlowPathSet fps)
-			throws IOException, XmlPullParserException {
-		ISourceSinkDefinitionProvider parser = null;
-		
-		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
-		fileExtension = fileExtension.toLowerCase();
-		
-		try {
-			if (fileExtension.equals(".xml"))
-				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".txt"))
-				parser = PermissionMethodParser.fromFile(sourceSinkFile);
-			else if (fileExtension.equals(".rifl"))
-				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
-			else
-				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
-			
-			calculateSourcesSinksEntrypointsForViewFlowCorrelation(parser, fps);
-		}
-		catch (SAXException ex) {
-			throw new IOException("Could not read XML file", ex);
-		}
-	}
-
 	/**
 	 * Calculates the sets of sources, sinks, entry points, and callbacks methods for the given APK file.
 	 * 
@@ -529,75 +448,66 @@ public class SetupApplication {
 		entryPointCreator = createEntryPointCreator();
 	}
 	
-	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(ISourceSinkDefinitionProvider sourcesAndSinks, FlowPathSet fps)
+	/**
+	 * Calculates the sets of sources, sinks, entry points, and callback methods
+	 * for the given APK file.
+	 * 
+	 * @param sourceSinkFile
+	 *            The full path and file name of the file containing the sources and sinks
+	 * @throws IOException
+	 *             Thrown if the given source/sink file could not be read.
+	 * @throws XmlPullParserException
+	 *             Thrown if the Android manifest file could not be read.
+	 */
+	public void calculateSourcesSinksEntrypoints(String sourceSinkFile)
 			throws IOException, XmlPullParserException {
-		// To look for callbacks, we need to start somewhere. We use the Android
-		// lifecycle methods for this purpose.
-		this.sourceSinkProvider = sourcesAndSinks;
-		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
-		this.appPackageName = processMan.getPackageName();
-		this.entrypoints = processMan.getEntryPointClasses();
-
-		// Parse the resource file
-		long beforeARSC = System.nanoTime();
-		ARSCFileParser resParser = new ARSCFileParser();
-		resParser.parse(apkFileLocation);
-		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
-		this.resourcePackages = resParser.getPackages();
-
-		// Add the callback methods
-		LayoutFileParser lfp = null;
-		if (config.getEnableCallbacks()) {
-			if (callbackClasses != null && callbackClasses.isEmpty()) {
-				logger.warn("Callback definition file is empty, disabling callbacks");
-			}
-			else {
-				lfp = new LayoutFileParser(this.appPackageName, resParser);
-				switch (config.getCallbackAnalyzer()) {
-				case Fast:
-					calculateCallbackMethodsFast(resParser, lfp);
-					break;
-				case Default:
-					calculateCallbackMethods(resParser, lfp);
-					break;
-				default:
-					throw new RuntimeException("Unknown callback analyzer");
-				}
-				
-				// Some informational output
-				System.out.println("Found " + lfp.getUserControls() + " layout controls");
-			}
-		}
+		ISourceSinkDefinitionProvider parser = null;
 		
-		System.out.println("Entry point calculation done.");
-
-		// Clean up everything we no longer need
-		soot.G.reset();
-
-		// Create the SourceSinkManager
-		{
-			Set<SootMethodAndClass> callbacks = new HashSet<>();
-			for (Set<SootMethodAndClass> methods : this.callbackMethods.values())
-				callbacks.addAll(methods);
-
-			sourceSinkManager = new ViewFlowRelateSourceSinkManager(
-					this.sourceSinkProvider.getSources(),
-					this.sourceSinkProvider.getSinks(),
-					callbacks,
-					config.getLayoutMatchingMode(),
-					lfp == null ? null : lfp.getUserControlsByID(), fps);
-
-			sourceSinkManager.setAppPackageName(this.appPackageName);
-			sourceSinkManager.setResourcePackages(this.resourcePackages);
-			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
-			fps.setSourceSinkMgr(sourceSinkManager);
-			//TODO: better to change to another location.
+		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
+		fileExtension = fileExtension.toLowerCase();
+		
+		try {
+			if (fileExtension.equals(".xml"))
+				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".txt"))
+				parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".rifl"))
+				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
+			else
+				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
 			
+			calculateSourcesSinksEntrypoints(parser);
 		}
-
-		entryPointCreator = createEntryPointCreator();
+		catch (SAXException ex) {
+			throw new IOException("Could not read XML file", ex);
+		}
 	}
 	
+	//Added by XIANG
+	public void calculateSourcesSinksEntrypointsForConstantPropogation(String sourceSinkFile)
+			throws IOException, XmlPullParserException {
+		ISourceSinkDefinitionProvider parser = null;
+		
+		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
+		fileExtension = fileExtension.toLowerCase();
+		
+		try {
+			if (fileExtension.equals(".xml"))
+				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".txt"))
+				parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".rifl"))
+				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
+			else
+				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
+			
+			calculateSourcesSinksEntrypointsForConstantPropogation(parser);
+		}
+		catch (SAXException ex) {
+			throw new IOException("Could not read XML file", ex);
+		}
+	}
+	//Added by XIANG
 	public void calculateSourcesSinksEntrypointsForConstantPropogation(ISourceSinkDefinitionProvider sourcesAndSinks)
 			throws IOException, XmlPullParserException {
 		// To look for callbacks, we need to start somewhere. We use the Android
@@ -611,7 +521,6 @@ public class SetupApplication {
 		long beforeARSC = System.nanoTime();
 		ARSCFileParser resParser = new ARSCFileParser();
 		resParser.parse(apkFileLocation);
-		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
 		this.resourcePackages = resParser.getPackages();
 
 		// Add the callback methods
@@ -632,14 +541,8 @@ public class SetupApplication {
 				default:
 					throw new RuntimeException("Unknown callback analyzer");
 				}
-				
-				// Some informational output
-				System.out.println("Found " + lfp.getUserControls() + " layout controls");
 			}
 		}
-		
-		System.out.println("Entry point calculation done.");
-
 		// Clean up everything we no longer need
 		soot.G.reset();
 
@@ -662,8 +565,94 @@ public class SetupApplication {
 		}
 
 		entryPointCreator = createEntryPointCreator();
-		
 	}
+	
+	//Added by XIANG
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(String sourceSinkFile, FlowPathSet fps)
+			throws IOException, XmlPullParserException {
+		ISourceSinkDefinitionProvider parser = null;
+		
+		String fileExtension = sourceSinkFile.substring(sourceSinkFile.lastIndexOf("."));
+		fileExtension = fileExtension.toLowerCase();
+		
+		try {
+			if (fileExtension.equals(".xml"))
+				parser = XMLSourceSinkParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".txt"))
+				parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			else if (fileExtension.equals(".rifl"))
+				parser = new RIFLSourceSinkDefinitionProvider(sourceSinkFile);
+			else
+				throw new UnsupportedDataTypeException("The Inputfile isn't a .txt or .xml file.");
+			
+			calculateSourcesSinksEntrypointsForViewFlowCorrelation(parser, fps);
+		}
+		catch (SAXException ex) {
+			throw new IOException("Could not read XML file", ex);
+		}
+	}
+	//Added by XIANG
+	public void calculateSourcesSinksEntrypointsForViewFlowCorrelation(ISourceSinkDefinitionProvider sourcesAndSinks, FlowPathSet fps)
+			throws IOException, XmlPullParserException {
+		this.sourceSinkProvider = sourcesAndSinks;
+		ProcessManifest processMan = new ProcessManifest(apkFileLocation);
+		this.appPackageName = processMan.getPackageName();
+		this.entrypoints = processMan.getEntryPointClasses();
+
+		// Parse the resource file
+		long beforeARSC = System.nanoTime();
+		ARSCFileParser resParser = new ARSCFileParser();
+		resParser.parse(apkFileLocation);
+		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
+		this.resourcePackages = resParser.getPackages();
+
+		// Add the callback methods
+		LayoutFileParser lfp = null;
+		if (config.getEnableCallbacks()) {
+			if (callbackClasses != null && callbackClasses.isEmpty()) {
+				logger.warn("Callback definition file is empty, disabling callbacks");
+			}
+			else {
+				lfp = new LayoutFileParser(this.appPackageName, resParser);
+				switch (config.getCallbackAnalyzer()) {
+				case Fast:
+					calculateCallbackMethodsFast(resParser, lfp);
+					break;
+				case Default:
+					calculateCallbackMethods(resParser, lfp);
+					break;
+				default:
+					throw new RuntimeException("Unknown callback analyzer");
+				}
+			}
+		}
+
+		// Clean up everything we no longer need
+		soot.G.reset();
+
+		// Create the SourceSinkManager
+		{
+			Set<SootMethodAndClass> callbacks = new HashSet<>();
+			for (Set<SootMethodAndClass> methods : this.callbackMethods.values())
+				callbacks.addAll(methods);
+
+			sourceSinkManager = new ViewFlowRelateSourceSinkManager(
+					this.sourceSinkProvider.getSources(),
+					this.sourceSinkProvider.getSinks(),
+					callbacks,
+					config.getLayoutMatchingMode(),
+					lfp == null ? null : lfp.getUserControlsByID(), fps);
+
+			sourceSinkManager.setAppPackageName(this.appPackageName);
+			sourceSinkManager.setResourcePackages(this.resourcePackages);
+			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
+			fps.setSourceSinkMgr(sourceSinkManager);
+		}
+
+		entryPointCreator = createEntryPointCreator();
+	}
+	
+	
 	
 	
 
@@ -1067,6 +1056,7 @@ public class SetupApplication {
 		this.collectedSinks = info.getCollectedSinks();
 		GlobalData gData = GlobalData.getInstance();
 		gData.setICFG(info.getICFG());
+		ToolSet.setICFG(info.getICFG());
 		
 		InfoflowResults rs = info.getResults();
 		if(fps == null){
@@ -1074,25 +1064,21 @@ public class SetupApplication {
 			for(ResultSinkInfo sink : rs.getResults().keySet()){
 				for(ResultSourceInfo source : rs.getResults().get(sink)){
 					FlowPath fp = new FlowPath(info.getICFG(), source, sink,
-							fpsLocal.getEventListenerMap(), fpsLocal.getLifeCycleEventListenerSet(),
+							 fpsLocal.getLifeCycleEventListenerSet(),
 							fpsLocal.getRegistryMap());
 					fpsLocal.addFlowPath(fp);
 				}
 			}
-			if(gData.enableInterComponent()){
-				System.out.println("NULIST: do inter-component analysis");
+			NUSootConfig nuConfig = NUSootConfig.getInstance();
+			if(nuConfig.isInterComponentAnalysisEnabled())
 				fpsLocal.handleInterComponent();
-			}
-			else{
-				System.out.println("NULIST: no inter-component analysis");
-			}
 
 			InfoflowResultsWithFlowPathSet rsWithPathSet = new InfoflowResultsWithFlowPathSet(rs);
 			rsWithPathSet.setFlowPathSet(fpsLocal);
 			return rsWithPathSet;
 		}
 		return info.getResults();
-	}
+	} 
 	
 	public Set<Stmt> fastSearchKeyInvokeExprSearch(){
 		Infoflow info;
@@ -1121,22 +1107,12 @@ public class SetupApplication {
 		}
 		info.initializeSootWithoutPerformingInfoflow(apkFileLocation, path, entryPointCreator);
 		
-		ParameterSearch ps = new ParameterSearch( this.resourcePackages,this.appPackageName, info.getICFG());
-		//====DEBUG======
-//		Set<Stmt> rs = null;
-//		ps.searchMethodCallVaguely("get", "android.os.Bundle");
-//		ps.searchMethodCallVaguely("put", "android.os.Bundle");
-//		ps.searchMethodCallVaguely("get", "android.content.Intent");
-//		ps.searchMethodCallVaguely("put", "android.content.Intent");
-		//===============
-		
+		ParameterSearch ps = new ParameterSearch( this.resourcePackages, this.appPackageName, info.getICFG());
 		ps.setBackgroundResourceProcessing();
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
-		//TODO:comment for debugging
 		ps.extractDynamicTexts();
-//		
-		//GraphTool.displayAllMethodGraph();
+
 		soot.G.reset();
 		return rs;
 	}
@@ -1146,8 +1122,8 @@ public class SetupApplication {
 		if (this.sourceSinkProvider == null)
 			throw new RuntimeException("Sources and/or sinks not calculated yet");
 
-		System.out.println("Running data flow analysis on " + apkFileLocation + " with " + getSources().size()
-				+ " sources and " + getSinks().size() + " sinks...");
+		NUDisplay.debug("Running data flow analysis on " + apkFileLocation + " with " + getSources().size()
+				+ " sources and " + getSinks().size() + " sinks...", null);
 		Infoflow info;
 		if (cfgFactory == null)
 			info = new Infoflow(androidJar, forceAndroidJar, null,
@@ -1183,11 +1159,6 @@ public class SetupApplication {
 		this.maxMemoryConsumption = info.getMaxMemoryConsumption();
 		this.collectedSources = info.getCollectedSources();
 		this.collectedSinks = info.getCollectedSinks();
-		
-		//((ConstantPropogationSourceSinkManager)sourceSinkManager).displayAllSourceStmts(info.getICFG());
-		//ps.searchMethodCall("findViewById", null);
-		
-		//icfg.get
 		return info.getResults();
 	}
 

@@ -72,14 +72,8 @@ public class ConstantPropogationSourceSinkManager extends AccessPathBasedSourceS
 	@Override
 	public SourceInfo getSourceInfo(Stmt stmt, InterproceduralCFG<Unit, SootMethod> cfg) {
 		SourceType type = getSourceType(stmt, cfg);
-		//System.out.println("getSourceInfo: "+sCallSite+" // "+type);
-		//if (type!=SourceType.IntConstantSource && type!=SourceType.StringConstantSource)
-		//	return null;
 		if (type!=SourceType.IntConstantSource)
 			return null;
-		
-		System.out.println("SOURCE:"+stmt);
-		
 		if(stmt instanceof DefinitionStmt){
 			DefinitionStmt defStmt = (DefinitionStmt) stmt;
 			return new SourceInfo(AccessPathFactory.v().createAccessPath(

@@ -22,8 +22,9 @@ import nu.NUSootConfig;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
+import soot.jimple.infoflow.nu.IResourceManager;
 
-public class ResourceManager {
+public class ResourceManager implements IResourceManager{
 	final static boolean debug = true;
 	private static ResourceManager resMgr = null;
 	public static ResourceManager getInstance(){
@@ -37,6 +38,8 @@ public class ResourceManager {
 	private Map<Integer, LayoutTextTreeNode> id2Node;
 	private Map<String, LayoutTextTreeNode> layouts;
 	private Map<String, Set<Integer>> xmlEventHandler2ViewIds;
+	private List<ARSCFileParser.ResPackage> resourcePackages;
+	private String appPackageName;
 	
 	private class ValueResourceParser {
 		private final Map<String, Integer> decompiledValuesNameIDMap = new HashMap<String, Integer>();
@@ -214,18 +217,23 @@ public class ResourceManager {
 		NUSootConfig nuConfig = NUSootConfig.getInstance();
 		ProcessManifest processMan = null;
 		ResourceManager resMgr = null;
-		String appPackageName = null;
+		this.appPackageName = null;
 		try{
 			processMan = new ProcessManifest(nuConfig.getFullAPKFilePath());
-			appPackageName = processMan.getPackageName();
+			this.appPackageName = processMan.getPackageName();
 		}
 		catch(Exception e){
 			NUDisplay.error("failed to extract app package name: "+e, "ResourceManager");
 			System.exit(1);
 		}
 		
-		init(nuConfig.getFullAPKFilePath(), appPackageName, nuConfig.getApkToolPath(), 
+		init(nuConfig.getFullAPKFilePath(), this.appPackageName, nuConfig.getApkToolPath(), 
 				nuConfig.getDecompiledAPKOutputPath());
+	}
+	
+	public int resourcePakcageSize(){
+		if(resourcePackages == null) return -1;
+		return resourcePackages.size();
 	}
 	
 	private void init(String apkFileLocation, String appPackageName, String apkToolPath, String tmpDirPath){
@@ -240,6 +248,7 @@ public class ResourceManager {
 			System.err.println("NULIST: failed to init FlowTriggerEventAnalyzer: ARSCFileParser");
 			e.printStackTrace();
 		}
+		resourcePackages = resParser.getPackages();
 		valResParser = new ValueResourceParser(apkFileLocation, apkToolPath, tmpDirPath);
 		valResParser.displayDecompiledValueIDPairs();
 		
@@ -289,5 +298,35 @@ public class ResourceManager {
 		for(String cls : layouts.keySet()){
 			NUDisplay.debug(" LAYOUTTEXT2: "+cls+" "+layouts.get(cls).toStringTree(0,""), null);
 		}
+	}
+
+	@Override
+	public Integer getResourceId(String resName, String resID, String packageName) {
+		AbstractResource res = findResource(resName, resID, packageName);
+		if(res != null){
+			NUDisplay.debug("TODO: testing "+res.getResourceID(), "getResourceId");
+			return res.getResourceID();
+		}
+		return null;
+	}
+	
+	private AbstractResource findResource(String resName, String resID, String packageName) {
+		// Find the correct package
+		for (ARSCFileParser.ResPackage pkg : this.resourcePackages) {
+			// If we don't have any package specification, we pick the app's
+			// default package
+			boolean matches = (packageName == null || packageName.isEmpty()) && pkg.getPackageName().equals(this.appPackageName);
+			matches |= pkg.getPackageName().equals(packageName);
+			if (!matches)
+				continue;
+
+			// We have found a suitable package, now look for the resource
+			for (ARSCFileParser.ResType type : pkg.getDeclaredTypes())
+				if (type.getTypeName().equals(resID)) {
+					AbstractResource res = type.getFirstResource(resName);
+					return res;
+				}
+		}
+		return null;
 	}
 }

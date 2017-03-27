@@ -1,0 +1,88 @@
+<android.location.Location: double getLatitude()> -> _SOURCE_   android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION
+<android.location.Location: double getLongitude()> -> _SOURCE_ 	android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION
+
+<android.telephony.TelephonyManager: java.lang.String getDeviceId()> android.permission.READ_PHONE_STATE -> _SOURCE_             android.permission.READ_PHONE_STAT
+<android.telephony.TelephonyManager: java.lang.String getSubscriberId()> android.permission.READ_PHONE_STATE -> _SOURCE_         android.permission.READ_PHONE_STAT
+<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()> android.permission.READ_PHONE_STATE -> _SOURCE_      android.permission.READ_PHONE_STAT
+<android.telephony.TelephonyManager: java.lang.String getLine1Number()> android.permission.READ_PHONE_STATE -> _SOURCE_          android.permission.READ_PHONE_STAT
+
+<java.net.URLConnection: java.io.OutputStream getOutputStream()> -> _SOURCE_       android.permission.INTERNET
+<java.net.URLConnection: java.io.InputStream getInputStream()> -> _SOURCE_         android.permission.INTERNET
+
+<org.apache.http.HttpResponse: org.apache.http.HttpEntity getEntity()> -> _SOURCE_   android.permission.INTERNET
+<org.apache.http.util.EntityUtils: java.lang.String toString(org.apache.http.HttpEntity)> -> _SOURCE_   android.permission.INTERNET
+<org.apache.http.util.EntityUtils: java.lang.String toString(org.apache.http.HttpEntity,java.lang.String)> -> _SOURCE_   android.permission.INTERNET
+<org.apache.http.util.EntityUtils: byte[] toByteArray(org.apache.http.HttpEntity)> -> _SOURCE_   android.permission.INTERNET
+<org.apache.http.util.EntityUtils: java.lang.String getContentCharSet(org.apache.http.HttpEntity)> -> _SOURCE_   android.permission.INTERNET
+
+<android.media.AudioRecord: int read(short[],int,int)> -> _SOURCE_   android.permission.RECORD_AUDIO
+<android.media.AudioRecord: int read(byte[],int,int)> -> _SOURCE_   android.permission.RECORD_AUDIO
+<android.media.AudioRecord: int read(java.nio.ByteBuffer,int)> -> _SOURCE_   android.permission.RECORD_AUDIO
+
+<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)> -> _SOURCE_   android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION
+
+<java.net.URL: void set(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String)> -> _SINK_    android.permission.INTERNET
+<java.net.URL: void set(java.lang.String,java.lang.String,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)> -> _SINK_   android.permission.INTERNET
+
+<java.net.URLConnection: void setRequestProperty(java.lang.String,java.lang.String)`> -> _SINK_   android.permission.INTERNET
+
+<android.telephony.SmsManager: void sendTextMessage(java.lang.String,java.lang.String,java.lang.String,android.app.PendingIntent,android.app.PendingIntent)> android.permission.SEND_SMS -> _SINK_  android.permission.SEND_SMS
+<android.telephony.SmsManager: void sendDataMessage(java.lang.String,java.lang.String,short,byte[],android.app.PendingIntent,android.app.PendingIntent)> android.permission.SEND_SMS -> _SINK_   android.permission.SEND_SMS
+<android.telephony.SmsManager: void sendMultipartTextMessage(java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList,java.util.ArrayList)> android.permission.SEND_SMS -> _SINK_  android.permission.SEND_SMS
+<java.net.Socket: void connect(java.net.SocketAddress)> -> _SINK_ android.permission.INTERNET
+
+
+<android.bluetooth.BluetoothAdapter: java.lang.String getAddress()> -> _SOURCE_   android.permission.BLUETOOTH
+
+<android.net.wifi.WifiInfo: java.lang.String getMacAddress()> -> _SOURCE_   android.permission.ACCESS_WIFI_STATE
+
+<android.net.wifi.WifiInfo: java.lang.String getSSID()> -> _SOURCE_   android.permission.ACCESS_WIFI_STATE
+<android.telephony.gsm.GsmCellLocation: int getCid()> -> _SOURCE_   android.permission.ACCESS_COARSE_LOCATION
+<android.telephony.gsm.GsmCellLocation: int getLac()> -> _SOURCE_   android.permission.ACCESS_COARSE_LOCATION
+<android.location.Location: double getLongitude()> -> _SOURCE_   android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION
+<android.location.Location: double getLatitude()> -> _SOURCE_   android.permission.ACCESS_FINE_LOCATION, android.permission.ACCESS_COARSE_LOCATION
+<android.accounts.AccountManager: android.accounts.Account[] getAccounts()> -> _SOURCE_   android.permission.GET_ACCOUNTS 
+
+<java.util.Calendar: java.util.TimeZone getTimeZone()> -> _SOURCE_   android.permission.READ_CALENDAR
+
+<android.provider.Browser: android.database.Cursor getAllBookmarks()> -> _SOURCE_   com.android.browser.permission.READ_HISTORY_BOOKMARKS
+<android.provider.Browser: android.database.Cursor getAllVisitedUrls()> -> _SOURCE_   com.android.browser.permission.READ_HISTORY_BOOKMARKS
+
+<java.net.URL: java.net.URLConnection openConnection()> -> _SOURCE_    android.permission.INTERNET
+
+<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)> -> _SINK_   android.permission.INTERNET
+<org.apache.http.client.HttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)> -> _SINK_   android.permission.INTERNET
+
+<java.net.URL: void <init>(java.lang.String,java.lang.String,int,java.lang.String)> -> _SINK_   android.permission.INTERNET
+<java.net.URL: void <init>(java.lang.String,java.lang.String,java.lang.String)> -> _SINK_    android.permission.INTERNET
+<java.net.URL: void <init>(java.lang.String,java.lang.String,int,java.lang.String,java.net.URLStreamHandler)> -> _SINK_   android.permission.INTERNET
+<java.net.URL: void <init>(java.lang.String)> -> _SINK_   android.permission.INTERNET
+<java.net.URL: void <init>(java.net.URL,java.lang.String)> -> _SINK_   android.permission.INTERNET
+<java.net.URL: void <init>(java.net.URL,java.lang.String,java.net.URLStreamHandler)> -> _SINK_   android.permission.INTERNET
+
+
+//XIANG: change all permission of android.content.ContentResolver
+<android.content.ContentResolver: android.net.Uri insert(android.net.Uri,android.content.ContentValues)> -> _SINK_  //XIANG: customer permission. ContentProvider
+<android.content.ContentResolver: int delete(android.net.Uri,java.lang.String,java.lang.String[])> -> _SINK_   //XIANG: customer permission. ContentProvider
+<android.content.ContentResolver: int update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[])> -> _SINK_   //XIANG: customer permission. ContentProvider 
+<android.content.ContentResolver: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)> -> _SINK_  //XIANG: customer permission. ContentProvider
+<android.content.ContentResolver: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,android.os.CancellationSignal)> -> _SINK_  //XIANG: customer permission. ContentProvider
+<android.content.ContentResolver: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)> -> _SOURCE_   //XIANG: customer permission. ContentProvider
+<android.content.ContentResolver: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,android.os.CancellationSignal)> -> _SOURCE_   //XIANG: customer permission. ContentProvider
+
+<android.app.Activity: android.view.View findViewById(int)> -> _SOURCE_ //XIANG customer permission: password
+<android.database.Cursor: java.lang.String getString(int)> -> _SOURCE_
+<android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)> -> _SOURCE_  //XIANG customer permission: Database
+<android.database.sqlite.SQLiteDatabase: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,android.os.CancellationSignal)> -> _SOURCE_
+//XIANG customer permission: Database
+
+
+<java.util.Locale: java.lang.String getCountry()> -> _SOURCE_  //XIANG: Location ?
+
+//XIANG: customer permission: PackageManager.
+<android.content.pm.PackageManager: java.util.List getInstalledApplications(int)> -> _SOURCE_
+<android.content.pm.PackageManager: java.util.List getInstalledPackages(int)> -> _SOURCE_
+<android.content.pm.PackageManager: java.util.List queryIntentActivities(android.content.Intent,int)> -> _SOURCE_
+<android.content.pm.PackageManager: java.util.List queryIntentServices(android.content.Intent,int)> -> _SOURCE_
+<android.content.pm.PackageManager: java.util.List queryBroadcastReceivers(android.content.Intent,int)> -> _SOURCE_
+<android.content.pm.PackageManager: java.util.List queryContentProviders(java.lang.String,int,int)> -> _SOURCE_

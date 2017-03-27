@@ -95,6 +95,7 @@ import soot.jimple.infoflow.nu.FlowPath;
 import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
+import soot.jimple.infoflow.nu.ToolSet;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
@@ -431,7 +432,7 @@ public class Test {
 	private static String resultFilePath = "";
 	
 	private static boolean DEBUG = false;
-	private static Set<Stmt> testx ;
+	private static Set<String> testx ;
 	
 
 	private static IIPCManager ipcManager = null;
@@ -544,12 +545,10 @@ public class Test {
 				System.gc();
 				//initialize soot path is necessary to initialize ResourceManager
 				initializeSootConfigAndClassPath(fullFilePath, androidJarPath);
-				ResourceManager resMgr = ResourceManager.getInstance();
 				//extract key values from program.
 				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null);
-				
 				//start taint analysis
-				runNUDataFlowAnalysis(fullFilePath, args[1], resMgr);					
+				runNUDataFlowAnalysis(fullFilePath, androidJarPath);					
 				repeatCount--;
 			}
 			
@@ -557,17 +556,20 @@ public class Test {
 		}
 	}
 	
-	//XIANG
+	//Added by XIANG
 	static private void initializeSootConfigAndClassPath(String fileName, String androidJar){
 		SetupApplication app;
 		if (null == ipcManager)  app = new SetupApplication(androidJar, fileName);
 		else app = new SetupApplication(androidJar, fileName, ipcManager);
 		app.setConfig(config);
 		app.initializeSoot(true);
+		ResourceManager resMgr = ResourceManager.getInstance();
+		ToolSet.setResourceManager(resMgr);
 	}
 	
-	//XIANG
-	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar, ResourceManager resMgr){
+	//Added by XIANG
+	static private void runNUDataFlowAnalysis(String fullFilePath, String androidJar){
+		ResourceManager resMgr = ResourceManager.getInstance();
 		GlobalData globalData = GlobalData.getInstance();
 		NUSootConfig config = NUSootConfig.getInstance();
 		config.setInterComponentAnalysisEnabled(INTERCOMPONENTANALYSIS);
@@ -584,73 +586,21 @@ public class Test {
 			System.exit(1);
 		}
 		//first round data flow analysis to find flows.
+		NUDisplay.info("Start information leakage analysis.", null);
 		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
-		//testx = extractFindViewById();
 		
-		System.out.println("Start correlating View and Flow.");
 		//second round data flow analysis to correlate flows and views.
-		//GraphTool.displayAllMethodGraph();
+		NUDisplay.info("Start View-Flow correlation analysis.", null);
 		soot.G.reset();
-		
 		globalData.setAllowSensitiveUISourceUpdate(false);
 		config.setGraphEnhanceEnabled(true);
 		runAnalysisForFlowViewCorrelation(fullFilePath, androidJar, fps);
 				
-		//correlate view and flow based on events defined in XML file
-		fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 		//display for debug
 		displayFlowViewInfo(fps, resMgr);
-		//verifyFindViewById();
 	}
 	
-	public static Set<Stmt> extractFindViewById(){
-		Set<Stmt> set = new HashSet<Stmt>();
-		for (QueueReader<MethodOrMethodContext> rdr =
-				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
-			SootMethod m = rdr.next().method();
-			if(!m.hasActiveBody())
-				continue;
-			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
-		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
-		    for (Unit u : orderer.newList(g, false)) {
-		    	Stmt s = (Stmt)u;
-		    	if(s.containsInvokeExpr()){
-		    		InvokeExpr ie = s.getInvokeExpr();
-		    		if(ie.getMethod().getName().equals("findViewById")){
-		    			set.add(s);
-		    		}
-		    	}
-		    }
-		 }
-		return set;
-	}
-	public static void verifyFindViewById(){
-		Set<Stmt> set = new HashSet<Stmt>();
-		int cnt = 0;
-		for (QueueReader<MethodOrMethodContext> rdr =
-				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
-			SootMethod m = rdr.next().method();
-			if(!m.hasActiveBody())
-				continue;
-			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
-		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
-		    for (Unit u : orderer.newList(g, false)) {
-		    	Stmt s = (Stmt)u;
-		    	if(s.containsInvokeExpr()){
-		    		InvokeExpr ie = s.getInvokeExpr();
-		    		if(ie.getMethod().getName().equals("findViewById")){
-		    			if(testx.contains(s)) cnt++;
-		    			else {
-		    				System.out.println("MISSINGONE: "+s);
-		    			}
-		    		}
-		    	}
-		    }
-		 }
-		System.out.println("TESTRESULT:"+cnt+" vs "+testx.size());
-	}
-	
-	//XIANG
+	//Added by XIANG
 	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
 			System.out.println("NULIST: Display Flow Index");
 			GlobalData gData = GlobalData.getInstance();
@@ -705,16 +655,10 @@ public class Test {
 					System.out.println("NULIST:[END]");
 				}
 			}
-			//resMgr.getL
 			//then go through the views triggered by life cycle events (e.g., onCreate)
 			//display the layout information.
 			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
 			for(int i=0; i<fps.getLst().size(); i++){
-//				FlowPath fp2 = fps.getLst().get(i);
-//				Set<String> ss = fp2.getEventListenerClassSet();
-//				for(String s : ss){
-//					System.out.println("XPAN: "+s);
-//				}
 				//only display those flows without associated views
 				if(!map.containsKey(i)){
 					FlowPath fp = fps.getLst().get(i);
@@ -1064,9 +1008,7 @@ public class Test {
 			System.out.println("Running data flow analysis...");
 
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-
 			InfoflowResultsWithFlowPathSet resFPS = (InfoflowResultsWithFlowPathSet)res;
-			
 			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds");
 			
 			if (config.getLogSourcesAndSinks()) {
@@ -1094,7 +1036,7 @@ public class Test {
 		}
 	}
 	
-	//XIANG
+	//Added by XIANG
 	private static InfoflowResults runAnalysisForFlowViewCorrelation(final String fileName, final String androidJar, FlowPathSet fps) {
 		try {
 			final long beforeRun = System.nanoTime();
@@ -1158,39 +1100,41 @@ public class Test {
 			app.printSinks();
 			app.printSources();
 			
-			
-			System.out.println("Running data flow analysis for flow view correlation...");
+			NUDisplay.debug("Running data flow analysis for flow view correlation...", 
+					"runAnalysisForFlowViewCorrelation");
 			final InfoflowResults res = app.runInfoflow(new MyResultsAvailableHandler());
-			
 			fps.updateViewsInPaths();
-			
-			System.out.println("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA");
+			NUDisplay.debug("Analysis has run for " + (System.nanoTime() - beforeRun) / 1E9 + " seconds. Correlation TA", 
+					"runAnalysisForFlowViewCorrelation");
 			
 			if (config.getLogSourcesAndSinks()) {
 				if (!app.getCollectedSources().isEmpty()) {
-					System.out.println("Collected sources:");
+					NUDisplay.debug("Collected sources:", "runAnalysisForFlowViewCorrelation");
 					for (Stmt s : app.getCollectedSources())
-						System.out.println("\t" + s);
+						NUDisplay.debug("\t" + s, "runAnalysisForFlowViewCorrelation");
 				}
 				if (!app.getCollectedSinks().isEmpty()) {
-					System.out.println("Collected sinks:");
+					NUDisplay.debug("Collected sinks:", null);
 					for (Stmt s : app.getCollectedSinks())
-						System.out.println("\t" + s);
+						NUDisplay.debug("\t" + s, "runAnalysisForFlowViewCorrelation");
 				}
 			}
+			//correlate view and flow based on events defined in XML file
+			ResourceManager resMgr = ResourceManager.getInstance();
+			fps.updateXMLEventListener(resMgr.getXMLEventHandler2ViewIds());
 			
 			return res;
 		} catch (IOException ex) {
-			System.err.println("Could not read file: " + ex.getMessage());
+			NUDisplay.error("Could not read file: " + ex.getMessage(), null);
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		} catch (XmlPullParserException ex) {
-			System.err.println("Could not read Android manifest file: " + ex.getMessage());
+			NUDisplay.error("Could not read Android manifest file: " + ex.getMessage(), null);
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		}
 	}
-	//XIANG
+	//Added by XIANG
 	private static InfoflowResults runAnalysisForConstantPropogation(final String fileName, final String androidJar, FlowPathSet fps) {
 		try {
 			NUDisplay.debug("start analysis for constant propogation", null);

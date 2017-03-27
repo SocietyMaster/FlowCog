@@ -23,6 +23,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.jimple.infoflow.nu.IAbstractResource;
+
 /**
  * Parser for reading out the contents of Android's resource.arsc file.
  * Structure declarations and comments taken from the Android source
@@ -354,7 +356,7 @@ public class ARSCFileParser extends AbstractResourceParser {
 	/**
 	 * Abstract base class for all Android resources.
 	 */
-	public abstract class AbstractResource {
+	public abstract class AbstractResource implements IAbstractResource{
 		private String resourceName;
 		private int resourceID;
 		
