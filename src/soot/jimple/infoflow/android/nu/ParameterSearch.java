@@ -197,7 +197,6 @@ public class ParameterSearch {
 	}
 	
 	public void setBackgroundResourceProcessing(){
-		//first search all findViewById statements
 		GlobalData gData = GlobalData.getInstance();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
@@ -230,10 +229,8 @@ public class ParameterSearch {
 		    		
 		    		//v2
 		    		Integer id = ToolSet.findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), SET_BACKGROUND_RESOURCE);
-		    		if(id == null){
+		    		if(id == null)
 		    			System.out.println("  Failed to resolve this ID. (SetBackgroundResource)");
-		    		
-		    		}
 		    		else{
 		    			System.out.println("  ID Value: "+id);
 		    			
@@ -894,8 +891,6 @@ public class ParameterSearch {
 		}
 		return false;
 	}
-	
-	
 	
 //	private Integer findLastResIDAssignment(Stmt stmt, Value target, BiDiInterproceduralCFG<Unit, SootMethod> cfg, 
 //			Set<Stmt> visited, String methodName) {

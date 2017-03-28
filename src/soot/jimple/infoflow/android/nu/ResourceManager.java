@@ -94,16 +94,16 @@ public class ResourceManager implements IResourceManager{
 		private void decompileApk(String filename, String path){
 			try{
 				String cmd = apkToolPath+" d "+filename +" -o "+path;
-				System.out.println("Execute cmd: "+cmd);
+				NUDisplay.debug("Execute cmd: "+cmd, "decompileApk");
 				Process p = Runtime.getRuntime().exec(cmd);
 			    p.waitFor(); 
 			    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			    String line = "";
 			    while((line = reader.readLine()) != null)
-			    	System.out.print("Decompiling APK: "+line + "\n");
+			    	NUDisplay.debug("Decompiling APK: "+line,"decompileApk");
 			}
 			catch(Exception e){
-				System.out.println("Error in compiling apk:"+e.toString());
+				NUDisplay.error("Error in compiling apk:"+e.toString(), "decompileApk");
 			}
 		}
 		
@@ -304,7 +304,6 @@ public class ResourceManager implements IResourceManager{
 	public Integer getResourceId(String resName, String resID, String packageName) {
 		AbstractResource res = findResource(resName, resID, packageName);
 		if(res != null){
-			NUDisplay.debug("TODO: testing "+res.getResourceID(), "getResourceId");
 			return res.getResourceID();
 		}
 		return null;
