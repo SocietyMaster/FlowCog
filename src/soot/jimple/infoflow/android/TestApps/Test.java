@@ -648,10 +648,6 @@ public class Test {
 					
 					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => dynamic view ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
-					
-					//String texts = resMgr.getTextsById(viewId);
-					//System.out.println("NULIST:[TEXT]:"+texts);
-					
 					System.out.println("NULIST:[END]");
 				}
 			}
