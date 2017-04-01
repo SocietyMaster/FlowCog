@@ -434,7 +434,6 @@ public class Test {
 	private static String resultFilePath = "";
 	
 	private static boolean DEBUG = false;
-	private static Set<String> testx ;
 	
 
 	private static IIPCManager ipcManager = null;
@@ -549,11 +548,11 @@ public class Test {
 				initializeSootConfigAndClassPath(fullFilePath, androidJarPath);
 				//extract key values from program.
 				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null);
-//				if(TESTING){
-//					NUDisplay.alert("In debugging mode, exit early", "main");
-//					
-//					return ;
-//				}
+				if(TESTING){
+					NUDisplay.alert("In debugging mode, exit early", "main");
+					
+					return ;
+				}
 				//start taint analysis
 				runNUDataFlowAnalysis(fullFilePath, androidJarPath);	
 				//GraphTool.displayAllMethodGraph();

@@ -427,7 +427,7 @@ public class ParameterSearch {
 		    	if(!stmt.containsInvokeExpr())
 		    		continue;
 		    	if(isInternetSinkStmt(stmt)){
-		    		NUDisplay.debug("Found one sink:"+stmt +" @"+m.getName(), null);
+		    		NUDisplay.debug("Found one sink--:"+stmt +" @"+m.getName(), null);
 		    		GraphTool.displayGraph(g, m);
 		    		InvokeExpr ie = stmt.getInvokeExpr();
 		    		if(ie.getMethod().getName().equals("<init>")){
