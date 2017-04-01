@@ -413,7 +413,7 @@ public class ParameterSearch {
 	
 	public void extractURLAddress(){
 		NUDisplay.debug("start extracting url's addresses", "extractURLAddress");
-		//GraphTool.displayAllMethodGraph();
+		GraphTool.displayAllMethodGraph();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
