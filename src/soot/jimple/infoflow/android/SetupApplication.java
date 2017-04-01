@@ -1111,7 +1111,9 @@ public class SetupApplication {
 		ps.setBackgroundResourceProcessing();
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
+		ps.debugFunctionCall();
 		ps.extractDynamicTexts();
+		ps.extractURLAddress();
 
 		soot.G.reset();
 		return rs;

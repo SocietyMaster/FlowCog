@@ -308,6 +308,29 @@ public class ParameterSearch {
 		    }
 		}
 	}
+	public void debugFunctionCall(){
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+			GlobalData gData = GlobalData.getInstance();
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt stmt = (Stmt)u;
+		    	if(!stmt.containsInvokeExpr())
+		    		continue;
+		    	InvokeExpr ie = stmt.getInvokeExpr();
+		    	if(ie instanceof InstanceInvokeExpr){
+		    		if(ie.getMethod().getName().equals("run") || 
+		    				ie.getMethod().getName().equals("start")){
+		    			System.out.println("UWUW: "+stmt);
+		    		}
+		    	}
+		    }
+		}
+	}
 	
 	public void extractDynamicTexts(){
 		startingTime = System.currentTimeMillis();
@@ -354,7 +377,8 @@ public class ParameterSearch {
 		    					texts = ((StringConstant) arg).value;
 		    				}
 		    				else if(arg instanceof Local){
-		    					texts = ToolSet.findLastResStringAssignment(stmt, (Local)arg, cfg, new HashSet<Stmt>());
+//		    					texts = ToolSet.findLastResStringAssignment(stmt, (Local)arg, cfg, new HashSet<Stmt>());
+		    					texts = extractArgTextsHelper(stmt, (Local)arg);
 		    				}
 		    				//texts = ie.getArg(0).toString();
 		    				System.out.println("WWWW2:"+texts);
@@ -387,6 +411,166 @@ public class ParameterSearch {
 		
 	}
 	
+	public void extractURLAddress(){
+		NUDisplay.debug("start extracting url's addresses", "extractURLAddress");
+		//GraphTool.displayAllMethodGraph();
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			SootMethod m = rdr.next().method();
+			if(!m.hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+			GlobalData gData = GlobalData.getInstance();
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt stmt = (Stmt)u;
+		    	if(!stmt.containsInvokeExpr())
+		    		continue;
+		    	if(isInternetSinkStmt(stmt)){
+		    		NUDisplay.debug("Found one sink:"+stmt +" @"+m.getName(), null);
+		    		GraphTool.displayGraph(g, m);
+		    		InvokeExpr ie = stmt.getInvokeExpr();
+		    		if(ie.getMethod().getName().equals("<init>")){
+		    			handleURLInitMethod(stmt);
+		    		}
+		    	}
+		    }
+		}
+	}
+	private void handleURLInitMethod(Stmt stmt){
+		if(!stmt.containsInvokeExpr())
+			return ;
+		InvokeExpr ie = stmt.getInvokeExpr();
+		SootMethod sm = ie.getMethod();
+		if(!sm.getName().equals("<init>")) return ;
+		GlobalData gData = GlobalData.getInstance();
+		/* URL(String spec) Creates a URL object from the String representation.
+		 * URL(String protocol, String host, int port, String file)
+		 *	Creates a URL object from the specified protocol, host, port number, and file.
+		 * URL(String protocol, String host, int port, String file, URLStreamHandler handler)
+		 * 	Creates a URL object from the specified protocol, host, port number, file, and handler.
+		 * URL(String protocol, String host, String file)
+		 *	Creates a URL from the specified protocol name, host name, and file name.
+		 * URL(URL context, String spec)
+		 *	Creates a URL by parsing the given spec within a specified context.
+		 * URL(URL context, String spec, URLStreamHandler handler)
+		 *	Creates a URL by parsing the given spec with the specified handler within a specified context.
+		 * 
+		 * */
+		//System.out.println("Type2222:"+sm.getParameterType(0));
+		if(sm.getParameterCount()==1){ //URL(String spec)
+			Value v = ie.getArg(0);
+			String str = null;
+			if(v instanceof StringConstant)
+				str = ((StringConstant) v).value;
+			else	
+				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+			if(str != null) gData.addInternetSinkURL(stmt, str);
+			NUDisplay.debug("URL case1: "+str, null);
+		}
+		else if(sm.getParameterCount()==2){ //URL(URL context, String spec)
+			Value v = ie.getArg(1);
+			String str = null;
+			if(v instanceof StringConstant)
+				str = ((StringConstant) v).value;
+			else	
+				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+			if(str != null) gData.addInternetSinkURL(stmt, str);
+			NUDisplay.debug("URL case2: "+str, null);
+		}
+		else if(sm.getParameterCount()==3 && sm.getParameterType(0).getEscapedName().equals("java.lang.String")){ 
+			//URL(String protocol, String host, String file)
+			
+			StringBuilder sb = new StringBuilder();
+			for(int i=0; i<sm.getParameterCount(); i++){
+				Value v = ie.getArg(i);
+				String str = null;
+				if(v instanceof StringConstant)
+					str = ((StringConstant) v).value;
+				else	
+					str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+				switch(i){
+				case 0:
+					sb.append(str==null? "*://" : str+"://");
+					break;
+				case 1:
+					sb.append(str==null? "*/" : str+"/");
+					break;
+				case 2:
+					sb.append(str==null? "*" : str);
+					break;
+				}
+				NUDisplay.debug("URL case3: "+i+" || "+str, null);
+			}
+			gData.addInternetSinkURL(stmt, sb.toString());
+		}
+		else if(sm.getParameterCount()==3){
+			// URL(URL context, String spec, URLStreamHandler handler)
+			Value v = ie.getArg(1);
+			String str = null;
+			if(v instanceof StringConstant)
+				str = ((StringConstant) v).value;
+			else	
+				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+			if(str != null) gData.addInternetSinkURL(stmt, str);
+			NUDisplay.debug("URL case4: "+str, null);
+		}
+		else if(sm.getParameterCount() == 4){
+			//URL(String protocol, String host, int port, String file)
+			StringBuilder sb = new StringBuilder();
+			for(int i=0; i<sm.getParameterCount(); i++){
+				if(i==2) continue;
+				Value v = ie.getArg(i);
+				String str = null;
+				if(v instanceof StringConstant)
+					str = ((StringConstant) v).value;
+				else	
+					str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+				switch(i){
+				case 0:
+					sb.append(str==null? "*://" : str+"://");
+					break;
+				case 1:
+					sb.append(str==null? "*/" : str+"/");
+					break;
+				case 3:
+					sb.append(str==null? "*" : str);
+					break;
+				}
+				NUDisplay.debug("URL case5: "+i+" || "+str, null);
+			}
+			gData.addInternetSinkURL(stmt, sb.toString());
+		}
+	}
+	
+	private String extractArgTextsHelper(Stmt stmt, Local arg){
+		ToolSet.setCFGStartingTime();
+		return ToolSet.findLastResStringAssignment(stmt, arg, cfg, new HashSet<Stmt>());
+	}
+	
+	private boolean isInternetSinkStmt(Stmt s){
+		if(!s.containsInvokeExpr())
+			return false;
+		InvokeExpr ie = s.getInvokeExpr();
+		String clsName = null;
+		SootMethod sm = null;
+		try{
+			sm = ie.getMethod();
+			clsName = sm.getDeclaringClass().getName();
+		}
+		catch(Exception e){
+			NUDisplay.error(e.toString(),"isInternetSinkStmt");
+		}
+		if(sm==null || clsName==null)
+			return false;
+		if(clsName.equals("org.apache.http.impl.client.DefaultHttpClient") && sm.getName().equals("execute"))
+			return true;
+		else if(clsName.equals("org.apache.http.client.HttpClient") && sm.getName().equals("execute"))
+			return true;
+		else if(clsName.equals("java.net.URL") && sm.getName().equals("<init>"))
+			return true;
+		return false;
+	}
 //	private void findViewDefStmt(Stmt stmt, Value target, List<NUAccessPath> bases,
 //			BiDiInterproceduralCFG<Unit, SootMethod> cfg, Set<Stmt> visited, Set<Stmt> rs){
 //		long timeDiffSeconds = (System.currentTimeMillis() - startingTime)/1000;

@@ -116,6 +116,8 @@ import soot.util.queue.QueueReader;
 
 public class Test {
 	final static boolean INTERCOMPONENTANALYSIS = false;
+	final static boolean TESTING = true;
+	
 	private static final class MyResultsAvailableHandler implements
 			ResultsAvailableHandler {
 		private final BufferedWriter wr;
@@ -547,8 +549,14 @@ public class Test {
 				initializeSootConfigAndClassPath(fullFilePath, androidJarPath);
 				//extract key values from program.
 				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null);
+//				if(TESTING){
+//					NUDisplay.alert("In debugging mode, exit early", "main");
+//					
+//					return ;
+//				}
 				//start taint analysis
-				runNUDataFlowAnalysis(fullFilePath, androidJarPath);					
+				runNUDataFlowAnalysis(fullFilePath, androidJarPath);	
+				//GraphTool.displayAllMethodGraph();
 				repeatCount--;
 			}
 			
@@ -589,6 +597,11 @@ public class Test {
 		NUDisplay.info("Start information leakage analysis.", null);
 		FlowPathSet fps = runAnalysis(fullFilePath, androidJar);
 		
+		NUDisplay.info("Done information leakage analysis. Found "+fps.getLst().size()+" flows", null);
+		if(fps.getLst().size() == 0){
+			NUDisplay.info("Not found any information leakage flows.", null);
+			return ;
+		}
 		//second round data flow analysis to correlate flows and views.
 		NUDisplay.info("Start View-Flow correlation analysis.", null);
 		soot.G.reset();
