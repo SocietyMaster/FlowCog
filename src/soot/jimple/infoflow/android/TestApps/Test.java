@@ -549,13 +549,13 @@ public class Test {
 				//extract key values from program.
 				runAnalysisForConstantPropogation(fullFilePath, androidJarPath, null);
 				if(TESTING){
+					//GraphTool.displayAllMethodGraph();
 					NUDisplay.alert("In debugging mode, exit early", "main");
-					
 					return ;
 				}
 				//start taint analysis
 				runNUDataFlowAnalysis(fullFilePath, androidJarPath);	
-				//GraphTool.displayAllMethodGraph();
+				
 				repeatCount--;
 			}
 			
