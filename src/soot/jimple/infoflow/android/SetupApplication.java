@@ -1058,6 +1058,7 @@ public class SetupApplication {
 		gData.setICFG(info.getICFG());
 		ToolSet.setICFG(info.getICFG());
 		
+		
 		InfoflowResults rs = info.getResults();
 		if(fps == null){
 			FlowPathSet fpsLocal = new FlowPathSet();
