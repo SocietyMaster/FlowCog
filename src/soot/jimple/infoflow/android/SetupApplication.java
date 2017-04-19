@@ -1113,8 +1113,8 @@ public class SetupApplication {
 		Set<Stmt> rs = ps.findViewByIdParamSearch();
 		ps.setContentViewSearch();
 		ps.debugFunctionCall();
-		ps.extractDynamicTexts();
 		ps.extractURLAddress();
+		//ps.extractDynamicTexts();
 
 		soot.G.reset();
 		return rs;

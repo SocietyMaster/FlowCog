@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 import nu.NUDisplay;
 
@@ -28,6 +29,7 @@ import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.Constant;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
@@ -43,6 +45,7 @@ import soot.jimple.ParameterRef;
 import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.StaticFieldRef;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
@@ -337,8 +340,14 @@ public class ParameterSearch {
 		final String SET_TEXT_API = "setText";
 		final String SET_TITLE_API = "setTitle";
 		ResourceManager resMgr = ResourceManager.getInstance();
+		long startingTime = System.currentTimeMillis();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			long now = System.currentTimeMillis();
+			if((now-startingTime)/1000 > 600){
+				NUDisplay.debug("spent more than 10 mins in extractDyanmicTexts, quit", "extractDynamicTexts");
+				return ;
+			}
 			SootMethod m = rdr.next().method();
 			if(!m.hasActiveBody())
 				continue;
@@ -368,7 +377,7 @@ public class ParameterSearch {
 		    				
 		    				if(id != null)
 		    					texts = resMgr.getStringById(id);
-		    				System.out.println("WWWW1: "+id+" "+texts);
+		    				NUDisplay.debug("extract texts1: "+id+" "+texts,"extractDynamicTexts");
 		    			}
 		    			else if(t.getEscapedName().equals("java.lang.CharSequence") ||
 		    					t.getEscapedName().equals("java.lang.String")){//String
@@ -376,16 +385,14 @@ public class ParameterSearch {
 		    				if(arg instanceof StringConstant){
 		    					texts = ((StringConstant) arg).value;
 		    				}
-		    				else if(arg instanceof Local){
-//		    					texts = ToolSet.findLastResStringAssignment(stmt, (Local)arg, cfg, new HashSet<Stmt>());
-		    					texts = extractArgTextsHelper(stmt, (Local)arg);
-		    				}
-		    				//texts = ie.getArg(0).toString();
-		    				System.out.println("WWWW2:"+texts);
+		    				else if(arg instanceof Local)
+		    					texts = extractArgTextsHelper(stmt, arg);
+		    				
+		    				NUDisplay.debug("extract texts2: "+texts,"extractDynamicTexts");
 		    			}
 		    		}//get texts
 		    		else{
-		    			System.out.println("cannot resolve string");
+		    			NUDisplay.debug("cannot resolve string","extractDynamicTexts");
 		    			continue;
 		    		}
 		    		
@@ -393,6 +400,7 @@ public class ParameterSearch {
 		    		Set<Stmt> rs = new HashSet<Stmt>();
 		    		NUDisplay.debug("DEBUGTEST: target: "+stmt +"@"+cfg.getMethodOf(stmt), null);
 		    		long time1 = System.currentTimeMillis();
+		    		ToolSet.setCFGStartingTime();
 		    		ToolSet.findViewDefStmt(stmt, iie.getBase(), new ArrayList<NUAccessPath>(),
 		    				cfg, new HashSet<Stmt>(), rs);
 		    		long diff = (System.currentTimeMillis()-time1)/1000;
@@ -403,8 +411,6 @@ public class ParameterSearch {
 		    			gData.addTextToDyanmicView(r, texts, cfg);
 		    		}
 		    		NUDisplay.debug("", null);
-		    		
-		    		
 		    	}
 		    }
 		}
@@ -413,7 +419,7 @@ public class ParameterSearch {
 	
 	public void extractURLAddress(){
 		NUDisplay.debug("start extracting url's addresses", "extractURLAddress");
-		GraphTool.displayAllMethodGraph();
+		//GraphTool.displayAllMethodGraph();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -433,9 +439,147 @@ public class ParameterSearch {
 		    		if(ie.getMethod().getName().equals("<init>")){
 		    			handleURLInitMethod(stmt);
 		    		}
+		    		else if(ie.getMethod().getName().equals("execute") &&
+		    				ie.getMethod().getDeclaringClass().getName().equals("org.apache.http.client.HttpClient")){
+		    			Value arg = null;
+		    			try{
+		    				arg = stmt.getInvokeExpr().getArg(0);
+		    			}
+		    			catch(Exception e){
+		    				NUDisplay.error("failed to extract execute arg:"+stmt, "extractURLAddress");
+		    				continue ;
+		    			}
+		    			hanldeHttpClientExecuteMethod(stmt, arg, HttpClientExecuteArgPhase.FIND_HTTPHOST, 
+		    					new HashSet<Stmt>(),new HashSet<Stmt>());
+		    		}
+		    		NUDisplay.debug("", null);
 		    	}
 		    }
 		}
+	}
+	enum HttpClientExecuteArgPhase {
+		FIND_HTTPHOST,
+		FIND_HTTPHOST_INIT,
+		FIND_HTTPHOST_INIT_ARG
+	}
+	
+	private void hanldeHttpClientExecuteMethod(Stmt stmt, Value target, HttpClientExecuteArgPhase phase,
+			Set<Stmt> visitedFirstPhase, Set<Stmt> visitedSecondPhase){
+		NUDisplay.debug("hanldeHttpClientExecuteMethod:"+stmt, "hanldeHttpClientExecuteMethod");
+		Set<Stmt> visited = phase == HttpClientExecuteArgPhase.FIND_HTTPHOST ? 
+				visitedFirstPhase : visitedSecondPhase;
+		Queue<Stmt> queue = new LinkedList<Stmt>();
+		queue.add(stmt);
+		while(!queue.isEmpty()){
+			stmt = queue.poll();
+			if(visited.contains(stmt))
+				continue;
+			visited.add(stmt);
+			//i.e., AssignStmt and IdentityStmt
+			//only considers DefinitionStmt in the first phase.
+			if(stmt instanceof DefinitionStmt && phase==HttpClientExecuteArgPhase.FIND_HTTPHOST){ 
+				Value left = ((DefinitionStmt) stmt).getLeftOp();
+				if(left == target){
+					Value right = ((DefinitionStmt) stmt).getRightOp();
+					if(right instanceof Local)
+						target = right;
+					else if(right instanceof FieldRef){
+						target = right;
+						//TODO: search the whole program.
+					}
+					else if(right instanceof ParameterRef){
+						ParameterRef param = (ParameterRef)(((IdentityStmt) stmt).getRightOp());
+						int index = param.getIndex();
+						Collection<Unit> callers = cfg.getCallersOf(cfg.getMethodOf(stmt));
+						if(callers != null && callers.size()>0){
+							for(Unit caller : callers){
+								if(visited.contains(caller)) continue;
+								InvokeExpr ie = ((Stmt)caller).getInvokeExpr();
+								if(index >= ie.getArgCount()) continue;
+								Value newArg = ie.getArg(index);
+								if(newArg instanceof Local)
+									hanldeHttpClientExecuteMethod((Stmt)caller, newArg, phase,
+											new HashSet<Stmt>(visitedFirstPhase), new HashSet<Stmt>(visitedSecondPhase) );
+								else if (newArg instanceof Constant)
+									NUDisplay.alert("Shouldn't be constant2: "+newArg, "hanldeHttpClientExecuteMethod");
+								else if(newArg instanceof FieldRef){
+									hanldeHttpClientExecuteMethod((Stmt)caller, newArg, phase,
+											new HashSet<Stmt>(visitedFirstPhase), new HashSet<Stmt>(visitedSecondPhase) );
+									//TODO: search the whole program
+								}
+							}
+						}
+						continue;
+					}
+					else if(right instanceof InvokeExpr){
+						InvokeExpr ie = (InvokeExpr)right;
+						if(ie.getArgCount() > 0)
+							NUDisplay.error("cannot handle InstanceInvokeExpr with args:"+stmt, "hanldeHttpClientExecuteMethod");
+						
+						if(!ie.getMethod().hasActiveBody()){
+							NUDisplay.error("method:"+ie.getMethod()+" doesn't have body", "hanldeHttpClientExecuteMethod");
+							continue;
+						}
+						UnitGraph g = new ExceptionalUnitGraph(ie.getMethod().getActiveBody());
+						GraphTool.displayGraph(g, ie.getMethod());
+						List<Unit> tails = g.getTails();
+						for(Unit t : tails){
+							if(t instanceof ReturnStmt){
+								ReturnStmt returnStmt = (ReturnStmt)t;
+								if(visited.contains(returnStmt)) continue;
+								hanldeHttpClientExecuteMethod(returnStmt, returnStmt.getOp(), phase, 
+										new HashSet<Stmt>(visitedFirstPhase), new HashSet<Stmt>(visitedSecondPhase) );
+							}
+						}
+						continue;
+					}
+					else if(right instanceof Constant){
+						NUDisplay.alert("Found val:"+right.toString(), "hanldeHttpClientExecuteMethod");
+						NUDisplay.alert("Constant cannot be here", "hanldeHttpClientExecuteMethod");
+						
+						continue;
+					}
+					phase = HttpClientExecuteArgPhase.FIND_HTTPHOST_INIT;
+					visited.clear();
+					queue.clear();
+					NUDisplay.debug("Switch to FIND_HTTPHOST_INIT phase: "+target+" "+stmt, "hanldeHttpClientExecuteMethod");
+				}//arg def
+			}
+			else if(stmt instanceof InvokeStmt && phase==HttpClientExecuteArgPhase.FIND_HTTPHOST_INIT){
+				InvokeStmt is = (InvokeStmt)stmt;
+				InvokeExpr ie = (InvokeExpr)is.getInvokeExpr();
+				if(ie instanceof InstanceInvokeExpr){
+					Value base = ((InstanceInvokeExpr) ie).getBase();
+					SootMethod sm = cfg.getMethodOf(is);
+					if(ie.getMethod().getName().equals("<init>") && base == target){
+						NUDisplay.debug("Switch to FIND_HTTPHOST_INIT_ARG phase:"+stmt+"@"+sm.getSignature(), 
+								"hanldeHttpClientExecuteMethod");
+						target = ie.getArg(0);
+						phase = HttpClientExecuteArgPhase.FIND_HTTPHOST_INIT_ARG;
+						if(sm.hasActiveBody())
+							GraphTool.displayGraph(new ExceptionalUnitGraph(sm.getActiveBody()), ie.getMethod());
+						
+						String str = ToolSet.findLastResStringAssignmentSingle(stmt, target, cfg, new HashSet<Stmt>());
+						NUDisplay.debug("Found URL string execute: "+str, "hanldeHttpClientExecuteMethod");
+						continue;
+					}
+				}
+			}
+			
+			//predecessor or successor
+			if(!cfg.getMethodOf(stmt).hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(cfg.getMethodOf(stmt).getActiveBody());
+			if(phase==HttpClientExecuteArgPhase.FIND_HTTPHOST_INIT){
+				for(Unit u : g.getSuccsOf(stmt))
+					queue.add((Stmt)u);
+			}
+			else {
+				for(Unit u : g.getPredsOf(stmt))
+					queue.add((Stmt)u);
+			}
+		}
+		
 	}
 	private void handleURLInitMethod(Stmt stmt){
 		if(!stmt.containsInvokeExpr())
@@ -464,9 +608,9 @@ public class ParameterSearch {
 			if(v instanceof StringConstant)
 				str = ((StringConstant) v).value;
 			else	
-				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+				str = ToolSet.findLastResStringAssignmentSingle(stmt, v, cfg, new HashSet<Stmt>());
 			if(str != null) gData.addInternetSinkURL(stmt, str);
-			NUDisplay.debug("URL case1: "+str, null);
+			NUDisplay.debug("Found URL string URL case1: "+str, null);
 		}
 		else if(sm.getParameterCount()==2){ //URL(URL context, String spec)
 			Value v = ie.getArg(1);
@@ -474,9 +618,9 @@ public class ParameterSearch {
 			if(v instanceof StringConstant)
 				str = ((StringConstant) v).value;
 			else	
-				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+				str = ToolSet.findLastResStringAssignmentSingle(stmt, v, cfg, new HashSet<Stmt>());
 			if(str != null) gData.addInternetSinkURL(stmt, str);
-			NUDisplay.debug("URL case2: "+str, null);
+			NUDisplay.debug("Found URL string URL case2: "+str, null);
 		}
 		else if(sm.getParameterCount()==3 && sm.getParameterType(0).getEscapedName().equals("java.lang.String")){ 
 			//URL(String protocol, String host, String file)
@@ -488,7 +632,7 @@ public class ParameterSearch {
 				if(v instanceof StringConstant)
 					str = ((StringConstant) v).value;
 				else	
-					str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+					str = ToolSet.findLastResStringAssignmentSingle(stmt, v, cfg, new HashSet<Stmt>());
 				switch(i){
 				case 0:
 					sb.append(str==null? "*://" : str+"://");
@@ -500,7 +644,7 @@ public class ParameterSearch {
 					sb.append(str==null? "*" : str);
 					break;
 				}
-				NUDisplay.debug("URL case3: "+i+" || "+str, null);
+				NUDisplay.debug("Found URL string URL case3: "+i+" || "+str, null);
 			}
 			gData.addInternetSinkURL(stmt, sb.toString());
 		}
@@ -511,9 +655,9 @@ public class ParameterSearch {
 			if(v instanceof StringConstant)
 				str = ((StringConstant) v).value;
 			else	
-				str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+				str = ToolSet.findLastResStringAssignmentSingle(stmt, v, cfg, new HashSet<Stmt>());
 			if(str != null) gData.addInternetSinkURL(stmt, str);
-			NUDisplay.debug("URL case4: "+str, null);
+			NUDisplay.debug("Found URL string URL case4: "+str, null);
 		}
 		else if(sm.getParameterCount() == 4){
 			//URL(String protocol, String host, int port, String file)
@@ -525,7 +669,7 @@ public class ParameterSearch {
 				if(v instanceof StringConstant)
 					str = ((StringConstant) v).value;
 				else	
-					str = ToolSet.findLastResStringAssignment(stmt, v, cfg, new HashSet<Stmt>());
+					str = ToolSet.findLastResStringAssignmentSingle(stmt, v, cfg, new HashSet<Stmt>());
 				switch(i){
 				case 0:
 					sb.append(str==null? "*://" : str+"://");
@@ -537,15 +681,15 @@ public class ParameterSearch {
 					sb.append(str==null? "*" : str);
 					break;
 				}
-				NUDisplay.debug("URL case5: "+i+" || "+str, null);
+				NUDisplay.debug("Found URL string URL case5: "+i+" || "+str, null);
 			}
 			gData.addInternetSinkURL(stmt, sb.toString());
 		}
 	}
 	
-	private String extractArgTextsHelper(Stmt stmt, Local arg){
+	private String extractArgTextsHelper(Stmt stmt, Value arg){
 		ToolSet.setCFGStartingTime();
-		return ToolSet.findLastResStringAssignment(stmt, arg, cfg, new HashSet<Stmt>());
+		return ToolSet.findLastResStringAssignmentSingle(stmt, arg, cfg, new HashSet<Stmt>());
 	}
 	
 	private boolean isInternetSinkStmt(Stmt s){

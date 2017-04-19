@@ -257,9 +257,9 @@
 <android.content.SharedPreferences: java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String)>> -> _SOURCE_
 
 %DEBUGGING
-<android.os.Handler: android.os.Message obtainMessage()> -> _SOURCE_
-<android.os.Handler: android.os.Message obtainMessage(int,int,int)> -> _SOURCE_
-<android.os.Handler: android.os.Message obtainMessage(int,int,int,java.lang.Object)> -> _SOURCE_
-<android.os.Handler: android.os.Message obtainMessage(int)> -> _SOURCE_
-<android.os.Handler: android.os.Message obtainMessage(int,java.lang.Object)> -> _SOURCE_
-<android.os.Handler: boolean sendMessage(android.os.Message)> -> _SINK_
+%<android.os.Handler: android.os.Message obtainMessage()> -> _SOURCE_
+%<android.os.Handler: android.os.Message obtainMessage(int,int,int)> -> _SOURCE_
+%<android.os.Handler: android.os.Message obtainMessage(int,int,int,java.lang.Object)> -> _SOURCE_
+%<android.os.Handler: android.os.Message obtainMessage(int)> -> _SOURCE_
+%<android.os.Handler: android.os.Message obtainMessage(int,java.lang.Object)> -> _SOURCE_
+%<android.os.Handler: boolean sendMessage(android.os.Message)> -> _SINK_

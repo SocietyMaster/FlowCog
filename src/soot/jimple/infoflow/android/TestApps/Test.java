@@ -116,7 +116,7 @@ import soot.util.queue.QueueReader;
 
 public class Test {
 	final static boolean INTERCOMPONENTANALYSIS = false;
-	final static boolean TESTING = true;
+	final static boolean TESTING = false;
 	
 	private static final class MyResultsAvailableHandler implements
 			ResultsAvailableHandler {
@@ -551,6 +551,8 @@ public class Test {
 				if(TESTING){
 					//GraphTool.displayAllMethodGraph();
 					NUDisplay.alert("In debugging mode, exit early", "main");
+
+					NUDisplay.alert("dynamic view is disabled for now", "main");
 					return ;
 				}
 				//start taint analysis
