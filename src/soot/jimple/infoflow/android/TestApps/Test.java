@@ -618,14 +618,31 @@ public class Test {
 	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
 			System.out.println("NULIST: Display Flow Index");
 			GlobalData gData = GlobalData.getInstance();
+			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
 			for(int i=0; i<fps.getLst().size(); i++){
 				System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
+				System.out.println("NULIST:[BEGIN RELATED CLASS WITH LAYOUT]");
+				for(String clsName : fps.getLst().get(i).getAllRelatedClassSet()){
+					Integer layoutID = gData.getLayoutID(clsName);
+					Set<Integer> layoutIDs = cls2LayoutIds.get(clsName);
+					if(layoutID == null && (layoutIDs==null || layoutIDs.size()==0))
+						continue;
+					//TODO:
+					
+					NUDisplay.debug("NULIST: TODO "+clsName+" ->"+layoutID, null);
+//					Set<String> strs = resMgr.getStringsInCode(clsName);
+//					StringBuilder sb = new StringBuilder();
+//					for(String str : strs)
+//						sb.append(str.trim()+",");
+//					System.out.println("NULIST:  "+clsName+":"+sb.toString());
+				}
+				System.out.println("NULIST:[END RELATED CLASS WITH LAYOUT]");
 				System.out.println("  DEBUG:"+fps.getLst().get(i).toString());
 			}
 			System.out.println("NULIST: Done Display Flow Index");
 			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
 			
-			System.out.println("NULIST: Display Flow View Info");
+			System.out.println("NULIST: Display Flow View Info:"+map.keySet().size());
 			//first go through the views with VIEWs found.
 			for(Integer flowId : map.keySet()){
 				Set<Integer> set = map.get(flowId);
@@ -646,6 +663,8 @@ public class Test {
 						texts = gData.getDynamicTextsFromViewID(viewId);
 					
 					System.out.println("NULIST:[TEXT]:"+texts);
+					System.out.println("NULIST:");
+					
 					System.out.println("NULIST:[END]");
 				}
 			}
@@ -662,12 +681,14 @@ public class Test {
 					
 					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => dynamic view ("+
 						type+") ["+fps.getLst().get(flowId).getTag()+"]");
+					
 					System.out.println("NULIST:[END]");
 				}
 			}
+			
 			//then go through the views triggered by life cycle events (e.g., onCreate)
 			//display the layout information.
-			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
+//			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
 			for(int i=0; i<fps.getLst().size(); i++){
 				//only display those flows without associated views
 				if(!map.containsKey(i)){
@@ -693,6 +714,11 @@ public class Test {
 				}
 			}
 			System.out.println("NULIST: Done Displaying Flow View Info");
+			System.out.println("NULIST:[STRING BEGIN] Display the App's String Values.");
+			Set<String> strs = resMgr.getAllStrings(false);
+			for(String str : strs)
+				System.out.println("NULIST:  "+str.trim());
+			System.out.println("NULIST:[STRING END] Done Display String Values.");
 	}
 
 	/**

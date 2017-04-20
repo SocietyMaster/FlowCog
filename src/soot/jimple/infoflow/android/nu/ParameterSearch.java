@@ -156,10 +156,26 @@ public class ParameterSearch {
 		    	InvokeExpr ie = s.getInvokeExpr();
 		    	if(ie.getMethod().getName().equals(SET_CONTENT_VIEW)){
 		    		Value v = ie.getArg(0);
-		    		if(v instanceof Constant) continue;
+		    		if(v instanceof Constant){
+		    			try{
+		    				int id = Integer.valueOf(v.toString());
+		    				GlobalData global = GlobalData.getInstance();
+			    			global.addLayoutID(s, cfg, id);
+			    			solvedCnt++;
+		    			}
+		    			catch(Exception e){}
+		    			continue;
+		    		}
+		    		String clsName = m.getDeclaringClass().getName(); 
+		    		if(clsName.startsWith("com.google.android") && 
+		    				clsName.contains("internal")){
+		    			NUDisplay.debug("Ignore ocm.google.android setContentView:"+clsName, null);
+		    			continue;
+		    		}
 		    		s.addTag(new StmtPosTag(cnt, m));
 		    		rs.add(s);
 		    		//v2
+		    		
 		    		Integer id = ToolSet.findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), SET_CONTENT_VIEW);
 		    		if(id == null) unsolvedCnt++;
 		    		else{

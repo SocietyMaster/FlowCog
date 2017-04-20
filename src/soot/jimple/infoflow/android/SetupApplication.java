@@ -1115,7 +1115,14 @@ public class SetupApplication {
 		ps.debugFunctionCall();
 		ps.extractURLAddress();
 		//ps.extractDynamicTexts();
-
+		//GraphTool.displayAllMethodGraph();
+		ResourceManager resMgr = ResourceManager.getInstance();
+		resMgr.extractStringsFromCodes();
+//		
+//		Set<String> strs = resMgr.getAllStrings(true);
+//		for(String str : strs)
+//			NUDisplay.debug("ExtractedStrs: "+str, null);
+//		
 		soot.G.reset();
 		return rs;
 	}

@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +20,24 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import nu.NUDisplay;
 import nu.NUSootConfig;
+import soot.MethodOrMethodContext;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.Unit;
+import soot.Value;
+import soot.jimple.AssignStmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
+import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.nu.IResourceManager;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
+import soot.util.queue.QueueReader;
 
 public class ResourceManager implements IResourceManager{
 	final static boolean debug = true;
@@ -46,6 +61,7 @@ public class ResourceManager implements IResourceManager{
 		private final Map<Integer, String> decompiledIDNameMap = new HashMap<Integer, String>();
 		private final Map<Integer, String> decompiledIDStringMap = new HashMap<Integer, String>();
 		private final Map<String, String> decompiledNameStringMap = new HashMap<String, String>();
+		private final Map<String, Set<String>> clsStringMap = new HashMap<String, Set<String>>();
 		private final String tmpDirPath;
 		private final String apkToolPath;
 		private final String apkFileLocation;
@@ -55,6 +71,7 @@ public class ResourceManager implements IResourceManager{
 			this.tmpDirPath = tmpDirPath;
 			this.apkFileLocation = apkFileLocation;
 			extractDataFromCompiledValueResources(this.apkFileLocation);
+			//getAllStrings();
 		}
 		
 		public Integer getResourceIDFromValueResourceFile(String key){
@@ -118,7 +135,6 @@ public class ResourceManager implements IResourceManager{
 				if(!f.exists() || !f.isDirectory())
 					decompileApk(filename, path);
 				f = new File(valuePath);
-				System.out.println("PATH22:"+path);
 				if(!f.exists() || !f.isDirectory()){
 					System.out.println("failed to compile apk file: "+filename);
 					return ;
@@ -153,9 +169,86 @@ public class ResourceManager implements IResourceManager{
 			}
 		}
 		
+		public void extractStringsFromCodes(){
+			try{
+				for (QueueReader<MethodOrMethodContext> rdr =
+						Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+					SootMethod m = rdr.next().method();
+					SootClass cls = m.getDeclaringClass();
+					if(!m.hasActiveBody())
+						continue;
+					if(m.isJavaLibraryMethod()){
+//						NUDisplay.info("JAVALIBRARYMETHOD:"+m.getSignature(), null);
+						continue;
+					}
+					if(cls.isJavaLibraryClass()){
+//						NUDisplay.info("LIBRARYCLASS:"+m.getSignature(), null);
+						continue;
+					}
+					
+					Set<String> strs = extractMethodStrings(m);
+					if(clsStringMap.containsKey(cls.getName()))
+						clsStringMap.get(cls.getName()).addAll(strs);
+					else
+						clsStringMap.put(cls.getName(), strs);
+					
+				}
+				
+			}
+			catch(Exception e){
+				NUDisplay.error("can only getAllString in global mode."+e.toString(), "getAllStrings");
+			}
+		}
+		
+		public Set<String> getAllStrings(boolean enableMethodStrings){
+			Set<String> resFiles = new HashSet<String>();
+			if(decompiledNameStringMap != null)
+				resFiles.addAll(decompiledNameStringMap.values());
+			if(decompiledIDStringMap != null)
+				resFiles.addAll(decompiledIDStringMap.values());
+			
+			if(enableMethodStrings){
+				for(String cls : clsStringMap.keySet())
+					resFiles.addAll(clsStringMap.get(cls));
+			}
+			return resFiles;
+		}
+		
+		private Set<String> extractMethodStrings(SootMethod sm){
+			Set<String> strings = new HashSet<String>();
+			if(!sm.hasActiveBody())
+				return strings;
+			for(Unit unit : sm.getActiveBody().getUnits()){
+				Stmt stmt = (Stmt)unit;
+				if(stmt instanceof AssignStmt){
+					Value right = ((AssignStmt) stmt).getRightOp();
+					if(right instanceof StringConstant)
+						strings.add(((StringConstant) right).value);
+					else if(right instanceof InvokeExpr){
+						InvokeExpr ie = (InvokeExpr)right;
+						for(Value arg : ie.getArgs()){
+							if(arg instanceof StringConstant)
+								strings.add(((StringConstant) arg).value);
+						}
+					}
+				}
+				else if (stmt instanceof InvokeStmt){
+					InvokeExpr ie = stmt.getInvokeExpr();
+					for(Value arg : ie.getArgs()){
+						if(arg instanceof StringConstant)
+							strings.add(((StringConstant) arg).value);
+					}
+				}
+			}
+			return strings;
+		}
+		
+		public Set<String> getStringsInCode(String clsName){
+			return clsStringMap.get(clsName);
+		}
+		
 		private DefaultHandler getValueResouceHandler(){
 			DefaultHandler handler = new DefaultHandler() {
-				String qNameField = "";
 				String nameField = "";
 				Integer idField = -1;
 				public void startElement(String uri, String localName,String qName,
@@ -182,7 +275,7 @@ public class ResourceManager implements IResourceManager{
 						decompiledValuesNameIDMap.put(name, idInt);
 						decompiledIDNameMap.put(idInt, name);
 					}
-					qNameField = qName;
+					String qNameField = qName;
 					nameField = name;
 				}
 
@@ -194,6 +287,11 @@ public class ResourceManager implements IResourceManager{
 						
 						String str = new String(ch, start, length);
 						str = str.trim();
+						if(str.length()>0 && str.startsWith("@")){
+							NUDisplay.debug("ignore @ str:"+str+" id/name"+":"+nameField+"|"+idField, null);
+							str = "";
+						}
+						
 						if(str.length()>0 && idField!=-1){
 							decompiledIDStringMap.put(idField, str);
 							idField = -1;
@@ -202,6 +300,7 @@ public class ResourceManager implements IResourceManager{
 							decompiledNameStringMap.put(nameField, str);
 							nameField = null;
 						}
+						
 					}
 					catch(Exception e){
 						System.out.println("Error in parsing values."+e);
@@ -230,6 +329,16 @@ public class ResourceManager implements IResourceManager{
 		init(nuConfig.getFullAPKFilePath(), this.appPackageName, nuConfig.getApkToolPath(), 
 				nuConfig.getDecompiledAPKOutputPath());
 	}
+	
+	public Set<String> getAllStrings(boolean enableMethodStrings){
+		return valResParser.getAllStrings(enableMethodStrings);
+	}
+	public void extractStringsFromCodes(){
+		valResParser.extractStringsFromCodes();
+	}
+	public Set<String> getStringsInCode(String clsName){
+		return valResParser.getStringsInCode(clsName);
+	} 
 	
 	public int resourcePakcageSize(){
 		if(resourcePackages == null) return -1;
