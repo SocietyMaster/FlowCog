@@ -1114,6 +1114,7 @@ public class SetupApplication {
 		ps.setContentViewSearch();
 		ps.debugFunctionCall();
 		ps.extractURLAddress();
+		ps.extractDynamicTextsFast();
 		//ps.extractDynamicTexts();
 		//GraphTool.displayAllMethodGraph();
 		ResourceManager resMgr = ResourceManager.getInstance();

@@ -186,11 +186,11 @@ public class ResourceManager implements IResourceManager{
 						continue;
 					}
 					
-					Set<String> strs = extractMethodStrings(m);
-					if(clsStringMap.containsKey(cls.getName()))
-						clsStringMap.get(cls.getName()).addAll(strs);
-					else
-						clsStringMap.put(cls.getName(), strs);
+//					Set<String> strs = extractMethodStrings(m);
+//					if(clsStringMap.containsKey(cls.getName()))
+//						clsStringMap.get(cls.getName()).addAll(strs);
+//					else
+//						clsStringMap.put(cls.getName(), strs);
 					
 				}
 				

@@ -18,6 +18,7 @@ import soot.Local;
 import soot.MethodOrMethodContext;
 import soot.PrimType;
 import soot.Scene;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
@@ -360,7 +361,7 @@ public class ParameterSearch {
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			long now = System.currentTimeMillis();
-			if((now-startingTime)/1000 > 600){
+			if((now-startingTime)/1000 > 300){
 				NUDisplay.debug("spent more than 10 mins in extractDyanmicTexts, quit", "extractDynamicTexts");
 				return ;
 			}
@@ -430,6 +431,88 @@ public class ParameterSearch {
 		    	}
 		    }
 		}
+		
+	}
+	
+	public void extractDynamicTextsFast(){
+		startingTime = System.currentTimeMillis();
+		final String SET_TEXT_API = "setText";
+		final String SET_TITLE_API = "setTitle";
+		ResourceManager resMgr = ResourceManager.getInstance();
+		long startingTime = System.currentTimeMillis();
+		GlobalData gData = GlobalData.getInstance();
+		for (QueueReader<MethodOrMethodContext> rdr =
+				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
+			long now = System.currentTimeMillis();
+			if((now-startingTime)/1000 > 300){
+				NUDisplay.debug("spent more than 10 mins in extractDyanmicTextsFast, quit", "extractDynamicTextsFast");
+				return ;
+			}
+			SootMethod m = rdr.next().method();
+			SootClass cls = m.getDeclaringClass();
+			if(!m.hasActiveBody())
+				continue;
+			UnitGraph g = new ExceptionalUnitGraph(m.getActiveBody());
+		    Orderer<Unit> orderer = new PseudoTopologicalOrderer<Unit>();
+		    for (Unit u : orderer.newList(g, false)) {
+		    	Stmt stmt = (Stmt)u;
+		    	if(!stmt.containsInvokeExpr())
+		    		continue;
+		    	InvokeExpr ie = stmt.getInvokeExpr();
+		    	if(ie.getMethod().getName().equals(SET_TEXT_API) ||
+		    			ie.getMethod().getName().equals(SET_TITLE_API)){
+		    		if(! (ie instanceof InstanceInvokeExpr) ) continue;
+		    		String texts = null;
+		    		NUDisplay.debug("TextsExtraction: "+stmt+"@"+m.getSignature(), null);
+		    		if(ie.getMethod().getParameterCount() >= 1){
+		    			Type t = ie.getMethod().getParameterType(0);
+		    			if(t.getEscapedName().equals("int")){
+		    				//int id = Integer.valueOf(ie.getArg(0).toString());
+		    				Integer id = null;
+		    				Value arg = ie.getArg(0);
+		    				if(arg instanceof IntConstant)
+		    					id = ((IntConstant)arg).value;
+		    				else if(arg instanceof Local)
+		    					id = ToolSet.findLastResIDAssignment(stmt, arg, cfg, new HashSet<Stmt>(), cfg.getMethodOf(stmt).getName());
+		    				
+		    				if(id != null)
+		    					texts = resMgr.getStringById(id);
+		    				NUDisplay.debug("extract texts1: "+id+" "+texts,"extractDynamicTexts");
+		    			}
+		    			else if(t.getEscapedName().equals("java.lang.CharSequence") ||
+		    					t.getEscapedName().equals("java.lang.String")){//String
+		    				Value arg = ie.getArg(0);
+		    				if(arg instanceof StringConstant)
+		    					texts = ((StringConstant) arg).value;
+		    				else if(arg instanceof Local)
+		    					texts = extractArgTextsHelper(stmt, arg);
+		    				
+		    				NUDisplay.debug("extract texts2: "+texts,"extractDynamicTexts");
+		    			}
+		    		}//get texts
+		    		else{
+		    			NUDisplay.debug("cannot resolve string","extractDynamicTexts");
+		    			continue;
+		    		}
+		    		
+		    		if(texts != null){
+		    			NUDisplay.debug("ExtractedDynamicTexts:"+texts, null);
+		    			gData.addStringToCls(cls.getName(), texts);
+		    		}
+		    		else{
+		    			NUDisplay.debug("Cannot resolve string:"+stmt+"@"+m.getSignature(), null);
+		    		}
+		    		
+		    		NUDisplay.debug("", null);
+		    	}
+		    }
+		}
+		
+//		for(String clsName : gData.getClsNameWithStrings()){
+//			NUDisplay.debug("CLASS STRS:"+clsName+" ",null);
+//			for(String vals : gData.getClsStrings(clsName))
+//				NUDisplay.debug("  "+vals, null);
+//		}
 		
 	}
 	
