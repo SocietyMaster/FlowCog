@@ -115,7 +115,7 @@ import soot.util.queue.QueueReader;
 
 
 public class Test {
-	final static boolean INTERCOMPONENTANALYSIS = false;
+	final static boolean INTERCOMPONENTANALYSIS = true;
 	final static boolean TESTING = false;
 	
 	private static final class MyResultsAvailableHandler implements
@@ -498,7 +498,8 @@ public class Test {
 			});
 			for (String s : dirFiles)
 				apkFiles.add(s);
-		} else {
+		} 
+		else {
 			//apk is a file so grab the extension
 			String extension = apkFile.getName().substring(apkFile.getName().lastIndexOf("."));
 			if (extension.equalsIgnoreCase(".txt")) {
@@ -678,9 +679,9 @@ public class Test {
 				}
 			}
 			
-			System.out.println("NULIST: Display Flow View Info (Dynamic)");
-			//if dynamic texts are disabled, the following will not produce texts.
 			Map<Integer, Set<Stmt>> mapStmt = fps.getViewStmtFlowMap();
+			System.out.println("NULIST: Display Flow View Info (Dynamic):"+mapStmt.size());
+			//if dynamic texts are disabled, the following will not produce texts.
 			for(Integer flowId : mapStmt.keySet()){
 				Set<Stmt> set = mapStmt.get(flowId);
 				for(Stmt stmt : set){
@@ -701,6 +702,7 @@ public class Test {
 				}
 			}
 			
+			System.out.println("NULIST: Display Flow without Views:");
 			for(int i=0; i<fps.getLst().size(); i++){
 				//only display those flows without associated views
 				if(!map.containsKey(i)){
