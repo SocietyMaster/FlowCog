@@ -56,6 +56,7 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 import soot.jimple.infoflow.android.resources.ARSCFileParser.AbstractResource;
 import soot.jimple.infoflow.android.source.AndroidSourceSinkManager.SourceType;
+import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.nu.NUAccessPath;
@@ -141,6 +142,7 @@ public class ParameterSearch {
 		Set<Stmt> rs = new HashSet<Stmt>();
 		int solvedCnt = 0;
 		int unsolvedCnt = 0;
+		GlobalData global = GlobalData.getInstance();
 		for (QueueReader<MethodOrMethodContext> rdr =
 				Scene.v().getReachableMethods().listener(); rdr.hasNext(); ) {
 			SootMethod m = rdr.next().method();
@@ -160,7 +162,6 @@ public class ParameterSearch {
 		    		if(v instanceof Constant){
 		    			try{
 		    				int id = Integer.valueOf(v.toString());
-		    				GlobalData global = GlobalData.getInstance();
 			    			global.addLayoutID(s, cfg, id);
 			    			solvedCnt++;
 		    			}
@@ -178,10 +179,12 @@ public class ParameterSearch {
 		    		//v2
 		    		
 		    		Integer id = ToolSet.findLastResIDAssignment(s, v, cfg, new HashSet<Stmt>(), SET_CONTENT_VIEW);
-		    		if(id == null) unsolvedCnt++;
+		    		if(id == null){ 
+		    			unsolvedCnt++;
+		    			global.addClassWithUnsolvedLayout(FlowPathSet.getStmtSignatureForDynamicCombination(s));
+		    		}
 		    		else{
 		    			solvedCnt++;
-		    			GlobalData global = GlobalData.getInstance();
 		    			global.addLayoutID(s, cfg, id);
 		    		}
 		    	}

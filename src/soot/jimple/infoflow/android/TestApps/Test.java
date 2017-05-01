@@ -635,13 +635,16 @@ public class Test {
 				System.out.println("NULIST: Flow:"+i+" "+fps.getLst().get(i).getTag());	
 				for(String clsName : fps.getLst().get(i).getAllRelatedClassSet()){
 					Set<Integer> layoutIDs = cls2LayoutIds.get(clsName);
-					if(layoutIDs==null || layoutIDs.size()==0)
+					if(layoutIDs==null || layoutIDs.size()==0){
+						//Gan: new added output
+						if(gData.getClassWtihUnsolvedLayoutSet().contains(clsName))
+							System.out.println("NULIST:[CLASS-WITH-UNSOLVED-LAYOUT] "+clsName);
 						continue;
-					NUDisplay.debug("NULIST:[CLASS] "+clsName, null);
+					}
+					System.out.println("NULIST:[CLASS] "+clsName);
 					for(Integer layoutId : layoutIDs){
 						LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
-						NUDisplay.debug("NULIST:  [LAYOUT-TEXT] "+layout.allTexts, null);	
-						
+						System.out.println("NULIST:[LAYOUT-TEXT] "+layout.allTexts);	
 					}
 					Set<String> titles = gData.getClsStrings(clsName);
 					StringBuilder sb = new StringBuilder();
@@ -702,6 +705,15 @@ public class Test {
 				}
 			}
 			
+			//Gan: new added block.
+			System.out.println("NULIST: Display Unsolved Flow View Info");
+			Map<String, Integer> unsovledViewFlowMap = gData.getUnsolvedViewStmtFlowIdMap();
+			for(String viewStmt : unsovledViewFlowMap.keySet()){
+				Integer flowId = unsovledViewFlowMap.get(viewStmt);
+				System.out.println("NULIST:[UNSOLVED-FLOW-VIEW] Flow:"+flowId+" => "+viewStmt);
+			}
+			
+			
 			System.out.println("NULIST: Display Flow without Views:");
 			for(int i=0; i<fps.getLst().size(); i++){
 				//only display those flows without associated views
@@ -733,6 +745,9 @@ public class Test {
 			for(String str : strs)
 				System.out.println("NULIST:  "+str.trim());
 			System.out.println("NULIST:[STRING END] Done Display String Values.");
+			
+			//Gan: new added output
+			resMgr.displayIDTextPair();
 	}
 
 	/**

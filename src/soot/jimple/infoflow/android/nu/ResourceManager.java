@@ -376,6 +376,15 @@ public class ResourceManager implements IResourceManager{
 	}
 	
 	/***Extract texts based on ID ***/
+	public void displayIDTextPair(){
+		System.out.println("NULIST: ID-Text Pair");
+		System.out.println("NULIST:[BEGIN]");
+		for(Integer id : id2Node.keySet()){
+			System.out.println("NULIST: "+id+" => "+id2Node.get(id).allTexts);
+		}
+		System.out.println("NULIST:[END]");
+	}
+	
 	public String getTextsById(int id){
 		LayoutTextTreeNode node = id2Node.get(id);
 		if(node == null)

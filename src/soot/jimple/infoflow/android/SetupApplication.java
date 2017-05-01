@@ -1116,7 +1116,7 @@ public class SetupApplication {
 		ps.extractURLAddress();
 		ps.extractDynamicTextsFast();
 		//ps.extractDynamicTexts();
-		//GraphTool.displayAllMethodGraph();
+		GraphTool.displayAllMethodGraph();
 		ResourceManager resMgr = ResourceManager.getInstance();
 		resMgr.extractStringsFromCodes();
 //		
