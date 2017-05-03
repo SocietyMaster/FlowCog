@@ -96,6 +96,7 @@ import soot.jimple.infoflow.nu.FlowPathSet;
 import soot.jimple.infoflow.nu.GlobalData;
 import soot.jimple.infoflow.nu.GraphTool;
 import soot.jimple.infoflow.nu.ToolSet;
+import soot.jimple.infoflow.nu.URLHostExtractor;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
@@ -571,6 +572,7 @@ public class Test {
 	
 	//Added by XIANG
 	static private void initializeSootConfigAndClassPath(String fileName, String androidJar){
+		
 		SetupApplication app;
 		if (null == ipcManager)  app = new SetupApplication(androidJar, fileName);
 		else app = new SetupApplication(androidJar, fileName, ipcManager);
@@ -620,134 +622,161 @@ public class Test {
 	
 	//Added by XIANG
 	public static void displayFlowViewInfo(FlowPathSet fps, ResourceManager resMgr){
-			System.out.println("NULIST: Display Flow Index");
-			GlobalData gData = GlobalData.getInstance();
-			Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
-			for(int i=0; i<fps.getLst().size(); i++){
-				System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
-				System.out.println("  DEBUG:"+fps.getLst().get(i).toString());
-			}
-			System.out.println("NULIST: Done Display Flow Index\n");
-			Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
-			
-			System.out.println("NULIST:[BEGIN RELATED CLASS WITH LAYOUT]");
-			for(int i=0; i<fps.getLst().size(); i++){
-				System.out.println("NULIST: Flow:"+i+" "+fps.getLst().get(i).getTag());	
-				for(String clsName : fps.getLst().get(i).getAllRelatedClassSet()){
-					Set<Integer> layoutIDs = cls2LayoutIds.get(clsName);
-					if(layoutIDs==null || layoutIDs.size()==0){
-						//Gan: new added output
-						if(gData.getClassWtihUnsolvedLayoutSet().contains(clsName))
-							System.out.println("NULIST:[CLASS-WITH-UNSOLVED-LAYOUT] "+clsName);
-						continue;
-					}
-					System.out.println("NULIST:[CLASS] "+clsName);
-					for(Integer layoutId : layoutIDs){
-						LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
-						System.out.println("NULIST:[LAYOUT-TEXT] "+layout.allTexts);	
-					}
-					Set<String> titles = gData.getClsStrings(clsName);
-					StringBuilder sb = new StringBuilder();
-					if(titles != null)
-						for(String title : titles)
-							sb.append(title.trim()+" || ");
-					if(sb.toString().length() > 0)
-						NUDisplay.debug("NULIST:  [DYNAMIC-TEXT] "+sb.toString(), null);
+		URLHostExtractor extractor = new URLHostExtractor();
+		extractor.installTLDs("tlds.txt");
+		System.out.println("NULIST: Display Flow Index");
+		GlobalData gData = GlobalData.getInstance();
+		Map<String, Set<Integer>> cls2LayoutIds = fps.getActivityLayoutMap();
+		for(int i=0; i<fps.getLst().size(); i++){
+			System.out.println("NULIST: Flow:"+i+"  => SRC:"+fps.getLst().get(i).getSource().toString()+" SINK:"+fps.getLst().get(i).getSink().toString());
+			System.out.println("  DEBUG:"+fps.getLst().get(i).toString());
+			Stmt sink = fps.getLst().get(i).getSink().getSink();
+			if(ToolSet.isInternetSinkStmt(sink)){
+				if(gData.getInternetSinkURL(sink, fps.getLst().get(i).sinkMethod)==null){
+					String sig = gData.getUnsolvedUrlSinkOriginalStmt(sink, fps.getLst().get(i).sinkMethod);
+					System.out.println("NULIST: UnsolvedURL:"+sig);
+					
 				}
-				System.out.println("NULIST: Done Flow:"+i+" \n");	
-			}
-			System.out.println("NULIST:[END RELATED CLASS WITH LAYOUT]");
-			
-			System.out.println("NULIST: Display Flow View Info (Static):"+map.keySet().size());
-			for(Integer flowId : map.keySet()){
-				Set<Integer> set = map.get(flowId);
-				for(Integer viewId : set){
-					LayoutTextTreeNode node = resMgr.getNodeById(viewId);
-					String type = "unknown";
-					if(node != null)  type = node.nodeType;
-					if(node == null){
-						type = gData.getDynamicViewType(viewId);
-						if(type==null) type = "unknown";
-					}
-					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
-						type+") ["+fps.getLst().get(flowId).getTag()+"]");
-							
-					String texts = resMgr.getTextsById(viewId);
-					if(texts == null)
-						texts = gData.getDynamicTextsFromViewID(viewId);
-					
-					System.out.println("NULIST:[TEXT]:"+texts);
-					
-					System.out.println("NULIST:[END]\n");
-				}
-			}
-			
-			Map<Integer, Set<Stmt>> mapStmt = fps.getViewStmtFlowMap();
-			System.out.println("NULIST: Display Flow View Info (Dynamic):"+mapStmt.size());
-			//if dynamic texts are disabled, the following will not produce texts.
-			for(Integer flowId : mapStmt.keySet()){
-				Set<Stmt> set = mapStmt.get(flowId);
-				for(Stmt stmt : set){
-					DefinitionStmt ds = (DefinitionStmt)stmt;
-					String[] tmp = ds.getRightOp().getType().getEscapedName().split("\\.");
-					if(tmp==null || tmp.length==0) continue;
-					String type = tmp[tmp.length-1];
-					Integer viewId = gData.getDynamicViewID(stmt, null);
-					String texts = null;
-					if(viewId !=null) texts = gData.getDynamicTextsFromViewID(viewId);
-					System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => dynamic view ("+
-						type+") ["+fps.getLst().get(flowId).getTag()+"]");
-					
-					if(texts != null)
-						System.out.println("NULIST:[TEXT]:"+texts);
-					
-					System.out.println("NULIST:[END]");
-				}
-			}
-			
-			//Gan: new added block.
-			System.out.println("NULIST: Display Unsolved Flow View Info");
-			Map<String, Integer> unsovledViewFlowMap = gData.getUnsolvedViewStmtFlowIdMap();
-			for(String viewStmt : unsovledViewFlowMap.keySet()){
-				Integer flowId = unsovledViewFlowMap.get(viewStmt);
-				System.out.println("NULIST:[UNSOLVED-FLOW-VIEW] Flow:"+flowId+" => "+viewStmt);
-			}
-			
-			
-			System.out.println("NULIST: Display Flow without Views:");
-			for(int i=0; i<fps.getLst().size(); i++){
-				//only display those flows without associated views
-				if(!map.containsKey(i)){
-					FlowPath fp = fps.getLst().get(i);
-					Set<String> declaringCls = fp.getDeclaringClassSet();
-					System.out.println("NULIST:[BEGIN] Flow:"+i+" => noview ["+fps.getLst().get(i).getTag()+"] "+declaringCls.size());
-					for(String cls : declaringCls){
-						Set<Integer> layouts = cls2LayoutIds.get(cls);
-						System.out.println("NULIST:    Class:"+cls+" layouts:"+layouts);
-						if(layouts == null) continue;
-						for(Integer layoutId : layouts){
-							//LayoutTextTreeNode node = id2Node.get(layoutId);
-							LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
-							if(layout == null){
-								System.out.println("NULIST:  cannot find this layout "+layoutId);
-								continue;
-							}
-							//System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
-							System.out.println("NULIST:[TEXT]:"+layout.extractTexts("||"));
+				else{
+					Set<String> vals = gData.getInternetSinkURL(sink, fps.getLst().get(i).sinkMethod);
+					int cnt = 0;
+					for(String val : vals){
+						Set<String> hosts = extractor.processURL(val);
+						for(String host : hosts){
+							System.out.println("NULIST: [URLHOST] "+host);
+							cnt++;
 						}
 					}
-					System.out.println("NULIST:[END]");
+					if(cnt == 0){
+						String sig = gData.getUnsolvedUrlSinkOriginalStmt(sink, fps.getLst().get(i).sinkMethod);
+						System.out.println("NULIST: UnsolvedURL:"+sig);
+					}
 				}
+				
 			}
-			System.out.println("NULIST: Done Displaying Flow View Info");
-			System.out.println("NULIST:[STRING BEGIN] Display the App's String Values.");
-			Set<String> strs = resMgr.getAllStrings(false);
-			for(String str : strs)
-				System.out.println("NULIST:  "+str.trim());
-			System.out.println("NULIST:[STRING END] Done Display String Values.");
-			
-			//Gan: new added output
-			resMgr.displayIDTextPair();
+			System.out.println("");
+		}
+		System.out.println("NULIST: Done Display Flow Index\n");
+		Map<Integer, Set<Integer>> map = fps.getViewFlowMap();
+		
+		System.out.println("NULIST:[BEGIN RELATED CLASS WITH LAYOUT]");
+		for(int i=0; i<fps.getLst().size(); i++){
+			System.out.println("NULIST: Flow:"+i+" "+fps.getLst().get(i).getTag());	
+			for(String clsName : fps.getLst().get(i).getAllRelatedClassSet()){
+				Set<Integer> layoutIDs = cls2LayoutIds.get(clsName);
+				if(layoutIDs==null || layoutIDs.size()==0){
+					//Gan: new added output
+					if(gData.getClassWtihUnsolvedLayoutSet().contains(clsName))
+						System.out.println("NULIST:[CLASS-WITH-UNSOLVED-LAYOUT] "+clsName);
+					continue;
+				}
+				System.out.println("NULIST:[CLASS] "+clsName);
+				for(Integer layoutId : layoutIDs){
+					LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
+					System.out.println("NULIST:[LAYOUT-TEXT] "+layout.allTexts);	
+				}
+				Set<String> titles = gData.getClsStrings(clsName);
+				StringBuilder sb = new StringBuilder();
+				if(titles != null)
+					for(String title : titles)
+						sb.append(title.trim()+" || ");
+				if(sb.toString().length() > 0)
+					System.out.println("NULIST:  [DYNAMIC-TEXT] "+sb.toString());
+			}
+			System.out.println("NULIST: Done Flow:"+i+" \n");	
+		}
+		System.out.println("NULIST:[END RELATED CLASS WITH LAYOUT]");
+		
+		System.out.println("NULIST: Display Flow View Info (Static):"+map.keySet().size());
+		for(Integer flowId : map.keySet()){
+			Set<Integer> set = map.get(flowId);
+			for(Integer viewId : set){
+				LayoutTextTreeNode node = resMgr.getNodeById(viewId);
+				String type = "unknown";
+				if(node != null)  type = node.nodeType;
+				if(node == null){
+					type = gData.getDynamicViewType(viewId);
+					if(type==null) type = "unknown";
+				}
+				System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => "+viewId+" ("+
+					type+") ["+fps.getLst().get(flowId).getTag()+"]");
+						
+				String texts = resMgr.getTextsById(viewId);
+				if(texts == null)
+					texts = gData.getDynamicTextsFromViewID(viewId);
+				
+				System.out.println("NULIST:[TEXT]:"+texts);
+				
+				System.out.println("NULIST:[END]\n");
+			}
+		}
+		
+		Map<Integer, Set<Stmt>> mapStmt = fps.getViewStmtFlowMap();
+		System.out.println("NULIST: Display Flow View Info (Dynamic):"+mapStmt.size());
+		//if dynamic texts are disabled, the following will not produce texts.
+		for(Integer flowId : mapStmt.keySet()){
+			Set<Stmt> set = mapStmt.get(flowId);
+			for(Stmt stmt : set){
+				DefinitionStmt ds = (DefinitionStmt)stmt;
+				String[] tmp = ds.getRightOp().getType().getEscapedName().split("\\.");
+				if(tmp==null || tmp.length==0) continue;
+				String type = tmp[tmp.length-1];
+				Integer viewId = gData.getDynamicViewID(stmt, null);
+				String texts = null;
+				if(viewId !=null) texts = gData.getDynamicTextsFromViewID(viewId);
+				System.out.println("NULIST:[BEGIN] Flow:"+flowId+" => dynamic view ("+
+					type+") ["+fps.getLst().get(flowId).getTag()+"]");
+				
+				if(texts != null)
+					System.out.println("NULIST:[TEXT]:"+texts);
+				
+				System.out.println("NULIST:[END]");
+			}
+		}
+		
+		//Gan: new added output.
+		System.out.println("NULIST: Display Unsolved Flow View Info");
+		Map<String, Integer> unsovledViewFlowMap = gData.getUnsolvedViewStmtFlowIdMap();
+		for(String viewStmt : unsovledViewFlowMap.keySet()){
+			Integer flowId = unsovledViewFlowMap.get(viewStmt);
+			System.out.println("NULIST:[UNSOLVED-FLOW-VIEW] Flow:"+flowId+" => "+viewStmt);
+		}
+		
+		
+		System.out.println("NULIST: Display Flow without Views:");
+		for(int i=0; i<fps.getLst().size(); i++){
+			//only display those flows without associated views
+			if(!map.containsKey(i)){
+				FlowPath fp = fps.getLst().get(i);
+				Set<String> declaringCls = fp.getDeclaringClassSet();
+				System.out.println("NULIST:[BEGIN] Flow:"+i+" => noview ["+fps.getLst().get(i).getTag()+"] "+declaringCls.size());
+				for(String cls : declaringCls){
+					Set<Integer> layouts = cls2LayoutIds.get(cls);
+					System.out.println("NULIST:    Class:"+cls+" layouts:"+layouts);
+					if(layouts == null) continue;
+					for(Integer layoutId : layouts){
+						//LayoutTextTreeNode node = id2Node.get(layoutId);
+						LayoutTextTreeNode layout  = resMgr.getLayoutById(layoutId);
+						if(layout == null){
+							System.out.println("NULIST:  cannot find this layout "+layoutId);
+							continue;
+						}
+						//System.out.println("NULIST:    Layout:\n"+layout.toStringTree(3, "NULIST:"));
+						System.out.println("NULIST:[TEXT]:"+layout.extractTexts("||"));
+					}
+				}
+				System.out.println("NULIST:[END]");
+			}
+		}
+		System.out.println("NULIST: Done Displaying Flow View Info");
+		System.out.println("NULIST:[STRING BEGIN] Display the App's String Values.");
+		Set<String> strs = resMgr.getAllStrings(false);
+		for(String str : strs)
+			System.out.println("NULIST:  "+str.trim());
+		System.out.println("NULIST:[STRING END] Done Display String Values.");
+		
+		//Gan: new added output
+		resMgr.displayIDTextPair();
 	}
 
 	/**
